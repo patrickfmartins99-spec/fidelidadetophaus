@@ -26,7 +26,7 @@
     <!-- ÁREA DO SISTEMA NA TELA (Invisível na impressão) -->
     <div class="no-print">
         
-        <!-- BLOCO 1: TOPO / HEADER -->
+        <!-- BLOCO 1: TOPO / HEADER (COM A ENGRENAGEM VISÍVEL AQUI) -->
         <header class="bg-slate-900 text-white shadow-md py-4 px-6 mb-8">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
@@ -36,6 +36,11 @@
                 <div class="flex gap-4">
                     <button onclick="alternarAba('caixa')" class="aba-btn active bg-slate-800 border border-slate-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition"><i data-lucide="calculator" class="w-4 h-4"></i> Caixa</button>
                     <button onclick="alternarAba('admin')" class="aba-btn bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition"><i data-lucide="shield" class="w-4 h-4"></i> Administrativo</button>
+                    
+                    <!-- ENGRENAGEM NO TOPO -->
+                    <button onclick="abrirModalSecreto()" title="Configurações e Reset" class="ml-2 p-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-lg text-slate-300 transition cursor-pointer flex items-center justify-center">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                    </button>
                 </div>
             </div>
         </header>
@@ -62,7 +67,7 @@
                     </button>
                 </div>
 
-                <!-- Formulário de Cadastro -->
+                <!-- Formulário de Cadastro (AJUSTADO PARA TECLADO RÁPIDO) -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -77,17 +82,18 @@
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Completo</label>
                             <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
                         </div>
+                        <!-- CAMPO DE DATA MODIFICADO PARA TEXTO -->
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Data de Nascimento</label>
-                            <input type="date" id="cad-nascimento" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Data de Nascimento (DD/MM/AAAA)</label>
+                            <input type="text" id="cad-nascimento" required placeholder="Ex: 15/05/1990" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Telefone / WhatsApp</label>
                             <input type="text" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
                         </div>
                         <div class="sm:col-span-2 mt-2">
-                            <button type="submit" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
-                                <i data-lucide="save" class="w-5 h-5"></i> Registrar Cliente
+                            <button type="submit" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                                <i data-lucide="save" class="w-5 h-5"></i> Registrar Cliente (Enter)
                             </button>
                         </div>
                     </form>
@@ -146,17 +152,9 @@
                     </div>
                 </div>
             </section>
-            
-            <!-- Botão Secreto de Reset no Rodapé -->
-            <div class="mt-8 flex justify-center pb-8">
-                <!-- A cor foi mudada para text-slate-300 para ficar visível mas discreta -->
-                <button onclick="abrirModalSecreto()" title="Configurações e Reset" class="text-slate-300 hover:text-slate-600 transition p-3 cursor-pointer">
-                    <i data-lucide="settings" class="w-5 h-5"></i>
-                </button>
-            </div>
         </main>
 
-        <!-- === MODAIS (POP-UPS) === -->
+        <!-- === MODAIS (POP-UPS) COMPLETOS === -->
         
         <!-- Modal Padrão: Confirmar 1 Almoço -->
         <div id="modal-confirmacao" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -260,7 +258,6 @@
         </div>
     </div>
 
-
     <!-- === ENGINE JAVASCRIPT & FIREBASE CLOUD === -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -291,7 +288,6 @@
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             
-            // Fica escutando o banco (com aviso de erro caso esteja bloqueado)
             onValue(ref(db, 'clientes'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -305,7 +301,7 @@
                 filtrarLista(filtroAtual);
             }, (error) => {
                 console.error(error);
-                alert("🔴 ERRO DE LEITURA: O banco de dados do Firebase está bloqueado. Siga as instruções para liberar as 'Regras' no Firebase.");
+                alert("🔴 ERRO DE LEITURA: O banco de dados do Firebase está bloqueado. Verifique as 'Regras' no painel.");
             });
 
             onValue(ref(db, 'config/senhaReset'), (snapshot) => {
@@ -313,7 +309,7 @@
             });
         });
 
-        // 2. REGRAS DE NEGÓCIO E CADASTRO (COM TRATAMENTO DE ERRO)
+        // 2. REGRAS DE NEGÓCIO E CADASTRO
         window.cadastrarCliente = (event) => {
             event.preventDefault();
             const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
@@ -326,10 +322,18 @@
                 return;
             }
 
+            // Convertendo a data de formato BR (DD/MM/AAAA) para formato de banco de dados se necessário, 
+            // mas podemos salvar como o usuário digitou.
+            let nascimentoConvertido = nascimento;
+            if(nascimento.includes('/')) {
+                const partes = nascimento.split('/');
+                if(partes.length === 3) nascimentoConvertido = `${partes[2]}-${partes[1]}-${partes[0]}`; // YYYY-MM-DD para facilitar buscas por mês
+            }
+
             const novoCliente = {
                 cpf: cpf,
                 nome: nome,
-                nascimento: nascimento,
+                nascimento: nascimentoConvertido, 
                 telefone: telefone,
                 almocos: 0,
                 premiosResgatados: 0,
@@ -337,14 +341,15 @@
                 historicoResgates: []
             };
 
-            // Tenta salvar no Firebase. Se der sucesso, avisa. Se o Firebase bloquear, avisa o erro.
             set(ref(db, 'clientes/' + novoCliente.cpf), novoCliente)
                 .then(() => {
                     document.getElementById('form-cadastro').reset();
                     alert(`Cliente ${nome} cadastrado com sucesso!`);
+                    // Volta o cursor para o campo de CPF da busca para agilizar
+                    document.getElementById('busca-cpf').focus();
                 })
                 .catch((error) => {
-                    alert("🔴 ERRO: O Firebase bloqueou o cadastro. Você esqueceu de alterar as Regras (Rules) para 'true' lá no painel do Firebase.");
+                    alert("🔴 ERRO: O Firebase bloqueou o cadastro. Verifique as Regras de leitura e gravação no Firebase.");
                     console.error(error);
                 });
         };
@@ -355,7 +360,7 @@
             if (!cpfBusca) return alert('Informe o CPF para buscar.');
 
             const cliente = clientesMap[cpfBusca];
-            if (!cliente) return alert('Cliente não encontrado! Realize o Cadastro ao lado (Ou verifique se o Firebase está conectado).');
+            if (!cliente) return alert('Cliente não encontrado! Realize o Cadastro ao lado.');
 
             if (cliente.almocos >= 10) {
                 document.getElementById('modal-trava').classList.remove('hidden');
@@ -389,7 +394,7 @@
             
             set(ref(db, 'clientes/' + cliente.cpf), cliente)
                 .then(() => gerarWhatsApp(cliente))
-                .catch(() => alert("🔴 ERRO: O banco está bloqueado. Não foi possível salvar."));
+                .catch(() => alert("🔴 ERRO: Não foi possível salvar no banco de dados."));
         }
 
         function efetuarResgateEImprimir(cliente) {
@@ -411,7 +416,7 @@
                     document.getElementById('busca-cpf').value = ''; 
                     dispararImpressaoBobina(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
                 })
-                .catch(() => alert("🔴 ERRO: O banco está bloqueado. Não foi possível salvar o resgate."));
+                .catch(() => alert("🔴 ERRO: Não foi possível salvar o resgate."));
         }
 
         window.dispararImpressaoBobina = (nome, cpf, arrayDatas, dataHoraTop) => {
@@ -464,7 +469,14 @@
                 listaFiltrada = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).sort((a,b) => b.premiosResgatados - a.premiosResgatados);
             } else if (tipo === 'aniversarios') {
                 textoFiltro.innerText = 'Exibindo: Aniversariantes do Mês';
-                listaFiltrada = clientesArray.filter(c => c.nascimento && (new Date(c.nascimento + 'T00:00:00').getMonth() === mesAtual));
+                listaFiltrada = clientesArray.filter(c => {
+                    if(!c.nascimento) return false;
+                    // Lida com datas no formato YYYY-MM-DD
+                    if(c.nascimento.includes('-')) return new Date(c.nascimento + 'T00:00:00').getMonth() === mesAtual;
+                    // Lida com datas no formato antigo DD/MM/AAAA
+                    if(c.nascimento.includes('/')) return parseInt(c.nascimento.split('/')[1]) - 1 === mesAtual;
+                    return false;
+                });
             }
             renderizarTabela(listaFiltrada);
         };
@@ -586,8 +598,17 @@
 
         window.fecharModal = (id) => document.getElementById(id).classList.add('hidden');
         
+        // --- MÁSCARAS E FORMATAÇÃO (AGORA COM A DATA RÁPIDA) ---
         window.mascaraCPF = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
         window.mascaraTelefone = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
+        
+        window.mascaraData = (i) => {
+            let v = i.value.replace(/\D/g, "");
+            v = v.replace(/(\d{2})(\d)/, "$1/$2");
+            v = v.replace(/(\d{2})(\d)/, "$1/$2");
+            i.value = v.substring(0, 10);
+        };
+
         function formatarCPF(cpf) { return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
         function formatarTel(tel) { return tel.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); }
     </script>
