@@ -4,16 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fidelidade Cloud | Top Haus</title>
-    <!-- Tailwind CSS para design -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons para os ícones -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        /* Regras exclusivas para Impressão da Bobina (80mm) sem estragar o sistema na tela */
-        @media screen {
-            .print-area { display: none !important; }
-        }
+        @media screen { .print-area { display: none !important; } }
         @media print {
             body { background: white !important; padding: 0; margin: 0; font-family: monospace; }
             .no-print { display: none !important; }
@@ -21,12 +16,13 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative">
 
-    <!-- ÁREA DO SISTEMA NA TELA (Invisível na impressão) -->
+    <!-- CONTAINER DE NOTIFICAÇÕES (TOASTS) -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
     <div class="no-print">
         
-        <!-- BLOCO 1: TOPO / HEADER (COM A ENGRENAGEM VISÍVEL AQUI) -->
         <header class="bg-slate-900 text-white shadow-md py-4 px-6 mb-8">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
@@ -36,8 +32,6 @@
                 <div class="flex gap-4">
                     <button onclick="alternarAba('caixa')" class="aba-btn active bg-slate-800 border border-slate-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition"><i data-lucide="calculator" class="w-4 h-4"></i> Caixa</button>
                     <button onclick="alternarAba('admin')" class="aba-btn bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition"><i data-lucide="shield" class="w-4 h-4"></i> Administrativo</button>
-                    
-                    <!-- ENGRENAGEM NO TOPO -->
                     <button onclick="abrirModalSecreto()" title="Configurações e Reset" class="ml-2 p-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-lg text-slate-300 transition cursor-pointer flex items-center justify-center">
                         <i data-lucide="settings" class="w-5 h-5"></i>
                     </button>
@@ -47,9 +41,7 @@
 
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
-            <!-- BLOCO 2: ABA DO CAIXA -->
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Lançamento de Almoço por CPF -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
@@ -67,7 +59,6 @@
                     </button>
                 </div>
 
-                <!-- Formulário de Cadastro (AJUSTADO PARA TECLADO RÁPIDO) -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -82,7 +73,6 @@
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Completo</label>
                             <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
                         </div>
-                        <!-- CAMPO DE DATA MODIFICADO PARA TEXTO -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Data de Nascimento (DD/MM/AAAA)</label>
                             <input type="text" id="cad-nascimento" required placeholder="Ex: 15/05/1990" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
@@ -100,9 +90,7 @@
                 </div>
             </section>
 
-            <!-- BLOCO 3: ABA ADMINISTRATIVA -->
             <section id="aba-admin" class="hidden space-y-6">
-                <!-- Indicadores -->
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:border-slate-900 transition">
                         <p class="text-xs font-semibold text-slate-400 uppercase">Total Clientes</p>
@@ -122,15 +110,18 @@
                     </div>
                 </div>
 
-                <!-- Tabela -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-slate-700">Painel de Clientes</h2>
+                            <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">Painel de Clientes</h2>
                             <p class="text-xs text-slate-400 mt-0.5" id="filtro-atual-texto">Exibindo: Todos os clientes (Sincronizado na Nuvem)</p>
                         </div>
-                        <div class="flex w-full sm:w-auto gap-2">
-                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm w-full sm:w-64">
+                        <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar cliente..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm w-full sm:w-64">
+                            <!-- NOVO BOTÃO DE EXPORTAR -->
+                            <button onclick="exportarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 transition text-sm shadow-sm">
+                                <i data-lucide="download" class="w-4 h-4"></i> Exportar Dados
+                            </button>
                         </div>
                     </div>
                     
@@ -154,9 +145,7 @@
             </section>
         </main>
 
-        <!-- === MODAIS (POP-UPS) COMPLETOS === -->
-        
-        <!-- Modal Padrão: Confirmar 1 Almoço -->
+        <!-- MODAIS MANTIDOS INTACTOS -->
         <div id="modal-confirmacao" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-slate-800 mb-2">Contabilizar Refeição</h3>
@@ -168,7 +157,6 @@
             </div>
         </div>
 
-        <!-- Modal TRAVA: Cliente já tem 10 almoços -->
         <div id="modal-trava" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-amber-500">
                 <div class="flex items-center gap-2 mb-2 text-amber-600">
@@ -184,7 +172,6 @@
             </div>
         </div>
 
-        <!-- Modal de Sucesso WhatsApp -->
         <div id="modal-sucesso" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl text-center">
                 <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -201,18 +188,14 @@
             </div>
         </div>
 
-        <!-- Modal Histórico de Resgates (Para Reimprimir) -->
         <div id="modal-historico" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl">
                 <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> Histórico de Prêmios</h3>
-                <div id="lista-historico" class="max-h-64 overflow-y-auto space-y-3 mb-6">
-                    <!-- Gerado via JS -->
-                </div>
+                <div id="lista-historico" class="max-h-64 overflow-y-auto space-y-3 mb-6"></div>
                 <button onclick="fecharModal('modal-historico')" class="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium">Fechar</button>
             </div>
         </div>
 
-        <!-- Modal Secreto (Senha & Reset) -->
         <div id="modal-secreto" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-rose-600 text-center">
                 <i data-lucide="shield-alert" class="w-8 h-8 text-rose-600 mx-auto mb-2"></i>
@@ -233,9 +216,9 @@
             </div>
         </div>
 
-    </div> <!-- FIM DA ÁREA DA TELA -->
+    </div>
 
-    <!-- === BLOCO DE IMPRESSÃO DA BOBINA (Só aparece na impressora) === -->
+    <!-- IMPRESSÃO BOBINA -->
     <div id="secao-impressao" class="print-area">
         <div style="text-align: center; border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 5px;">
             <p style="font-weight: bold; font-size: 13px; margin:0;">TOP HAUS RESTAURANTE</p>
@@ -248,9 +231,7 @@
         </div>
         <div style="margin-bottom: 5px;">
             <p style="font-weight: bold; margin:2px 0;">ALMOÇOS CONTABILIZADOS:</p>
-            <ol id="imp-lista-datas" style="padding-left: 15px; margin:0; font-size: 10px;">
-                <!-- Lista 10 datas exatas geradas via JS -->
-            </ol>
+            <ol id="imp-lista-datas" style="padding-left: 15px; margin:0; font-size: 10px;"></ol>
         </div>
         <div style="border-top: 1px dashed black; padding-top: 5px; text-align: center;">
             <p style="font-weight: bold; margin:0;">RESGATE LIBERADO</p>
@@ -258,7 +239,6 @@
         </div>
     </div>
 
-    <!-- === ENGINE JAVASCRIPT & FIREBASE CLOUD === -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
@@ -284,10 +264,51 @@
         const LINK_INSTAGRAM = "https://bit.ly/4vLB16n";
         const LINK_GOOGLE = "https://bit.ly/4vf4DrJ";
 
-        // 1. INICIALIZAÇÃO
+        // FUNÇÃO DE TOAST (Substitui os alerts)
+        window.mostrarToast = (msg, tipo = 'sucesso') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bg = tipo === 'sucesso' ? 'bg-emerald-600' : 'bg-rose-600';
+            const icone = tipo === 'sucesso' ? 'check-circle' : 'alert-circle';
+            
+            toast.className = `${bg} text-white px-5 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-x-full flex items-center gap-3 font-medium`;
+            toast.innerHTML = `<i data-lucide="${icone}" class="w-5 h-5"></i> <span>${msg}</span>`;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // FUNÇÃO DE EXPORTAR EXCEL/CSV
+        window.exportarExcel = () => {
+            if(clientesArray.length === 0) return mostrarToast("Nenhum dado para exportar", "erro");
+            
+            // \ufeff garante que os acentos (UTF-8) sejam lidos corretamente no Excel
+            let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almocos_Acumulados;Premios_Resgatados\n";
+            
+            clientesArray.forEach(c => {
+                csv += `${c.nome};${c.cpf};${c.nascimento || ''};${c.telefone};${c.almocos};${c.premiosResgatados || 0}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `TopHaus_Clientes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            mostrarToast("Download iniciado!", "sucesso");
+        };
+
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            
             onValue(ref(db, 'clientes'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -301,7 +322,7 @@
                 filtrarLista(filtroAtual);
             }, (error) => {
                 console.error(error);
-                alert("🔴 ERRO DE LEITURA: O banco de dados do Firebase está bloqueado. Verifique as 'Regras' no painel.");
+                mostrarToast("Erro de leitura no banco de dados.", "erro");
             });
 
             onValue(ref(db, 'config/senhaReset'), (snapshot) => {
@@ -309,7 +330,6 @@
             });
         });
 
-        // 2. REGRAS DE NEGÓCIO E CADASTRO
         window.cadastrarCliente = (event) => {
             event.preventDefault();
             const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
@@ -318,16 +338,14 @@
             const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
 
             if (clientesMap[cpf]) {
-                alert('Atenção: Já existe um cliente com este CPF!');
+                mostrarToast('Atenção: CPF já cadastrado!', 'erro');
                 return;
             }
 
-            // Convertendo a data de formato BR (DD/MM/AAAA) para formato de banco de dados se necessário, 
-            // mas podemos salvar como o usuário digitou.
             let nascimentoConvertido = nascimento;
             if(nascimento.includes('/')) {
                 const partes = nascimento.split('/');
-                if(partes.length === 3) nascimentoConvertido = `${partes[2]}-${partes[1]}-${partes[0]}`; // YYYY-MM-DD para facilitar buscas por mês
+                if(partes.length === 3) nascimentoConvertido = `${partes[2]}-${partes[1]}-${partes[0]}`; 
             }
 
             const novoCliente = {
@@ -344,32 +362,28 @@
             set(ref(db, 'clientes/' + novoCliente.cpf), novoCliente)
                 .then(() => {
                     document.getElementById('form-cadastro').reset();
-                    alert(`Cliente ${nome} cadastrado com sucesso!`);
-                    // Volta o cursor para o campo de CPF da busca para agilizar
+                    mostrarToast(`Cliente cadastrado com sucesso!`, 'sucesso');
                     document.getElementById('busca-cpf').focus();
                 })
                 .catch((error) => {
-                    alert("🔴 ERRO: O Firebase bloqueou o cadastro. Verifique as Regras de leitura e gravação no Firebase.");
+                    mostrarToast("ERRO: O Firebase bloqueou o cadastro.", "erro");
                     console.error(error);
                 });
         };
 
-        // 3. TRAVA INTELIGENTE E BUSCA
         window.buscarEContabilizar = () => {
             const cpfBusca = document.getElementById('busca-cpf').value.replace(/\D/g, '');
-            if (!cpfBusca) return alert('Informe o CPF para buscar.');
+            if (!cpfBusca) return mostrarToast('Informe o CPF para buscar.', 'erro');
 
             const cliente = clientesMap[cpfBusca];
-            if (!cliente) return alert('Cliente não encontrado! Realize o Cadastro ao lado.');
+            if (!cliente) return mostrarToast('Cliente não encontrado!', 'erro');
 
             if (cliente.almocos >= 10) {
                 document.getElementById('modal-trava').classList.remove('hidden');
-                
                 document.getElementById('btn-trava-resgatar').onclick = () => {
                     fecharModal('modal-trava');
                     efetuarResgateEImprimir(cliente);
                 };
-                
                 document.getElementById('btn-trava-acumular').onclick = () => {
                     fecharModal('modal-trava');
                     processarConfirmacao(cliente);
@@ -393,8 +407,11 @@
             cliente.historico.push(dataF);
             
             set(ref(db, 'clientes/' + cliente.cpf), cliente)
-                .then(() => gerarWhatsApp(cliente))
-                .catch(() => alert("🔴 ERRO: Não foi possível salvar no banco de dados."));
+                .then(() => {
+                    gerarWhatsApp(cliente);
+                    mostrarToast('Almoço contabilizado!', 'sucesso');
+                })
+                .catch(() => mostrarToast("ERRO ao salvar almoço.", "erro"));
         }
 
         function efetuarResgateEImprimir(cliente) {
@@ -414,9 +431,10 @@
             set(ref(db, 'clientes/' + cliente.cpf), cliente)
                 .then(() => {
                     document.getElementById('busca-cpf').value = ''; 
+                    mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
                     dispararImpressaoBobina(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
                 })
-                .catch(() => alert("🔴 ERRO: Não foi possível salvar o resgate."));
+                .catch(() => mostrarToast("ERRO ao salvar resgate.", "erro"));
         }
 
         window.dispararImpressaoBobina = (nome, cpf, arrayDatas, dataHoraTop) => {
@@ -431,11 +449,9 @@
                 li.innerText = `[+] ${dataRefeicao}`;
                 listaUl.appendChild(li);
             });
-
             window.print();
         };
 
-        // 4. WHATSAPP E MENSAGENS
         function gerarWhatsApp(cliente) {
             let texto = "";
             if(cliente.almocos >= 10) {
@@ -450,7 +466,6 @@
             document.getElementById('busca-cpf').value = '';
         }
 
-        // 5. PAINEL ADMIN: Filtros e Tabelas
         window.filtrarLista = (tipo) => {
             filtroAtual = tipo;
             const textoFiltro = document.getElementById('filtro-atual-texto');
@@ -471,9 +486,7 @@
                 textoFiltro.innerText = 'Exibindo: Aniversariantes do Mês';
                 listaFiltrada = clientesArray.filter(c => {
                     if(!c.nascimento) return false;
-                    // Lida com datas no formato YYYY-MM-DD
                     if(c.nascimento.includes('-')) return new Date(c.nascimento + 'T00:00:00').getMonth() === mesAtual;
-                    // Lida com datas no formato antigo DD/MM/AAAA
                     if(c.nascimento.includes('/')) return parseInt(c.nascimento.split('/')[1]) - 1 === mesAtual;
                     return false;
                 });
@@ -559,7 +572,6 @@
             }
         };
 
-        // --- ÁREA SECRETA ---
         window.abrirModalSecreto = () => {
             document.getElementById('input-senha').value = '';
             document.getElementById('area-opcoes-secretas').classList.add('hidden');
@@ -573,14 +585,14 @@
                 document.getElementById('area-senha-secreta').classList.add('hidden');
                 document.getElementById('area-opcoes-secretas').classList.remove('hidden');
             } else {
-                alert("Senha incorreta.");
+                mostrarToast("Senha incorreta.", "erro");
             }
         };
 
         window.resetarSistema = () => {
             if(confirm("ALERTA MÁXIMO! Isso vai apagar TODOS os clientes da nuvem permanentemente. Tem certeza absoluta?")) {
                 set(ref(db, 'clientes'), null).then(() => {
-                    alert("Banco de dados resetado com sucesso.");
+                    mostrarToast("Banco de dados resetado com sucesso.", "sucesso");
                     fecharModal('modal-secreto');
                 });
             }
@@ -590,7 +602,7 @@
             const nova = document.getElementById('nova-senha').value;
             if(nova.trim() !== '') {
                 set(ref(db, 'config/senhaReset'), nova).then(() => {
-                    alert("Senha alterada!");
+                    mostrarToast("Senha alterada!", "sucesso");
                     fecharModal('modal-secreto');
                 });
             }
@@ -598,10 +610,8 @@
 
         window.fecharModal = (id) => document.getElementById(id).classList.add('hidden');
         
-        // --- MÁSCARAS E FORMATAÇÃO (AGORA COM A DATA RÁPIDA) ---
         window.mascaraCPF = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
         window.mascaraTelefone = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
-        
         window.mascaraData = (i) => {
             let v = i.value.replace(/\D/g, "");
             v = v.replace(/(\d{2})(\d)/, "$1/$2");
