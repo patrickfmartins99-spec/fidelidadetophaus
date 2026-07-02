@@ -149,8 +149,9 @@
             
             <!-- Botão Secreto de Reset no Rodapé -->
             <div class="mt-8 flex justify-center pb-8">
-                <button onclick="abrirModalSecreto()" class="opacity-10 hover:opacity-50 transition p-2 cursor-pointer text-slate-500">
-                    <i data-lucide="settings" class="w-4 h-4"></i>
+                <!-- A cor foi mudada para text-slate-300 para ficar visível mas discreta -->
+                <button onclick="abrirModalSecreto()" title="Configurações e Reset" class="text-slate-300 hover:text-slate-600 transition p-3 cursor-pointer">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
                 </button>
             </div>
         </main>
@@ -262,11 +263,9 @@
 
     <!-- === ENGINE JAVASCRIPT & FIREBASE CLOUD === -->
     <script type="module">
-        // Importações Oficiais do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Sua Configuração Exata do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDZBx7VrsdfhgOGxbDyDHAkfOhRvNiIg0Q",
             authDomain: "fidelidadetophausnavega.firebaseapp.com",
@@ -280,21 +279,19 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Variáveis de Controle
         let clientesArray = [];
         let clientesMap = {}; 
         let filtroAtual = 'todos';
         let senhaAtualBanco = "4732423"; 
 
-        // Links Oficiais Solicitados
         const LINK_INSTAGRAM = "https://bit.ly/4vLB16n";
         const LINK_GOOGLE = "https://bit.ly/4vf4DrJ";
 
-        // 1. INICIALIZAÇÃO E LEITURA EM TEMPO REAL
+        // 1. INICIALIZAÇÃO
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             
-            // Fica escutando o banco "clientes". Qualquer tela atualiza instantaneamente!
+            // Fica escutando o banco (com aviso de erro caso esteja bloqueado)
             onValue(ref(db, 'clientes'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -306,20 +303,17 @@
                 }
                 atualizarIndicadores();
                 filtrarLista(filtroAtual);
+            }, (error) => {
+                console.error(error);
+                alert("🔴 ERRO DE LEITURA: O banco de dados do Firebase está bloqueado. Siga as instruções para liberar as 'Regras' no Firebase.");
             });
 
-            // Puxa a senha secreta
             onValue(ref(db, 'config/senhaReset'), (snapshot) => {
                 if(snapshot.val()) senhaAtualBanco = snapshot.val();
             });
         });
 
-        // 2. FUNÇÃO DE SALVAR NO BANCO NUVEM
-        function salvarClienteNoBanco(cliente) {
-            set(ref(db, 'clientes/' + cliente.cpf), cliente);
-        }
-
-        // 3. REGRAS DE NEGÓCIO E CADASTRO
+        // 2. REGRAS DE NEGÓCIO E CADASTRO (COM TRATAMENTO DE ERRO)
         window.cadastrarCliente = (event) => {
             event.preventDefault();
             const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
@@ -340,39 +334,42 @@
                 almocos: 0,
                 premiosResgatados: 0,
                 historico: [],
-                historicoResgates: [] // Array de comprovantes salvos
+                historicoResgates: []
             };
 
-            salvarClienteNoBanco(novoCliente);
-            document.getElementById('form-cadastro').reset();
-            alert(`Cliente ${nome} cadastrado com sucesso!`);
+            // Tenta salvar no Firebase. Se der sucesso, avisa. Se o Firebase bloquear, avisa o erro.
+            set(ref(db, 'clientes/' + novoCliente.cpf), novoCliente)
+                .then(() => {
+                    document.getElementById('form-cadastro').reset();
+                    alert(`Cliente ${nome} cadastrado com sucesso!`);
+                })
+                .catch((error) => {
+                    alert("🔴 ERRO: O Firebase bloqueou o cadastro. Você esqueceu de alterar as Regras (Rules) para 'true' lá no painel do Firebase.");
+                    console.error(error);
+                });
         };
 
-        // 4. TRAVA INTELIGENTE DO 11º ALMOÇO
+        // 3. TRAVA INTELIGENTE E BUSCA
         window.buscarEContabilizar = () => {
             const cpfBusca = document.getElementById('busca-cpf').value.replace(/\D/g, '');
             if (!cpfBusca) return alert('Informe o CPF para buscar.');
 
             const cliente = clientesMap[cpfBusca];
-            if (!cliente) return alert('Cliente não encontrado! Realize o Cadastro ao lado.');
+            if (!cliente) return alert('Cliente não encontrado! Realize o Cadastro ao lado (Ou verifique se o Firebase está conectado).');
 
-            // Se tem 10 ou mais, aciona a TRAVA DE RESGATE
             if (cliente.almocos >= 10) {
                 document.getElementById('modal-trava').classList.remove('hidden');
                 
-                // Botão A: Resgatar e Imprimir (Usa 10 pontos)
                 document.getElementById('btn-trava-resgatar').onclick = () => {
                     fecharModal('modal-trava');
                     efetuarResgateEImprimir(cliente);
                 };
                 
-                // Botão B: Acumular (Soma o 11º e guarda)
                 document.getElementById('btn-trava-acumular').onclick = () => {
                     fecharModal('modal-trava');
                     processarConfirmacao(cliente);
                 };
             } else {
-                // Fluxo normal
                 document.getElementById('texto-confirmacao').innerText = `Deseja registrar +1 almoço para ${cliente.nome}?`;
                 document.getElementById('modal-confirmacao').classList.remove('hidden');
                 document.getElementById('btn-confirmar-almoco').onclick = () => {
@@ -382,7 +379,6 @@
             }
         };
 
-        // Adiciona +1
         function processarConfirmacao(cliente) {
             cliente.almocos = (cliente.almocos || 0) + 1;
             const agora = new Date();
@@ -391,34 +387,31 @@
             if(!cliente.historico) cliente.historico = [];
             cliente.historico.push(dataF);
             
-            salvarClienteNoBanco(cliente);
-            gerarWhatsApp(cliente);
+            set(ref(db, 'clientes/' + cliente.cpf), cliente)
+                .then(() => gerarWhatsApp(cliente))
+                .catch(() => alert("🔴 ERRO: O banco está bloqueado. Não foi possível salvar."));
         }
 
-        // Resgatar, Salvar Comprovante e Imprimir
         function efetuarResgateEImprimir(cliente) {
-            // Separa as 10 primeiras datas
             const datasDoResgate = cliente.historico.slice(0, 10);
-            
-            // Remove essas 10 do acumulado
             cliente.historico = cliente.historico.slice(10);
             cliente.almocos -= 10;
             cliente.premiosResgatados = (cliente.premiosResgatados || 0) + 1;
 
             const dataHoraResgate = new Date().toLocaleString('pt-BR');
             
-            // Guarda na memória do cliente para poder reimprimir depois
             if(!cliente.historicoResgates) cliente.historicoResgates = [];
             cliente.historicoResgates.push({
                 dataResgate: dataHoraResgate,
                 datas: datasDoResgate
             });
 
-            salvarClienteNoBanco(cliente);
-            document.getElementById('busca-cpf').value = ''; // Limpa tela caixa
-            
-            // Aciona impressão na hora
-            dispararImpressaoBobina(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
+            set(ref(db, 'clientes/' + cliente.cpf), cliente)
+                .then(() => {
+                    document.getElementById('busca-cpf').value = ''; 
+                    dispararImpressaoBobina(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
+                })
+                .catch(() => alert("🔴 ERRO: O banco está bloqueado. Não foi possível salvar o resgate."));
         }
 
         window.dispararImpressaoBobina = (nome, cpf, arrayDatas, dataHoraTop) => {
@@ -434,11 +427,10 @@
                 listaUl.appendChild(li);
             });
 
-            // O navegador cuida de esconder a tela e mostrar só a bobina via CSS!
             window.print();
         };
 
-        // 5. WHATSAPP E MENSAGENS
+        // 4. WHATSAPP E MENSAGENS
         function gerarWhatsApp(cliente) {
             let texto = "";
             if(cliente.almocos >= 10) {
@@ -453,7 +445,7 @@
             document.getElementById('busca-cpf').value = '';
         }
 
-        // 6. PAINEL ADMIN: Filtros, Histórico Permanente e Reimpressão
+        // 5. PAINEL ADMIN: Filtros e Tabelas
         window.filtrarLista = (tipo) => {
             filtroAtual = tipo;
             const textoFiltro = document.getElementById('filtro-atual-texto');
@@ -485,13 +477,12 @@
         function renderizarTabela(lista) {
             const tbody = document.getElementById('tabela-clientes');
             tbody.innerHTML = '';
-            if (lista.length === 0) return tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Nenhum registro.</td></tr>`;
+            if (lista.length === 0) return tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Nenhum registro encontrado.</td></tr>`;
 
             lista.forEach(c => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 last:border-0';
                 
-                // Botão de Histórico só aparece se ele já resgatou algo
                 const btnHistorico = (c.premiosResgatados || 0) > 0 
                     ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-blue-600 hover:text-blue-800 text-xs font-bold px-3 py-1.5 bg-blue-50 rounded-lg flex items-center gap-1"><i data-lucide="history" class="w-3.5 h-3.5"></i> Ver Histórico</button>` 
                     : `<span class="text-slate-300 text-xs">-</span>`;
@@ -514,7 +505,6 @@
             div.innerHTML = '';
             
             cliente.historicoResgates.forEach((resgate, index) => {
-                // Passa os dados como string JSON para a função de reimprimir
                 const resgateStr = encodeURIComponent(JSON.stringify(resgate.datas));
                 div.innerHTML += `
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex justify-between items-center">
@@ -541,7 +531,6 @@
             document.getElementById('card-premios').innerText = clientesArray.filter(c => c.almocos >= 10).length;
         }
 
-        // 7. FERRAMENTAS DO SISTEMA
         window.alternarAba = (aba) => {
             const btns = document.querySelectorAll('.aba-btn');
             if (aba === 'caixa') {
@@ -558,7 +547,7 @@
             }
         };
 
-        // --- ÁREA SECRETA DO DESENVOLVEDOR ---
+        // --- ÁREA SECRETA ---
         window.abrirModalSecreto = () => {
             document.getElementById('input-senha').value = '';
             document.getElementById('area-opcoes-secretas').classList.add('hidden');
@@ -578,18 +567,20 @@
 
         window.resetarSistema = () => {
             if(confirm("ALERTA MÁXIMO! Isso vai apagar TODOS os clientes da nuvem permanentemente. Tem certeza absoluta?")) {
-                set(ref(db, 'clientes'), null);
-                alert("Banco de dados resetado com sucesso.");
-                fecharModal('modal-secreto');
+                set(ref(db, 'clientes'), null).then(() => {
+                    alert("Banco de dados resetado com sucesso.");
+                    fecharModal('modal-secreto');
+                });
             }
         };
 
         window.mudarSenha = () => {
             const nova = document.getElementById('nova-senha').value;
             if(nova.trim() !== '') {
-                set(ref(db, 'config/senhaReset'), nova);
-                alert("Senha alterada!");
-                fecharModal('modal-secreto');
+                set(ref(db, 'config/senhaReset'), nova).then(() => {
+                    alert("Senha alterada!");
+                    fecharModal('modal-secreto');
+                });
             }
         };
 
