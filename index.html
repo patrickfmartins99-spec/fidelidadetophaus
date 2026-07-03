@@ -117,7 +117,7 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:border-slate-900 transition">
                         <p class="text-xs font-semibold text-slate-400 uppercase">Total Clientes</p>
                         <p id="card-total" class="text-2xl font-bold text-slate-700">0</p>
@@ -129,6 +129,10 @@
                     <div onclick="filtrarLista('vips')" class="bg-indigo-50 p-4 rounded-xl shadow-sm border border-indigo-100 cursor-pointer hover:border-indigo-500 transition">
                         <p class="text-xs font-semibold text-indigo-600 uppercase flex items-center gap-1"><i data-lucide="medal" class="w-3.5 h-3.5"></i> Mais Fiéis (VIPs)</p>
                         <p id="card-vips" class="text-2xl font-bold text-indigo-700">Filtro</p>
+                    </div>
+                    <div onclick="filtrarLista('aniversarios_dia')" class="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-100 cursor-pointer hover:border-emerald-500 transition">
+                        <p class="text-xs font-semibold text-emerald-600 uppercase flex items-center gap-1"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Aniversariantes Dia</p>
+                        <p id="card-niver-dia" class="text-2xl font-bold text-emerald-700">0</p>
                     </div>
                     <div onclick="filtrarLista('aniversarios')" class="bg-rose-50 p-4 rounded-xl shadow-sm border border-rose-100 cursor-pointer hover:border-rose-500 transition">
                         <p class="text-xs font-semibold text-rose-600 uppercase flex items-center gap-1"><i data-lucide="cake" class="w-3.5 h-3.5"></i> Aniversariantes Mês</p>
@@ -296,6 +300,7 @@
         let clientesMap = {}; 
         let filtroAtual = 'todos';
         let senhaAtualBanco = "4732423"; 
+        let primeiraCargaAniversario = true;
 
         const LINK_INSTAGRAM = "https://bit.ly/4vLB16n";
         const LINK_GOOGLE = "https://bit.ly/4vf4DrJ";
@@ -389,6 +394,12 @@
                 }
                 atualizarIndicadores();
                 filtrarLista(filtroAtual);
+
+                // Dispara o aviso em tela apenas na primeira carga do sistema
+                if (primeiraCargaAniversario && clientesArray.length > 0) {
+                    verificarAniversariantesDoDia();
+                    primeiraCargaAniversario = false;
+                }
             }, (error) => {
                 console.error(error);
                 mostrarToast("Erro de leitura no banco de dados.", "erro");
@@ -398,6 +409,37 @@
                 if(snapshot.val()) senhaAtualBanco = snapshot.val();
             });
         });
+
+        // HELPER TRATAMENTO DE DATAS (Múltiplos Formatos)
+        function obterDataNascimento(nascimento) {
+            if (!nascimento) return null;
+            if (nascimento.includes('-')) {
+                return new Date(nascimento + 'T00:00:00');
+            }
+            if (nascimento.includes('/')) {
+                const partes = nascimento.split('/');
+                if (partes.length === 3) {
+                    return new Date(`${partes[2]}-${partes[1]}-${partes[0]}T00:00:00`);
+                }
+            }
+            return null;
+        }
+
+        function verificarAniversariantesDoDia() {
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const diaHoje = hoje.getDate();
+
+            const aniversariantesHoje = clientesArray.filter(c => {
+                const dNasc = obterDataNascimento(c.nascimento);
+                return dNasc && dNasc.getMonth() === mesAtual && dNasc.getDate() === diaHoje;
+            });
+
+            if (aniversariantesHoje.length > 0) {
+                const nomes = aniversariantesHoje.map(c => c.nome).join(', ');
+                window.mostrarToast(`🎂 Há clientes de aniversário hoje: ${nomes}`, 'sucesso');
+            }
+        }
 
         window.cadastrarCliente = (event) => {
             event.preventDefault();
@@ -550,6 +592,7 @@
             const textoFiltro = document.getElementById('filtro-atual-texto');
             const hoje = new Date();
             const mesAtual = hoje.getMonth();
+            const diaHoje = hoje.getDate();
             let listaFiltrada = [];
 
             if (tipo === 'todos') {
@@ -564,10 +607,14 @@
             } else if (tipo === 'aniversarios') {
                 textoFiltro.innerText = 'Exibindo: Aniversariantes do Mês';
                 listaFiltrada = clientesArray.filter(c => {
-                    if(!c.nascimento) return false;
-                    if(c.nascimento.includes('-')) return new Date(c.nascimento + 'T00:00:00').getMonth() === mesAtual;
-                    if(c.nascimento.includes('/')) return parseInt(c.nascimento.split('/')[1]) - 1 === mesAtual;
-                    return false;
+                    const dNasc = obterDataNascimento(c.nascimento);
+                    return dNasc && dNasc.getMonth() === mesAtual;
+                });
+            } else if (tipo === 'aniversarios_dia') {
+                textoFiltro.innerText = 'Exibindo: Aniversariantes de Hoje';
+                listaFiltrada = clientesArray.filter(c => {
+                    const dNasc = obterDataNascimento(c.nascimento);
+                    return dNasc && dNasc.getMonth() === mesAtual && dNasc.getDate() === diaHoje;
                 });
             }
             renderizarTabela(listaFiltrada);
@@ -591,12 +638,28 @@
                     ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-blue-600 hover:text-blue-800 text-xs font-bold px-3 py-1.5 bg-blue-50 rounded-lg flex items-center gap-1"><i data-lucide="history" class="w-3.5 h-3.5"></i> Ver Histórico</button>` 
                     : `<span class="text-slate-300 text-xs">-</span>`;
 
+                // Montagem do Botão do WhatsApp para Aniversariantes do Mês Vigente
+                const hoje = new Date();
+                const dNasc = obterDataNascimento(c.nascimento);
+                const isNiverMes = dNasc && dNasc.getMonth() === hoje.getMonth();
+                
+                let btnAniversario = '';
+                if (isNiverMes) {
+                    const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial e repleto de alegrias. Venha comemorar conosco! 🥳🎉`);
+                    btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-emerald-600 hover:text-emerald-800 text-xs font-bold px-3 py-1.5 bg-emerald-50 rounded-lg flex items-center gap-1 border border-emerald-200 transition shadow-sm" title="Enviar Mensagem de Aniversário"><i data-lucide="cake" class="w-3.5 h-3.5"></i> Parabenizar</a>`;
+                }
+
                 tr.innerHTML = `
                     <td class="py-3 px-6 font-medium text-slate-800">${c.nome}</td>
                     <td class="py-3 px-6 font-mono text-slate-500 text-xs">${formatarCPF(c.cpf)}<br>${formatarTel(c.telefone)}</td>
                     <td class="py-3 px-6 text-center font-bold text-base ${c.almocos>=10 ? 'text-amber-600' : 'text-slate-600'}">${c.almocos}</td>
                     <td class="py-3 px-6 text-center font-bold text-indigo-600">${c.premiosResgatados || 0}</td>
-                    <td class="py-3 px-6 text-right flex justify-end">${btnHistorico}</td>
+                    <td class="py-3 px-6 text-right">
+                        <div class="flex justify-end gap-2 items-center">
+                            ${btnAniversario}
+                            ${btnHistorico}
+                        </div>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -636,6 +699,22 @@
         function atualizarIndicadores() {
             document.getElementById('card-total').innerText = clientesArray.length;
             document.getElementById('card-premios').innerText = clientesArray.filter(c => c.almocos >= 10).length;
+
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const diaHoje = hoje.getDate();
+
+            const niverMes = clientesArray.filter(c => {
+                const dNasc = obterDataNascimento(c.nascimento);
+                return dNasc && dNasc.getMonth() === mesAtual;
+            }).length;
+            document.getElementById('card-niver').innerText = niverMes;
+
+            const niverDia = clientesArray.filter(c => {
+                const dNasc = obterDataNascimento(c.nascimento);
+                return dNasc && dNasc.getMonth() === mesAtual && dNasc.getDate() === diaHoje;
+            }).length;
+            document.getElementById('card-niver-dia').innerText = niverDia;
         }
 
         window.alternarAba = (aba) => {
@@ -687,7 +766,7 @@
             const nova = document.getElementById('nova-senha').value;
             if(nova.trim() !== '') {
                 set(ref(db, 'config/senhaReset'), nova).then(() => {
-                    mostrarToast("Senha alterada!", "sucesso");
+                    mostrarToast("Senha altered!", "sucesso");
                     fecharModal('modal-secreto');
                 });
             }
