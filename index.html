@@ -14,41 +14,19 @@
         
         /* Configurações da Impressora Térmica 80mm */
         @media print {
-            @page {
-                margin: 0;
-                size: 80mm auto; /* Força o tamanho e corta automaticamente no fim do conteúdo */
-            }
-            body { 
-                background: white !important; 
-                padding: 0; 
-                margin: 0; 
-                font-family: 'Courier New', Courier, monospace; /* Fonte mais nítida para recibos */
-                color: black; 
-            }
+            @page { margin: 0; size: 80mm auto; }
+            body { background: white !important; padding: 0; margin: 0; font-family: 'Courier New', Courier, monospace; color: black; }
             .no-print { display: none !important; }
-            .print-area { 
-                display: block !important; 
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 76mm; /* Leve margem para não cortar nas bordas */
-                padding: 2mm;
-                font-size: 12px; 
-            }
-            .linha-tracejada {
-                border-top: 1px dashed black;
-                margin: 6px 0;
-            }
+            .print-area { display: block !important; position: absolute; left: 0; top: 0; width: 76mm; padding: 2mm; font-size: 12px; }
+            .linha-tracejada { border-top: 1px dashed black; margin: 6px 0; }
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative">
 
-    <!-- CONTAINER DE NOTIFICAÇÕES (TOASTS) -->
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <div class="no-print">
-        
         <header class="bg-slate-900 text-white shadow-md py-4 px-6 mb-8">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
@@ -101,7 +79,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Data de Nascimento (DD/MM/AAAA)</label>
-                            <input type="text" id="cad-nascimento" required placeholder="Ex: 15/05/1990" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
+                            <input type="text" id="cad-nascimento" required placeholder="Ex: 30/04/1999" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Telefone / WhatsApp</label>
@@ -174,7 +152,63 @@
             </section>
         </main>
 
-        <!-- MODAIS -->
+        <!-- ALERTA DE ANIVERSÁRIO (NOVO) -->
+        <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+            <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-rose-400 to-emerald-400"></div>
+                <div class="w-20 h-20 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i data-lucide="cake" class="w-10 h-10"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">Tem Aniversariante!</h3>
+                <p class="text-slate-600 mb-6" id="texto-alerta-aniversario">Hoje é o aniversário de <strong>Cliente</strong>!</p>
+                <div class="flex flex-col gap-3">
+                    <a id="btn-whats-aniversario" target="_blank" onclick="continuarPosAniversario()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i> Mandar Parabéns Agora
+                    </a>
+                    <button onclick="continuarPosAniversario()" class="w-full px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition">
+                        Continuar no Caixa <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE EDIÇÃO (NOVO) -->
+        <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-indigo-600"></i> Editar Cadastro</h3>
+                    <button onclick="fecharModal('modal-editar')" class="text-slate-400 hover:text-rose-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                
+                <form id="form-editar" onsubmit="salvarEdicao(event)" class="space-y-4">
+                    <input type="hidden" id="edit-cpf-raw">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">CPF (Não editável)</label>
+                        <input type="text" id="edit-cpf-display" disabled class="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 font-mono cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Completo</label>
+                        <input type="text" id="edit-nome" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nascimento</label>
+                            <input type="text" id="edit-nascimento" required maxlength="10" oninput="mascaraData(this)" placeholder="DD/MM/AAAA" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">WhatsApp</label>
+                            <input type="text" id="edit-telefone" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                        </div>
+                    </div>
+                    <div class="pt-2 flex gap-3">
+                        <button type="button" onclick="fecharModal('modal-editar')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium">Cancelar</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="save" class="w-4 h-4"></i> Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- OUTROS MODAIS ORIGINAIS -->
         <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-slate-800 mb-2">Contabilizar Refeição</h3>
@@ -210,7 +244,7 @@
                 <p class="text-slate-600 mb-6" id="texto-sucesso"></p>
                 <div class="flex flex-col gap-2">
                     <a id="btn-whatsapp" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i> Enviar WhatsApp
+                        <i data-lucide="message-circle" class="w-5 h-5"></i> Enviar WhatsApp do Almoço
                     </a>
                     <button onclick="fecharModal('modal-sucesso')" class="w-full px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium">Fechar</button>
                 </div>
@@ -229,12 +263,10 @@
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-rose-600 text-center">
                 <i data-lucide="shield-alert" class="w-8 h-8 text-rose-600 mx-auto mb-2"></i>
                 <h3 class="text-lg font-bold text-slate-800 mb-4">Painel do Desenvolvedor</h3>
-                
                 <div id="area-senha-secreta" class="mb-4">
                     <input type="password" id="input-senha" placeholder="Digite a senha..." class="w-full px-4 py-2 bg-slate-50 border rounded-xl text-center mb-2">
                     <button onclick="validarSenha()" class="w-full bg-slate-900 text-white py-2 rounded-xl">Entrar</button>
                 </div>
-
                 <div id="area-opcoes-secretas" class="hidden flex flex-col gap-3">
                     <button onclick="resetarSistema()" class="w-full bg-rose-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="trash-2" class="w-4 h-4"></i> ZERAR BANCO DE DADOS</button>
                     <hr>
@@ -247,15 +279,14 @@
 
     </div>
 
-    <!-- IMPRESSÃO BOBINA 80MM (CABEÇALHO ATUALIZADO) -->
+    <!-- IMPRESSÃO -->
     <div id="secao-impressao" class="print-area">
         <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
             <strong style="font-size: 14px;">ESPAÇO TOP HAUS LTDA</strong><br>
             CNPJ: 26.845.124/0001-61<br>
-            Avenida Prefeito Jose Juvenal Mafra, 7155, SALA 06<br>
+            Avenida Prefeito Jose Juvenal Mafra, 7155<br>
             Gravata - NAVEGANTES - SC 88372-506<br>
             Fone: (47) 3342-5114<br>
-            I.E.: 258.216.697
         </div>
         <div class="linha-tracejada"></div>
         <div style="text-align: center; margin-bottom: 5px;">
@@ -275,7 +306,6 @@
         <div class="linha-tracejada"></div>
         <div style="text-align: center; margin-top: 5px;">
             <p style="font-weight: bold; margin:0;">RESGATE LIBERADO</p>
-            <p style="font-size: 10px; margin:2px 0;">Cortesia validada no sistema nuvem.</p>
         </div>
     </div>
 
@@ -300,43 +330,12 @@
         let clientesMap = {}; 
         let filtroAtual = 'todos';
         let senhaAtualBanco = "4732423"; 
-        let primeiraCargaAniversario = true;
+        
+        let acaoPendente = null; // Guarda o cliente se interceptado pelo aniversário
+        let tipoAcaoPendente = null; // 'busca' ou 'cadastro'
 
         const LINK_INSTAGRAM = "https://bit.ly/4vLB16n";
         const LINK_GOOGLE = "https://bit.ly/4vf4DrJ";
-
-        // FUNÇÃO DE NAVEGAÇÃO POR TECLADO NO MODAL (FOCUS TRAP)
-        window.prenderFocoModal = (modalElement) => {
-            const elementosFocaveis = modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-            if (elementosFocaveis.length === 0) return;
-
-            const primeiroElemento = elementosFocaveis[0];
-            const ultimoElemento = elementosFocaveis[elementosFocaveis.length - 1];
-
-            if (modalElement._focusTrapListener) {
-                modalElement.removeEventListener('keydown', modalElement._focusTrapListener);
-            }
-
-            modalElement._focusTrapListener = function(e) {
-                let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
-                if (!isTabPressed) return;
-
-                if (e.shiftKey) { 
-                    if (document.activeElement === primeiroElemento) {
-                        ultimoElemento.focus();
-                        e.preventDefault();
-                    }
-                } else { 
-                    if (document.activeElement === ultimoElemento) {
-                        primeiroElemento.focus();
-                        e.preventDefault();
-                    }
-                }
-            };
-
-            modalElement.addEventListener('keydown', modalElement._focusTrapListener);
-            setTimeout(() => primeiroElemento.focus(), 50);
-        };
 
         window.mostrarToast = (msg, tipo = 'sucesso') => {
             const container = document.getElementById('toast-container');
@@ -357,27 +356,6 @@
             }, 3000);
         };
 
-        window.exportarExcel = () => {
-            if(clientesArray.length === 0) return mostrarToast("Nenhum dado para exportar", "erro");
-            
-            let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almocos_Acumulados;Premios_Resgatados\n";
-            
-            clientesArray.forEach(c => {
-                csv += `${c.nome};${c.cpf};${c.nascimento || ''};${c.telefone};${c.almocos};${c.premiosResgatados || 0}\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `TopHaus_Clientes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            mostrarToast("Download iniciado!", "sucesso");
-        };
-
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             onValue(ref(db, 'clientes'), (snapshot) => {
@@ -391,55 +369,60 @@
                 }
                 atualizarIndicadores();
                 filtrarLista(filtroAtual);
-
-                if (primeiraCargaAniversario && clientesArray.length > 0) {
-                    verificarAniversariantesDoDia();
-                    primeiraCargaAniversario = false;
-                }
-            }, (error) => {
-                console.error(error);
-                mostrarToast("Erro de leitura no banco de dados.", "erro");
             });
-
             onValue(ref(db, 'config/senhaReset'), (snapshot) => {
                 if(snapshot.val()) senhaAtualBanco = snapshot.val();
             });
         });
 
-        // PROCESSADOR DE DATA IMUNE A BUG DE FUSO HORÁRIO (EXTRAÇÃO TEXTUAL)
+        // -----------------------------------------------------
+        // LÓGICA DE DATA E ANIVERSÁRIO
+        // -----------------------------------------------------
         function obterInfoNascimento(nascimento) {
             if (!nascimento) return null;
             if (nascimento.includes('-')) {
                 const partes = nascimento.split('-');
-                if (partes.length === 3) {
-                    return { dia: parseInt(partes[2], 10), mes: parseInt(partes[1], 10) - 1 };
-                }
+                if (partes.length === 3) return { dia: parseInt(partes[2], 10), mes: parseInt(partes[1], 10) - 1 };
             }
             if (nascimento.includes('/')) {
                 const partes = nascimento.split('/');
-                if (partes.length === 3) {
-                    return { dia: parseInt(partes[0], 10), mes: parseInt(partes[1], 10) - 1 };
-                }
+                if (partes.length === 3) return { dia: parseInt(partes[0], 10), mes: parseInt(partes[1], 10) - 1 };
             }
             return null;
         }
 
-        function verificarAniversariantesDoDia() {
+        function isAniversarioHoje(cliente) {
+            const info = obterInfoNascimento(cliente.nascimento);
             const hoje = new Date();
-            const mesAtual = hoje.getMonth();
-            const diaHoje = hoje.getDate();
-
-            const aniversariantesHoje = clientesArray.filter(c => {
-                const info = obterInfoNascimento(c.nascimento);
-                return info && info.mes === mesAtual && info.dia === diaHoje;
-            });
-
-            if (aniversariantesHoje.length > 0) {
-                const nomes = aniversariantesHoje.map(c => c.nome).join(', ');
-                window.mostrarToast(`🎂 Há clientes de aniversário hoje: ${nomes}`, 'sucesso');
-            }
+            return info && info.mes === hoje.getMonth() && info.dia === hoje.getDate();
         }
 
+        function abrirAlertaAniversario(cliente, tipoAcao) {
+            acaoPendente = cliente;
+            tipoAcaoPendente = tipoAcao;
+            
+            document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-rose-600">${cliente.nome}</strong>!`;
+            
+            const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${cliente.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial e repleto de alegrias. Venha comemorar conosco! 🥳🎉`);
+            document.getElementById('btn-whats-aniversario').href = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${msgWhatsNiver}`;
+            
+            document.getElementById('modal-alerta-aniversario').classList.remove('hidden');
+        }
+
+        window.continuarPosAniversario = () => {
+            document.getElementById('modal-alerta-aniversario').classList.add('hidden');
+            if(tipoAcaoPendente === 'busca' && acaoPendente) {
+                abrirModalAlmoco(acaoPendente);
+            } else if (tipoAcaoPendente === 'cadastro') {
+                document.getElementById('busca-cpf').focus();
+            }
+            acaoPendente = null;
+            tipoAcaoPendente = null;
+        };
+
+        // -----------------------------------------------------
+        // CADASTRO
+        // -----------------------------------------------------
         window.cadastrarCliente = (event) => {
             event.preventDefault();
             const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
@@ -447,10 +430,7 @@
             const nascimento = document.getElementById('cad-nascimento').value;
             const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
 
-            if (clientesMap[cpf]) {
-                mostrarToast('Atenção: CPF já cadastrado!', 'erro');
-                return;
-            }
+            if (clientesMap[cpf]) return mostrarToast('Atenção: CPF já cadastrado!', 'erro');
 
             let nascimentoConvertido = nascimento;
             if(nascimento.includes('/')) {
@@ -458,29 +438,24 @@
                 if(partes.length === 3) nascimentoConvertido = `${partes[2]}-${partes[1]}-${partes[0]}`; 
             }
 
-            const novoCliente = {
-                cpf: cpf,
-                nome: nome,
-                nascimento: nascimentoConvertido, 
-                telefone: telefone,
-                almocos: 0,
-                premiosResgatados: 0,
-                historico: [],
-                historicoResgates: []
-            };
+            const novoCliente = { cpf, nome, nascimento: nascimentoConvertido, telefone, almocos: 0, premiosResgatados: 0, historico: [], historicoResgates: [] };
 
-            set(ref(db, 'clientes/' + novoCliente.cpf), novoCliente)
-                .then(() => {
-                    document.getElementById('form-cadastro').reset();
-                    mostrarToast(`Cliente cadastrado com sucesso!`, 'sucesso');
+            set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
+                document.getElementById('form-cadastro').reset();
+                mostrarToast(`Cliente cadastrado com sucesso!`, 'sucesso');
+                
+                // VERIFICAÇÃO IMEDIATA DO ANIVERSÁRIO NO CADASTRO
+                if(isAniversarioHoje(novoCliente)) {
+                    abrirAlertaAniversario(novoCliente, 'cadastro');
+                } else {
                     document.getElementById('busca-cpf').focus();
-                })
-                .catch((error) => {
-                    mostrarToast("ERRO: O Firebase bloqueou o cadastro.", "erro");
-                    console.error(error);
-                });
+                }
+            });
         };
 
+        // -----------------------------------------------------
+        // BUSCA E CAIXA
+        // -----------------------------------------------------
         window.buscarEContabilizar = () => {
             const cpfBusca = document.getElementById('busca-cpf').value.replace(/\D/g, '');
             if (!cpfBusca) return mostrarToast('Informe o CPF para buscar.', 'erro');
@@ -488,31 +463,27 @@
             const cliente = clientesMap[cpfBusca];
             if (!cliente) return mostrarToast('Cliente não encontrado!', 'erro');
 
+            // VERIFICAÇÃO IMEDIATA DO ANIVERSÁRIO NA BUSCA DO CAIXA
+            if(isAniversarioHoje(cliente)) {
+                abrirAlertaAniversario(cliente, 'busca');
+            } else {
+                abrirModalAlmoco(cliente);
+            }
+        };
+
+        function abrirModalAlmoco(cliente) {
             if (cliente.almocos >= 10) {
                 const modal = document.getElementById('modal-trava');
                 modal.classList.remove('hidden');
-                prenderFocoModal(modal); 
-                
-                document.getElementById('btn-trava-resgatar').onclick = () => {
-                    fecharModal('modal-trava');
-                    efetuarResgateEImprimir(cliente);
-                };
-                document.getElementById('btn-trava-acumular').onclick = () => {
-                    fecharModal('modal-trava');
-                    processarConfirmacao(cliente);
-                };
+                document.getElementById('btn-trava-resgatar').onclick = () => { fecharModal('modal-trava'); efetuarResgateEImprimir(cliente); };
+                document.getElementById('btn-trava-acumular').onclick = () => { fecharModal('modal-trava'); processarConfirmacao(cliente); };
             } else {
                 document.getElementById('texto-confirmacao').innerText = `Deseja registrar +1 almoço para ${cliente.nome}?`;
                 const modal = document.getElementById('modal-confirmacao');
                 modal.classList.remove('hidden');
-                prenderFocoModal(modal); 
-                
-                document.getElementById('btn-confirmar-almoco').onclick = () => {
-                    fecharModal('modal-confirmacao');
-                    processarConfirmacao(cliente);
-                };
+                document.getElementById('btn-confirmar-almoco').onclick = () => { fecharModal('modal-confirmacao'); processarConfirmacao(cliente); };
             }
-        };
+        }
 
         function processarConfirmacao(cliente) {
             cliente.almocos = (cliente.almocos || 0) + 1;
@@ -522,12 +493,10 @@
             if(!cliente.historico) cliente.historico = [];
             cliente.historico.push(dataF);
             
-            set(ref(db, 'clientes/' + cliente.cpf), cliente)
-                .then(() => {
-                    gerarWhatsApp(cliente);
-                    mostrarToast('Almoço contabilizado!', 'sucesso');
-                })
-                .catch(() => mostrarToast("ERRO ao salvar almoço.", "erro"));
+            set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
+                gerarWhatsApp(cliente);
+                mostrarToast('Almoço contabilizado!', 'sucesso');
+            });
         }
 
         function efetuarResgateEImprimir(cliente) {
@@ -537,85 +506,101 @@
             cliente.premiosResgatados = (cliente.premiosResgatados || 0) + 1;
 
             const dataHoraResgate = new Date().toLocaleString('pt-BR');
-            
             if(!cliente.historicoResgates) cliente.historicoResgates = [];
-            cliente.historicoResgates.push({
-                dataResgate: dataHoraResgate,
-                datas: datasDoResgate
-            });
+            cliente.historicoResgates.push({ dataResgate: dataHoraResgate, datas: datasDoResgate });
 
-            set(ref(db, 'clientes/' + cliente.cpf), cliente)
-                .then(() => {
-                    document.getElementById('busca-cpf').value = ''; 
-                    mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
-                    dispararImpressaoBobina(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
-                })
-                .catch(() => mostrarToast("ERRO ao salvar resgate.", "erro"));
+            set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
+                document.getElementById('busca-cpf').value = ''; 
+                mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
+                dispararImpressaoBobina(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
+            });
         }
 
         window.dispararImpressaoBobina = (nome, cpf, arrayDatas, dataHoraTop) => {
             document.getElementById('imp-nome').innerText = nome.toUpperCase();
             document.getElementById('imp-cpf').innerText = formatarCPF(cpf);
             document.getElementById('imp-data-hora').innerText = dataHoraTop;
-
             const listaUl = document.getElementById('imp-lista-datas');
             listaUl.innerHTML = '';
-            arrayDatas.forEach(dataRefeicao => {
+            arrayDatas.forEach(data => {
                 const li = document.createElement('li');
-                li.innerText = `[+] ${dataRefeicao}`;
+                li.innerText = `[+] ${data}`;
                 listaUl.appendChild(li);
             });
             window.print();
         };
 
         function gerarWhatsApp(cliente) {
-            let texto = "";
-            if(cliente.almocos >= 10) {
-                texto = `🎉 Parabéns, ${cliente.nome}! Você completou seus 10 almoços no Top Haus! 🥳\n\n🎁 O seu almoço cortesia JÁ ESTÁ LIBERADO! Avise o caixa na próxima visita.\n\n📸 Siga nosso Instagram: ${LINK_INSTAGRAM}\n\n⭐ Avalie no Google: ${LINK_GOOGLE}`;
-            } else {
-                texto = `Olá, ${cliente.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${cliente.almocos} almoços registrados. Ao completar 10, o próximo é por nossa conta!\n\n📸 Nosso Instagram: ${LINK_INSTAGRAM}\n⭐ Avalie no Google: ${LINK_GOOGLE}`;
-            }
+            let texto = cliente.almocos >= 10 
+                ? `🎉 Parabéns, ${cliente.nome}! Você completou 10 almoços no Top Haus! 🥳\n\n🎁 O seu almoço cortesia JÁ ESTÁ LIBERADO! Avise o caixa na próxima visita.\n\n📸 Instagram: ${LINK_INSTAGRAM}` 
+                : `Olá, ${cliente.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${cliente.almocos} almoços registrados. Ao completar 10, o próximo é por nossa conta!\n\n📸 Instagram: ${LINK_INSTAGRAM}`;
                                   
-            document.getElementById('texto-sucesso').innerHTML = `Total atualizado: <strong>${cliente.almocos}</strong> almoços para <strong>${cliente.nome}</strong>.`;
+            document.getElementById('texto-sucesso').innerHTML = `Total atualizado: <strong>${cliente.almocos}</strong> almoços.`;
             document.getElementById('btn-whatsapp').href = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(texto)}`;
             
-            const modal = document.getElementById('modal-sucesso');
-            modal.classList.remove('hidden');
-            prenderFocoModal(modal); 
-            
+            document.getElementById('modal-sucesso').classList.remove('hidden');
             document.getElementById('busca-cpf').value = '';
         }
 
+        // -----------------------------------------------------
+        // EDIÇÃO DE CLIENTE (NOVO RECURSO)
+        // -----------------------------------------------------
+        window.abrirEditar = (cpf) => {
+            const cliente = clientesMap[cpf];
+            document.getElementById('edit-cpf-raw').value = cliente.cpf;
+            document.getElementById('edit-cpf-display').value = formatarCPF(cliente.cpf);
+            document.getElementById('edit-nome').value = cliente.nome;
+            
+            let niver = cliente.nascimento;
+            if(niver && niver.includes('-')) {
+                const p = niver.split('-');
+                niver = `${p[2]}/${p[1]}/${p[0]}`;
+            }
+            document.getElementById('edit-nascimento').value = niver;
+            document.getElementById('edit-telefone').value = formatarTel(cliente.telefone);
+            
+            document.getElementById('modal-editar').classList.remove('hidden');
+        };
+
+        window.salvarEdicao = (e) => {
+            e.preventDefault();
+            const cpf = document.getElementById('edit-cpf-raw').value;
+            const nome = document.getElementById('edit-nome').value;
+            const telefone = document.getElementById('edit-telefone').value.replace(/\D/g, '');
+            const nascimento = document.getElementById('edit-nascimento').value;
+            
+            let niverConvertido = nascimento;
+            if(nascimento.includes('/')) {
+                const p = nascimento.split('/');
+                niverConvertido = `${p[2]}/${p[1]}/${p[0]}`;
+            }
+            
+            const cliente = clientesMap[cpf];
+            cliente.nome = nome;
+            cliente.telefone = telefone;
+            cliente.nascimento = niverConvertido;
+            
+            set(ref(db, 'clientes/' + cpf), cliente).then(() => {
+                mostrarToast("Cadastro atualizado com sucesso!", "sucesso");
+                fecharModal('modal-editar');
+            });
+        };
+
+        // -----------------------------------------------------
+        // RENDERIZAÇÃO E ADMIN
+        // -----------------------------------------------------
         window.filtrarLista = (tipo) => {
             filtroAtual = tipo;
             const textoFiltro = document.getElementById('filtro-atual-texto');
             const hoje = new Date();
-            const mesAtual = hoje.getMonth();
-            const diaHoje = hoje.getDate();
             let listaFiltrada = [];
 
-            if (tipo === 'todos') {
-                textoFiltro.innerText = 'Exibindo: Todos os clientes';
-                listaFiltrada = clientesArray;
-            } else if (tipo === 'premios') {
-                textoFiltro.innerText = 'Exibindo: Clientes com almoço disponível';
-                listaFiltrada = clientesArray.filter(c => c.almocos >= 10);
-            } else if (tipo === 'vips') {
-                textoFiltro.innerText = 'Exibindo: VIPs (Já resgataram ao menos 1 vez)';
-                listaFiltrada = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).sort((a,b) => b.premiosResgatados - a.premiosResgatados);
-            } else if (tipo === 'aniversarios') {
-                textoFiltro.innerText = 'Exibindo: Aniversariantes do Mês';
-                listaFiltrada = clientesArray.filter(c => {
-                    const info = obterInfoNascimento(c.nascimento);
-                    return info && info.mes === mesAtual;
-                });
-            } else if (tipo === 'aniversarios_dia') {
-                textoFiltro.innerText = 'Exibindo: Aniversariantes de Hoje';
-                listaFiltrada = clientesArray.filter(c => {
-                    const info = obterInfoNascimento(c.nascimento);
-                    return info && info.mes === mesAtual && info.dia === diaHoje;
-                });
-            }
+            if (tipo === 'todos') { textoFiltro.innerText = 'Exibindo: Todos os clientes'; listaFiltrada = clientesArray; }
+            else if (tipo === 'premios') { textoFiltro.innerText = 'Exibindo: Aguardando Resgate'; listaFiltrada = clientesArray.filter(c => c.almocos >= 10); }
+            else if (tipo === 'vips') { textoFiltro.innerText = 'Exibindo: VIPs'; listaFiltrada = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).sort((a,b) => b.premiosResgatados - a.premiosResgatados); }
+            else if (tipo === 'aniversarios') { textoFiltro.innerText = 'Exibindo: Aniversariantes do Mês'; listaFiltrada = clientesArray.filter(c => { const i = obterInfoNascimento(c.nascimento); return i && i.mes === hoje.getMonth(); }); }
+            else if (tipo === 'aniversarios_dia') { textoFiltro.innerText = 'Exibindo: Aniversariantes de Hoje'; listaFiltrada = clientesArray.filter(c => isAniversarioHoje(c)); }
+            
             renderizarTabela(listaFiltrada);
         };
 
@@ -627,24 +612,25 @@
         function renderizarTabela(lista) {
             const tbody = document.getElementById('tabela-clientes');
             tbody.innerHTML = '';
-            if (lista.length === 0) return tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Nenhum registro encontrado.</td></tr>`;
+            if (lista.length === 0) return tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400">Nenhum registro.</td></tr>`;
 
             lista.forEach(c => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 last:border-0';
                 
                 const btnHistorico = (c.premiosResgatados || 0) > 0 
-                    ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-blue-600 hover:text-blue-800 text-xs font-bold px-3 py-1.5 bg-blue-50 rounded-lg flex items-center gap-1"><i data-lucide="history" class="w-3.5 h-3.5"></i> Ver Histórico</button>` 
-                    : `<span class="text-slate-300 text-xs">-</span>`;
+                    ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-blue-600 hover:bg-blue-50 p-1.5 rounded-lg transition" title="Ver Histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` 
+                    : ``;
 
-                const hoje = new Date();
+                const btnEditar = `<button onclick="abrirEditar('${c.cpf}')" class="text-indigo-600 hover:bg-indigo-50 p-1.5 rounded-lg transition" title="Editar Cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
+
                 const info = obterInfoNascimento(c.nascimento);
-                const isNiverMes = info && info.mes === hoje.getMonth();
-                
+                const isNiverMes = info && info.mes === new Date().getMonth();
                 let btnAniversario = '';
+                
                 if (isNiverMes) {
-                    const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial e repleto de alegrias. Venha comemorar conosco! 🥳🎉`);
-                    btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-emerald-600 hover:text-emerald-800 text-xs font-bold px-3 py-1.5 bg-emerald-50 rounded-lg flex items-center gap-1 border border-emerald-200 transition shadow-sm" title="Enviar Mensagem de Aniversário"><i data-lucide="cake" class="w-3.5 h-3.5"></i> Parabenizar</a>`;
+                    const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial. Venha comemorar conosco! 🥳🎉`);
+                    btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Enviar Parabéns"><i data-lucide="cake" class="w-4 h-4"></i> WhatsApp</a>`;
                 }
 
                 tr.innerHTML = `
@@ -653,8 +639,9 @@
                     <td class="py-3 px-6 text-center font-bold text-base ${c.almocos>=10 ? 'text-amber-600' : 'text-slate-600'}">${c.almocos}</td>
                     <td class="py-3 px-6 text-center font-bold text-indigo-600">${c.premiosResgatados || 0}</td>
                     <td class="py-3 px-6 text-right">
-                        <div class="flex justify-end gap-2 items-center">
+                        <div class="flex justify-end gap-1 items-center">
                             ${btnAniversario}
+                            ${btnEditar}
                             ${btnHistorico}
                         </div>
                     </td>
@@ -668,140 +655,67 @@
             const cliente = clientesMap[cpf];
             const div = document.getElementById('lista-historico');
             div.innerHTML = '';
-            
             cliente.historicoResgates.forEach((resgate, index) => {
                 const resgateStr = encodeURIComponent(JSON.stringify(resgate.datas));
                 div.innerHTML += `
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex justify-between items-center">
-                        <div>
-                            <p class="text-xs font-bold text-slate-700">Resgate #${index + 1}</p>
-                            <p class="text-xs text-slate-500">Data: ${resgate.dataResgate}</p>
-                        </div>
+                        <div><p class="text-xs font-bold text-slate-700">Resgate #${index + 1}</p><p class="text-xs text-slate-500">Data: ${resgate.dataResgate}</p></div>
                         <button onclick="reimprimirCupom('${cliente.nome}', '${cliente.cpf}', '${resgateStr}', '${resgate.dataResgate}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Reimprimir</button>
-                    </div>
-                `;
+                    </div>`;
             });
-            
-            const modal = document.getElementById('modal-historico');
-            modal.classList.remove('hidden');
-            prenderFocoModal(modal); 
-            lucide.createIcons();
+            document.getElementById('modal-historico').classList.remove('hidden');
         };
 
         window.reimprimirCupom = (nome, cpf, arrayEncoded, dataResgate) => {
             fecharModal('modal-historico');
-            const arrayDatas = JSON.parse(decodeURIComponent(arrayEncoded));
-            dispararImpressaoBobina(nome, cpf, arrayDatas, dataResgate + " (REIMPRESSÃO)");
+            dispararImpressaoBobina(nome, cpf, JSON.parse(decodeURIComponent(arrayEncoded)), dataResgate + " (REIMPRESSÃO)");
         };
 
         function atualizarIndicadores() {
             const hoje = new Date();
-            const mesAtual = hoje.getMonth();
-            const diaHoje = hoje.getDate();
-
             document.getElementById('card-total').innerText = clientesArray.length;
             document.getElementById('card-premios').innerText = clientesArray.filter(c => c.almocos >= 10).length;
             document.getElementById('card-vips').innerText = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).length;
-
-            const niverMes = clientesArray.filter(c => {
-                const info = obterInfoNascimento(c.nascimento);
-                return info && info.mes === mesAtual;
-            }).length;
-            document.getElementById('card-niver').innerText = niverMes;
-
-            const niverDia = clientesArray.filter(c => {
-                const info = obterInfoNascimento(c.nascimento);
-                return info && info.mes === mesAtual && info.dia === diaHoje;
-            }).length;
-            document.getElementById('card-niver-dia').innerText = niverDia;
+            document.getElementById('card-niver').innerText = clientesArray.filter(c => { const i = obterInfoNascimento(c.nascimento); return i && i.mes === hoje.getMonth(); }).length;
+            document.getElementById('card-niver-dia').innerText = clientesArray.filter(c => isAniversarioHoje(c)).length;
         }
 
         window.alternarAba = (aba) => {
             const btns = document.querySelectorAll('.aba-btn');
             if (aba === 'caixa') {
-                document.getElementById('aba-caixa').classList.remove('hidden');
-                document.getElementById('aba-admin').classList.add('hidden');
+                document.getElementById('aba-caixa').classList.remove('hidden'); document.getElementById('aba-admin').classList.add('hidden');
                 btns[0].classList.add('bg-slate-800', 'border-slate-700'); btns[0].classList.remove('bg-slate-700');
                 btns[1].classList.remove('bg-slate-800', 'border-slate-700'); btns[1].classList.add('bg-slate-700');
             } else {
-                document.getElementById('aba-caixa').classList.add('hidden');
-                document.getElementById('aba-admin').classList.remove('hidden');
+                document.getElementById('aba-caixa').classList.add('hidden'); document.getElementById('aba-admin').classList.remove('hidden');
                 btns[1].classList.add('bg-slate-800', 'border-slate-700'); btns[1].classList.remove('bg-slate-700');
                 btns[0].classList.remove('bg-slate-800', 'border-slate-700'); btns[0].classList.add('bg-slate-700');
                 filtrarLista('todos');
             }
         };
 
-        window.abrirModalSecreto = () => {
-            document.getElementById('input-senha').value = '';
-            document.getElementById('area-opcoes-secretas').classList.add('hidden');
-            document.getElementById('area-senha-secreta').classList.remove('hidden');
-            
-            const modal = document.getElementById('modal-secreto');
-            modal.classList.remove('hidden');
-            prenderFocoModal(modal); 
+        window.exportarExcel = () => {
+            if(clientesArray.length === 0) return mostrarToast("Nenhum dado", "erro");
+            let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almocos_Acumulados;Premios_Resgatados\n";
+            clientesArray.forEach(c => csv += `${c.nome};${c.cpf};${c.nascimento || ''};${c.telefone};${c.almocos};${c.premiosResgatados || 0}\n`);
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `Clientes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
+            link.click();
         };
 
-        window.validarSenha = () => {
-            const digitado = document.getElementById('input-senha').value;
-            if(digitado === senhaAtualBanco) {
-                document.getElementById('area-senha-secreta').classList.add('hidden');
-                document.getElementById('area-opcoes-secretas').classList.remove('hidden');
-            } else {
-                mostrarToast("Senha incorreta.", "erro");
-            }
-        };
-
-        window.resetarSistema = () => {
-            if(confirm("ALERTA MÁXIMO! Isso vai apagar TODOS os clientes da nuvem permanentemente. Tem certeza absoluta?")) {
-                set(ref(db, 'clientes'), null).then(() => {
-                    mostrarToast("Banco de dados resetado com sucesso.", "sucesso");
-                    fecharModal('modal-secreto');
-                });
-            }
-        };
-
-        window.mudarSenha = () => {
-            const nova = document.getElementById('nova-senha').value;
-            if(nova.trim() !== '') {
-                set(ref(db, 'config/senhaReset'), nova).then(() => {
-                    mostrarToast("Senha alterada!", "sucesso");
-                    fecharModal('modal-secreto');
-                });
-            }
-        };
-
-        window.fecharModal = (id) => {
-            document.getElementById(id).classList.add('hidden');
-            if (id !== 'modal-secreto' && id !== 'modal-historico') {
-                const buscaInput = document.getElementById('busca-cpf');
-                if (buscaInput) buscaInput.focus();
-            }
-        };
+        window.abrirModalSecreto = () => { document.getElementById('input-senha').value = ''; document.getElementById('area-opcoes-secretas').classList.add('hidden'); document.getElementById('area-senha-secreta').classList.remove('hidden'); document.getElementById('modal-secreto').classList.remove('hidden'); };
+        window.validarSenha = () => { document.getElementById('input-senha').value === senhaAtualBanco ? (document.getElementById('area-senha-secreta').classList.add('hidden'), document.getElementById('area-opcoes-secretas').classList.remove('hidden')) : mostrarToast("Senha incorreta.", "erro"); };
+        window.resetarSistema = () => { if(confirm("ALERTA MÁXIMO! Apagar TODOS os clientes?")) set(ref(db, 'clientes'), null).then(() => { mostrarToast("Banco resetado", "sucesso"); fecharModal('modal-secreto'); }); };
+        window.mudarSenha = () => { const nova = document.getElementById('nova-senha').value; if(nova.trim() !== '') set(ref(db, 'config/senhaReset'), nova).then(() => { mostrarToast("Senha alterada!", "sucesso"); fecharModal('modal-secreto'); }); };
+        window.fecharModal = (id) => { document.getElementById(id).classList.add('hidden'); if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar') { const b = document.getElementById('busca-cpf'); if(b) b.focus(); } };
         
         window.mascaraCPF = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
         window.mascaraTelefone = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
-        window.mascaraData = (i) => {
-            let v = i.value.replace(/\D/g, "");
-            v = v.replace(/(\d{2})(\d)/, "$1/$2");
-            v = v.replace(/(\d{2})(\d)/, "$1/$2");
-            i.value = v.substring(0, 10);
-        };
-
+        window.mascaraData = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{2})(\d)/, "$1/$2"); v = v.replace(/(\d{2})(\d)/, "$1/$2"); i.value = v.substring(0, 10); };
         function formatarCPF(cpf) { return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
         function formatarTel(tel) { return tel.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); }
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                .then(registration => {
-                    console.log('Service Worker registado com sucesso:', registration.scope);
-                })
-                .catch(error => {
-                    console.log('Falha ao registar o Service Worker:', error);
-                });
-            });
-        }
     </script>
 </body>
 </html>
