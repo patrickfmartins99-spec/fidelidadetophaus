@@ -128,7 +128,7 @@
                     </div>
                     <div onclick="filtrarLista('vips')" class="bg-indigo-50 p-4 rounded-xl shadow-sm border border-indigo-100 cursor-pointer hover:border-indigo-500 transition">
                         <p class="text-xs font-semibold text-indigo-600 uppercase flex items-center gap-1"><i data-lucide="medal" class="w-3.5 h-3.5"></i> Mais Fiéis (VIPs)</p>
-                        <p id="card-vips" class="text-2xl font-bold text-indigo-700">Filtro</p>
+                        <p id="card-vips" class="text-2xl font-bold text-indigo-700">0</p>
                     </div>
                     <div onclick="filtrarLista('aniversarios_dia')" class="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-100 cursor-pointer hover:border-emerald-500 transition">
                         <p class="text-xs font-semibold text-emerald-600 uppercase flex items-center gap-1"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Aniversariantes Dia</p>
@@ -313,7 +313,6 @@
             const primeiroElemento = elementosFocaveis[0];
             const ultimoElemento = elementosFocaveis[elementosFocaveis.length - 1];
 
-            // Remove o listener anterior para evitar duplicação caso abra e feche várias vezes
             if (modalElement._focusTrapListener) {
                 modalElement.removeEventListener('keydown', modalElement._focusTrapListener);
             }
@@ -322,12 +321,12 @@
                 let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
                 if (!isTabPressed) return;
 
-                if (e.shiftKey) { // Shift + Tab (voltar)
+                if (e.shiftKey) { 
                     if (document.activeElement === primeiroElemento) {
                         ultimoElemento.focus();
                         e.preventDefault();
                     }
-                } else { // Apenas Tab (avançar)
+                } else { 
                     if (document.activeElement === ultimoElemento) {
                         primeiroElemento.focus();
                         e.preventDefault();
@@ -336,8 +335,6 @@
             };
 
             modalElement.addEventListener('keydown', modalElement._focusTrapListener);
-
-            // Foca automaticamente no primeiro campo (ou botão) ao abrir com leve atraso para o render
             setTimeout(() => primeiroElemento.focus(), 50);
         };
 
@@ -395,7 +392,6 @@
                 atualizarIndicadores();
                 filtrarLista(filtroAtual);
 
-                // Dispara o aviso em tela apenas na primeira carga do sistema
                 if (primeiraCargaAniversario && clientesArray.length > 0) {
                     verificarAniversariantesDoDia();
                     primeiraCargaAniversario = false;
@@ -410,16 +406,19 @@
             });
         });
 
-        // HELPER TRATAMENTO DE DATAS (Múltiplos Formatos)
-        function obterDataNascimento(nascimento) {
+        // PROCESSADOR DE DATA IMUNE A BUG DE FUSO HORÁRIO (EXTRAÇÃO TEXTUAL)
+        function obterInfoNascimento(nascimento) {
             if (!nascimento) return null;
             if (nascimento.includes('-')) {
-                return new Date(nascimento + 'T00:00:00');
+                const partes = nascimento.split('-');
+                if (partes.length === 3) {
+                    return { dia: parseInt(partes[2], 10), mes: parseInt(partes[1], 10) - 1 };
+                }
             }
             if (nascimento.includes('/')) {
                 const partes = nascimento.split('/');
                 if (partes.length === 3) {
-                    return new Date(`${partes[2]}-${partes[1]}-${partes[0]}T00:00:00`);
+                    return { dia: parseInt(partes[0], 10), mes: parseInt(partes[1], 10) - 1 };
                 }
             }
             return null;
@@ -431,8 +430,8 @@
             const diaHoje = hoje.getDate();
 
             const aniversariantesHoje = clientesArray.filter(c => {
-                const dNasc = obterDataNascimento(c.nascimento);
-                return dNasc && dNasc.getMonth() === mesAtual && dNasc.getDate() === diaHoje;
+                const info = obterInfoNascimento(c.nascimento);
+                return info && info.mes === mesAtual && info.dia === diaHoje;
             });
 
             if (aniversariantesHoje.length > 0) {
@@ -492,7 +491,7 @@
             if (cliente.almocos >= 10) {
                 const modal = document.getElementById('modal-trava');
                 modal.classList.remove('hidden');
-                prenderFocoModal(modal); // Trava o foco no modal
+                prenderFocoModal(modal); 
                 
                 document.getElementById('btn-trava-resgatar').onclick = () => {
                     fecharModal('modal-trava');
@@ -506,7 +505,7 @@
                 document.getElementById('texto-confirmacao').innerText = `Deseja registrar +1 almoço para ${cliente.nome}?`;
                 const modal = document.getElementById('modal-confirmacao');
                 modal.classList.remove('hidden');
-                prenderFocoModal(modal); // Trava o foco no modal
+                prenderFocoModal(modal); 
                 
                 document.getElementById('btn-confirmar-almoco').onclick = () => {
                     fecharModal('modal-confirmacao');
@@ -582,7 +581,7 @@
             
             const modal = document.getElementById('modal-sucesso');
             modal.classList.remove('hidden');
-            prenderFocoModal(modal); // Trava o foco no modal
+            prenderFocoModal(modal); 
             
             document.getElementById('busca-cpf').value = '';
         }
@@ -607,14 +606,14 @@
             } else if (tipo === 'aniversarios') {
                 textoFiltro.innerText = 'Exibindo: Aniversariantes do Mês';
                 listaFiltrada = clientesArray.filter(c => {
-                    const dNasc = obterDataNascimento(c.nascimento);
-                    return dNasc && dNasc.getMonth() === mesAtual;
+                    const info = obterInfoNascimento(c.nascimento);
+                    return info && info.mes === mesAtual;
                 });
             } else if (tipo === 'aniversarios_dia') {
                 textoFiltro.innerText = 'Exibindo: Aniversariantes de Hoje';
                 listaFiltrada = clientesArray.filter(c => {
-                    const dNasc = obterDataNascimento(c.nascimento);
-                    return dNasc && dNasc.getMonth() === mesAtual && dNasc.getDate() === diaHoje;
+                    const info = obterInfoNascimento(c.nascimento);
+                    return info && info.mes === mesAtual && info.dia === diaHoje;
                 });
             }
             renderizarTabela(listaFiltrada);
@@ -638,10 +637,9 @@
                     ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-blue-600 hover:text-blue-800 text-xs font-bold px-3 py-1.5 bg-blue-50 rounded-lg flex items-center gap-1"><i data-lucide="history" class="w-3.5 h-3.5"></i> Ver Histórico</button>` 
                     : `<span class="text-slate-300 text-xs">-</span>`;
 
-                // Montagem do Botão do WhatsApp para Aniversariantes do Mês Vigente
                 const hoje = new Date();
-                const dNasc = obterDataNascimento(c.nascimento);
-                const isNiverMes = dNasc && dNasc.getMonth() === hoje.getMonth();
+                const info = obterInfoNascimento(c.nascimento);
+                const isNiverMes = info && info.mes === hoje.getMonth();
                 
                 let btnAniversario = '';
                 if (isNiverMes) {
@@ -686,7 +684,7 @@
             
             const modal = document.getElementById('modal-historico');
             modal.classList.remove('hidden');
-            prenderFocoModal(modal); // Trava o foco no modal
+            prenderFocoModal(modal); 
             lucide.createIcons();
         };
 
@@ -697,22 +695,23 @@
         };
 
         function atualizarIndicadores() {
-            document.getElementById('card-total').innerText = clientesArray.length;
-            document.getElementById('card-premios').innerText = clientesArray.filter(c => c.almocos >= 10).length;
-
             const hoje = new Date();
             const mesAtual = hoje.getMonth();
             const diaHoje = hoje.getDate();
 
+            document.getElementById('card-total').innerText = clientesArray.length;
+            document.getElementById('card-premios').innerText = clientesArray.filter(c => c.almocos >= 10).length;
+            document.getElementById('card-vips').innerText = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).length;
+
             const niverMes = clientesArray.filter(c => {
-                const dNasc = obterDataNascimento(c.nascimento);
-                return dNasc && dNasc.getMonth() === mesAtual;
+                const info = obterInfoNascimento(c.nascimento);
+                return info && info.mes === mesAtual;
             }).length;
             document.getElementById('card-niver').innerText = niverMes;
 
             const niverDia = clientesArray.filter(c => {
-                const dNasc = obterDataNascimento(c.nascimento);
-                return dNasc && dNasc.getMonth() === mesAtual && dNasc.getDate() === diaHoje;
+                const info = obterInfoNascimento(c.nascimento);
+                return info && info.mes === mesAtual && info.dia === diaHoje;
             }).length;
             document.getElementById('card-niver-dia').innerText = niverDia;
         }
@@ -740,7 +739,7 @@
             
             const modal = document.getElementById('modal-secreto');
             modal.classList.remove('hidden');
-            prenderFocoModal(modal); // Trava o foco no modal
+            prenderFocoModal(modal); 
         };
 
         window.validarSenha = () => {
@@ -766,7 +765,7 @@
             const nova = document.getElementById('nova-senha').value;
             if(nova.trim() !== '') {
                 set(ref(db, 'config/senhaReset'), nova).then(() => {
-                    mostrarToast("Senha altered!", "sucesso");
+                    mostrarToast("Senha alterada!", "sucesso");
                     fecharModal('modal-secreto');
                 });
             }
@@ -774,7 +773,6 @@
 
         window.fecharModal = (id) => {
             document.getElementById(id).classList.add('hidden');
-            // Ao fechar um modal, joga o foco de volta para o campo de busca de CPF para agilizar o caixa
             if (id !== 'modal-secreto' && id !== 'modal-historico') {
                 const buscaInput = document.getElementById('busca-cpf');
                 if (buscaInput) buscaInput.focus();
@@ -793,7 +791,6 @@
         function formatarCPF(cpf) { return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
         function formatarTel(tel) { return tel.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); }
 
-        // --- REGISTO DO SERVICE WORKER (PWA / OFFLINE) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
