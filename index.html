@@ -9,11 +9,36 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
+        /* Oculta a área de impressão na tela normal */
         @media screen { .print-area { display: none !important; } }
+        
+        /* Configurações da Impressora Térmica 80mm */
         @media print {
-            body { background: white !important; padding: 0; margin: 0; font-family: monospace; }
+            @page {
+                margin: 0;
+                size: 80mm auto; /* Força o tamanho e corta automaticamente no fim do conteúdo */
+            }
+            body { 
+                background: white !important; 
+                padding: 0; 
+                margin: 0; 
+                font-family: 'Courier New', Courier, monospace; /* Fonte mais nítida para recibos */
+                color: black; 
+            }
             .no-print { display: none !important; }
-            .print-area { display: block !important; width: 80mm; font-size: 11px; color: black; }
+            .print-area { 
+                display: block !important; 
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 76mm; /* Leve margem para não cortar nas bordas */
+                padding: 2mm;
+                font-size: 12px; 
+            }
+            .linha-tracejada {
+                border-top: 1px dashed black;
+                margin: 6px 0;
+            }
         }
     </style>
 </head>
@@ -119,7 +144,6 @@
                         </div>
                         <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
                             <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar cliente..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm w-full sm:w-64">
-                            <!-- NOVO BOTÃO DE EXPORTAR -->
                             <button onclick="exportarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 transition text-sm shadow-sm">
                                 <i data-lucide="download" class="w-4 h-4"></i> Exportar Dados
                             </button>
@@ -146,8 +170,8 @@
             </section>
         </main>
 
-        <!-- MODAIS MANTIDOS INTACTOS -->
-        <div id="modal-confirmacao" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <!-- MODAIS -->
+        <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-slate-800 mb-2">Contabilizar Refeição</h3>
                 <p class="text-slate-600 mb-6" id="texto-confirmacao">Deseja registrar +1 almoço?</p>
@@ -158,7 +182,7 @@
             </div>
         </div>
 
-        <div id="modal-trava" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-trava" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-amber-500">
                 <div class="flex items-center gap-2 mb-2 text-amber-600">
                     <i data-lucide="alert-triangle" class="w-6 h-6"></i>
@@ -173,7 +197,7 @@
             </div>
         </div>
 
-        <div id="modal-sucesso" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-sucesso" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl text-center">
                 <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="check" class="w-6 h-6"></i>
@@ -189,7 +213,7 @@
             </div>
         </div>
 
-        <div id="modal-historico" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl">
                 <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> Histórico de Prêmios</h3>
                 <div id="lista-historico" class="max-h-64 overflow-y-auto space-y-3 mb-6"></div>
@@ -197,7 +221,7 @@
             </div>
         </div>
 
-        <div id="modal-secreto" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-secreto" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-rose-600 text-center">
                 <i data-lucide="shield-alert" class="w-8 h-8 text-rose-600 mx-auto mb-2"></i>
                 <h3 class="text-lg font-bold text-slate-800 mb-4">Painel do Desenvolvedor</h3>
@@ -219,24 +243,35 @@
 
     </div>
 
-    <!-- IMPRESSÃO BOBINA -->
+    <!-- IMPRESSÃO BOBINA 80MM (CABEÇALHO ATUALIZADO) -->
     <div id="secao-impressao" class="print-area">
-        <div style="text-align: center; border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 5px;">
-            <p style="font-weight: bold; font-size: 13px; margin:0;">TOP HAUS RESTAURANTE</p>
-            <p style="margin:2px 0;">COMPROVANTE DE VALIDAÇÃO</p>
-            <p id="imp-data-hora" style="font-size: 9px; margin:0;"></p>
+        <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
+            <strong style="font-size: 14px;">ESPAÇO TOP HAUS LTDA</strong><br>
+            CNPJ: 26.845.124/0001-61<br>
+            Avenida Prefeito Jose Juvenal Mafra, 7155, SALA 06<br>
+            Gravata - NAVEGANTES - SC 88372-506<br>
+            Fone: (47) 3342-5114<br>
+            I.E.: 258.216.697
         </div>
-        <div style="margin-bottom: 5px; border-bottom: 1px dashed black; padding-bottom: 5px;">
+        <div class="linha-tracejada"></div>
+        <div style="text-align: center; margin-bottom: 5px;">
+            <strong>COMPROVANTE DE VALIDAÇÃO</strong><br>
+            <span id="imp-data-hora" style="font-size: 11px;"></span>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="margin-bottom: 5px;">
             <p style="margin:2px 0;"><strong>Cliente:</strong> <span id="imp-nome"></span></p>
             <p style="margin:2px 0;"><strong>CPF:</strong> <span id="imp-cpf"></span></p>
         </div>
+        <div class="linha-tracejada"></div>
         <div style="margin-bottom: 5px;">
             <p style="font-weight: bold; margin:2px 0;">ALMOÇOS CONTABILIZADOS:</p>
-            <ol id="imp-lista-datas" style="padding-left: 15px; margin:0; font-size: 10px;"></ol>
+            <ol id="imp-lista-datas" style="padding-left: 15px; margin:0; font-size: 11px;"></ol>
         </div>
-        <div style="border-top: 1px dashed black; padding-top: 5px; text-align: center;">
+        <div class="linha-tracejada"></div>
+        <div style="text-align: center; margin-top: 5px;">
             <p style="font-weight: bold; margin:0;">RESGATE LIBERADO</p>
-            <p style="font-size: 9px; margin:2px 0;">Cortesia validada no sistema nuvem.</p>
+            <p style="font-size: 10px; margin:2px 0;">Cortesia validada no sistema nuvem.</p>
         </div>
     </div>
 
@@ -265,7 +300,42 @@
         const LINK_INSTAGRAM = "https://bit.ly/4vLB16n";
         const LINK_GOOGLE = "https://bit.ly/4vf4DrJ";
 
-        // FUNÇÃO DE TOAST (Substitui os alerts)
+        // FUNÇÃO DE NAVEGAÇÃO POR TECLADO NO MODAL (FOCUS TRAP)
+        window.prenderFocoModal = (modalElement) => {
+            const elementosFocaveis = modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (elementosFocaveis.length === 0) return;
+
+            const primeiroElemento = elementosFocaveis[0];
+            const ultimoElemento = elementosFocaveis[elementosFocaveis.length - 1];
+
+            // Remove o listener anterior para evitar duplicação caso abra e feche várias vezes
+            if (modalElement._focusTrapListener) {
+                modalElement.removeEventListener('keydown', modalElement._focusTrapListener);
+            }
+
+            modalElement._focusTrapListener = function(e) {
+                let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+                if (!isTabPressed) return;
+
+                if (e.shiftKey) { // Shift + Tab (voltar)
+                    if (document.activeElement === primeiroElemento) {
+                        ultimoElemento.focus();
+                        e.preventDefault();
+                    }
+                } else { // Apenas Tab (avançar)
+                    if (document.activeElement === ultimoElemento) {
+                        primeiroElemento.focus();
+                        e.preventDefault();
+                    }
+                }
+            };
+
+            modalElement.addEventListener('keydown', modalElement._focusTrapListener);
+
+            // Foca automaticamente no primeiro campo (ou botão) ao abrir com leve atraso para o render
+            setTimeout(() => primeiroElemento.focus(), 50);
+        };
+
         window.mostrarToast = (msg, tipo = 'sucesso') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -285,11 +355,9 @@
             }, 3000);
         };
 
-        // FUNÇÃO DE EXPORTAR EXCEL/CSV
         window.exportarExcel = () => {
             if(clientesArray.length === 0) return mostrarToast("Nenhum dado para exportar", "erro");
             
-            // \ufeff garante que os acentos (UTF-8) sejam lidos corretamente no Excel
             let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almocos_Acumulados;Premios_Resgatados\n";
             
             clientesArray.forEach(c => {
@@ -380,7 +448,10 @@
             if (!cliente) return mostrarToast('Cliente não encontrado!', 'erro');
 
             if (cliente.almocos >= 10) {
-                document.getElementById('modal-trava').classList.remove('hidden');
+                const modal = document.getElementById('modal-trava');
+                modal.classList.remove('hidden');
+                prenderFocoModal(modal); // Trava o foco no modal
+                
                 document.getElementById('btn-trava-resgatar').onclick = () => {
                     fecharModal('modal-trava');
                     efetuarResgateEImprimir(cliente);
@@ -391,7 +462,10 @@
                 };
             } else {
                 document.getElementById('texto-confirmacao').innerText = `Deseja registrar +1 almoço para ${cliente.nome}?`;
-                document.getElementById('modal-confirmacao').classList.remove('hidden');
+                const modal = document.getElementById('modal-confirmacao');
+                modal.classList.remove('hidden');
+                prenderFocoModal(modal); // Trava o foco no modal
+                
                 document.getElementById('btn-confirmar-almoco').onclick = () => {
                     fecharModal('modal-confirmacao');
                     processarConfirmacao(cliente);
@@ -463,7 +537,11 @@
                                   
             document.getElementById('texto-sucesso').innerHTML = `Total atualizado: <strong>${cliente.almocos}</strong> almoços para <strong>${cliente.nome}</strong>.`;
             document.getElementById('btn-whatsapp').href = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(texto)}`;
-            document.getElementById('modal-sucesso').classList.remove('hidden');
+            
+            const modal = document.getElementById('modal-sucesso');
+            modal.classList.remove('hidden');
+            prenderFocoModal(modal); // Trava o foco no modal
+            
             document.getElementById('busca-cpf').value = '';
         }
 
@@ -542,7 +620,10 @@
                     </div>
                 `;
             });
-            document.getElementById('modal-historico').classList.remove('hidden');
+            
+            const modal = document.getElementById('modal-historico');
+            modal.classList.remove('hidden');
+            prenderFocoModal(modal); // Trava o foco no modal
             lucide.createIcons();
         };
 
@@ -577,7 +658,10 @@
             document.getElementById('input-senha').value = '';
             document.getElementById('area-opcoes-secretas').classList.add('hidden');
             document.getElementById('area-senha-secreta').classList.remove('hidden');
-            document.getElementById('modal-secreto').classList.remove('hidden');
+            
+            const modal = document.getElementById('modal-secreto');
+            modal.classList.remove('hidden');
+            prenderFocoModal(modal); // Trava o foco no modal
         };
 
         window.validarSenha = () => {
@@ -609,7 +693,14 @@
             }
         };
 
-        window.fecharModal = (id) => document.getElementById(id).classList.add('hidden');
+        window.fecharModal = (id) => {
+            document.getElementById(id).classList.add('hidden');
+            // Ao fechar um modal, joga o foco de volta para o campo de busca de CPF para agilizar o caixa
+            if (id !== 'modal-secreto' && id !== 'modal-historico') {
+                const buscaInput = document.getElementById('busca-cpf');
+                if (buscaInput) buscaInput.focus();
+            }
+        };
         
         window.mascaraCPF = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
         window.mascaraTelefone = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
@@ -623,7 +714,7 @@
         function formatarCPF(cpf) { return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
         function formatarTel(tel) { return tel.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); }
 
-                // --- REGISTO DO SERVICE WORKER (PWA / OFFLINE) ---
+        // --- REGISTO DO SERVICE WORKER (PWA / OFFLINE) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
