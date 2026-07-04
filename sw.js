@@ -1,11 +1,11 @@
-const CACHE_NAME = 'tophaus-fidelidade-v2';
+const CACHE_NAME = 'tophaus-fidelidade-v3';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './logo.jpg' /* <-- Adicione a logo aqui para ela funcionar sem internet */
 ];
 
-// Instala o Service Worker e guarda os ficheiros em cache
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -15,11 +15,9 @@ self.addEventListener('install', event => {
   );
 });
 
-// Intercepta os pedidos para funcionar sem internet
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(response => {
-      // Se encontrar no cache, retorna o cache. Se não, tenta a rede.
       if (response) {
         return response;
       }
@@ -27,4 +25,3 @@ self.addEventListener('fetch', event => {
     })
   );
 });
-
