@@ -416,10 +416,12 @@
             
             document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-rose-600">${cliente.nome}</strong>!`;
             
-            const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${cliente.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial e repleto de alegrias. Venha comemorar conosco! 🥳🎉`);
+            const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${cliente.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial.\n\nVenha comemorar conosco hoje e ganhe uma bebida da casa como cortesia! 🍹\n*(Válido apenas hoje. Não inclui jarras de suco ou garrafas de vinho).* 🥳🎉`);
             document.getElementById('btn-whats-aniversario').href = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${msgWhatsNiver}`;
             
-            document.getElementById('modal-alerta-aniversario').classList.remove('hidden');
+            const modal = document.getElementById('modal-alerta-aniversario');
+            modal.classList.remove('hidden');
+            prenderFocoModal(modal);
         }
 
         window.continuarPosAniversario = () => {
