@@ -98,25 +98,30 @@
 
             <section id="aba-admin" class="hidden space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:border-slate-900 transition">
-                        <p class="text-xs font-semibold text-slate-400 uppercase">Total Clientes</p>
-                        <p id="card-total" class="text-2xl font-bold text-slate-700">0</p>
+                    <!-- Card Total -->
+                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
+                        <p id="card-total" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('premios')" class="bg-amber-50 p-4 rounded-xl shadow-sm border border-amber-100 cursor-pointer hover:border-amber-500 transition">
-                        <p class="text-xs font-semibold text-amber-600 uppercase flex items-center gap-1"><i data-lucide="gift" class="w-3.5 h-3.5"></i> Aguardando Resgate</p>
-                        <p id="card-premios" class="text-2xl font-bold text-amber-700">0</p>
+                    <!-- Card Prêmios (Atenção: Âmbar apenas no ícone) -->
+                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-amber-500"></i> Aguardando Resgate</p>
+                        <p id="card-premios" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('vips')" class="bg-indigo-50 p-4 rounded-xl shadow-sm border border-indigo-100 cursor-pointer hover:border-indigo-500 transition">
-                        <p class="text-xs font-semibold text-indigo-600 uppercase flex items-center gap-1"><i data-lucide="medal" class="w-3.5 h-3.5"></i> Mais Fiéis (VIPs)</p>
-                        <p id="card-vips" class="text-2xl font-bold text-indigo-700">0</p>
+                    <!-- Card VIPs -->
+                    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-indigo-500"></i> Mais Fiéis (VIPs)</p>
+                        <p id="card-vips" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('aniversarios_dia')" class="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-100 cursor-pointer hover:border-emerald-500 transition">
-                        <p class="text-xs font-semibold text-emerald-600 uppercase flex items-center gap-1"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Aniversariantes Dia</p>
-                        <p id="card-niver-dia" class="text-2xl font-bold text-emerald-700">0</p>
+                    <!-- Card Aniversários Dia (Ação Imediata: Verde apenas no ícone) -->
+                    <div onclick="filtrarLista('aniversarios_dia')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="calendar-days" class="w-4 h-4 text-emerald-500"></i> Aniversariantes Dia</p>
+                        <p id="card-niver-dia" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('aniversarios')" class="bg-rose-50 p-4 rounded-xl shadow-sm border border-rose-100 cursor-pointer hover:border-rose-500 transition">
-                        <p class="text-xs font-semibold text-rose-600 uppercase flex items-center gap-1"><i data-lucide="cake" class="w-3.5 h-3.5"></i> Aniversariantes Mês</p>
-                        <p id="card-niver" class="text-2xl font-bold text-rose-700">0</p>
+                    <!-- Card Aniversários Mês (Atenção: Rosa apenas no ícone) -->
+                    <div onclick="filtrarLista('aniversarios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-rose-500"></i> Aniversariantes Mês</p>
+                        <p id="card-niver" class="text-2xl font-black text-black">0</p>
                     </div>
                 </div>
 
