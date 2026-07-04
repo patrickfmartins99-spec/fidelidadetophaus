@@ -545,13 +545,16 @@
 
         function gerarWhatsApp(cliente) {
             let texto = cliente.almocos >= 10 
-                ? `🎉 Parabéns, ${cliente.nome}! Você completou 10 almoços no Top Haus! 🥳\n\n🎁 O seu almoço cortesia JÁ ESTÁ LIBERADO! Avise o caixa na próxima visita.\n\n📸 Instagram: ${LINK_INSTAGRAM}` 
-                : `Olá, ${cliente.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${cliente.almocos} almoços registrados. Ao completar 10, o próximo é por nossa conta!\n\n📸 Instagram: ${LINK_INSTAGRAM}`;
+                ? `🎉 Parabéns, ${cliente.nome}! Você completou 10 almoços no Top Haus! 🥳\n\n🎁 O seu almoço cortesia JÁ ESTÁ LIBERADO!\n⚠️ *Regra da cortesia:* Prato livre até 500g. O peso excedente e bebidas são cobrados à parte.\n\nAvise o caixa na sua próxima visita!\n\n📸 Instagram: ${LINK_INSTAGRAM}` 
+                : `Olá, ${cliente.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${cliente.almocos} almoços registrados. Ao completar 10, o próximo é por nossa conta (prato até 500g)!\n\n📸 Instagram: ${LINK_INSTAGRAM}`;
                                   
             document.getElementById('texto-sucesso').innerHTML = `Total atualizado: <strong>${cliente.almocos}</strong> almoços.`;
             document.getElementById('btn-whatsapp').href = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(texto)}`;
             
-            document.getElementById('modal-sucesso').classList.remove('hidden');
+            const modal = document.getElementById('modal-sucesso');
+            modal.classList.remove('hidden');
+            prenderFocoModal(modal); 
+            
             document.getElementById('busca-cpf').value = '';
         }
 
