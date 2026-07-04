@@ -30,8 +30,6 @@
         <header class="bg-black text-white shadow-md py-4 px-6 mb-8">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
-                    <!-- AQUI ENTRA A SUA LOGO -->
-                    <!-- Ajuste o h-10 (altura) para maior ou menor dependendo do formato da sua imagem -->
                     <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain">
                     <span class="text-gray-400 font-light text-lg hidden sm:block">| Fidelidade</span>
                 </div>
@@ -98,36 +96,32 @@
 
             <section id="aba-admin" class="hidden space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-    <!-- Card Total -->
-    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
-        <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
-        <p id="card-total" class="text-2xl font-black text-black">0</p>
-    </div>
-    
-    <!-- Card Prêmios (Atenção: Âmbar apenas no ícone) -->
-    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
-        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-amber-500"></i> Aguardando Resgate</p>
-        <p id="card-premios" class="text-2xl font-black text-black">0</p>
-    </div>
-    
-    <!-- Card VIPs -->
-    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
-        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-indigo-500"></i> Mais Fiéis (VIPs)</p>
-        <p id="card-vips" class="text-2xl font-black text-black">0</p>
-    </div>
-    
-    <!-- Card Aniversários Dia (Ação Imediata: Verde apenas no ícone) -->
-    <div onclick="filtrarLista('aniversarios_dia')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
-        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="calendar-days" class="w-4 h-4 text-emerald-500"></i> Aniversariantes Dia</p>
-        <p id="card-niver-dia" class="text-2xl font-black text-black">0</p>
-    </div>
-    
-    <!-- Card Aniversários Mês (Atenção: Rosa apenas no ícone) -->
-    <div onclick="filtrarLista('aniversarios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
-        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-rose-500"></i> Aniversariantes Mês</p>
-        <p id="card-niver" class="text-2xl font-black text-black">0</p>
-    </div>
-</div>
+                    <!-- Card Total -->
+                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
+                        <p id="card-total" class="text-2xl font-black text-black">0</p>
+                    </div>
+                    <!-- Card Prêmios -->
+                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-amber-500"></i> Aguardando Resgate</p>
+                        <p id="card-premios" class="text-2xl font-black text-black">0</p>
+                    </div>
+                    <!-- Card VIPs -->
+                    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-indigo-500"></i> Mais Fiéis (VIPs)</p>
+                        <p id="card-vips" class="text-2xl font-black text-black">0</p>
+                    </div>
+                    <!-- Card Aniversários Dia -->
+                    <div onclick="filtrarLista('aniversarios_dia')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="calendar-days" class="w-4 h-4 text-emerald-500"></i> Aniversariantes Dia</p>
+                        <p id="card-niver-dia" class="text-2xl font-black text-black">0</p>
+                    </div>
+                    <!-- Card Aniversários Mês -->
+                    <div onclick="filtrarLista('aniversarios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-rose-500"></i> Aniversariantes Mês</p>
+                        <p id="card-niver" class="text-2xl font-black text-black">0</p>
+                    </div>
+                </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -163,7 +157,7 @@
             </section>
         </main>
 
-        <!-- ALERTA DE ANIVERSÁRIO (NOVO) -->
+        <!-- ALERTA DE ANIVERSÁRIO -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-rose-400 to-emerald-400"></div>
@@ -183,12 +177,12 @@
             </div>
         </div>
 
-        <!-- MODAL DE EDIÇÃO (NOVO) -->
+        <!-- MODAL DE EDIÇÃO -->
         <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-indigo-600"></i> Editar Cadastro</h3>
-                    <button onclick="fecharModal('modal-editar')" class="text-slate-400 hover:text-rose-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <button type="button" onclick="fecharModal('modal-editar')" class="text-slate-400 hover:text-rose-500"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 
                 <form id="form-editar" onsubmit="salvarEdicao(event)" class="space-y-4">
@@ -219,7 +213,7 @@
             </div>
         </div>
 
-        <!-- OUTROS MODAIS ORIGINAIS -->
+        <!-- MODAIS PADRÃO DO CAIXA -->
         <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-slate-800 mb-2">Contabilizar Refeição</h3>
@@ -290,7 +284,7 @@
 
     </div>
 
-    <!-- IMPRESSÃO -->
+    <!-- IMPRESSÃO BOBINA 80MM -->
     <div id="secao-impressao" class="print-area">
         <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
             <strong style="font-size: 14px;">ESPAÇO TOP HAUS LTDA</strong><br>
@@ -344,11 +338,48 @@
         let filtroAtual = 'todos';
         let senhaAtualBanco = "4732423"; 
         
-        let acaoPendente = null; // Guarda o cliente se interceptado pelo aniversário
-        let tipoAcaoPendente = null; // 'busca' ou 'cadastro'
+        let acaoPendente = null; 
+        let tipoAcaoPendente = null; 
 
         const LINK_INSTAGRAM = "https://bit.ly/4vLB16n";
         const LINK_GOOGLE = "https://bit.ly/4vf4DrJ";
+
+        // TAB INTELIGENTE: Ignora campos bloqueados e ocultos
+        window.prenderFocoModal = (modalElement) => {
+            const todosFocaveis = modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            const elementosFocaveis = Array.from(todosFocaveis).filter(el => {
+                return !el.disabled && el.offsetParent !== null; 
+            });
+
+            if (elementosFocaveis.length === 0) return;
+
+            const primeiroElemento = elementosFocaveis[0];
+            const ultimoElemento = elementosFocaveis[elementosFocaveis.length - 1];
+
+            if (modalElement._focusTrapListener) {
+                modalElement.removeEventListener('keydown', modalElement._focusTrapListener);
+            }
+
+            modalElement._focusTrapListener = function(e) {
+                let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+                if (!isTabPressed) return;
+
+                if (e.shiftKey) { 
+                    if (document.activeElement === primeiroElemento) {
+                        ultimoElemento.focus();
+                        e.preventDefault();
+                    }
+                } else { 
+                    if (document.activeElement === ultimoElemento) {
+                        primeiroElemento.focus();
+                        e.preventDefault();
+                    }
+                }
+            };
+
+            modalElement.addEventListener('keydown', modalElement._focusTrapListener);
+            setTimeout(() => { if(primeiroElemento) primeiroElemento.focus(); }, 50);
+        };
 
         window.mostrarToast = (msg, tipo = 'sucesso') => {
             const container = document.getElementById('toast-container');
@@ -416,12 +447,12 @@
             
             document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-rose-600">${cliente.nome}</strong>!`;
             
-            // Mensagem unificada
             const textoNiver = `🎂 Parabéns, ${cliente.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial.\n\nVenha comemorar conosco hoje e ganhe uma bebida da casa como cortesia! 🍹\n*(Válido apenas hoje. Exclui jarras de suco e garrafas de vinho).* 🥳🎉`;
             
             document.getElementById('btn-whats-aniversario').href = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(textoNiver)}`;
             
-            document.getElementById('modal-alerta-aniversario').classList.remove('hidden');
+            const modal = document.getElementById('modal-alerta-aniversario');
+            modal.classList.remove('hidden');
             prenderFocoModal(modal);
         }
 
@@ -451,7 +482,7 @@
             let nascimentoConvertido = nascimento;
             if(nascimento.includes('/')) {
                 const partes = nascimento.split('/');
-                if(partes.length === 3) nascimentoConvertido = `${partes[2]}-${partes[1]}-${partes[0]}`; 
+                nascimentoConvertido = `${partes[2]}-${partes[1]}-${partes[0]}`; 
             }
 
             const novoCliente = { cpf, nome, nascimento: nascimentoConvertido, telefone, almocos: 0, premiosResgatados: 0, historico: [], historicoResgates: [] };
@@ -460,7 +491,6 @@
                 document.getElementById('form-cadastro').reset();
                 mostrarToast(`Cliente cadastrado com sucesso!`, 'sucesso');
                 
-                // VERIFICAÇÃO IMEDIATA DO ANIVERSÁRIO NO CADASTRO
                 if(isAniversarioHoje(novoCliente)) {
                     abrirAlertaAniversario(novoCliente, 'cadastro');
                 } else {
@@ -479,7 +509,6 @@
             const cliente = clientesMap[cpfBusca];
             if (!cliente) return mostrarToast('Cliente não encontrado!', 'erro');
 
-            // VERIFICAÇÃO IMEDIATA DO ANIVERSÁRIO NA BUSCA DO CAIXA
             if(isAniversarioHoje(cliente)) {
                 abrirAlertaAniversario(cliente, 'busca');
             } else {
@@ -491,12 +520,14 @@
             if (cliente.almocos >= 10) {
                 const modal = document.getElementById('modal-trava');
                 modal.classList.remove('hidden');
+                prenderFocoModal(modal);
                 document.getElementById('btn-trava-resgatar').onclick = () => { fecharModal('modal-trava'); efetuarResgateEImprimir(cliente); };
                 document.getElementById('btn-trava-acumular').onclick = () => { fecharModal('modal-trava'); processarConfirmacao(cliente); };
             } else {
                 document.getElementById('texto-confirmacao').innerText = `Deseja registrar +1 almoço para ${cliente.nome}?`;
                 const modal = document.getElementById('modal-confirmacao');
                 modal.classList.remove('hidden');
+                prenderFocoModal(modal);
                 document.getElementById('btn-confirmar-almoco').onclick = () => { fecharModal('modal-confirmacao'); processarConfirmacao(cliente); };
             }
         }
@@ -562,7 +593,7 @@
         }
 
         // -----------------------------------------------------
-        // EDIÇÃO DE CLIENTE (NOVO RECURSO)
+        // EDIÇÃO DE CLIENTE 
         // -----------------------------------------------------
         window.abrirEditar = (cpf) => {
             const cliente = clientesMap[cpf];
@@ -578,7 +609,9 @@
             document.getElementById('edit-nascimento').value = niver;
             document.getElementById('edit-telefone').value = formatarTel(cliente.telefone);
             
-            document.getElementById('modal-editar').classList.remove('hidden');
+            const modalEditar = document.getElementById('modal-editar');
+            modalEditar.classList.remove('hidden');
+            prenderFocoModal(modalEditar);
         };
 
         window.salvarEdicao = (e) => {
@@ -591,7 +624,6 @@
             let niverConvertido = nascimento;
             if(nascimento.includes('/')) {
                 const p = nascimento.split('/');
-                // A FALHA ESTAVA AQUI: Estava salvando com barras. O correto é com traços (-)
                 niverConvertido = `${p[2]}-${p[1]}-${p[0]}`; 
             }
             
@@ -607,7 +639,7 @@
         };
 
         // -----------------------------------------------------
-        // RENDERIZAÇÃO E ADMIN
+        // RENDERIZAÇÃO E ADMIN (Tabela com Multi-botões)
         // -----------------------------------------------------
         window.filtrarLista = (tipo) => {
             filtroAtual = tipo;
@@ -644,13 +676,21 @@
 
                 const btnEditar = `<button onclick="abrirEditar('${c.cpf}')" class="text-indigo-600 hover:bg-indigo-50 p-1.5 rounded-lg transition" title="Editar Cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
 
+                // Lógica 1: Botão de Aniversário Verde
                 const info = obterInfoNascimento(c.nascimento);
                 const isNiverMes = info && info.mes === new Date().getMonth();
                 let btnAniversario = '';
+                
                 if (isNiverMes) {
-                    // Mensagem unificada (exatamente igual à do caixa)
                     const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial.\n\nVenha comemorar conosco hoje e ganhe uma bebida da casa como cortesia! 🍹\n*(Válido apenas hoje. Exclui jarras de suco e garrafas de vinho).* 🥳🎉`);
-                    btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Enviar Parabéns"><i data-lucide="cake" class="w-4 h-4"></i> WhatsApp</a>`;
+                    btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Enviar Parabéns"><i data-lucide="cake" class="w-4 h-4"></i> Niver</a>`;
+                }
+
+                // Lógica 2: Botão de Prêmio Dourado (10 Almoços)
+                let btnPremio = '';
+                if (c.almocos >= 10) {
+                    const msgWhatsPremio = encodeURIComponent(`🎉 Parabéns, ${c.nome}! Você completou 10 almoços no Top Haus! 🥳\n\n🎁 O seu almoço cortesia JÁ ESTÁ LIBERADO!\n⚠️ *Regra da cortesia:* Prato livre até 500g. O peso excedente e bebidas são cobrados à parte.\n\nAvise o caixa na sua próxima visita!\n\n📸 Instagram: ${LINK_INSTAGRAM}`);
+                    btnPremio = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsPremio}" target="_blank" class="text-amber-600 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Avisar Prêmio"><i data-lucide="gift" class="w-4 h-4"></i> Prêmio</a>`;
                 }
 
                 tr.innerHTML = `
@@ -660,6 +700,7 @@
                     <td class="py-3 px-6 text-center font-bold text-indigo-600">${c.premiosResgatados || 0}</td>
                     <td class="py-3 px-6 text-right">
                         <div class="flex justify-end gap-1 items-center">
+                            ${btnPremio}
                             ${btnAniversario}
                             ${btnEditar}
                             ${btnHistorico}
@@ -683,7 +724,9 @@
                         <button onclick="reimprimirCupom('${cliente.nome}', '${cliente.cpf}', '${resgateStr}', '${resgate.dataResgate}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Reimprimir</button>
                     </div>`;
             });
-            document.getElementById('modal-historico').classList.remove('hidden');
+            const modal = document.getElementById('modal-historico');
+            modal.classList.remove('hidden');
+            prenderFocoModal(modal);
         };
 
         window.reimprimirCupom = (nome, cpf, arrayEncoded, dataResgate) => {
@@ -724,11 +767,26 @@
             link.click();
         };
 
-        window.abrirModalSecreto = () => { document.getElementById('input-senha').value = ''; document.getElementById('area-opcoes-secretas').classList.add('hidden'); document.getElementById('area-senha-secreta').classList.remove('hidden'); document.getElementById('modal-secreto').classList.remove('hidden'); };
+        window.abrirModalSecreto = () => { 
+            document.getElementById('input-senha').value = ''; 
+            document.getElementById('area-opcoes-secretas').classList.add('hidden'); 
+            document.getElementById('area-senha-secreta').classList.remove('hidden'); 
+            const modal = document.getElementById('modal-secreto');
+            modal.classList.remove('hidden'); 
+            prenderFocoModal(modal);
+        };
+        
         window.validarSenha = () => { document.getElementById('input-senha').value === senhaAtualBanco ? (document.getElementById('area-senha-secreta').classList.add('hidden'), document.getElementById('area-opcoes-secretas').classList.remove('hidden')) : mostrarToast("Senha incorreta.", "erro"); };
         window.resetarSistema = () => { if(confirm("ALERTA MÁXIMO! Apagar TODOS os clientes?")) set(ref(db, 'clientes'), null).then(() => { mostrarToast("Banco resetado", "sucesso"); fecharModal('modal-secreto'); }); };
         window.mudarSenha = () => { const nova = document.getElementById('nova-senha').value; if(nova.trim() !== '') set(ref(db, 'config/senhaReset'), nova).then(() => { mostrarToast("Senha alterada!", "sucesso"); fecharModal('modal-secreto'); }); };
-        window.fecharModal = (id) => { document.getElementById(id).classList.add('hidden'); if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar') { const b = document.getElementById('busca-cpf'); if(b) b.focus(); } };
+        
+        window.fecharModal = (id) => { 
+            document.getElementById(id).classList.add('hidden'); 
+            if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar') { 
+                const b = document.getElementById('busca-cpf'); 
+                if(b) b.focus(); 
+            } 
+        };
         
         window.mascaraCPF = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
         window.mascaraTelefone = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
