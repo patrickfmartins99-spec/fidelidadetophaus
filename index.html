@@ -648,7 +648,7 @@
                 let btnAniversario = '';
                 
                 if (isNiverMes) {
-                    const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário! Que seu dia seja especial. Venha comemorar conosco! 🥳🎉`);
+                    const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário neste mês! Que seu dia seja especial.\n\nNo dia do seu aniversário, venha comemorar conosco e ganhe uma bebida da casa como cortesia! 🍹\n*(Exclui jarras de suco e garrafas de vinho).* 🥳🎉`);
                     btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-emerald-600 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Enviar Parabéns"><i data-lucide="cake" class="w-4 h-4"></i> WhatsApp</a>`;
                 }
 
