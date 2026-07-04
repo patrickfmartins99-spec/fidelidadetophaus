@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v1';
+const CACHE_NAME = 'tophaus-fidelidade-v2';
 const urlsToCache = [
   './',
   './index.html',
