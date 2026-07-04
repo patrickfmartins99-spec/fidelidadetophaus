@@ -572,7 +572,8 @@
             let niverConvertido = nascimento;
             if(nascimento.includes('/')) {
                 const p = nascimento.split('/');
-                niverConvertido = `${p[2]}/${p[1]}/${p[0]}`;
+                // A FALHA ESTAVA AQUI: Estava salvando com barras. O correto é com traços (-)
+                niverConvertido = `${p[2]}-${p[1]}-${p[0]}`; 
             }
             
             const cliente = clientesMap[cpf];
