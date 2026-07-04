@@ -27,16 +27,18 @@
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <div class="no-print">
-        <header class="bg-slate-900 text-white shadow-md py-4 px-6 mb-8">
+        <header class="bg-black text-white shadow-md py-4 px-6 mb-8">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
-                    <i data-lucide="utensils-crossed" class="w-8 h-8 text-white"></i>
-                    <h1 class="text-2xl font-bold tracking-wide">Top Haus <span class="text-slate-400 font-normal text-lg">| Fidelidade Cloud</span></h1>
+                    <!-- AQUI ENTRA A SUA LOGO -->
+                    <!-- Ajuste o h-10 (altura) para maior ou menor dependendo do formato da sua imagem -->
+                    <img src="./logo.png" alt="Top Haus" class="h-10 w-auto object-contain">
+                    <span class="text-gray-400 font-light text-lg hidden sm:block">| Fidelidade Cloud</span>
                 </div>
                 <div class="flex gap-4">
-                    <button onclick="alternarAba('caixa')" class="aba-btn active bg-slate-800 border border-slate-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition"><i data-lucide="calculator" class="w-4 h-4"></i> Caixa</button>
-                    <button onclick="alternarAba('admin')" class="aba-btn bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition"><i data-lucide="shield" class="w-4 h-4"></i> Administrativo</button>
-                    <button onclick="abrirModalSecreto()" title="Configurações e Reset" class="ml-2 p-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 rounded-lg text-slate-300 transition cursor-pointer flex items-center justify-center">
+                    <button onclick="alternarAba('caixa')" class="aba-btn active bg-gray-800 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition"><i data-lucide="calculator" class="w-4 h-4"></i> Caixa</button>
+                    <button onclick="alternarAba('admin')" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition"><i data-lucide="shield" class="w-4 h-4"></i> Administrativo</button>
+                    <button onclick="abrirModalSecreto()" title="Configurações e Reset" class="ml-2 p-2 bg-black border border-gray-800 hover:bg-gray-800 rounded-lg text-gray-400 transition cursor-pointer flex items-center justify-center">
                         <i data-lucide="settings" class="w-5 h-5"></i>
                     </button>
                 </div>
