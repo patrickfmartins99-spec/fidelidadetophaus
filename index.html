@@ -22,29 +22,27 @@
                 padding: 0; 
                 margin: 0; 
                 font-family: 'Courier New', Courier, monospace; 
-                color: #000 !important; /* Preto puro */
+                color: #000 !important; 
             }
             .no-print { display: none !important; }
             .print-area { 
                 display: block !important; 
-                width: 72mm; /* Diminuído para não cortar as laterais */
-                margin: 0 auto; /* Centraliza a bobina */
+                width: 72mm; 
+                margin: 0 auto; 
                 padding: 0; 
                 font-size: 13px; 
-                font-weight: bold !important; /* Força a cor escura na térmica */
+                font-weight: bold !important; 
                 color: #000 !important; 
             }
             .linha-tracejada { border-top: 2px dashed #000 !important; margin: 6px 0; }
             strong { font-weight: 900 !important; }
         }
 
-        /* Ocultar setas de input no Totem (estética) */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; margin: 0; 
         }
 
-        /* Animação da barra de tempo do Totem */
         @keyframes shrinkBar {
             from { width: 100%; }
             to { width: 0%; }
@@ -279,23 +277,10 @@
             </div>
         </div>
 
-        <div id="modal-sucesso" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl text-center border-t-4 border-black">
-                <div class="w-12 h-12 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="check" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-xl font-black text-black mb-2">Sucesso!</h3>
-                <p class="text-gray-600 mb-6" id="texto-sucesso"></p>
-                <div class="flex flex-col gap-2">
-                    <button onclick="fecharModal('modal-sucesso')" class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold">Fechar</button>
-                </div>
-            </div>
-        </div>
-
         <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border-t-4 border-gray-800">
                 <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> Histórico de Resgates</h3>
-                <div id="lista-historico" class="max-h-64 overflow-y-auto space-y-3 mb-6"></div>
+                <div id="lista-historico" class="max-h-80 overflow-y-auto space-y-3 mb-6"></div>
                 <button onclick="fecharModal('modal-historico')" class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold">Fechar</button>
             </div>
         </div>
@@ -583,6 +568,22 @@
         }
 
         // -----------------------------------------------------
+        // CABEÇALHO PADRÃO IMPRESSÃO TÉRMICA (CUPOM NÃO FISCAL)
+        // -----------------------------------------------------
+        function cabecalhoImpressao() {
+            // Caso tenha uma IE real, substitua "ISENTO" pelo número.
+            return `
+                <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
+                    <strong style="font-size: 15px; color: #000;">ESPAÇO TOP HAUS LTDA</strong><br>
+                    CNPJ: 26.845.124/0001-61 | IE: ISENTO<br>
+                    Avenida Prefeito Jose Juvenal Mafra, 7155<br>
+                    Gravata - NAVEGANTES - SC 88372-506<br>
+                    Fone: (47) 3342-5114<br>
+                </div>
+            `;
+        }
+
+        // -----------------------------------------------------
         // ================= LÓGICA MODO TOTEM =================
         // -----------------------------------------------------
         window.fecharSenhaTotem = () => { document.getElementById('modal-senha-totem').classList.add('hidden'); };
@@ -701,13 +702,9 @@
                 document.getElementById('btn-totem-salvar').disabled = false;
                 isProcessing = false;
 
-                // NOVA INTELIGÊNCIA: Verificando se ele se cadastrou justo no dia do Niver
                 const ehNiverHoje = diasParaAniversario(novoCliente.nascimento) === 0;
-                if (ehNiverHoje) {
-                    totemMostrarMensagem('aniversario_totem');
-                } else {
-                    totemMostrarMensagem('cadastro_sucesso');
-                }
+                if (ehNiverHoje) { totemMostrarMensagem('aniversario_totem'); } 
+                else { totemMostrarMensagem('cadastro_sucesso'); }
             }).catch(() => {
                 mostrarToast("Erro ao salvar.", "erro"); isProcessing = false; document.getElementById('btn-totem-salvar').disabled = false;
             });
@@ -731,18 +728,13 @@
                 isProcessing = false;
                 if(btnAcumular) btnAcumular.disabled = false;
 
-                // NOVA INTELIGÊNCIA DO TOTEM: O ANIVERSÁRIO É PRIORIDADE
                 const anoAtual = new Date().getFullYear();
                 const ehNiverHoje = diasParaAniversario(cliente.nascimento) === 0;
                 const jaResgatouNiver = cliente.aniversarioResgatadoAno === anoAtual;
 
-                if (ehNiverHoje && !jaResgatouNiver) {
-                    totemMostrarMensagem('aniversario_totem');
-                } else if(cliente.almocos === 10) {
-                    totemMostrarMensagem('meta_atingida'); 
-                } else {
-                    totemMostrarMensagem('sucesso_acumulo');
-                }
+                if (ehNiverHoje && !jaResgatouNiver) { totemMostrarMensagem('aniversario_totem'); } 
+                else if(cliente.almocos === 10) { totemMostrarMensagem('meta_atingida'); } 
+                else { totemMostrarMensagem('sucesso_acumulo'); }
             });
         };
 
@@ -791,12 +783,11 @@
                 texto.innerHTML = "Você acaba de completar 10 almoços.<br>Na sua próxima visita, você tem direito a um almoço de até R$ 50,00 (por nossa conta)";
                 tempoTela = 6500;
             }
-            // MENSAGEM NOVA PARA O TOTEM NO ANIVERSÁRIO
             else if(tipo === 'aniversario_totem') {
                 icone.innerHTML = `<i data-lucide="cake" class="w-14 h-14"></i>`;
                 titulo.innerText = "Feliz Aniversário!";
                 texto.innerHTML = `Seu almoço foi registrado.<br>🎁 Hoje é seu aniversário e você tem um <strong>Voucher de R$ 20,00</strong> liberado!<br><br>Avise o caixa agora mesmo!`;
-                tempoTela = 8000; // Tempo maior para ele ler
+                tempoTela = 8000; 
             }
 
             document.getElementById('totem-tela-mensagem').classList.remove('hidden');
@@ -882,51 +873,51 @@
             const cliente = acaoPendente;
             const anoAtual = new Date().getFullYear();
             
+            // Grava a trava do ano e também alimenta o Histórico
             cliente.aniversarioResgatadoAno = anoAtual;
+            if(!cliente.historicoAniversarios) cliente.historicoAniversarios = [];
+            const dataHoraResgate = new Date().toLocaleString('pt-BR');
+            cliente.historicoAniversarios.push({ dataResgate: dataHoraResgate, ano: anoAtual });
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
                 isProcessing = false;
                 document.getElementById('modal-alerta-aniversario').classList.add('hidden');
                 mostrarToast("Voucher de Aniversário liberado!", "sucesso");
-                
-                const htmlImpressao = `
-                    <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
-                        <strong style="font-size: 15px; color: #000;">ESPAÇO TOP HAUS LTDA</strong><br>
-                        CNPJ: 26.845.124/0001-61<br>
-                        Avenida Prefeito Jose Juvenal Mafra, 7155<br>
-                        Gravata - NAVEGANTES - SC 88372-506<br>
-                        Fone: (47) 3342-5114<br>
-                    </div>
-                    <div class="linha-tracejada"></div>
-                    <div style="text-align: center; margin-bottom: 5px;">
-                        <strong style="font-size: 14px; color: #000;">VOUCHER DE ANIVERSÁRIO</strong><br>
-                        <span style="font-size: 11px;">Gerado em: ${new Date().toLocaleString('pt-BR')}</span>
-                    </div>
-                    <div class="linha-tracejada"></div>
-                    <div style="margin-bottom: 5px; font-size: 12px; color: #000;">
-                        <p style="margin:2px 0;"><strong>Cliente:</strong> ${cliente.nome.toUpperCase()}</p>
-                        <p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cliente.cpf)}</p>
-                        <p style="margin:2px 0;"><strong>Contato:</strong> ${formatarTel(cliente.telefone)}</p>
-                        <p style="margin:2px 0;"><strong>Dt. Nasc:</strong> ${formatarNasc(cliente.nascimento)}</p>
-                    </div>
-                    <div class="linha-tracejada"></div>
-                    <div style="margin-bottom: 5px; font-size: 12px; color: #000;">
-                        <p style="margin:2px 0;"><strong>Cadastrado via:</strong> ${cliente.origemCadastro || 'Sistema Anterior'}</p>
-                        <p style="margin:2px 0;"><strong>Data de Registro:</strong> ${cliente.dataCadastro || 'N/A'}</p>
-                    </div>
-                    <div class="linha-tracejada"></div>
-                    <div style="text-align: center; margin-top: 5px;">
-                        <p style="font-weight: 900; margin:0; font-size: 16px; color: #000;">PRESENTE: R$ 20,00</p>
-                        <p style="font-size: 11px; margin:2px 0;">Válido para consumo nesta data.</p>
-                        <p style="font-size: 10px; margin:0;">*O valor excedente será cobrado à parte.</p>
-                    </div>
-                `;
-                document.getElementById('secao-impressao').innerHTML = htmlImpressao;
-                window.print();
-                
+                dispararImpressaoBobinaAniversario(cliente, dataHoraResgate);
                 continuarPosAniversario();
             });
         };
+
+        window.dispararImpressaoBobinaAniversario = (cliente, dataHoraResgate) => {
+            const htmlImpressao = `
+                ${cabecalhoImpressao()}
+                <div class="linha-tracejada"></div>
+                <div style="text-align: center; margin-bottom: 5px;">
+                    <strong style="font-size: 14px; color: #000;">VOUCHER DE ANIVERSÁRIO</strong><br>
+                    <span style="font-size: 11px;">Gerado em: ${dataHoraResgate}</span>
+                </div>
+                <div class="linha-tracejada"></div>
+                <div style="margin-bottom: 5px; font-size: 12px; color: #000;">
+                    <p style="margin:2px 0;"><strong>Cliente:</strong> ${cliente.nome.toUpperCase()}</p>
+                    <p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cliente.cpf)}</p>
+                    <p style="margin:2px 0;"><strong>Contato:</strong> ${formatarTel(cliente.telefone)}</p>
+                    <p style="margin:2px 0;"><strong>Dt. Nasc:</strong> ${formatarNasc(cliente.nascimento)}</p>
+                </div>
+                <div class="linha-tracejada"></div>
+                <div style="margin-bottom: 5px; font-size: 12px; color: #000;">
+                    <p style="margin:2px 0;"><strong>Cadastrado via:</strong> ${cliente.origemCadastro || 'Sistema Anterior'}</p>
+                    <p style="margin:2px 0;"><strong>Data de Registro:</strong> ${cliente.dataCadastro || 'N/A'}</p>
+                </div>
+                <div class="linha-tracejada"></div>
+                <div style="text-align: center; margin-top: 5px;">
+                    <p style="font-weight: 900; margin:0; font-size: 16px; color: #000;">PRESENTE: R$ 20,00</p>
+                    <p style="font-size: 11px; margin:2px 0;">Válido para consumo nesta data.</p>
+                    <p style="font-size: 10px; margin:0;">*O valor excedente será cobrado à parte.</p>
+                </div>
+            `;
+            document.getElementById('secao-impressao').innerHTML = htmlImpressao;
+            window.print();
+        }
 
         window.continuarPosAniversario = () => {
             document.getElementById('modal-alerta-aniversario').classList.add('hidden');
@@ -994,13 +985,7 @@
             arrayDatas.forEach(data => listaHtml += `<li>[+] ${data}</li>`);
 
             const htmlImpressao = `
-                <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
-                    <strong style="font-size: 15px; color: #000;">ESPAÇO TOP HAUS LTDA</strong><br>
-                    CNPJ: 26.845.124/0001-61<br>
-                    Avenida Prefeito Jose Juvenal Mafra, 7155<br>
-                    Gravata - NAVEGANTES - SC 88372-506<br>
-                    Fone: (47) 3342-5114<br>
-                </div>
+                ${cabecalhoImpressao()}
                 <div class="linha-tracejada"></div>
                 <div style="text-align: center; margin-bottom: 5px;">
                     <strong style="font-size: 14px; color: #000;">COMPROVANTE DE RESGATE</strong><br>
@@ -1100,8 +1085,14 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50 transition border-b border-gray-100 last:border-0';
                 
-                const btnHistorico = (c.premiosResgatados || 0) > 0 ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Ver Histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` : ``;
+                // Histórico visível se ele tiver premio de 10 almoços OU algum histórico de aniversário gravado
+                const temHistorico = (c.premiosResgatados || 0) > 0 || (c.historicoAniversarios && c.historicoAniversarios.length > 0);
+                const btnHistorico = temHistorico ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Ver Histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` : ``;
                 const btnEditar = `<button onclick="abrirEditar('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Editar Cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
+
+                // BOTÃO DE WHATSAPP GERAL DEVOLVIDO (Para enviar o saldo de almoços a qualquer momento)
+                const msgWhatsGeral = encodeURIComponent(`Olá, ${c.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${c.almocos} almoços registrados. Ao completar 10, na próxima visita você tem direito a um almoço de até R$50,00 (por nossa conta)`);
+                const btnWhatsGeral = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsGeral}" target="_blank" class="text-gray-500 hover:text-green-600 hover:bg-green-100 p-1.5 rounded-lg transition" title="Avisar Saldo no WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></a>`;
 
                 let btnAniversario = '';
                 if (filtroAtual.startsWith('niver')) {
@@ -1124,7 +1115,7 @@
                     <td class="py-3 px-6 font-mono text-gray-500 text-xs">${formatarCPF(c.cpf)}<br>${formatarTel(c.telefone)}</td>
                     <td class="py-3 px-6 text-center font-bold text-base ${c.almocos>=10 ? 'text-black' : 'text-gray-500'}">${c.almocos}</td>
                     <td class="py-3 px-6 text-center font-bold text-gray-500">${c.premiosResgatados || 0}</td>
-                    <td class="py-3 px-6 text-right"><div class="flex justify-end gap-1 items-center">${btnAniversario}${btnPremio}${btnEditar}${btnHistorico}</div></td>
+                    <td class="py-3 px-6 text-right"><div class="flex justify-end gap-1 items-center">${btnAniversario}${btnPremio}${btnWhatsGeral}${btnEditar}${btnHistorico}</div></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1133,17 +1124,53 @@
 
         window.abrirHistorico = (cpf) => {
             const cliente = clientesMap[cpf];
-            const div = document.getElementById('lista-historico'); div.innerHTML = '';
-            cliente.historicoResgates.forEach((resgate, index) => {
-                const resgateStr = encodeURIComponent(JSON.stringify(resgate.datas));
-                div.innerHTML += `<div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center"><div><p class="text-xs font-bold text-gray-800">Resgate #${index + 1}</p><p class="text-xs text-gray-500">Data: ${resgate.dataResgate}</p></div><button onclick="reimprimirCupom10Almocos('${cliente.nome}', '${cliente.cpf}', '${resgateStr}', '${resgate.dataResgate}')" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-gray-800 transition"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Reimprimir</button></div>`;
-            });
-            const modal = document.getElementById('modal-historico'); modal.classList.remove('hidden'); prenderFocoModal(modal);
+            const div = document.getElementById('lista-historico'); 
+            div.innerHTML = '';
+            
+            // 1. Histórico de 10 Almoços
+            if (cliente.historicoResgates && cliente.historicoResgates.length > 0) {
+                div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Prêmios de 10 Almoços</h4>`;
+                cliente.historicoResgates.forEach((resgate, index) => {
+                    const resgateStr = encodeURIComponent(JSON.stringify(resgate.datas));
+                    div.innerHTML += `
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center mb-2">
+                            <div><p class="text-xs font-bold text-gray-800">Resgate #${index + 1}</p><p class="text-xs text-gray-500">Data: ${resgate.dataResgate}</p></div>
+                            <button onclick="reimprimirCupom10Almocos('${cliente.nome}', '${cliente.cpf}', '${resgateStr}', '${resgate.dataResgate}')" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-gray-800 transition"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Reimprimir</button>
+                        </div>
+                    `;
+                });
+            }
+
+            // 2. Histórico de Aniversários
+            if (cliente.historicoAniversarios && cliente.historicoAniversarios.length > 0) {
+                div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Vouchers de Aniversário</h4>`;
+                cliente.historicoAniversarios.forEach((resgate, index) => {
+                    div.innerHTML += `
+                        <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 flex justify-between items-center mb-2">
+                            <div><p class="text-xs font-bold text-indigo-900">Aniversário ${resgate.ano}</p><p class="text-xs text-indigo-700">Data: ${resgate.dataResgate}</p></div>
+                            <button onclick="reimprimirAniversarioPorCpf('${cliente.cpf}', '${resgate.dataResgate}')" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-indigo-700 transition"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Reimprimir</button>
+                        </div>
+                    `;
+                });
+            }
+
+            const modal = document.getElementById('modal-historico'); 
+            modal.classList.remove('hidden'); 
+            prenderFocoModal(modal);
+            lucide.createIcons();
         };
 
         window.reimprimirCupom10Almocos = (nome, cpf, arrayEncoded, dataResgate) => {
             fecharModal('modal-historico');
             dispararImpressaoBobina10Almocos(nome, cpf, JSON.parse(decodeURIComponent(arrayEncoded)), dataResgate + " (REIMPRESSÃO)");
+        };
+
+        window.reimprimirAniversarioPorCpf = (cpf, dataResgate) => {
+            fecharModal('modal-historico');
+            const cliente = clientesMap[cpf];
+            if(cliente) {
+                dispararImpressaoBobinaAniversario(cliente, dataResgate + " (REIMPRESSÃO)");
+            }
         };
 
         function atualizarIndicadores() {
