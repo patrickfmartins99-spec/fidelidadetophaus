@@ -28,6 +28,15 @@
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; margin: 0; 
         }
+
+        /* Animação da barra de tempo do Totem */
+        @keyframes shrinkBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .animate-shrink {
+            animation: shrinkBar linear forwards;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
@@ -72,7 +81,7 @@
                             <input type="text" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg">
                         </div>
                     </div>
-                    <button onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                    <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
                         <i data-lucide="search" class="w-5 h-5"></i> Buscar e Avançar
                     </button>
                 </div>
@@ -101,7 +110,7 @@
                             <input type="text" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
                         </div>
                         <div class="sm:col-span-2 mt-2">
-                            <button type="submit" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                            <button type="submit" id="btn-caixa-salvar" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
                                 <i data-lucide="save" class="w-5 h-5"></i> Registrar Cliente (Enter)
                             </button>
                         </div>
@@ -110,19 +119,24 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
+                <!-- CARDS MINIMALISTAS E SEM CORES -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Card Total -->
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
                         <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
                         <p id="card-total" class="text-2xl font-black text-black">0</p>
                     </div>
+                    <!-- Card Prêmios -->
                     <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-gray-800"></i> Aguardando Resgate</p>
                         <p id="card-premios" class="text-2xl font-black text-black">0</p>
                     </div>
+                    <!-- Card VIPs -->
                     <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-gray-800"></i> Mais Fiéis (VIPs)</p>
                         <p id="card-vips" class="text-2xl font-black text-black">0</p>
                     </div>
+                    <!-- CENTRAL DE ANIVERSÁRIOS -->
                     <div onclick="filtrarLista('niver_mes')" class="bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-2 h-full bg-black"></div>
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Central Aniversários</p>
@@ -131,6 +145,8 @@
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    
+                    <!-- SUBMENU DE ANIVERSÁRIOS -->
                     <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
                         <div class="bg-gray-100 p-2 rounded-xl flex flex-wrap gap-2 items-center border border-gray-200">
                             <span class="text-xs font-bold text-gray-600 uppercase mx-2"><i data-lucide="filter" class="w-3 h-3 inline"></i> Filtros:</span>
@@ -174,7 +190,7 @@
             </section>
         </main>
 
-        <!-- MODAIS DO CAIXA -->
+        <!-- ALERTA DE ANIVERSÁRIO (TELA DO CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -183,9 +199,9 @@
                 <h3 class="text-2xl font-black text-black mb-2">Tem Aniversariante!</h3>
                 <p class="text-gray-600 mb-6" id="texto-alerta-aniversario">Hoje é o aniversário de <strong>Cliente</strong>!</p>
                 <div class="flex flex-col gap-3">
-                    <a id="btn-whats-aniversario" target="_blank" onclick="continuarPosAniversario()" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i> Enviar Voucher Agora
-                    </a>
+                    <button id="btn-niver-imprimir" onclick="imprimirCortesiaAniversario()" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md">
+                        <i data-lucide="printer" class="w-5 h-5"></i> Usar Voucher Agora e Imprimir
+                    </button>
                     <button onclick="continuarPosAniversario()" class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">
                         Continuar no Caixa <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
                     </button>
@@ -193,6 +209,7 @@
             </div>
         </div>
 
+        <!-- MODAL DE EDIÇÃO -->
         <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800">
                 <div class="flex items-center justify-between mb-4">
@@ -228,13 +245,14 @@
             </div>
         </div>
 
+        <!-- MODAL CONFIRMAÇÃO DO CAIXA -->
         <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">Contabilizar Refeição</h3>
                 <p class="text-gray-600 mb-6" id="texto-confirmacao">Deseja registrar +1 almoço?</p>
                 <div class="flex justify-end gap-3">
                     <button onclick="fecharModal('modal-confirmacao')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold">Cancelar</button>
-                    <button id="btn-confirmar-almoco" class="px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-xl font-bold">Confirmar</button>
+                    <button id="btn-confirmar-almoco" class="px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-xl font-bold disabled:opacity-50">Confirmar</button>
                 </div>
             </div>
         </div>
@@ -247,8 +265,8 @@
                 </div>
                 <p class="text-gray-600 mb-6 text-sm">Este cliente já possui 10 almoços acumulados. Você deseja <strong>Resgatar agora</strong> (e imprimir o comprovante) ou ele vai pagar e deseja <strong>Acumular</strong> este para o futuro?</p>
                 <div class="flex flex-col gap-2">
-                    <button id="btn-trava-resgatar" class="w-full px-5 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> Resgatar e Imprimir Cupom</button>
-                    <button id="btn-trava-acumular" class="w-full px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold">Apenas Acumular (+1 pago)</button>
+                    <button id="btn-trava-resgatar" class="w-full px-5 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"><i data-lucide="printer" class="w-4 h-4"></i> Resgatar e Imprimir Cupom</button>
+                    <button id="btn-trava-acumular" class="w-full px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold disabled:opacity-50">Apenas Acumular (+1 pago)</button>
                     <button onclick="fecharModal('modal-trava')" class="text-xs text-gray-400 mt-2 underline font-medium">Cancelar operação</button>
                 </div>
             </div>
@@ -262,10 +280,7 @@
                 <h3 class="text-xl font-black text-black mb-2">Sucesso!</h3>
                 <p class="text-gray-600 mb-6" id="texto-sucesso"></p>
                 <div class="flex flex-col gap-2">
-                    <a id="btn-whatsapp" target="_blank" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i> Enviar Mensagem do Almoço
-                    </a>
-                    <button onclick="fecharModal('modal-sucesso')" class="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold">Fechar</button>
+                    <button onclick="fecharModal('modal-sucesso')" class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold">Fechar</button>
                 </div>
             </div>
         </div>
@@ -295,7 +310,7 @@
                         <i data-lucide="trash-2" class="w-4 h-4"></i> ZERAR BANCO DE DADOS
                     </button>
                     <hr>
-                    <input type="text" id="nova-senha" placeholder="Nova senha..." class="w-full px-4 py-2 border border-gray-300 rounded-xl text-center">
+                    <input type="password" id="nova-senha" placeholder="Nova senha..." class="w-full px-4 py-2 border border-gray-300 rounded-xl text-center">
                     <button onclick="mudarSenha()" class="w-full bg-gray-800 hover:bg-black text-white py-2 rounded-xl font-bold">Mudar Senha</button>
                 </div>
                 <button onclick="fecharModal('modal-secreto')" class="text-xs text-gray-500 mt-4 underline font-medium">Sair</button>
@@ -309,10 +324,8 @@
     <!-- ========================================== -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] overflow-y-auto font-sans">
         
-        <!-- O container agora permite rolagem para o teclado não sobrepor -->
-        <div class="min-h-screen flex flex-col items-center justify-center p-6 pb-40 w-full max-w-md mx-auto">
+        <div class="min-h-screen flex flex-col items-center justify-center p-6 pb-40 w-full max-w-md mx-auto" id="area-totem-interativa">
             
-            <!-- Header Totem (Logo expandida e sem borda) -->
             <div class="w-full flex justify-center mb-10 mt-4">
                 <div class="flex flex-col items-center cursor-pointer" id="btn-sair-totem">
                     <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto object-contain mb-1">
@@ -325,44 +338,38 @@
                 <h1 class="text-3xl font-black text-white mb-2">Bem-vindo!</h1>
                 <p class="text-gray-300 mb-8 text-lg">Digite seu CPF para registrar seu almoço:</p>
                 
-                <!-- Input reformulado: Branco com texto preto (Alto Contraste) -->
                 <input type="tel" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full bg-white text-black text-center text-4xl py-5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
                 
-                <button onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl py-5 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform">
-                    AVANÇAR
+                <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl py-5 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
+                    Avançar
                 </button>
             </div>
 
             <!-- Tela 2: Cadastro Completo Totem -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-black text-white">Primeira Vez Aqui?</h2>
+                    <h2 class="text-3xl font-black text-white">Primeira vez aqui?</h2>
                     <p class="text-gray-300 text-base mt-2">Preencha rapidamente para participar.</p>
                 </div>
                 
                 <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="space-y-5">
-                    <!-- CPF agora é visível, claro e travado! -->
                     <div>
                         <label class="block text-gray-400 text-sm mb-1 ml-2 font-bold">Seu CPF</label>
                         <input type="tel" id="totem-cad-cpf" readonly class="w-full bg-gray-200 border-2 border-gray-300 text-gray-800 px-5 py-4 rounded-xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
                     </div>
-                    
-                    <!-- Campos Brancos -->
                     <div>
                         <input type="text" id="totem-cad-nome" required placeholder="Nome Completo" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg">
                     </div>
-                    
                     <div>
                         <input type="tel" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
-                    
                     <div>
                         <input type="tel" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
                     
                     <div class="flex gap-4 pt-6">
                         <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-xl py-5 rounded-2xl shadow-lg active:scale-95 transition-transform">Voltar</button>
-                        <button type="submit" class="w-2/3 bg-white text-black font-black text-xl py-5 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.4)] active:scale-95 transition-transform">SALVAR DADOS</button>
+                        <button type="submit" id="btn-totem-salvar" class="w-2/3 bg-white text-black font-black text-xl py-5 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">Salvar dados</button>
                     </div>
                 </form>
             </div>
@@ -376,11 +383,11 @@
                 <p class="text-gray-300 text-xl mb-10">Você possui um benefício de<br><strong class="text-white text-2xl">R$ 50,00</strong> disponível!<br><br>O que deseja fazer hoje?</p>
                 
                 <div class="flex flex-col gap-5">
-                    <button onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-2xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform">
-                        QUERO USAR HOJE!
+                    <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-2xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
+                        Resgatar Agora
                     </button>
-                    <button onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-xl py-6 rounded-2xl active:scale-95 transition-transform shadow-lg">
-                        GUARDAR PARA DEPOIS
+                    <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-xl py-6 rounded-2xl active:scale-95 transition-transform shadow-lg disabled:opacity-50">
+                        Continuar Acumulando
                     </button>
                 </div>
             </div>
@@ -390,51 +397,39 @@
                 <div id="totem-icone-msg" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
                 <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4"></h2>
                 <p id="totem-texto-msg" class="text-gray-300 text-2xl leading-relaxed"></p>
+                
+                <!-- Barra de progresso para o retorno automático -->
+                <div class="w-full bg-gray-800 h-1.5 mt-10 rounded-full overflow-hidden">
+                    <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
+                </div>
+            </div>
+            
+            <!-- Modal de Saída do Totem -->
+            <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
+                <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
+                    <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
+                    <h3 class="text-white text-xl font-bold mb-6">Acesso Administrativo</h3>
+                    <input type="password" id="input-senha-totem" placeholder="Senha..." class="w-full text-center text-2xl py-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-white mb-6">
+                    <div class="flex gap-3">
+                        <button onclick="fecharSenhaTotem()" class="w-1/2 py-3 bg-gray-700 text-white font-bold rounded-xl">Cancelar</button>
+                        <button onclick="validarSaidaTotem()" class="w-1/2 py-3 bg-white text-black font-bold rounded-xl">Sair</button>
+                    </div>
+                </div>
             </div>
 
         </div>
     </div>
 
-    <!-- IMPRESSÃO BOBINA 80MM -->
+    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA -->
     <div id="secao-impressao" class="print-area">
-        <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
-            <strong style="font-size: 14px;">ESPAÇO TOP HAUS LTDA</strong><br>
-            CNPJ: 26.845.124/0001-61<br>
-            Avenida Prefeito Jose Juvenal Mafra, 7155<br>
-            Gravata - NAVEGANTES - SC 88372-506<br>
-            Fone: (47) 3342-5114<br>
-        </div>
-        <div class="linha-tracejada"></div>
-        <div style="text-align: center; margin-bottom: 5px;">
-            <strong>COMPROVANTE DE RESGATE</strong><br>
-            <span id="imp-data-hora" style="font-size: 11px;"></span>
-        </div>
-        <div class="linha-tracejada"></div>
-        <div style="margin-bottom: 5px;">
-            <p style="margin:2px 0;"><strong>Cliente:</strong> <span id="imp-nome"></span></p>
-            <p style="margin:2px 0;"><strong>CPF:</strong> <span id="imp-cpf"></span></p>
-        </div>
-        <div class="linha-tracejada"></div>
-        <div style="margin-bottom: 5px;">
-            <p style="font-weight: bold; margin:2px 0;">ALMOÇOS CONTABILIZADOS:</p>
-            <ol id="imp-lista-datas" style="padding-left: 15px; margin:0; font-size: 11px;"></ol>
-        </div>
-        <div class="linha-tracejada"></div>
-        <div style="text-align: center; margin-top: 5px;">
-            <p style="font-weight: bold; margin:0;">CORTESIA LIBERADA</p>
-            <p style="font-size: 10px; margin:2px 0;">Válido: 1 Almoço (Consumo até R$ 50,00).</p>
-            <p style="font-size: 9px; margin:0;">*O valor excedente será cobrado à parte.</p>
-        </div>
+        <!-- O conteúdo será injetado pelo JavaScript para alternar entre "Fidelidade 10" e "Aniversário" -->
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // === LINKS DE MARKETING ===
-        const LINK_INSTAGRAM = "https://bit.ly/4vLB16n";
         const LINK_VOUCHER = "https://bit.ly/4aGgNlV"; 
-        // ==========================
 
         const firebaseConfig = {
             apiKey: "AIzaSyDZBx7VrsdfhgOGxbDyDHAkfOhRvNiIg0Q",
@@ -456,9 +451,11 @@
         
         let acaoPendente = null; 
         let tipoAcaoPendente = null; 
+        let isProcessing = false; // Debounce global
 
         // === VARIÁVEIS DO TOTEM ===
-        let timeoutTotem;
+        let timeoutTotemMsg;
+        let timerInatividade;
         let totemClienteTemp = null;
 
         // TAB INTELIGENTE
@@ -466,16 +463,12 @@
             const todosFocaveis = modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
             const elementosFocaveis = Array.from(todosFocaveis).filter(el => !el.disabled && el.offsetParent !== null);
             if (elementosFocaveis.length === 0) return;
-            
             const primeiroElemento = elementosFocaveis[0];
             const ultimoElemento = elementosFocaveis[elementosFocaveis.length - 1];
-
             if (modalElement._focusTrapListener) modalElement.removeEventListener('keydown', modalElement._focusTrapListener);
-
             modalElement._focusTrapListener = function(e) {
                 let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
                 if (!isTabPressed) return;
-                
                 if (e.shiftKey) { 
                     if (document.activeElement === primeiroElemento) { ultimoElemento.focus(); e.preventDefault(); }
                 } else { 
@@ -491,13 +484,10 @@
             const toast = document.createElement('div');
             const bg = tipo === 'sucesso' ? 'bg-black' : 'bg-gray-800 border-l-4 border-red-500';
             const icone = tipo === 'sucesso' ? 'check-circle' : 'alert-circle';
-            
             toast.className = `${bg} text-white px-5 py-3 rounded-xl shadow-xl transform transition-all duration-300 translate-x-full flex items-center gap-3 font-bold`;
             toast.innerHTML = `<i data-lucide="${icone}" class="w-5 h-5"></i> <span>${msg}</span>`;
-            
             container.appendChild(toast);
             lucide.createIcons();
-
             setTimeout(() => toast.classList.remove('translate-x-full'), 10);
             setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3500);
         };
@@ -518,13 +508,38 @@
             document.getElementById('btn-sair-totem').addEventListener('click', () => {
                 clicksSair++;
                 if (clicksSair >= 3) {
-                    const s = prompt("Senha Administrativa para sair do Totem:");
-                    if(s === senhaAtualBanco) sairModoTotem();
+                    document.getElementById('input-senha-totem').value = '';
+                    document.getElementById('modal-senha-totem').classList.remove('hidden');
+                    document.getElementById('input-senha-totem').focus();
                     clicksSair = 0;
                 }
                 setTimeout(() => clicksSair = 0, 2000);
             });
+
+            // GATILHOS DE INATIVIDADE DO TOTEM
+            const areaTotem = document.getElementById('area-totem-interativa');
+            areaTotem.addEventListener('mousemove', resetarTimerTotem);
+            areaTotem.addEventListener('touchstart', resetarTimerTotem);
+            areaTotem.addEventListener('keydown', resetarTimerTotem);
         });
+
+        // -----------------------------------------------------
+        // VALIDAÇÃO MATEMÁTICA DE CPF
+        // -----------------------------------------------------
+        function validarCPFReal(cpf) {
+            cpf = cpf.replace(/\D/g, '');
+            if(cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+            let soma = 0, resto;
+            for(let i=1; i<=9; i++) soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+            resto = (soma * 10) % 11;
+            if(resto === 10 || resto === 11) resto = 0;
+            if(resto !== parseInt(cpf.substring(9, 10))) return false;
+            soma = 0;
+            for(let i=1; i<=10; i++) soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+            resto = (soma * 10) % 11;
+            if(resto === 10 || resto === 11) resto = 0;
+            return resto === parseInt(cpf.substring(10, 11));
+        }
 
         // -----------------------------------------------------
         // LÓGICAS E REGRAS DE NEGÓCIO
@@ -568,6 +583,16 @@
         // -----------------------------------------------------
         // ================= LÓGICA MODO TOTEM =================
         // -----------------------------------------------------
+        window.fecharSenhaTotem = () => { document.getElementById('modal-senha-totem').classList.add('hidden'); };
+        
+        window.validarSaidaTotem = () => {
+            if(document.getElementById('input-senha-totem').value === senhaAtualBanco) {
+                fecharSenhaTotem(); sairModoTotem();
+            } else {
+                mostrarToast("Senha incorreta", "erro"); document.getElementById('input-senha-totem').value = '';
+            }
+        };
+
         window.entrarModoTotem = () => {
             fecharModal('modal-secreto');
             document.documentElement.requestFullscreen().catch((e) => console.log("Fullscreen bloqueado"));
@@ -579,11 +604,24 @@
             if(document.fullscreenElement) document.exitFullscreen();
             document.getElementById('tela-totem').classList.add('hidden');
             mostrarToast("Sessão Administrativa Liberada");
+            clearTimeout(timerInatividade);
         };
 
+        function resetarTimerTotem() {
+            clearTimeout(timerInatividade);
+            if(document.getElementById('tela-totem').classList.contains('hidden')) return;
+            if(document.getElementById('totem-tela-busca').classList.contains('hidden')) {
+                timerInatividade = setTimeout(() => { totemVoltarInicio(); }, 45000); // 45 segundos de limite
+            }
+        }
+
         window.totemVoltarInicio = () => {
-            clearTimeout(timeoutTotem);
+            clearTimeout(timeoutTotemMsg);
+            clearTimeout(timerInatividade);
             totemClienteTemp = null;
+            isProcessing = false;
+            document.getElementById('btn-totem-avancar').disabled = false;
+
             document.getElementById('totem-tela-busca').classList.remove('hidden');
             document.getElementById('totem-tela-cadastro').classList.add('hidden');
             document.getElementById('totem-tela-opcoes').classList.add('hidden');
@@ -595,28 +633,37 @@
         };
 
         window.totemProcessarCPF = () => {
-            const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
-            if(cpfNum.length !== 11) return totemMostrarMensagem('erro_cpf');
+            if(isProcessing) return;
             
+            const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
+            if(!validarCPFReal(cpfNum)) {
+                return totemMostrarMensagem('erro_cpf');
+            }
+            
+            isProcessing = true;
+            document.getElementById('btn-totem-avancar').disabled = true;
             const cliente = clientesMap[cpfNum];
             
             if(!cliente) {
-                // Cliente novo: Preenche o CPF automaticamente travado e vai pro form
                 document.getElementById('totem-tela-busca').classList.add('hidden');
                 document.getElementById('totem-form').reset();
-                
-                // PREENCHIMENTO AUTOMÁTICO DO CPF AQUI
                 document.getElementById('totem-cad-cpf').value = formatarCPF(cpfNum);
-                
                 document.getElementById('totem-tela-cadastro').classList.remove('hidden');
                 document.getElementById('totem-cad-nome').focus();
+                isProcessing = false;
+                resetarTimerTotem();
             } else {
-                if(jaRegistrouHoje(cliente)) return totemMostrarMensagem('ja_registrado');
-                totemClienteTemp = cliente;
+                if(jaRegistrouHoje(cliente)) {
+                    isProcessing = false;
+                    return totemMostrarMensagem('ja_registrado');
+                }
                 
+                totemClienteTemp = cliente;
                 if(cliente.almocos >= 10) {
                     document.getElementById('totem-tela-busca').classList.add('hidden');
                     document.getElementById('totem-tela-opcoes').classList.remove('hidden');
+                    isProcessing = false;
+                    resetarTimerTotem();
                 } else {
                     totemExecutarAcumulo();
                 }
@@ -625,29 +672,25 @@
 
         window.totemSalvarCadastro = (e) => {
             e.preventDefault();
-            // Captura com segurança o CPF travado
-            const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
-            
-            // Garantia contra bugs visuais
-            if(!cpf || cpf.length !== 11) {
-                mostrarToast("Erro interno: CPF ausente. Retornando ao início.", "erro");
-                setTimeout(totemVoltarInicio, 2000);
-                return;
-            }
+            if(isProcessing) return;
+            isProcessing = true;
+            document.getElementById('btn-totem-salvar').disabled = true;
 
+            const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
             const nome = document.getElementById('totem-cad-nome').value.trim();
             const nascimento = document.getElementById('totem-cad-nasc').value;
             const telefone = document.getElementById('totem-cad-tel').value.replace(/\D/g, '');
 
             let niverF = nascimento;
             if(nascimento.includes('/')) {
-                const p = nascimento.split('/');
-                niverF = `${p[2]}-${p[1]}-${p[0]}`; 
+                const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; 
             }
 
             const novoCliente = { 
                 cpf, nome, nascimento: niverF, telefone, 
-                almocos: 1, premiosResgatados: 0, historico: [] 
+                almocos: 1, premiosResgatados: 0, historico: [],
+                origemCadastro: 'Totem',
+                dataCadastro: new Date().toLocaleDateString('pt-BR')
             };
             
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
@@ -655,13 +698,19 @@
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
                 totemClienteTemp = novoCliente;
+                document.getElementById('btn-totem-salvar').disabled = false;
+                isProcessing = false;
                 totemMostrarMensagem('cadastro_sucesso');
-            }).catch(err => {
-                mostrarToast("Erro de conexão ao salvar.", "erro");
+            }).catch(() => {
+                mostrarToast("Erro ao salvar.", "erro"); isProcessing = false; document.getElementById('btn-totem-salvar').disabled = false;
             });
         };
 
         window.totemExecutarAcumulo = () => {
+            if(isProcessing) return;
+            isProcessing = true;
+            document.getElementById('btn-totem-acumular').disabled = true;
+
             const cliente = totemClienteTemp;
             cliente.almocos = (cliente.almocos || 0) + 1;
             
@@ -670,12 +719,15 @@
             cliente.historico.push(dataF);
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
+                isProcessing = false;
+                document.getElementById('btn-totem-acumular').disabled = false;
                 if(cliente.almocos === 10) totemMostrarMensagem('meta_atingida'); 
                 else totemMostrarMensagem('sucesso_acumulo');
             });
         };
 
         window.totemMostrarMensagem = (tipo) => {
+            clearTimeout(timerInatividade); // Pausa inatividade enquanto lê a msg
             document.getElementById('totem-tela-busca').classList.add('hidden');
             document.getElementById('totem-tela-cadastro').classList.add('hidden');
             document.getElementById('totem-tela-opcoes').classList.add('hidden');
@@ -683,26 +735,29 @@
             const icone = document.getElementById('totem-icone-msg');
             const titulo = document.getElementById('totem-titulo-msg');
             const texto = document.getElementById('totem-texto-msg');
+            const loadBar = document.getElementById('totem-loading-bar');
             
             icone.className = "w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black";
+            loadBar.classList.remove('animate-shrink');
+            
             let tempoTela = 5000;
 
             if(tipo === 'erro_cpf') {
                 icone.innerHTML = `<i data-lucide="x" class="w-14 h-14"></i>`;
                 titulo.innerText = "CPF Inválido";
-                texto.innerText = "Por favor, digite os 11 números corretamente.";
+                texto.innerText = "Por favor, digite um CPF real de 11 números.";
                 tempoTela = 3000;
             } 
             else if(tipo === 'ja_registrado') {
                 icone.innerHTML = `<i data-lucide="check-check" class="w-14 h-14"></i>`;
                 titulo.innerText = "Tudo Certo!";
-                texto.innerText = "Seu almoço de hoje já está contabilizado. Bom apetite!";
-                tempoTela = 4000;
+                texto.innerText = "Seu almoço de hoje já está contabilizado. Muito obrigado por escolher o Top Haus!";
+                tempoTela = 5000;
             }
             else if(tipo === 'aviso_caixa') {
                 icone.innerHTML = `<i data-lucide="info" class="w-14 h-14"></i>`;
                 titulo.innerText = "Dirija-se ao Caixa";
-                texto.innerHTML = "Informe seu <strong>CPF ao operador de caixa</strong><br>para validar o seu desconto de R$ 50,00!";
+                texto.innerHTML = "Informe seu CPF ao operador de caixa para validar o seu desconto de R$ 50,00!";
                 tempoTela = 6000;
             }
             else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') {
@@ -712,16 +767,21 @@
             }
             else if(tipo === 'meta_atingida') {
                 icone.innerHTML = `<i data-lucide="star" class="w-14 h-14"></i>`;
-                titulo.innerText = "Meta Atingida!";
-                texto.innerHTML = "Você acaba de completar 10 almoços.<br>Na sua <strong>próxima visita</strong>, você tem R$ 50,00 de cortesia!";
+                titulo.innerText = "Parabéns!";
+                texto.innerHTML = "Você acaba de completar 10 almoços.<br>Na sua próxima visita, você tem direito a um almoço de até R$ 50,00 (por nossa conta)";
                 tempoTela = 6000;
             }
 
             document.getElementById('totem-tela-mensagem').classList.remove('hidden');
             lucide.createIcons();
             
-            clearTimeout(timeoutTotem);
-            timeoutTotem = setTimeout(() => { totemVoltarInicio(); }, tempoTela);
+            // Reinicia animação CSS
+            void loadBar.offsetWidth; 
+            loadBar.style.animationDuration = `${tempoTela}ms`;
+            loadBar.classList.add('animate-shrink');
+            
+            clearTimeout(timeoutTotemMsg);
+            timeoutTotemMsg = setTimeout(() => { totemVoltarInicio(); }, tempoTela);
         };
 
         // -----------------------------------------------------
@@ -730,35 +790,55 @@
         window.buscarEContabilizar = () => {
             const cpfBusca = document.getElementById('busca-cpf').value.replace(/\D/g, '');
             if (!cpfBusca) return mostrarToast('Informe o CPF para buscar.', 'erro');
+            if(!validarCPFReal(cpfBusca)) return mostrarToast('CPF Inválido.', 'erro');
 
             const cliente = clientesMap[cpfBusca];
             if (!cliente) return mostrarToast('Cliente não encontrado no sistema.', 'erro');
-
             if (jaRegistrouHoje(cliente)) return mostrarToast('Bloqueado: Este cliente já registrou um almoço hoje!', 'erro');
 
-            if(diasParaAniversario(cliente.nascimento) === 0) abrirAlertaAniversario(cliente, 'busca');
-            else abrirModalAlmoco(cliente);
+            // Verifica se é niver E se ainda não resgatou o voucher de niver ESTE ANO
+            const anoAtual = new Date().getFullYear();
+            if(diasParaAniversario(cliente.nascimento) === 0 && cliente.aniversarioResgatadoAno !== anoAtual) {
+                abrirAlertaAniversario(cliente, 'busca');
+            } else {
+                abrirModalAlmoco(cliente);
+            }
         };
 
         window.cadastrarCliente = (e) => {
             e.preventDefault();
+            if(isProcessing) return;
+            
             const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
+            if(!validarCPFReal(cpf)) return mostrarToast('CPF Inválido.', 'erro');
+            
+            if (clientesMap[cpf]) return mostrarToast('CPF já cadastrado!', 'erro');
+
+            isProcessing = true;
+            document.getElementById('btn-caixa-salvar').disabled = true;
+
             const nome = document.getElementById('cad-nome').value.trim();
             const nascimento = document.getElementById('cad-nascimento').value;
             const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
-
-            if (clientesMap[cpf]) return mostrarToast('CPF já cadastrado!', 'erro');
 
             let niverF = nascimento;
             if(nascimento.includes('/')) {
                 const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; 
             }
 
-            const novoCliente = { cpf, nome, nascimento: niverF, telefone, almocos: 0, premiosResgatados: 0, historico: [] };
+            const novoCliente = { 
+                cpf, nome, nascimento: niverF, telefone, 
+                almocos: 0, premiosResgatados: 0, historico: [],
+                origemCadastro: 'Caixa Administrativo',
+                dataCadastro: new Date().toLocaleDateString('pt-BR')
+            };
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
                 document.getElementById('form-cadastro').reset();
                 mostrarToast('Cadastro feito com sucesso!', 'sucesso');
+                isProcessing = false;
+                document.getElementById('btn-caixa-salvar').disabled = false;
+
                 if(diasParaAniversario(novoCliente.nascimento) === 0) abrirAlertaAniversario(novoCliente, 'cadastro'); 
                 else document.getElementById('busca-cpf').focus();
             });
@@ -767,11 +847,62 @@
         function abrirAlertaAniversario(cliente, tipoAcao) {
             acaoPendente = cliente; tipoAcaoPendente = tipoAcao;
             document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-black">${cliente.nome}</strong>!`;
-            const txt = `🎂 Parabéns, ${cliente.nome}! A equipe Top Haus deseja a você um feliz aniversário!\n\nSeu presente é um voucher de R$ 50,00 para usar hoje como você preferir!\n\nApresente esta mensagem no caixa.\n\n🎟️ Acesse seu voucher digital: ${LINK_VOUCHER}`;
-            document.getElementById('btn-whats-aniversario').href = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(txt)}`;
             const modal = document.getElementById('modal-alerta-aniversario');
             modal.classList.remove('hidden'); prenderFocoModal(modal);
         }
+
+        window.imprimirCortesiaAniversario = () => {
+            if(!acaoPendente || isProcessing) return;
+            isProcessing = true;
+            const cliente = acaoPendente;
+            const anoAtual = new Date().getFullYear();
+            
+            cliente.aniversarioResgatadoAno = anoAtual;
+
+            set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
+                isProcessing = false;
+                document.getElementById('modal-alerta-aniversario').classList.add('hidden');
+                mostrarToast("Voucher de Aniversário liberado!", "sucesso");
+                
+                const htmlImpressao = `
+                    <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
+                        <strong style="font-size: 14px;">ESPAÇO TOP HAUS LTDA</strong><br>
+                        CNPJ: 26.845.124/0001-61<br>
+                        Avenida Prefeito Jose Juvenal Mafra, 7155<br>
+                        Gravata - NAVEGANTES - SC 88372-506<br>
+                        Fone: (47) 3342-5114<br>
+                    </div>
+                    <div class="linha-tracejada"></div>
+                    <div style="text-align: center; margin-bottom: 5px;">
+                        <strong>VOUCHER DE ANIVERSÁRIO</strong><br>
+                        <span style="font-size: 11px;">Gerado em: ${new Date().toLocaleString('pt-BR')}</span>
+                    </div>
+                    <div class="linha-tracejada"></div>
+                    <div style="margin-bottom: 5px; font-size: 11px;">
+                        <p style="margin:2px 0;"><strong>Cliente:</strong> ${cliente.nome.toUpperCase()}</p>
+                        <p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cliente.cpf)}</p>
+                        <p style="margin:2px 0;"><strong>Contato:</strong> ${formatarTel(cliente.telefone)}</p>
+                        <p style="margin:2px 0;"><strong>Dt. Nasc:</strong> ${formatarNasc(cliente.nascimento)}</p>
+                    </div>
+                    <div class="linha-tracejada"></div>
+                    <div style="margin-bottom: 5px; font-size: 11px;">
+                        <p style="margin:2px 0;"><strong>Cadastrado via:</strong> ${cliente.origemCadastro || 'Sistema Anterior'}</p>
+                        <p style="margin:2px 0;"><strong>Data de Registro:</strong> ${cliente.dataCadastro || 'N/A'}</p>
+                    </div>
+                    <div class="linha-tracejada"></div>
+                    <div style="text-align: center; margin-top: 5px;">
+                        <p style="font-weight: bold; margin:0; font-size: 14px;">PRESENTE: R$ 20,00</p>
+                        <p style="font-size: 10px; margin:2px 0;">Válido para consumo nesta data.</p>
+                        <p style="font-size: 9px; margin:0;">*O valor excedente será cobrado à parte.</p>
+                    </div>
+                `;
+                document.getElementById('secao-impressao').innerHTML = htmlImpressao;
+                window.print();
+                
+                // Segue o fluxo normal após niver (pode contabilizar o almoço de hj tbm)
+                continuarPosAniversario();
+            });
+        };
 
         window.continuarPosAniversario = () => {
             document.getElementById('modal-alerta-aniversario').classList.add('hidden');
@@ -795,17 +926,27 @@
         }
 
         function processarConfirmacao(cliente) {
+            if(isProcessing) return;
+            isProcessing = true;
+            document.getElementById('btn-confirmar-almoco').disabled = true;
+
             cliente.almocos = (cliente.almocos || 0) + 1;
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
             if(!cliente.historico) cliente.historico = [];
             cliente.historico.push(dataF);
             
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => { 
-                gerarWhatsApp(cliente); mostrarToast('Almoço contabilizado!', 'sucesso'); 
+                isProcessing = false;
+                document.getElementById('btn-confirmar-almoco').disabled = false;
+                gerarWhatsApp(cliente); 
+                mostrarToast('Almoço contabilizado!', 'sucesso'); 
             });
         }
 
         function efetuarResgateEImprimir(cliente) {
+            if(isProcessing) return;
+            isProcessing = true;
+
             const datasDoResgate = cliente.historico.slice(0, 10);
             cliente.historico = cliente.historico.slice(10);
             cliente.almocos -= 10;
@@ -816,27 +957,55 @@
             cliente.historicoResgates.push({ dataResgate: dataHoraResgate, datas: datasDoResgate });
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
+                isProcessing = false;
                 document.getElementById('busca-cpf').value = ''; 
                 mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
-                dispararImpressaoBobina(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
+                dispararImpressaoBobina10Almocos(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
             });
         }
 
-        window.dispararImpressaoBobina = (nome, cpf, arrayDatas, dataHoraTop) => {
-            document.getElementById('imp-nome').innerText = nome.toUpperCase();
-            document.getElementById('imp-cpf').innerText = formatarCPF(cpf);
-            document.getElementById('imp-data-hora').innerText = dataHoraTop;
-            const listaUl = document.getElementById('imp-lista-datas'); listaUl.innerHTML = '';
-            arrayDatas.forEach(data => { const li = document.createElement('li'); li.innerText = `[+] ${data}`; listaUl.appendChild(li); });
+        window.dispararImpressaoBobina10Almocos = (nome, cpf, arrayDatas, dataHoraTop) => {
+            let listaHtml = '';
+            arrayDatas.forEach(data => listaHtml += `<li>[+] ${data}</li>`);
+
+            const htmlImpressao = `
+                <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
+                    <strong style="font-size: 14px;">ESPAÇO TOP HAUS LTDA</strong><br>
+                    CNPJ: 26.845.124/0001-61<br>
+                    Avenida Prefeito Jose Juvenal Mafra, 7155<br>
+                    Gravata - NAVEGANTES - SC 88372-506<br>
+                    Fone: (47) 3342-5114<br>
+                </div>
+                <div class="linha-tracejada"></div>
+                <div style="text-align: center; margin-bottom: 5px;">
+                    <strong>COMPROVANTE DE RESGATE</strong><br>
+                    <span style="font-size: 11px;">${dataHoraTop}</span>
+                </div>
+                <div class="linha-tracejada"></div>
+                <div style="margin-bottom: 5px;">
+                    <p style="margin:2px 0;"><strong>Cliente:</strong> ${nome.toUpperCase()}</p>
+                    <p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cpf)}</p>
+                </div>
+                <div class="linha-tracejada"></div>
+                <div style="margin-bottom: 5px;">
+                    <p style="font-weight: bold; margin:2px 0;">ALMOÇOS CONTABILIZADOS:</p>
+                    <ol style="padding-left: 15px; margin:0; font-size: 11px;">${listaHtml}</ol>
+                </div>
+                <div class="linha-tracejada"></div>
+                <div style="text-align: center; margin-top: 5px;">
+                    <p style="font-weight: bold; margin:0;">CORTESIA LIBERADA</p>
+                    <p style="font-size: 10px; margin:2px 0;">Válido: 1 Almoço (Consumo até R$ 50,00).</p>
+                    <p style="font-size: 9px; margin:0;">*O valor excedente foi cobrado à parte.</p>
+                </div>
+            `;
+            document.getElementById('secao-impressao').innerHTML = htmlImpressao;
             window.print();
         };
 
         function gerarWhatsApp(cliente) {
-            let texto = cliente.almocos >= 10 
-                ? `🎉 Parabéns, ${cliente.nome}! Você completou 10 almoços no Top Haus Fidelidade! 🥳\n\n🎁 A sua cortesia JÁ ESTÁ LIBERADA!\n⚠️ *Regra do benefício:* Consumo livre até R$ 50,00. O valor excedente será cobrado à parte.\n\nAvise o caixa na sua próxima visita!\n\n📸 Instagram: ${LINK_INSTAGRAM}` 
-                : `Olá, ${cliente.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${cliente.almocos} almoços registrados. Ao completar 10, o próximo tem R$ 50,00 por nossa conta!\n\n📸 Instagram: ${LINK_INSTAGRAM}`;
+            let texto = `Olá, ${cliente.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${cliente.almocos} almoços registrados. Ao completar 10, na próxima visita você tem direito a um almoço de até R$50,00 (por nossa conta)\n\n`;
 
-            document.getElementById('texto-sucesso').innerHTML = `Total atualizado: <strong>${cliente.almocos}</strong> almoços.`;
+            document.getElementById('texto-sucesso').innerHTML = `Total atualizado: <strong>${cliente.almocos}</strong> almoço(s).`;
             document.getElementById('btn-whatsapp').href = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(texto)}`;
             const modal = document.getElementById('modal-sucesso');
             modal.classList.remove('hidden'); prenderFocoModal(modal); 
@@ -925,13 +1094,14 @@
                     const dataNiverFormatada = info ? `${String(info.dia).padStart(2, '0')}/${String(info.mes + 1).padStart(2, '0')}` : '';
                     const dNiver = diasParaAniversario(c.nascimento);
                     const quandoUsar = dNiver === 0 ? 'hoje' : `no dia ${dataNiverFormatada}`;
-                    const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário!\n\nSeu presente é um voucher de R$ 50,00 para usar ${quandoUsar} como você preferir!\n\nApresente esta mensagem no caixa.\n\n🎟️ Acesse seu voucher digital: ${LINK_VOUCHER}`);
-                    btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Enviar Voucher"><i data-lucide="gift" class="w-4 h-4"></i> Enviar Voucher</a>`;
+                    const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário!\n\nSeu presente é um voucher de R$20,00 para usar ${quandoUsar} como você preferir!\n\nApresente esta mensagem no caixa.\n\n🎟️ Acesse seu voucher digital: ${LINK_VOUCHER}`);
+                    btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Enviar Mensagem de R$ 20,00"><i data-lucide="gift" class="w-4 h-4"></i> Enviar Voucher</a>`;
                 }
 
                 let btnPremio = '';
                 if (c.almocos >= 10 && !filtroAtual.startsWith('niver')) {
-                    const msgWhatsPremio = encodeURIComponent(`🎉 Parabéns, ${c.nome}! Você completou 10 almoços no Top Haus Fidelidade! 🥳\n\n🎁 A sua cortesia JÁ ESTÁ LIBERADA!\n⚠️ *Regra do benefício:* Consumo livre até R$ 50,00. O valor excedente será cobrado à parte.\n\nAvise o caixa na sua próxima visita!\n\n📸 Instagram: ${LINK_INSTAGRAM}`);
+                    // Sem link de Instagram na mensagem de prêmio, mantendo padrão solicitado
+                    const msgWhatsPremio = encodeURIComponent(`🎉 Parabéns, ${c.nome}!\n\nVocê acaba de completar 10 almoços. Na sua próxima visita, você tem direito a um almoço de até R$50,00 (por nossa conta)`);
                     btnPremio = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsPremio}" target="_blank" class="text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Resgatar Cortesia"><i data-lucide="award" class="w-4 h-4"></i> Resgatar</a>`;
                 }
 
@@ -952,14 +1122,14 @@
             const div = document.getElementById('lista-historico'); div.innerHTML = '';
             cliente.historicoResgates.forEach((resgate, index) => {
                 const resgateStr = encodeURIComponent(JSON.stringify(resgate.datas));
-                div.innerHTML += `<div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center"><div><p class="text-xs font-bold text-gray-800">Resgate #${index + 1}</p><p class="text-xs text-gray-500">Data: ${resgate.dataResgate}</p></div><button onclick="reimprimirCupom('${cliente.nome}', '${cliente.cpf}', '${resgateStr}', '${resgate.dataResgate}')" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-gray-800 transition"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Reimprimir</button></div>`;
+                div.innerHTML += `<div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center"><div><p class="text-xs font-bold text-gray-800">Resgate #${index + 1}</p><p class="text-xs text-gray-500">Data: ${resgate.dataResgate}</p></div><button onclick="reimprimirCupom10Almocos('${cliente.nome}', '${cliente.cpf}', '${resgateStr}', '${resgate.dataResgate}')" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-gray-800 transition"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Reimprimir</button></div>`;
             });
             const modal = document.getElementById('modal-historico'); modal.classList.remove('hidden'); prenderFocoModal(modal);
         };
 
-        window.reimprimirCupom = (nome, cpf, arrayEncoded, dataResgate) => {
+        window.reimprimirCupom10Almocos = (nome, cpf, arrayEncoded, dataResgate) => {
             fecharModal('modal-historico');
-            dispararImpressaoBobina(nome, cpf, JSON.parse(decodeURIComponent(arrayEncoded)), dataResgate + " (REIMPRESSÃO)");
+            dispararImpressaoBobina10Almocos(nome, cpf, JSON.parse(decodeURIComponent(arrayEncoded)), dataResgate + " (REIMPRESSÃO)");
         };
 
         function atualizarIndicadores() {
@@ -985,8 +1155,8 @@
 
         window.exportarExcel = () => {
             if(clientesArray.length === 0) return mostrarToast("Nenhum dado", "erro");
-            let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almocos_Acumulados;Premios_Resgatados\n";
-            clientesArray.forEach(c => csv += `${c.nome};${c.cpf};${c.nascimento || ''};${c.telefone};${c.almocos};${c.premiosResgatados || 0}\n`);
+            let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almocos_Acumulados;Premios_Resgatados;Origem;Data_Cadastro\n";
+            clientesArray.forEach(c => csv += `${c.nome};${c.cpf};${c.nascimento || ''};${c.telefone};${c.almocos};${c.premiosResgatados || 0};${c.origemCadastro || 'N/A'};${c.dataCadastro || 'N/A'}\n`);
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
             link.download = `Clientes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`; link.click();
         };
@@ -1020,8 +1190,14 @@
         window.mascaraCPF = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
         window.mascaraTelefone = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
         window.mascaraData = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{2})(\d)/, "$1/$2"); v = v.replace(/(\d{2})(\d)/, "$1/$2"); i.value = v.substring(0, 10); };
+        
         function formatarCPF(cpf) { return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
         function formatarTel(tel) { return tel.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); }
+        function formatarNasc(nasc) { 
+            if(!nasc) return '';
+            if(nasc.includes('-')) { const p = nasc.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+            return nasc;
+        }
     </script>
 </body>
 </html>
