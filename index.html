@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Top Haus Fidelidade</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,6 +38,7 @@
             strong { font-weight: 900 !important; }
         }
 
+        /* Esconde setinhas em campos numéricos */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; margin: 0; 
@@ -49,6 +50,11 @@
         }
         .animate-shrink {
             animation: shrinkBar linear forwards;
+        }
+
+        /* Garante que o totem tenha espaço extra no final para o scroll do teclado funcionar */
+        #area-totem-interativa {
+            padding-bottom: 50vh !important;
         }
     </style>
 </head>
@@ -91,11 +97,11 @@
                         <p class="text-sm text-slate-500 mb-4">Insira o CPF do cliente para buscar o cadastro.</p>
                         <div class="mb-4">
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">CPF do Cliente</label>
-                            <input type="text" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg">
+                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg">
                         </div>
                     </div>
                     <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
-                        <i data-lucide="search" class="w-5 h-5"></i> Buscar e Avançar
+                        <i data-lucide="search" class="w-5 h-5"></i> Buscar e Avançar (Enter)
                     </button>
                 </div>
 
@@ -108,7 +114,7 @@
                     <form id="form-cadastro" onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">CPF (Obrigatório)</label>
-                            <input type="text" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
+                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Completo</label>
@@ -116,11 +122,11 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Data de Nascimento (DD/MM/AAAA)</label>
-                            <input type="text" id="cad-nascimento" required placeholder="Ex: 30/04/1999" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
+                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="Ex: 30/04/1999" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Telefone / WhatsApp</label>
-                            <input type="text" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
                         </div>
                         <div class="sm:col-span-2 mt-2">
                             <button type="submit" id="btn-caixa-salvar" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
@@ -235,11 +241,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nascimento</label>
-                            <input type="text" id="edit-nascimento" required maxlength="10" oninput="mascaraData(this)" placeholder="DD/MM/AAAA" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 font-mono">
+                            <input type="tel" inputmode="numeric" id="edit-nascimento" required maxlength="10" oninput="mascaraData(this)" placeholder="DD/MM/AAAA" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">WhatsApp</label>
-                            <input type="text" id="edit-telefone" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800">
+                            <input type="tel" inputmode="numeric" id="edit-telefone" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800">
                         </div>
                     </div>
                     <div class="pt-2 flex gap-3">
@@ -316,7 +322,7 @@
     <!-- ========================================== -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] overflow-y-auto font-sans">
         
-        <div class="min-h-screen flex flex-col items-center justify-center p-6 pb-40 w-full max-w-md mx-auto" id="area-totem-interativa">
+        <div class="min-h-screen flex flex-col items-center justify-center p-6 w-full max-w-md mx-auto transition-all duration-300" id="area-totem-interativa">
             
             <div class="w-full flex justify-center mb-10 mt-4">
                 <div class="flex flex-col items-center cursor-pointer" id="btn-sair-totem">
@@ -330,7 +336,8 @@
                 <h1 class="text-3xl font-black text-white mb-2">Bem-vindo!</h1>
                 <p class="text-gray-300 mb-8 text-lg">Digite seu CPF para registrar seu almoço:</p>
                 
-                <input type="tel" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full bg-white text-black text-center text-4xl py-5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
+                <!-- Adicionado inputmode="numeric" e onkeydown para a tecla "Ir/Enter" -->
+                <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-4xl py-5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
                 
                 <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl py-5 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
                     Avançar
@@ -347,16 +354,16 @@
                 <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="space-y-5">
                     <div>
                         <label class="block text-gray-400 text-sm mb-1 ml-2 font-bold">Seu CPF</label>
-                        <input type="tel" id="totem-cad-cpf" readonly class="w-full bg-gray-200 border-2 border-gray-300 text-gray-800 px-5 py-4 rounded-xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
+                        <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-200 border-2 border-gray-300 text-gray-800 px-5 py-4 rounded-xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
                     </div>
                     <div>
                         <input type="text" id="totem-cad-nome" required placeholder="Nome Completo" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg">
                     </div>
                     <div>
-                        <input type="tel" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
+                        <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
                     <div>
-                        <input type="tel" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
+                        <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
                     
                     <div class="flex gap-4 pt-6">
@@ -401,7 +408,7 @@
                 <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
                     <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
                     <h3 class="text-white text-xl font-bold mb-6">Acesso Administrativo</h3>
-                    <input type="password" id="input-senha-totem" placeholder="Senha..." class="w-full text-center text-2xl py-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-white mb-6">
+                    <input type="password" inputmode="numeric" id="input-senha-totem" placeholder="Senha..." class="w-full text-center text-2xl py-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-white mb-6">
                     <div class="flex gap-3">
                         <button onclick="fecharSenhaTotem()" class="w-1/2 py-3 bg-gray-700 text-white font-bold rounded-xl">Cancelar</button>
                         <button onclick="validarSaidaTotem()" class="w-1/2 py-3 bg-white text-black font-bold rounded-xl">Sair</button>
@@ -511,6 +518,17 @@
             areaTotem.addEventListener('mousemove', resetarTimerTotem);
             areaTotem.addEventListener('touchstart', resetarTimerTotem);
             areaTotem.addEventListener('keydown', resetarTimerTotem);
+
+            // CORREÇÃO DO SCROLL DO TECLADO NO TOTEM
+            // Quando um input ganha foco, ele rola suavemente para o centro da tela
+            const inputsTotem = document.querySelectorAll('#tela-totem input');
+            inputsTotem.forEach(input => {
+                input.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300); // pequeno delay para dar tempo do teclado do tablet subir
+                });
+            });
         });
 
         // -----------------------------------------------------
@@ -571,7 +589,6 @@
         // CABEÇALHO PADRÃO IMPRESSÃO TÉRMICA (CUPOM NÃO FISCAL)
         // -----------------------------------------------------
         function cabecalhoImpressao() {
-            // Caso tenha uma IE real, substitua "ISENTO" pelo número.
             return `
                 <div style="text-align: center; margin-bottom: 5px; line-height: 1.2;">
                     <strong style="font-size: 15px; color: #000;">ESPAÇO TOP HAUS LTDA</strong><br>
@@ -632,7 +649,10 @@
             
             const inputCpf = document.getElementById('totem-cpf');
             inputCpf.value = '';
-            setTimeout(() => inputCpf.focus(), 100);
+            // Força o blur para garantir que o teclado suma ao voltar pro início
+            inputCpf.blur();
+            // Dá um foco suave depois
+            setTimeout(() => inputCpf.focus(), 300);
         };
 
         window.totemProcessarCPF = () => {
@@ -643,6 +663,10 @@
             
             isProcessing = true;
             document.getElementById('btn-totem-avancar').disabled = true;
+            
+            // Esconde o teclado virtual do tablet antes de trocar de tela
+            document.activeElement.blur();
+
             const cliente = clientesMap[cpfNum];
             
             if(!cliente) {
@@ -650,7 +674,7 @@
                 document.getElementById('totem-form').reset();
                 document.getElementById('totem-cad-cpf').value = formatarCPF(cpfNum);
                 document.getElementById('totem-tela-cadastro').classList.remove('hidden');
-                document.getElementById('totem-cad-nome').focus();
+                setTimeout(() => document.getElementById('totem-cad-nome').focus(), 300);
                 isProcessing = false;
                 resetarTimerTotem();
             } else {
@@ -676,6 +700,7 @@
             if(isProcessing) return;
             isProcessing = true;
             document.getElementById('btn-totem-salvar').disabled = true;
+            document.activeElement.blur(); // Esconde o teclado
 
             const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
             const nome = document.getElementById('totem-cad-nome').value.trim();
@@ -873,7 +898,6 @@
             const cliente = acaoPendente;
             const anoAtual = new Date().getFullYear();
             
-            // Grava a trava do ano e também alimenta o Histórico
             cliente.aniversarioResgatadoAno = anoAtual;
             if(!cliente.historicoAniversarios) cliente.historicoAniversarios = [];
             const dataHoraResgate = new Date().toLocaleString('pt-BR');
@@ -1085,12 +1109,10 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50 transition border-b border-gray-100 last:border-0';
                 
-                // Histórico visível se ele tiver premio de 10 almoços OU algum histórico de aniversário gravado
                 const temHistorico = (c.premiosResgatados || 0) > 0 || (c.historicoAniversarios && c.historicoAniversarios.length > 0);
                 const btnHistorico = temHistorico ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Ver Histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` : ``;
                 const btnEditar = `<button onclick="abrirEditar('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Editar Cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
 
-                // BOTÃO DE WHATSAPP GERAL DEVOLVIDO (Para enviar o saldo de almoços a qualquer momento)
                 const msgWhatsGeral = encodeURIComponent(`Olá, ${c.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${c.almocos} almoços registrados. Ao completar 10, na próxima visita você tem direito a um almoço de até R$50,00 (por nossa conta)`);
                 const btnWhatsGeral = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsGeral}" target="_blank" class="text-gray-500 hover:text-green-600 hover:bg-green-100 p-1.5 rounded-lg transition" title="Avisar Saldo no WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></a>`;
 
@@ -1127,7 +1149,6 @@
             const div = document.getElementById('lista-historico'); 
             div.innerHTML = '';
             
-            // 1. Histórico de 10 Almoços
             if (cliente.historicoResgates && cliente.historicoResgates.length > 0) {
                 div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Prêmios de 10 Almoços</h4>`;
                 cliente.historicoResgates.forEach((resgate, index) => {
@@ -1141,7 +1162,6 @@
                 });
             }
 
-            // 2. Histórico de Aniversários
             if (cliente.historicoAniversarios && cliente.historicoAniversarios.length > 0) {
                 div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Vouchers de Aniversário</h4>`;
                 cliente.historicoAniversarios.forEach((resgate, index) => {
@@ -1242,3 +1262,4 @@
     </script>
 </body>
 </html>
+
