@@ -57,6 +57,7 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- MODO CAIXA E ADMINISTRATIVO -->
     <div class="no-print">
         <header class="bg-black text-white shadow-md py-4 px-6 mb-8">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -81,6 +82,7 @@
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- CONTABILIZAR CAIXA -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
@@ -90,7 +92,7 @@
                         <p class="text-sm text-slate-500 mb-4">Insira o CPF do cliente para buscar o cadastro.</p>
                         <div class="mb-4">
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">CPF do Cliente</label>
-                            <input type="tel" inputmode="numeric" pattern="[0-9]*" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg">
+                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg">
                         </div>
                     </div>
                     <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
@@ -98,6 +100,7 @@
                     </button>
                 </div>
 
+                <!-- CADASTRO CAIXA -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -106,7 +109,7 @@
                     <form id="form-cadastro" onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">CPF (Obrigatório)</label>
-                            <input type="tel" inputmode="numeric" pattern="[0-9]*" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
+                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Completo</label>
@@ -114,11 +117,11 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Data de Nascimento (DD/MM/AAAA)</label>
-                            <input type="tel" inputmode="numeric" pattern="[0-9]*" id="cad-nascimento" required placeholder="Ex: 30/04/1999" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
+                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="Ex: 30/04/1999" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Telefone / WhatsApp</label>
-                            <input type="tel" inputmode="numeric" pattern="[0-9]*" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
                         </div>
                         <div class="sm:col-span-2 mt-2">
                             <button type="submit" id="btn-caixa-salvar" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
@@ -130,6 +133,7 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
+                <!-- CARDS MINIMALISTAS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
                         <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
@@ -193,6 +197,7 @@
             </section>
         </main>
 
+        <!-- ALERTA DE ANIVERSÁRIO (TELA DO CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -211,6 +216,7 @@
             </div>
         </div>
 
+        <!-- MODAL DE EDIÇÃO -->
         <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800">
                 <div class="flex items-center justify-between mb-4">
@@ -230,11 +236,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nascimento</label>
-                            <input type="tel" inputmode="numeric" pattern="[0-9]*" id="edit-nascimento" required maxlength="10" oninput="mascaraData(this)" placeholder="DD/MM/AAAA" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 font-mono">
+                            <input type="tel" inputmode="numeric" id="edit-nascimento" required maxlength="10" oninput="mascaraData(this)" placeholder="DD/MM/AAAA" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 font-mono">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">WhatsApp</label>
-                            <input type="tel" inputmode="numeric" pattern="[0-9]*" id="edit-telefone" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800">
+                            <input type="tel" inputmode="numeric" id="edit-telefone" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800">
                         </div>
                     </div>
                     <div class="pt-2 flex gap-3">
@@ -245,6 +251,7 @@
             </div>
         </div>
 
+        <!-- MODAIS CONFIRMAÇÃO E SUCESSO -->
         <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">Contabilizar Refeição</h3>
@@ -284,7 +291,7 @@
                 <i data-lucide="shield-alert" class="w-8 h-8 text-black mx-auto mb-2"></i>
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Painel do Desenvolvedor</h3>
                 <div id="area-senha-secreta" class="mb-4">
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" id="input-senha" placeholder="Digite a senha..." class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-center mb-2 focus:outline-none focus:ring-2 focus:ring-black">
+                    <input type="password" inputmode="numeric" id="input-senha" placeholder="Digite a senha..." class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-center mb-2 focus:outline-none focus:ring-2 focus:ring-black">
                     <button onclick="validarSenha()" class="w-full bg-black hover:bg-gray-800 text-white py-2 rounded-xl font-bold">Entrar</button>
                 </div>
                 <div id="area-opcoes-secretas" class="hidden flex flex-col gap-3">
@@ -296,7 +303,7 @@
                         <i data-lucide="trash-2" class="w-4 h-4"></i> ZERAR BANCO DE DADOS
                     </button>
                     <hr>
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" id="nova-senha" placeholder="Nova senha..." class="w-full px-4 py-2 border border-gray-300 rounded-xl text-center">
+                    <input type="password" inputmode="numeric" id="nova-senha" placeholder="Nova senha..." class="w-full px-4 py-2 border border-gray-300 rounded-xl text-center">
                     <button onclick="mudarSenha()" class="w-full bg-gray-800 hover:bg-black text-white py-2 rounded-xl font-bold">Mudar Senha</button>
                 </div>
                 <button onclick="fecharModal('modal-secreto')" class="text-xs text-gray-500 mt-4 underline font-medium">Sair</button>
@@ -305,6 +312,9 @@
 
     </div>
 
+    <!-- ========================================== -->
+    <!-- INTERFACE MODO TOTEM (REAJUSTADA PARA TABLET) -->
+    <!-- ========================================== -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] overflow-y-auto font-sans">
         
         <div class="min-h-[100dvh] w-full max-w-md mx-auto flex flex-col pt-12 px-6 pb-40" id="area-totem-interativa">
@@ -316,17 +326,19 @@
                 </div>
             </div>
 
+            <!-- Tela 1: Busca CPF -->
             <div id="totem-tela-busca" class="w-full text-center transition-all">
                 <h1 class="text-3xl font-black text-white mb-2">Bem-vindo!</h1>
                 <p class="text-gray-300 mb-8 text-lg">Digite seu CPF para registrar seu almoço:</p>
                 
-                <input type="tel" inputmode="numeric" pattern="[0-9]*" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-4xl py-5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
+                <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-4xl py-5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
                 
                 <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl py-5 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
                     Avançar
                 </button>
             </div>
 
+            <!-- Tela 2: Cadastro Completo Totem -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-black text-white">Primeira vez aqui?</h2>
@@ -336,16 +348,16 @@
                 <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="space-y-5">
                     <div>
                         <label class="block text-gray-400 text-sm mb-1 ml-2 font-bold">Seu CPF</label>
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="totem-cad-cpf" readonly class="w-full bg-gray-200 border-2 border-gray-300 text-gray-800 px-5 py-4 rounded-xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
+                        <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-200 border-2 border-gray-300 text-gray-800 px-5 py-4 rounded-xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
                     </div>
                     <div>
                         <input type="text" id="totem-cad-nome" required placeholder="Nome Completo" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg">
                     </div>
                     <div>
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
+                        <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
                     <div>
-                        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" onkeydown="if(event.key==='Enter') { event.preventDefault(); document.getElementById('btn-totem-salvar').click(); }" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
+                        <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" onkeydown="if(event.key==='Enter') { event.preventDefault(); document.getElementById('btn-totem-salvar').click(); }" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
                     
                     <div class="flex gap-4 pt-6">
@@ -355,6 +367,7 @@
                 </form>
             </div>
 
+            <!-- Tela 3: Opções (Chegou no 11º almoço) -->
             <div id="totem-tela-opcoes" class="hidden w-full text-center transition-all">
                 <div class="w-24 h-24 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
                     <i data-lucide="gift" class="w-12 h-12"></i>
@@ -372,21 +385,24 @@
                 </div>
             </div>
 
+            <!-- Tela 4: Mensagem Sucesso/Aviso -->
             <div id="totem-tela-mensagem" class="hidden w-full text-center transition-all">
                 <div id="totem-icone-msg" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
                 <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4"></h2>
                 <p id="totem-texto-msg" class="text-gray-300 text-2xl leading-relaxed"></p>
                 
+                <!-- Barra de progresso para o retorno automático -->
                 <div class="w-full bg-gray-800 h-1.5 mt-10 rounded-full overflow-hidden">
                     <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
                 </div>
             </div>
             
+            <!-- Modal de Saída do Totem -->
             <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
                 <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
                     <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
                     <h3 class="text-white text-xl font-bold mb-6">Acesso Administrativo</h3>
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" id="input-senha-totem" placeholder="Senha..." class="w-full text-center text-2xl py-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-white mb-6">
+                    <input type="password" inputmode="numeric" id="input-senha-totem" placeholder="Senha..." class="w-full text-center text-2xl py-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-white mb-6">
                     <div class="flex gap-3">
                         <button onclick="fecharSenhaTotem()" class="w-1/2 py-3 bg-gray-700 text-white font-bold rounded-xl">Cancelar</button>
                         <button onclick="validarSaidaTotem()" class="w-1/2 py-3 bg-white text-black font-bold rounded-xl">Sair</button>
@@ -397,8 +413,10 @@
         </div>
     </div>
 
+    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA -->
     <div id="secao-impressao" class="print-area">
-        </div>
+        <!-- O conteúdo será injetado pelo JavaScript -->
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
