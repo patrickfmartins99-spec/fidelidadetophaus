@@ -9,48 +9,25 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        /* Oculta a área de impressão na tela normal */
-        @media screen { 
-            .print-area { display: none !important; } 
-        }
+        @media screen { .print-area { display: none !important; } }
         
-        /* Configurações Refinadas para Impressora Térmica 80mm */
         @media print {
             @page { margin: 0; size: 80mm auto; }
-            body { 
-                background: white !important; 
-                padding: 0; 
-                margin: 0; 
-                font-family: 'Courier New', Courier, monospace; 
-                color: #000 !important; 
-            }
+            body { background: white !important; padding: 0; margin: 0; font-family: 'Courier New', Courier, monospace; color: #000 !important; }
             .no-print { display: none !important; }
-            .print-area { 
-                display: block !important; 
-                width: 72mm; 
-                margin: 0 auto; 
-                padding: 0; 
-                font-size: 13px; 
-                font-weight: bold !important; 
-                color: #000 !important; 
-            }
+            .print-area { display: block !important; width: 72mm; margin: 0 auto; padding: 0; font-size: 13px; font-weight: bold !important; color: #000 !important; }
             .linha-tracejada { border-top: 2px dashed #000 !important; margin: 6px 0; }
             strong { font-weight: 900 !important; }
         }
 
-        /* Esconde setinhas em campos numéricos */
         input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; margin: 0; 
-        }
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
         @keyframes shrinkBar {
             from { width: 100%; }
             to { width: 0%; }
         }
-        .animate-shrink {
-            animation: shrinkBar linear forwards;
-        }
+        .animate-shrink { animation: shrinkBar linear forwards; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
@@ -59,7 +36,7 @@
 
     <!-- MODO CAIXA E ADMINISTRATIVO -->
     <div class="no-print">
-        <header class="bg-black text-white shadow-md py-4 px-6 mb-8">
+        <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain">
@@ -133,13 +110,16 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
+                <!-- NOTIFICAÇÕES INTELIGENTES -->
+                <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
+
                 <!-- CARDS MINIMALISTAS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
                         <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
                         <p id="card-total" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden">
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-gray-800"></i> Aguardando Resgate</p>
                         <p id="card-premios" class="text-2xl font-black text-black">0</p>
                     </div>
@@ -154,14 +134,19 @@
                     </div>
                 </div>
 
+                <!-- CENTRAL DE CLIENTES -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
-                        <div class="bg-gray-100 p-2 rounded-xl flex flex-wrap gap-2 items-center border border-gray-200">
-                            <span class="text-xs font-bold text-gray-600 uppercase mx-2"><i data-lucide="filter" class="w-3 h-3 inline"></i> Filtros:</span>
-                            <button id="btn-niver-hoje" onclick="filtrarLista('niver_hoje')" class="px-3 py-1.5 bg-white text-gray-800 border border-gray-300 rounded-lg text-xs font-bold transition shadow-sm hover:border-black">Hoje</button>
-                            <button id="btn-niver-semana" onclick="filtrarLista('niver_semana')" class="px-3 py-1.5 bg-white text-gray-800 border border-gray-300 rounded-lg text-xs font-bold transition shadow-sm hover:border-black">Próximos 7 Dias</button>
-                            <button id="btn-niver-proxima" onclick="filtrarLista('niver_proxima')" class="px-3 py-1.5 bg-white text-gray-800 border border-gray-300 rounded-lg text-xs font-bold transition shadow-sm hover:border-black">8 a 14 Dias</button>
-                            <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')" class="px-3 py-1.5 bg-white text-gray-800 border border-gray-300 rounded-lg text-xs font-bold transition shadow-sm hover:border-black">Todo o Mês</button>
+                        <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center border border-gray-200">
+                            <span class="text-xs font-bold text-gray-600 uppercase"><i data-lucide="filter" class="w-4 h-4 inline"></i> Filtro de Aniversários:</span>
+                            <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')" class="px-4 py-2 bg-black text-white rounded-lg text-xs font-bold transition shadow-sm">Todo o Mês Atual</button>
+                            <span class="text-sm font-semibold text-gray-400">OU PERÍODO:</span>
+                            <div class="flex items-center gap-2">
+                                <input type="date" id="filtro-data-inicio" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black">
+                                <span class="text-gray-400 text-sm">até</span>
+                                <input type="date" id="filtro-data-fim" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black">
+                                <button onclick="filtrarPorPeriodo()" class="px-4 py-2 bg-white border border-gray-300 hover:border-black text-black rounded-lg text-xs font-bold transition shadow-sm">Buscar</button>
+                            </div>
                         </div>
                     </div>
 
@@ -172,6 +157,9 @@
                         </div>
                         <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
                             <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar cliente..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm w-full sm:w-64">
+                            <button onclick="abrirCentralMarketing()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
+                                <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing
+                            </button>
                             <button onclick="exportarExcel()" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
                                 <i data-lucide="download" class="w-4 h-4"></i> Exportar
                             </button>
@@ -206,17 +194,70 @@
                 <h3 class="text-2xl font-black text-black mb-2">Tem Aniversariante!</h3>
                 <p class="text-gray-600 mb-6" id="texto-alerta-aniversario">Hoje é o aniversário de <strong>Cliente</strong>!</p>
                 <div class="flex flex-col gap-3">
-                    <button id="btn-niver-imprimir" onclick="imprimirCortesiaAniversario()" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md">
-                        <i data-lucide="printer" class="w-5 h-5"></i> Usar Voucher Agora e Imprimir
+                    <button onclick="confirmarCortesiaAniversario()" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> Confirmar Uso do Presente
                     </button>
                     <button onclick="continuarPosAniversario()" class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">
-                        Continuar no Caixa <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
+                        Pular / Continuar no Caixa
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL DE EDIÇÃO -->
+        <!-- MODAIS DA CENTRAL DE MARKETING & WHATSAPP -->
+        <div id="modal-whatsapp" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-green-500">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="message-circle" class="w-5 h-5 text-green-500"></i> Enviar Mensagem</h3>
+                    <button onclick="fecharModal('modal-whatsapp')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">Qual mensagem deseja enviar para <strong id="whats-cliente-nome">Cliente</strong>?</p>
+                <div class="flex flex-col gap-2" id="lista-opcoes-whats">
+                    <!-- Gerado pelo JS -->
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-marketing" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
+                    <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
+                </div>
+                
+                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para o sistema puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Mensagem: Aniversário (Antecipação)</label>
+                        <textarea id="mkt-msg-niver" rows="4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Mensagem: Prêmio de 10 Almoços</label>
+                        <textarea id="mkt-msg-premio" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Mensagem: Recuperação (Clientes Inativos)</label>
+                        <textarea id="mkt-msg-inativo" rows="2" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-gray-200">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-gray-800">Mensagens Personalizadas (Promoções)</h4>
+                            <button onclick="adicionarMsgCustom()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-bold hover:bg-gray-800">+ Nova Ação</button>
+                        </div>
+                        <div id="area-mensagens-custom" class="space-y-4"></div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end gap-3">
+                    <button onclick="fecharModal('modal-marketing')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold">Cancelar</button>
+                    <button onclick="salvarCentralMarketing()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i> Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- OUTROS MODAIS PADRÕES -->
         <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800">
                 <div class="flex items-center justify-between mb-4">
@@ -251,7 +292,6 @@
             </div>
         </div>
 
-        <!-- MODAIS CONFIRMAÇÃO E SUCESSO -->
         <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">Contabilizar Refeição</h3>
@@ -313,7 +353,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- INTERFACE MODO TOTEM (REAJUSTADA PARA TABLET) -->
+    <!-- INTERFACE MODO TOTEM -->
     <!-- ========================================== -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] overflow-y-auto font-sans">
         
@@ -326,28 +366,24 @@
                 </div>
             </div>
 
-            <!-- Tela 1: Busca CPF -->
+            <!-- Tela 1: Busca -->
             <div id="totem-tela-busca" class="w-full text-center transition-all">
                 <h1 class="text-3xl font-black text-white mb-2">Bem-vindo!</h1>
                 <p class="text-gray-300 mb-8 text-lg">Digite seu CPF para registrar seu almoço:</p>
-                
                 <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-4xl py-5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
-                
                 <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl py-5 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
                     Avançar
                 </button>
             </div>
 
-            <!-- Tela 2: Cadastro Completo Totem -->
+            <!-- Tela 2: Cadastro Completo -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-black text-white">Primeira vez aqui?</h2>
                     <p class="text-gray-300 text-base mt-2">Preencha rapidamente para participar.</p>
                 </div>
-                
                 <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="space-y-5">
                     <div>
-                        <label class="block text-gray-400 text-sm mb-1 ml-2 font-bold">Seu CPF</label>
                         <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-200 border-2 border-gray-300 text-gray-800 px-5 py-4 rounded-xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
                     </div>
                     <div>
@@ -357,44 +393,38 @@
                         <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
                     <div>
-                        <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" onkeydown="if(event.key==='Enter') { event.preventDefault(); document.getElementById('btn-totem-salvar').click(); }" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
+                        <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
                     
-                    <div class="flex gap-4 pt-6">
+                    <!-- TEXTO LGPD -->
+                    <p class="text-gray-400 text-xs text-center leading-tight pt-2">
+                        <i data-lucide="lock" class="w-3 h-3 inline"></i> Seus dados são protegidos e usados exclusivamente para os benefícios do Clube Top Haus, não sendo compartilhados com terceiros.
+                    </p>
+
+                    <div class="flex gap-4 pt-4">
                         <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-xl py-5 rounded-2xl shadow-lg active:scale-95 transition-transform">Voltar</button>
                         <button type="submit" id="btn-totem-salvar" class="w-2/3 bg-white text-black font-black text-xl py-5 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">Salvar dados</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Tela 3: Opções (Chegou no 11º almoço) -->
+            <!-- Tela 3: Opções -->
             <div id="totem-tela-opcoes" class="hidden w-full text-center transition-all">
-                <div class="w-24 h-24 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="gift" class="w-12 h-12"></i>
-                </div>
+                <div class="w-24 h-24 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="gift" class="w-12 h-12"></i></div>
                 <h2 class="text-4xl font-black text-white mb-2">Parabéns!</h2>
                 <p class="text-gray-300 text-xl mb-10">Você possui um benefício de<br><strong class="text-white text-2xl">R$ 50,00</strong> disponível!<br><br>O que deseja fazer hoje?</p>
-                
                 <div class="flex flex-col gap-5">
-                    <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-2xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
-                        Resgatar Agora
-                    </button>
-                    <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-xl py-6 rounded-2xl active:scale-95 transition-transform shadow-lg disabled:opacity-50">
-                        Continuar Acumulando
-                    </button>
+                    <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-2xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">Resgatar Agora</button>
+                    <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-xl py-6 rounded-2xl active:scale-95 transition-transform shadow-lg disabled:opacity-50">Continuar Acumulando</button>
                 </div>
             </div>
 
-            <!-- Tela 4: Mensagem Sucesso/Aviso -->
+            <!-- Tela 4: Mensagem Sucesso -->
             <div id="totem-tela-mensagem" class="hidden w-full text-center transition-all">
                 <div id="totem-icone-msg" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
                 <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4"></h2>
                 <p id="totem-texto-msg" class="text-gray-300 text-2xl leading-relaxed"></p>
-                
-                <!-- Barra de progresso para o retorno automático -->
-                <div class="w-full bg-gray-800 h-1.5 mt-10 rounded-full overflow-hidden">
-                    <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
-                </div>
+                <div class="w-full bg-gray-800 h-1.5 mt-10 rounded-full overflow-hidden"><div id="totem-loading-bar" class="bg-white h-full w-full"></div></div>
             </div>
             
             <!-- Modal de Saída do Totem -->
@@ -413,16 +443,12 @@
         </div>
     </div>
 
-    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA -->
-    <div id="secao-impressao" class="print-area">
-        <!-- O conteúdo será injetado pelo JavaScript -->
-    </div>
+    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA (Apenas prêmio de 10 almoços) -->
+    <div id="secao-impressao" class="print-area"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-        const LINK_VOUCHER = "https://bit.ly/4aGgNlV"; 
 
         const firebaseConfig = {
             apiKey: "AIzaSyDZBx7VrsdfhgOGxbDyDHAkfOhRvNiIg0Q",
@@ -446,12 +472,18 @@
         let tipoAcaoPendente = null; 
         let isProcessing = false;
 
-        // === VARIÁVEIS DO TOTEM ===
+        // MENSAGENS PADRÕES
+        let msgsMarketing = {
+            aniversario: "Olá, *[Nome]*! Vimos aqui que o *seu aniversário está chegando*! 🎉\nE a equipe Top Haus faz questão de comemorar com você.\nPreparamos um *Voucher Presente de R$ 20,00* exclusivo para você usar no seu almoço.\nPara resgatar, é só *apresentar esta mensagem no nosso caixa* no dia exato do seu aniversário!\nTe esperamos para celebrar!",
+            premio: "🎉 Parabéns, *[Nome]*!\nVocê acaba de completar 10 almoços.\nNa sua próxima visita, você tem direito a um almoço de até *R$ 50,00 (por nossa conta)*!",
+            inativo: "Olá *[Nome]*, faz tempo que não te vemos por aqui! Que tal almoçar com a gente essa semana?",
+            personalizadas: []
+        };
+
         let timeoutTotemMsg;
         let timerInatividade;
         let totemClienteTemp = null;
 
-        // TAB INTELIGENTE
         window.prenderFocoModal = (modalElement) => {
             const todosFocaveis = modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
             const elementosFocaveis = Array.from(todosFocaveis).filter(el => !el.disabled && el.offsetParent !== null);
@@ -477,7 +509,7 @@
             const toast = document.createElement('div');
             const bg = tipo === 'sucesso' ? 'bg-black' : 'bg-gray-800 border-l-4 border-red-500';
             const icone = tipo === 'sucesso' ? 'check-circle' : 'alert-circle';
-            toast.className = `${bg} text-white px-5 py-3 rounded-xl shadow-xl transform transition-all duration-300 translate-x-full flex items-center gap-3 font-bold`;
+            toast.className = `${bg} text-white px-5 py-3 rounded-xl shadow-xl transform transition-all duration-300 translate-x-full flex items-center gap-3 font-bold z-[10000]`;
             toast.innerHTML = `<i data-lucide="${icone}" class="w-5 h-5"></i> <span>${msg}</span>`;
             container.appendChild(toast);
             lucide.createIcons();
@@ -487,11 +519,19 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
+            
+            // Carrega Configurações de Marketing
+            onValue(ref(db, 'config/mensagens'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) { msgsMarketing = {...msgsMarketing, ...data}; if(!msgsMarketing.personalizadas) msgsMarketing.personalizadas = []; }
+            });
+
             onValue(ref(db, 'clientes'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) { clientesMap = data; clientesArray = Object.values(data); } 
                 else { clientesMap = {}; clientesArray = []; }
                 atualizarIndicadores();
+                calcularNotificacoesPainel();
                 filtrarLista(filtroAtual);
             });
             onValue(ref(db, 'config/senhaReset'), (snapshot) => { if(snapshot.val()) senhaAtualBanco = snapshot.val(); });
@@ -513,19 +553,16 @@
             areaTotem.addEventListener('touchstart', resetarTimerTotem);
             areaTotem.addEventListener('keydown', resetarTimerTotem);
             
-            // Corrige o comportamento da tela ao focar num input (suaviza no Tablet)
             const inputsTotem = document.querySelectorAll('#tela-totem input');
             inputsTotem.forEach(input => {
                 input.addEventListener('focus', () => {
-                    setTimeout(() => {
-                        window.scrollTo({ top: input.offsetTop - 50, behavior: 'smooth' });
-                    }, 300);
+                    setTimeout(() => { window.scrollTo({ top: input.offsetTop - 50, behavior: 'smooth' }); }, 300);
                 });
             });
         });
 
         // -----------------------------------------------------
-        // VALIDAÇÃO MATEMÁTICA DE CPF E DATAS
+        // VALIDAÇÕES E DATAS
         // -----------------------------------------------------
         function validarCPFReal(cpf) {
             cpf = cpf.replace(/\D/g, '');
@@ -544,14 +581,8 @@
 
         function obterInfoNascimento(nascimento) {
             if (!nascimento) return null;
-            if (nascimento.includes('-')) {
-                const partes = nascimento.split('-');
-                if (partes.length === 3) return { dia: parseInt(partes[2], 10), mes: parseInt(partes[1], 10) - 1 };
-            }
-            if (nascimento.includes('/')) {
-                const partes = nascimento.split('/');
-                if (partes.length === 3) return { dia: parseInt(partes[0], 10), mes: parseInt(partes[1], 10) - 1 };
-            }
+            if (nascimento.includes('-')) { const partes = nascimento.split('-'); return { dia: parseInt(partes[2], 10), mes: parseInt(partes[1], 10) - 1 }; }
+            if (nascimento.includes('/')) { const partes = nascimento.split('/'); return { dia: parseInt(partes[0], 10), mes: parseInt(partes[1], 10) - 1 }; }
             return null;
         }
 
@@ -569,6 +600,20 @@
             return info && info.mes === new Date().getMonth();
         }
 
+        function isNiverInPeriod(nascimento, dataIniStr, dataFimStr) {
+            const info = obterInfoNascimento(nascimento);
+            if(!info) return false;
+            const dIni = new Date(dataIniStr + 'T00:00:00');
+            const dFim = new Date(dataFimStr + 'T23:59:59');
+            
+            const dataNiverTeste = new Date(dIni.getFullYear(), info.mes, info.dia, 12, 0, 0);
+            if(dataNiverTeste >= dIni && dataNiverTeste <= dFim) return true;
+            
+            const dataNiverTeste2 = new Date(dFim.getFullYear(), info.mes, info.dia, 12, 0, 0);
+            if(dataNiverTeste2 >= dIni && dataNiverTeste2 <= dFim) return true;
+            return false;
+        }
+
         function jaRegistrouHoje(cliente) {
             const dataHoje = new Date().toLocaleDateString('pt-BR');
             if (cliente.historico && cliente.historico.length > 0) {
@@ -576,6 +621,17 @@
                 return ultimoRegistro.includes(dataHoje);
             }
             return false;
+        }
+
+        function diasDesdeUltimaVisita(cliente) {
+            if (!cliente.historico || cliente.historico.length === 0) return 999;
+            const ultimoReg = cliente.historico[cliente.historico.length - 1];
+            // ex: "12/10/2025 às 14:30"
+            const dataStr = ultimoReg.split(' às ')[0];
+            const p = dataStr.split('/');
+            if(p.length !== 3) return 999;
+            const dUltima = new Date(p[2], p[1]-1, p[0]).getTime();
+            return Math.floor((Date.now() - dUltima) / (1000 * 60 * 60 * 24));
         }
 
         function cabecalhoImpressao() {
@@ -589,6 +645,151 @@
                 </div>
             `;
         }
+
+        // -----------------------------------------------------
+        // ================= SISTEMA CRM & MARKETING ============
+        // -----------------------------------------------------
+        
+        function calcularNotificacoesPainel() {
+            const painel = document.getElementById('painel-notificacoes');
+            painel.innerHTML = '';
+            
+            const anoAtual = new Date().getFullYear();
+            let countNiverAlert = 0;
+            let countPremioAlert = 0;
+            let countInativosAlert = 0;
+
+            clientesArray.forEach(c => {
+                const diasNiv = diasParaAniversario(c.nascimento);
+                // Aniversário em até 7 dias, ainda não notificado
+                if (diasNiv >= 0 && diasNiv <= 7 && c.notificadoAniversarioAno !== anoAtual) countNiverAlert++;
+                
+                // Prêmio liberado e não notificado
+                if (c.almocos >= 10 && !c.notificadoPremio) countPremioAlert++;
+                
+                // Mais de 30 dias sumido e sem notificação de inativo recente
+                const dSumido = diasDesdeUltimaVisita(c);
+                const diasNotificadoInat = c.notificadoInativoData ? Math.floor((Date.now() - c.notificadoInativoData)/(1000*60*60*24)) : 999;
+                if (dSumido > 30 && diasNotificadoInat > 15) countInativosAlert++;
+            });
+
+            if(countNiverAlert > 0) {
+                painel.innerHTML += `<div onclick="filtrarLista('alerta_niver')" class="bg-red-50 border border-red-200 p-4 rounded-xl cursor-pointer hover:bg-red-100 transition shadow-sm flex items-center gap-3"><i data-lucide="cake" class="w-8 h-8 text-red-500"></i><div><p class="text-sm font-bold text-red-800 leading-tight">Aniversários da Semana!</p><p class="text-xs text-red-600 mt-0.5">Existem <strong>${countNiverAlert}</strong> clientes aguardando mensagem.</p></div></div>`;
+            }
+            if(countPremioAlert > 0) {
+                painel.innerHTML += `<div onclick="filtrarLista('alerta_premio')" class="bg-amber-50 border border-amber-200 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm flex items-center gap-3"><i data-lucide="gift" class="w-8 h-8 text-amber-500"></i><div><p class="text-sm font-bold text-amber-800 leading-tight">Prêmios Acumulados!</p><p class="text-xs text-amber-600 mt-0.5">Existem <strong>${countPremioAlert}</strong> clientes aguardando aviso.</p></div></div>`;
+            }
+            if(countInativosAlert > 0) {
+                painel.innerHTML += `<div onclick="filtrarLista('alerta_inativos')" class="bg-blue-50 border border-blue-200 p-4 rounded-xl cursor-pointer hover:bg-blue-100 transition shadow-sm flex items-center gap-3"><i data-lucide="user-minus" class="w-8 h-8 text-blue-500"></i><div><p class="text-sm font-bold text-blue-800 leading-tight">Clientes Ausentes!</p><p class="text-xs text-blue-600 mt-0.5">Existem <strong>${countInativosAlert}</strong> inativos (+30 dias).</p></div></div>`;
+            }
+            lucide.createIcons();
+        }
+
+        window.abrirCentralMarketing = () => {
+            document.getElementById('mkt-msg-niver').value = msgsMarketing.aniversario;
+            document.getElementById('mkt-msg-premio').value = msgsMarketing.premio;
+            document.getElementById('mkt-msg-inativo').value = msgsMarketing.inativo;
+            renderizarMensagensCustomizadas();
+            const modal = document.getElementById('modal-marketing');
+            modal.classList.remove('hidden'); prenderFocoModal(modal);
+        };
+
+        window.renderizarMensagensCustomizadas = () => {
+            const area = document.getElementById('area-mensagens-custom');
+            area.innerHTML = '';
+            msgsMarketing.personalizadas.forEach((m, idx) => {
+                area.innerHTML += `
+                    <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative">
+                        <button onclick="removerMsgCustom(${idx})" class="absolute top-2 right-2 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <input type="text" id="mkt-custom-titulo-${idx}" value="${m.titulo}" placeholder="Título da Ação (Ex: Dia das Mães)" class="font-bold text-sm text-gray-800 mb-2 bg-transparent border-b border-gray-200 w-3/4 outline-none focus:border-black pb-1">
+                        <textarea id="mkt-custom-texto-${idx}" rows="2" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-black">${m.texto}</textarea>
+                    </div>`;
+            });
+            lucide.createIcons();
+        };
+
+        window.adicionarMsgCustom = () => {
+            msgsMarketing.personalizadas.push({ titulo: "", texto: "" });
+            renderizarMensagensCustomizadas();
+        };
+
+        window.removerMsgCustom = (idx) => {
+            msgsMarketing.personalizadas.splice(idx, 1);
+            renderizarMensagensCustomizadas();
+        };
+
+        window.salvarCentralMarketing = () => {
+            msgsMarketing.aniversario = document.getElementById('mkt-msg-niver').value;
+            msgsMarketing.premio = document.getElementById('mkt-msg-premio').value;
+            msgsMarketing.inativo = document.getElementById('mkt-msg-inativo').value;
+            
+            msgsMarketing.personalizadas.forEach((m, idx) => {
+                m.titulo = document.getElementById(`mkt-custom-titulo-${idx}`).value;
+                m.texto = document.getElementById(`mkt-custom-texto-${idx}`).value;
+            });
+
+            set(ref(db, 'config/mensagens'), msgsMarketing).then(() => {
+                mostrarToast("Mensagens de Marketing Salvas!", "sucesso");
+                fecharModal('modal-marketing');
+            });
+        };
+
+        window.abrirModalWhatsApp = (cpf) => {
+            const cliente = clientesMap[cpf];
+            document.getElementById('whats-cliente-nome').innerText = cliente.nome.split(' ')[0];
+            
+            const area = document.getElementById('lista-opcoes-whats');
+            area.innerHTML = '';
+
+            const ehNiverSemana = diasParaAniversario(cliente.nascimento) >= 0 && diasParaAniversario(cliente.nascimento) <= 7;
+            const iconNiv = ehNiverSemana ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-800';
+            area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'aniversario')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="${iconNiv} p-2 rounded-lg"><i data-lucide="cake" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem de Aniversário</p><p class="text-xs text-gray-500">Voucher 20 Reais (Marca como Notificado)</p></div></button>`;
+
+            const temPremio = cliente.almocos >= 10;
+            const iconPre = temPremio ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-800';
+            area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'premio')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="${iconPre} p-2 rounded-lg"><i data-lucide="gift" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem de 10 Almoços</p><p class="text-xs text-gray-500">Avisar cortesia liberada (Marca Notificado)</p></div></button>`;
+
+            area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'inativo')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i data-lucide="user-minus" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem Recuperação</p><p class="text-xs text-gray-500">Avisar que notou ausência</p></div></button>`;
+
+            msgsMarketing.personalizadas.forEach((m, idx) => {
+                if(m.titulo.trim() !== "") {
+                    area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'custom', ${idx})" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><i data-lucide="megaphone" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${m.titulo}</p><p class="text-xs text-gray-500">Ação de marketing personalizada</p></div></button>`;
+                }
+            });
+
+            const modal = document.getElementById('modal-whatsapp');
+            modal.classList.remove('hidden'); prenderFocoModal(modal);
+            lucide.createIcons();
+        };
+
+        window.dispararWhatsApp = (cpf, tipo, idxCustom = -1) => {
+            const cliente = clientesMap[cpf];
+            let texto = "";
+            let updatePromise = null;
+
+            if (tipo === 'aniversario') {
+                texto = msgsMarketing.aniversario;
+                updatePromise = set(ref(db, `clientes/${cpf}/notificadoAniversarioAno`), new Date().getFullYear());
+            } else if (tipo === 'premio') {
+                texto = msgsMarketing.premio;
+                updatePromise = set(ref(db, `clientes/${cpf}/notificadoPremio`), true);
+            } else if (tipo === 'inativo') {
+                texto = msgsMarketing.inativo;
+                updatePromise = set(ref(db, `clientes/${cpf}/notificadoInativoData`), Date.now());
+            } else if (tipo === 'custom') {
+                texto = msgsMarketing.personalizadas[idxCustom].texto;
+            }
+
+            // Replace inteligente
+            texto = texto.replace(/\[Nome\]/g, cliente.nome.split(' ')[0]).replace(/\[Acumulados\]/g, cliente.almocos);
+            const url = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
+            fecharModal('modal-whatsapp');
+
+            if(updatePromise) {
+                updatePromise.then(() => { calcularNotificacoesPainel(); });
+            }
+        };
 
         // -----------------------------------------------------
         // ================= LÓGICA MODO TOTEM =================
@@ -638,19 +839,17 @@
             document.getElementById('totem-tela-mensagem').classList.add('hidden');
             
             const inputCpf = document.getElementById('totem-cpf');
-            inputCpf.value = '';
-            inputCpf.blur();
+            inputCpf.value = ''; inputCpf.blur();
         };
 
         window.totemProcessarCPF = () => {
             if(isProcessing) return;
-            
             const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
             if(!validarCPFReal(cpfNum)) return totemMostrarMensagem('erro_cpf');
             
             isProcessing = true;
             document.getElementById('btn-totem-avancar').disabled = true;
-            document.activeElement.blur(); // Esconde o teclado
+            document.activeElement.blur(); 
 
             const cliente = clientesMap[cpfNum];
             
@@ -664,6 +863,7 @@
                 resetarTimerTotem();
             } else {
                 if(jaRegistrouHoje(cliente)) {
+                    totemClienteTemp = cliente; // Para pegar o nome
                     isProcessing = false;
                     return totemMostrarMensagem('ja_registrado');
                 }
@@ -693,15 +893,12 @@
             const telefone = document.getElementById('totem-cad-tel').value.replace(/\D/g, '');
 
             let niverF = nascimento;
-            if(nascimento.includes('/')) {
-                const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; 
-            }
+            if(nascimento.includes('/')) { const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; }
 
             const novoCliente = { 
                 cpf, nome, nascimento: niverF, telefone, 
                 almocos: 1, premiosResgatados: 0, historico: [],
-                origemCadastro: 'Totem',
-                dataCadastro: new Date().toLocaleDateString('pt-BR')
+                origemCadastro: 'Totem', dataCadastro: new Date().toLocaleDateString('pt-BR')
             };
             
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
@@ -763,6 +960,7 @@
             loadBar.classList.remove('animate-shrink');
             
             let tempoTela = 5000;
+            const nomeCurto = totemClienteTemp ? totemClienteTemp.nome.split(' ')[0] : '';
 
             if(tipo === 'erro_cpf') {
                 icone.innerHTML = `<i data-lucide="x" class="w-14 h-14"></i>`;
@@ -772,30 +970,30 @@
             } 
             else if(tipo === 'ja_registrado') {
                 icone.innerHTML = `<i data-lucide="check-check" class="w-14 h-14"></i>`;
-                titulo.innerText = "Tudo Certo!";
+                titulo.innerText = `Tudo Certo, ${nomeCurto}!`;
                 texto.innerText = "Seu almoço de hoje já está contabilizado. Muito obrigado por escolher o Top Haus!";
                 tempoTela = 5000;
             }
             else if(tipo === 'aviso_caixa') {
                 icone.innerHTML = `<i data-lucide="info" class="w-14 h-14"></i>`;
                 titulo.innerText = "Resgate Solicitado";
-                texto.innerHTML = "Avise o operador de caixa para validar o seu desconto de R$ 50,00!";
+                texto.innerHTML = `Avise o operador de caixa para validar o seu desconto de R$ 50,00, <strong>${nomeCurto}</strong>!`;
                 tempoTela = 6000;
             }
             else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') {
                 icone.innerHTML = `<i data-lucide="check" class="w-14 h-14"></i>`;
-                titulo.innerText = "Almoço Registrado!";
+                titulo.innerText = `Almoço Registrado, ${nomeCurto}!`;
                 texto.innerHTML = `Você possui <strong>${totemClienteTemp.almocos}</strong> almoço(s) acumulado(s).<br>Volte sempre!`;
             }
             else if(tipo === 'meta_atingida') {
                 icone.innerHTML = `<i data-lucide="star" class="w-14 h-14"></i>`;
-                titulo.innerText = "Parabéns!";
+                titulo.innerText = `Parabéns, ${nomeCurto}!`;
                 texto.innerHTML = "Você acaba de completar 10 almoços.<br>Na sua próxima visita, você tem direito a um almoço de até R$ 50,00 (por nossa conta)";
                 tempoTela = 6500;
             }
             else if(tipo === 'aniversario_totem') {
                 icone.innerHTML = `<i data-lucide="cake" class="w-14 h-14"></i>`;
-                titulo.innerText = "Feliz Aniversário!";
+                titulo.innerText = `Feliz Aniversário, ${nomeCurto}!`;
                 texto.innerHTML = `Seu almoço foi registrado.<br>🎁 Hoje é seu aniversário e você tem um <strong>Voucher de R$ 20,00</strong> liberado!<br><br>Avise o caixa agora mesmo!`;
                 tempoTela = 8000; 
             }
@@ -812,7 +1010,7 @@
         };
 
         // -----------------------------------------------------
-        // CAIXA PRINCIPAL: A NOVA LÓGICA DE PRIORIDADE
+        // CAIXA PRINCIPAL
         // -----------------------------------------------------
         window.buscarEContabilizar = () => {
             const cpfBusca = document.getElementById('busca-cpf').value.replace(/\D/g, '');
@@ -826,13 +1024,11 @@
             const ehNiverHoje = diasParaAniversario(cliente.nascimento) === 0;
             const pendenteAniversario = ehNiverHoje && cliente.aniversarioResgatadoAno !== anoAtual;
 
-            // PRIORIDADE 1: Se tem voucher de aniversário, exibe a tela e ignora a trava de almoço!
             if (pendenteAniversario) {
                 abrirAlertaAniversario(cliente, 'busca');
                 return;
             }
 
-            // Se não tem aniversário, vai para o fluxo normal de Fidelidade/Acúmulo
             processarFluxoNormal(cliente);
         };
 
@@ -840,31 +1036,20 @@
             const jaRegistrou = jaRegistrouHoje(cliente);
             const pendentePremio = cliente.almocos >= 10;
 
-            // PRIORIDADE 2: Se ele tem 10 almoços para resgatar
             if (pendentePremio) {
                 const modal = document.getElementById('modal-trava');
                 modal.classList.remove('hidden'); prenderFocoModal(modal);
                 document.getElementById('btn-trava-resgatar').onclick = () => { fecharModal('modal-trava'); efetuarResgateEImprimir(cliente); };
                 
                 const btnAcumular = document.getElementById('btn-trava-acumular');
-                
-                // Se o totem já bateu o almoço de hoje, bloqueia o acumulo, mas PERMITE resgatar os 10 velhos
                 if (jaRegistrou) {
-                    btnAcumular.innerText = "Já acumulou hoje (Bloqueado)";
-                    btnAcumular.disabled = true;
-                    btnAcumular.classList.add('opacity-50', 'cursor-not-allowed');
+                    btnAcumular.innerText = "Já acumulou hoje (Bloqueado)"; btnAcumular.disabled = true; btnAcumular.classList.add('opacity-50', 'cursor-not-allowed');
                 } else {
-                    btnAcumular.innerText = "Apenas Acumular (+1 pago)";
-                    btnAcumular.disabled = false;
-                    btnAcumular.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btnAcumular.innerText = "Apenas Acumular (+1 pago)"; btnAcumular.disabled = false; btnAcumular.classList.remove('opacity-50', 'cursor-not-allowed');
                     btnAcumular.onclick = () => { fecharModal('modal-trava'); processarConfirmacao(cliente); };
                 }
-            } 
-            // PRIORIDADE 3: Registro Normal de almoço
-            else {
-                if (jaRegistrou) {
-                    return mostrarToast('Bloqueado: Este cliente já registrou um almoço hoje!', 'erro');
-                }
+            } else {
+                if (jaRegistrou) return mostrarToast('Bloqueado: Este cliente já registrou um almoço hoje!', 'erro');
                 
                 document.getElementById('texto-confirmacao').innerText = `Deseja registrar +1 almoço para ${cliente.nome}?`;
                 const modal = document.getElementById('modal-confirmacao');
@@ -879,33 +1064,27 @@
             
             const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
             if(!validarCPFReal(cpf)) return mostrarToast('CPF Inválido.', 'erro');
-            
             if (clientesMap[cpf]) return mostrarToast('CPF já cadastrado!', 'erro');
 
-            isProcessing = true;
-            document.getElementById('btn-caixa-salvar').disabled = true;
+            isProcessing = true; document.getElementById('btn-caixa-salvar').disabled = true;
 
             const nome = document.getElementById('cad-nome').value.trim();
             const nascimento = document.getElementById('cad-nascimento').value;
             const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
 
             let niverF = nascimento;
-            if(nascimento.includes('/')) {
-                const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; 
-            }
+            if(nascimento.includes('/')) { const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; }
 
             const novoCliente = { 
                 cpf, nome, nascimento: niverF, telefone, 
                 almocos: 0, premiosResgatados: 0, historico: [],
-                origemCadastro: 'Caixa Administrativo',
-                dataCadastro: new Date().toLocaleDateString('pt-BR')
+                origemCadastro: 'Caixa Administrativo', dataCadastro: new Date().toLocaleDateString('pt-BR')
             };
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
                 document.getElementById('form-cadastro').reset();
                 mostrarToast('Cadastro feito com sucesso!', 'sucesso');
-                isProcessing = false;
-                document.getElementById('btn-caixa-salvar').disabled = false;
+                isProcessing = false; document.getElementById('btn-caixa-salvar').disabled = false;
 
                 if(diasParaAniversario(novoCliente.nascimento) === 0) abrirAlertaAniversario(novoCliente, 'cadastro'); 
                 else document.getElementById('busca-cpf').focus();
@@ -919,7 +1098,7 @@
             modal.classList.remove('hidden'); prenderFocoModal(modal);
         }
 
-        window.imprimirCortesiaAniversario = () => {
+        window.confirmarCortesiaAniversario = () => {
             if(!acaoPendente || isProcessing) return;
             isProcessing = true;
             const cliente = acaoPendente;
@@ -933,42 +1112,10 @@
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
                 isProcessing = false;
                 document.getElementById('modal-alerta-aniversario').classList.add('hidden');
-                mostrarToast("Voucher de Aniversário liberado!", "sucesso");
-                dispararImpressaoBobinaAniversario(cliente, dataHoraResgate);
+                mostrarToast("Voucher de Aniversário Baixado no Sistema!", "sucesso");
                 continuarPosAniversario();
             });
         };
-
-        window.dispararImpressaoBobinaAniversario = (cliente, dataHoraResgate) => {
-            const htmlImpressao = `
-                ${cabecalhoImpressao()}
-                <div class="linha-tracejada"></div>
-                <div style="text-align: center; margin-bottom: 5px;">
-                    <strong style="font-size: 14px; color: #000;">VOUCHER DE ANIVERSÁRIO</strong><br>
-                    <span style="font-size: 11px;">Gerado em: ${dataHoraResgate}</span>
-                </div>
-                <div class="linha-tracejada"></div>
-                <div style="margin-bottom: 5px; font-size: 12px; color: #000;">
-                    <p style="margin:2px 0;"><strong>Cliente:</strong> ${cliente.nome.toUpperCase()}</p>
-                    <p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cliente.cpf)}</p>
-                    <p style="margin:2px 0;"><strong>Contato:</strong> ${formatarTel(cliente.telefone)}</p>
-                    <p style="margin:2px 0;"><strong>Dt. Nasc:</strong> ${formatarNasc(cliente.nascimento)}</p>
-                </div>
-                <div class="linha-tracejada"></div>
-                <div style="margin-bottom: 5px; font-size: 12px; color: #000;">
-                    <p style="margin:2px 0;"><strong>Cadastrado via:</strong> ${cliente.origemCadastro || 'Sistema Anterior'}</p>
-                    <p style="margin:2px 0;"><strong>Data de Registro:</strong> ${cliente.dataCadastro || 'N/A'}</p>
-                </div>
-                <div class="linha-tracejada"></div>
-                <div style="text-align: center; margin-top: 5px;">
-                    <p style="font-weight: 900; margin:0; font-size: 16px; color: #000;">PRESENTE: R$ 20,00</p>
-                    <p style="font-size: 11px; margin:2px 0;">Válido para consumo nesta data.</p>
-                    <p style="font-size: 10px; margin:0;">*O valor excedente será cobrado à parte.</p>
-                </div>
-            `;
-            document.getElementById('secao-impressao').innerHTML = htmlImpressao;
-            window.print();
-        }
 
         window.continuarPosAniversario = () => {
             document.getElementById('modal-alerta-aniversario').classList.add('hidden');
@@ -988,10 +1135,8 @@
             cliente.historico.push(dataF);
             
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => { 
-                isProcessing = false;
-                document.getElementById('btn-confirmar-almoco').disabled = false;
-                document.getElementById('busca-cpf').value = ''; 
-                mostrarToast('Almoço contabilizado!', 'sucesso'); 
+                isProcessing = false; document.getElementById('btn-confirmar-almoco').disabled = false;
+                document.getElementById('busca-cpf').value = ''; mostrarToast('Almoço contabilizado!', 'sucesso'); 
             });
         }
 
@@ -1004,16 +1149,15 @@
             cliente.historico = cliente.historico.slice(10);
             cliente.almocos -= 10;
             cliente.premiosResgatados = (cliente.premiosResgatados || 0) + 1;
+            cliente.notificadoPremio = false; // Reseta a flag para avisar no próximo ciclo de 10
             
             const dataHoraResgate = new Date().toLocaleString('pt-BR');
             if(!cliente.historicoResgates) cliente.historicoResgates = [];
             cliente.historicoResgates.push({ dataResgate: dataHoraResgate, datas: datasDoResgate });
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
-                isProcessing = false;
-                document.getElementById('btn-trava-resgatar').disabled = false;
-                document.getElementById('busca-cpf').value = ''; 
-                mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
+                isProcessing = false; document.getElementById('btn-trava-resgatar').disabled = false;
+                document.getElementById('busca-cpf').value = ''; mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
                 dispararImpressaoBobina10Almocos(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
             });
         }
@@ -1078,33 +1222,51 @@
             });
         };
 
-        function atualizarDesignBotoesFiltro(tipo) {
-            const botoes = ['btn-niver-hoje', 'btn-niver-semana', 'btn-niver-proxima', 'btn-niver-mes'];
-            botoes.forEach(id => {
-                const btn = document.getElementById(id);
-                if(btn) {
-                    if(id.includes(tipo.replace('niver_', ''))) { btn.classList.add('bg-black', 'text-white'); btn.classList.remove('bg-white', 'text-gray-800'); } 
-                    else { btn.classList.add('bg-white', 'text-gray-800'); btn.classList.remove('bg-black', 'text-white'); }
-                }
-            });
-        }
+        window.filtrarPorPeriodo = () => {
+            const dtIni = document.getElementById('filtro-data-inicio').value;
+            const dtFim = document.getElementById('filtro-data-fim').value;
+            if(!dtIni || !dtFim) return mostrarToast("Preencha as duas datas", "erro");
+            filtrarLista('niver_periodo', dtIni, dtFim);
+        };
 
-        window.filtrarLista = (tipo) => {
+        window.filtrarLista = (tipo, dataIni = null, dataFim = null) => {
             filtroAtual = tipo;
             const textoFiltro = document.getElementById('filtro-atual-texto');
             const subFiltroDiv = document.getElementById('sub-filtros-niver');
             let listaFiltrada = [];
 
-            if (tipo.startsWith('niver')) { subFiltroDiv.classList.remove('hidden'); atualizarDesignBotoesFiltro(tipo); } 
+            if (tipo.startsWith('niver')) { subFiltroDiv.classList.remove('hidden'); } 
             else { subFiltroDiv.classList.add('hidden'); }
+
+            const anoAtual = new Date().getFullYear();
 
             if (tipo === 'todos') { textoFiltro.innerText = 'Exibindo: Todos os clientes'; listaFiltrada = clientesArray; }
             else if (tipo === 'premios') { textoFiltro.innerText = 'Exibindo: Aguardando Resgate'; listaFiltrada = clientesArray.filter(c => c.almocos >= 10); }
             else if (tipo === 'vips') { textoFiltro.innerText = 'Exibindo: VIPs'; listaFiltrada = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).sort((a,b) => b.premiosResgatados - a.premiosResgatados); }
-            else if (tipo === 'niver_hoje') { textoFiltro.innerText = 'Central Aniversários: Hoje'; listaFiltrada = clientesArray.filter(c => diasParaAniversario(c.nascimento) === 0); }
-            else if (tipo === 'niver_semana') { textoFiltro.innerText = 'Central Aniversários: Próximos 7 Dias'; listaFiltrada = clientesArray.filter(c => { const d = diasParaAniversario(c.nascimento); return d >= 0 && d <= 7; }); }
-            else if (tipo === 'niver_proxima') { textoFiltro.innerText = 'Central Aniversários: 8 a 14 Dias'; listaFiltrada = clientesArray.filter(c => { const d = diasParaAniversario(c.nascimento); return d >= 8 && d <= 14; }); }
-            else if (tipo === 'niver_mes') { textoFiltro.innerText = 'Central Aniversários: Todo o Mês'; listaFiltrada = clientesArray.filter(c => isNiverMesCheck(c.nascimento)); }
+            else if (tipo === 'niver_mes') { textoFiltro.innerText = 'Central Aniversários: Mês Atual'; listaFiltrada = clientesArray.filter(c => isNiverMesCheck(c.nascimento)); }
+            else if (tipo === 'niver_periodo') {
+                const partsI = dataIni.split('-'); const dI_BR = `${partsI[2]}/${partsI[1]}/${partsI[0]}`;
+                const partsF = dataFim.split('-'); const dF_BR = `${partsF[2]}/${partsF[1]}/${partsF[0]}`;
+                textoFiltro.innerText = `Central Aniversários: Período (${dI_BR} até ${dF_BR})`; 
+                listaFiltrada = clientesArray.filter(c => isNiverInPeriod(c.nascimento, dataIni, dataFim)); 
+            }
+            // ALERTS
+            else if (tipo === 'alerta_niver') {
+                textoFiltro.innerText = 'Exibindo: Aniversariantes aguardando aviso (Próx. 7 dias)';
+                listaFiltrada = clientesArray.filter(c => { const d = diasParaAniversario(c.nascimento); return d >= 0 && d <= 7 && c.notificadoAniversarioAno !== anoAtual; });
+            }
+            else if (tipo === 'alerta_premio') {
+                textoFiltro.innerText = 'Exibindo: Prêmios aguardando aviso';
+                listaFiltrada = clientesArray.filter(c => c.almocos >= 10 && !c.notificadoPremio);
+            }
+            else if (tipo === 'alerta_inativos') {
+                textoFiltro.innerText = 'Exibindo: Clientes Inativos (+30 dias)';
+                listaFiltrada = clientesArray.filter(c => {
+                    const dSumido = diasDesdeUltimaVisita(c);
+                    const diasNotificadoInat = c.notificadoInativoData ? Math.floor((Date.now() - c.notificadoInativoData)/(1000*60*60*24)) : 999;
+                    return dSumido > 30 && diasNotificadoInat > 15;
+                });
+            }
             
             renderizarTabela(listaFiltrada);
         };
@@ -1126,32 +1288,14 @@
                 const temHistorico = (c.premiosResgatados || 0) > 0 || (c.historicoAniversarios && c.historicoAniversarios.length > 0);
                 const btnHistorico = temHistorico ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Ver Histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` : ``;
                 const btnEditar = `<button onclick="abrirEditar('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Editar Cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
-
-                const msgWhatsGeral = encodeURIComponent(`Olá, ${c.nome}! Obrigado por almoçar no Top Haus. 🍽️\nVocê já tem ${c.almocos} almoços registrados. Ao completar 10, na próxima visita você tem direito a um almoço de até R$50,00 (por nossa conta)`);
-                const btnWhatsGeral = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsGeral}" target="_blank" class="text-gray-500 hover:text-green-600 hover:bg-green-100 p-1.5 rounded-lg transition" title="Avisar Saldo no WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></a>`;
-
-                let btnAniversario = '';
-                if (filtroAtual.startsWith('niver')) {
-                    const info = obterInfoNascimento(c.nascimento);
-                    const dataNiverFormatada = info ? `${String(info.dia).padStart(2, '0')}/${String(info.mes + 1).padStart(2, '0')}` : '';
-                    const dNiver = diasParaAniversario(c.nascimento);
-                    const quandoUsar = dNiver === 0 ? 'hoje' : `no dia ${dataNiverFormatada}`;
-                    const msgWhatsNiver = encodeURIComponent(`🎂 Parabéns, ${c.nome}! A equipe Top Haus deseja a você um feliz aniversário!\n\nSeu presente é um voucher de R$20,00 para usar ${quandoUsar} como você preferir!\n\nApresente esta mensagem no caixa.\n\n🎟️ Acesse seu voucher digital: ${LINK_VOUCHER}`);
-                    btnAniversario = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsNiver}" target="_blank" class="text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Enviar Mensagem de R$ 20,00"><i data-lucide="gift" class="w-4 h-4"></i> Enviar Voucher</a>`;
-                }
-
-                let btnPremio = '';
-                if (c.almocos >= 10 && !filtroAtual.startsWith('niver')) {
-                    const msgWhatsPremio = encodeURIComponent(`🎉 Parabéns, ${c.nome}!\n\nVocê acaba de completar 10 almoços. Na sua próxima visita, você tem direito a um almoço de até R$50,00 (por nossa conta)`);
-                    btnPremio = `<a href="https://api.whatsapp.com/send?phone=55${c.telefone}&text=${msgWhatsPremio}" target="_blank" class="text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 p-1.5 rounded-lg transition flex items-center gap-1 font-bold text-xs" title="Resgatar Cortesia"><i data-lucide="award" class="w-4 h-4"></i> Resgatar</a>`;
-                }
+                const btnZap = `<button onclick="abrirModalWhatsApp('${c.cpf}')" class="text-green-600 bg-green-50 border border-green-200 hover:bg-green-100 p-1.5 rounded-lg transition" title="Mensagens WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>`;
 
                 tr.innerHTML = `
                     <td class="py-3 px-6 font-bold text-gray-800">${c.nome}</td>
                     <td class="py-3 px-6 font-mono text-gray-500 text-xs">${formatarCPF(c.cpf)}<br>${formatarTel(c.telefone)}</td>
                     <td class="py-3 px-6 text-center font-bold text-base ${c.almocos>=10 ? 'text-black' : 'text-gray-500'}">${c.almocos}</td>
                     <td class="py-3 px-6 text-center font-bold text-gray-500">${c.premiosResgatados || 0}</td>
-                    <td class="py-3 px-6 text-right"><div class="flex justify-end gap-1 items-center">${btnAniversario}${btnPremio}${btnWhatsGeral}${btnEditar}${btnHistorico}</div></td>
+                    <td class="py-3 px-6 text-right"><div class="flex justify-end gap-1 items-center">${btnZap}${btnEditar}${btnHistorico}</div></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1177,34 +1321,23 @@
             }
 
             if (cliente.historicoAniversarios && cliente.historicoAniversarios.length > 0) {
-                div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Vouchers de Aniversário</h4>`;
-                cliente.historicoAniversarios.forEach((resgate, index) => {
+                div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Aniversários Usados</h4>`;
+                cliente.historicoAniversarios.forEach((resgate) => {
                     div.innerHTML += `
                         <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 flex justify-between items-center mb-2">
-                            <div><p class="text-xs font-bold text-indigo-900">Aniversário ${resgate.ano}</p><p class="text-xs text-indigo-700">Data: ${resgate.dataResgate}</p></div>
-                            <button onclick="reimprimirAniversarioPorCpf('${cliente.cpf}', '${resgate.dataResgate}')" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-indigo-700 transition"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Reimprimir</button>
+                            <div><p class="text-xs font-bold text-indigo-900">Aniversário ${resgate.ano}</p><p class="text-xs text-indigo-700">Baixado em: ${resgate.dataResgate}</p></div>
                         </div>
                     `;
                 });
             }
 
             const modal = document.getElementById('modal-historico'); 
-            modal.classList.remove('hidden'); 
-            prenderFocoModal(modal);
-            lucide.createIcons();
+            modal.classList.remove('hidden'); prenderFocoModal(modal); lucide.createIcons();
         };
 
         window.reimprimirCupom10Almocos = (nome, cpf, arrayEncoded, dataResgate) => {
             fecharModal('modal-historico');
             dispararImpressaoBobina10Almocos(nome, cpf, JSON.parse(decodeURIComponent(arrayEncoded)), dataResgate + " (REIMPRESSÃO)");
-        };
-
-        window.reimprimirAniversarioPorCpf = (cpf, dataResgate) => {
-            fecharModal('modal-historico');
-            const cliente = clientesMap[cpf];
-            if(cliente) {
-                dispararImpressaoBobinaAniversario(cliente, dataResgate + " (REIMPRESSÃO)");
-            }
         };
 
         function atualizarIndicadores() {
@@ -1259,7 +1392,7 @@
         
         window.fecharModal = (id) => { 
             document.getElementById(id).classList.add('hidden'); 
-            if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar') { const b = document.getElementById('busca-cpf'); if(b) b.focus(); } 
+            if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar' && id !== 'modal-marketing' && id !== 'modal-whatsapp') { const b = document.getElementById('busca-cpf'); if(b) b.focus(); } 
         };
         
         window.mascaraCPF = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
@@ -1276,3 +1409,4 @@
     </script>
 </body>
 </html>
+
