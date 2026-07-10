@@ -34,7 +34,6 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- MODO CAIXA E ADMINISTRATIVO -->
     <div class="no-print">
         <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -59,7 +58,6 @@
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- CONTABILIZAR CAIXA -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
@@ -77,7 +75,6 @@
                     </button>
                 </div>
 
-                <!-- CADASTRO CAIXA -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -110,10 +107,8 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
-                <!-- NOTIFICAÇÕES INTELIGENTES -->
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
-                <!-- CARDS MINIMALISTAS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
                         <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
@@ -134,7 +129,6 @@
                     </div>
                 </div>
 
-                <!-- CENTRAL DE CLIENTES -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
                         <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center border border-gray-200">
@@ -185,7 +179,6 @@
             </section>
         </main>
 
-        <!-- ALERTA DE ANIVERSÁRIO (TELA DO CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -204,7 +197,6 @@
             </div>
         </div>
 
-        <!-- MODAIS DA CENTRAL DE MARKETING & WHATSAPP -->
         <div id="modal-whatsapp" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-green-500">
                 <div class="flex justify-between items-center mb-4">
@@ -213,8 +205,7 @@
                 </div>
                 <p class="text-sm text-gray-500 mb-4">Qual mensagem deseja enviar para <strong id="whats-cliente-nome">Cliente</strong>?</p>
                 <div class="flex flex-col gap-2" id="lista-opcoes-whats">
-                    <!-- Gerado pelo JS -->
-                </div>
+                    </div>
             </div>
         </div>
 
@@ -257,7 +248,6 @@
             </div>
         </div>
 
-        <!-- OUTROS MODAIS PADRÕES -->
         <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800">
                 <div class="flex items-center justify-between mb-4">
@@ -352,9 +342,6 @@
 
     </div>
 
-    <!-- ========================================== -->
-    <!-- INTERFACE MODO TOTEM -->
-    <!-- ========================================== -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] overflow-y-auto font-sans">
         
         <div class="min-h-[100dvh] w-full max-w-md mx-auto flex flex-col pt-12 px-6 pb-40" id="area-totem-interativa">
@@ -366,7 +353,6 @@
                 </div>
             </div>
 
-            <!-- Tela 1: Busca -->
             <div id="totem-tela-busca" class="w-full text-center transition-all">
                 <h1 class="text-3xl font-black text-white mb-2">Bem-vindo!</h1>
                 <p class="text-gray-300 mb-8 text-lg">Digite seu CPF para registrar seu almoço:</p>
@@ -376,7 +362,6 @@
                 </button>
             </div>
 
-            <!-- Tela 2: Cadastro Completo -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-black text-white">Primeira vez aqui?</h2>
@@ -396,7 +381,6 @@
                         <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
                     </div>
                     
-                    <!-- TEXTO LGPD -->
                     <p class="text-gray-400 text-xs text-center leading-tight pt-2">
                         <i data-lucide="lock" class="w-3 h-3 inline"></i> Seus dados são protegidos e usados exclusivamente para os benefícios do Clube Top Haus, não sendo compartilhados com terceiros.
                     </p>
@@ -408,7 +392,6 @@
                 </form>
             </div>
 
-            <!-- Tela 3: Opções -->
             <div id="totem-tela-opcoes" class="hidden w-full text-center transition-all">
                 <div class="w-24 h-24 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="gift" class="w-12 h-12"></i></div>
                 <h2 class="text-4xl font-black text-white mb-2">Parabéns!</h2>
@@ -419,7 +402,6 @@
                 </div>
             </div>
 
-            <!-- Tela 4: Mensagem Sucesso -->
             <div id="totem-tela-mensagem" class="hidden w-full text-center transition-all">
                 <div id="totem-icone-msg" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
                 <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4"></h2>
@@ -427,7 +409,6 @@
                 <div class="w-full bg-gray-800 h-1.5 mt-10 rounded-full overflow-hidden"><div id="totem-loading-bar" class="bg-white h-full w-full"></div></div>
             </div>
             
-            <!-- Modal de Saída do Totem -->
             <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
                 <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
                     <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
@@ -443,7 +424,6 @@
         </div>
     </div>
 
-    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA (Apenas prêmio de 10 almoços) -->
     <div id="secao-impressao" class="print-area"></div>
 
     <script type="module">
@@ -562,7 +542,7 @@
         });
 
         // -----------------------------------------------------
-        // VALIDAÇÕES E DATAS
+        // VALIDAÇÕES E DATAS (TIMEZONE BLINDADO)
         // -----------------------------------------------------
         function validarCPFReal(cpf) {
             cpf = cpf.replace(/\D/g, '');
@@ -603,15 +583,16 @@
         function isNiverInPeriod(nascimento, dataIniStr, dataFimStr) {
             const info = obterInfoNascimento(nascimento);
             if(!info) return false;
-            const dIni = new Date(dataIniStr + 'T00:00:00');
-            const dFim = new Date(dataFimStr + 'T23:59:59');
             
-            const dataNiverTeste = new Date(dIni.getFullYear(), info.mes, info.dia, 12, 0, 0);
-            if(dataNiverTeste >= dIni && dataNiverTeste <= dFim) return true;
+            // Forçando o horário para meio-dia (T12:00:00) evita bugs de timezone que alteram o dia
+            const dIni = new Date(dataIniStr + 'T12:00:00');
+            const dFim = new Date(dataFimStr + 'T12:00:00');
             
+            const dataNiverTeste1 = new Date(dIni.getFullYear(), info.mes, info.dia, 12, 0, 0);
             const dataNiverTeste2 = new Date(dFim.getFullYear(), info.mes, info.dia, 12, 0, 0);
-            if(dataNiverTeste2 >= dIni && dataNiverTeste2 <= dFim) return true;
-            return false;
+            
+            return (dataNiverTeste1 >= dIni && dataNiverTeste1 <= dFim) || 
+                   (dataNiverTeste2 >= dIni && dataNiverTeste2 <= dFim);
         }
 
         function jaRegistrouHoje(cliente) {
@@ -626,7 +607,6 @@
         function diasDesdeUltimaVisita(cliente) {
             if (!cliente.historico || cliente.historico.length === 0) return 999;
             const ultimoReg = cliente.historico[cliente.historico.length - 1];
-            // ex: "12/10/2025 às 14:30"
             const dataStr = ultimoReg.split(' às ')[0];
             const p = dataStr.split('/');
             if(p.length !== 3) return 999;
@@ -780,15 +760,12 @@
                 texto = msgsMarketing.personalizadas[idxCustom].texto;
             }
 
-            // Replace inteligente
             texto = texto.replace(/\[Nome\]/g, cliente.nome.split(' ')[0]).replace(/\[Acumulados\]/g, cliente.almocos);
             const url = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
             fecharModal('modal-whatsapp');
 
-            if(updatePromise) {
-                updatePromise.then(() => { calcularNotificacoesPainel(); });
-            }
+            if(updatePromise) { updatePromise.then(() => { calcularNotificacoesPainel(); }); }
         };
 
         // -----------------------------------------------------
@@ -797,40 +774,30 @@
         window.fecharSenhaTotem = () => { document.getElementById('modal-senha-totem').classList.add('hidden'); };
         
         window.validarSaidaTotem = () => {
-            if(document.getElementById('input-senha-totem').value === senhaAtualBanco) {
-                fecharSenhaTotem(); sairModoTotem();
-            } else {
-                mostrarToast("Senha incorreta", "erro"); document.getElementById('input-senha-totem').value = '';
-            }
+            if(document.getElementById('input-senha-totem').value === senhaAtualBanco) { fecharSenhaTotem(); sairModoTotem(); } 
+            else { mostrarToast("Senha incorreta", "erro"); document.getElementById('input-senha-totem').value = ''; }
         };
 
         window.entrarModoTotem = () => {
-            fecharModal('modal-secreto');
-            document.documentElement.requestFullscreen().catch((e) => console.log("Fullscreen bloqueado"));
-            document.getElementById('tela-totem').classList.remove('hidden');
-            totemVoltarInicio();
+            fecharModal('modal-secreto'); document.documentElement.requestFullscreen().catch((e) => console.log("Fullscreen bloqueado"));
+            document.getElementById('tela-totem').classList.remove('hidden'); totemVoltarInicio();
         };
 
         window.sairModoTotem = () => {
             if(document.fullscreenElement) document.exitFullscreen();
             document.getElementById('tela-totem').classList.add('hidden');
-            mostrarToast("Sessão Administrativa Liberada");
-            clearTimeout(timerInatividade);
+            mostrarToast("Sessão Administrativa Liberada"); clearTimeout(timerInatividade);
         };
 
         function resetarTimerTotem() {
             clearTimeout(timerInatividade);
             if(document.getElementById('tela-totem').classList.contains('hidden')) return;
-            if(document.getElementById('totem-tela-busca').classList.contains('hidden')) {
-                timerInatividade = setTimeout(() => { totemVoltarInicio(); }, 45000); 
-            }
+            if(document.getElementById('totem-tela-busca').classList.contains('hidden')) { timerInatividade = setTimeout(() => { totemVoltarInicio(); }, 45000); }
         }
 
         window.totemVoltarInicio = () => {
-            clearTimeout(timeoutTotemMsg);
-            clearTimeout(timerInatividade);
-            totemClienteTemp = null;
-            isProcessing = false;
+            clearTimeout(timeoutTotemMsg); clearTimeout(timerInatividade);
+            totemClienteTemp = null; isProcessing = false;
             document.getElementById('btn-totem-avancar').disabled = false;
 
             document.getElementById('totem-tela-busca').classList.remove('hidden');
@@ -847,9 +814,7 @@
             const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
             if(!validarCPFReal(cpfNum)) return totemMostrarMensagem('erro_cpf');
             
-            isProcessing = true;
-            document.getElementById('btn-totem-avancar').disabled = true;
-            document.activeElement.blur(); 
+            isProcessing = true; document.getElementById('btn-totem-avancar').disabled = true; document.activeElement.blur(); 
 
             const cliente = clientesMap[cpfNum];
             
@@ -859,22 +824,21 @@
                 document.getElementById('totem-cad-cpf').value = formatarCPF(cpfNum);
                 document.getElementById('totem-tela-cadastro').classList.remove('hidden');
                 setTimeout(() => document.getElementById('totem-cad-nome').focus(), 300);
-                isProcessing = false;
-                resetarTimerTotem();
+                isProcessing = false; resetarTimerTotem();
             } else {
                 if(jaRegistrouHoje(cliente)) {
-                    totemClienteTemp = cliente; // Para pegar o nome
-                    isProcessing = false;
-                    return totemMostrarMensagem('ja_registrado');
+                    totemClienteTemp = cliente;
+                    isProcessing = false; return totemMostrarMensagem('ja_registrado');
                 }
                 
                 totemClienteTemp = cliente;
                 if(cliente.almocos >= 10) {
                     document.getElementById('totem-tela-busca').classList.add('hidden');
                     document.getElementById('totem-tela-opcoes').classList.remove('hidden');
-                    isProcessing = false;
-                    resetarTimerTotem();
+                    isProcessing = false; resetarTimerTotem();
                 } else {
+                    // DESBLOQUEIO DE TRAVA (DEADLOCK FIX)
+                    isProcessing = false; 
                     totemExecutarAcumulo();
                 }
             }
@@ -883,9 +847,7 @@
         window.totemSalvarCadastro = (e) => {
             e.preventDefault();
             if(isProcessing) return;
-            isProcessing = true;
-            document.getElementById('btn-totem-salvar').disabled = true;
-            document.activeElement.blur(); 
+            isProcessing = true; document.getElementById('btn-totem-salvar').disabled = true; document.activeElement.blur(); 
 
             const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
             const nome = document.getElementById('totem-cad-nome').value.trim();
@@ -905,13 +867,9 @@
             novoCliente.historico.push(dataF);
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
-                totemClienteTemp = novoCliente;
-                document.getElementById('btn-totem-salvar').disabled = false;
-                isProcessing = false;
-
+                totemClienteTemp = novoCliente; document.getElementById('btn-totem-salvar').disabled = false; isProcessing = false;
                 const ehNiverHoje = diasParaAniversario(novoCliente.nascimento) === 0;
-                if (ehNiverHoje) { totemMostrarMensagem('aniversario_totem'); } 
-                else { totemMostrarMensagem('cadastro_sucesso'); }
+                if (ehNiverHoje) { totemMostrarMensagem('aniversario_totem'); } else { totemMostrarMensagem('cadastro_sucesso'); }
             }).catch(() => {
                 mostrarToast("Erro ao salvar.", "erro"); isProcessing = false; document.getElementById('btn-totem-salvar').disabled = false;
             });
@@ -920,9 +878,7 @@
         window.totemExecutarAcumulo = () => {
             if(isProcessing) return;
             isProcessing = true;
-            
-            const btnAcumular = document.getElementById('btn-totem-acumular');
-            if(btnAcumular) btnAcumular.disabled = true;
+            const btnAcumular = document.getElementById('btn-totem-acumular'); if(btnAcumular) btnAcumular.disabled = true;
 
             const cliente = totemClienteTemp;
             cliente.almocos = (cliente.almocos || 0) + 1;
@@ -932,8 +888,7 @@
             cliente.historico.push(dataF);
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
-                isProcessing = false;
-                if(btnAcumular) btnAcumular.disabled = false;
+                isProcessing = false; if(btnAcumular) btnAcumular.disabled = false;
 
                 const anoAtual = new Date().getFullYear();
                 const ehNiverHoje = diasParaAniversario(cliente.nascimento) === 0;
@@ -942,6 +897,8 @@
                 if (ehNiverHoje && !jaResgatouNiver) { totemMostrarMensagem('aniversario_totem'); } 
                 else if(cliente.almocos === 10) { totemMostrarMensagem('meta_atingida'); } 
                 else { totemMostrarMensagem('sucesso_acumulo'); }
+            }).catch(() => {
+                isProcessing = false; if(btnAcumular) btnAcumular.disabled = false; mostrarToast("Erro na conexão.", "erro");
             });
         };
 
@@ -998,15 +955,9 @@
                 tempoTela = 8000; 
             }
 
-            document.getElementById('totem-tela-mensagem').classList.remove('hidden');
-            lucide.createIcons();
-            
-            void loadBar.offsetWidth; 
-            loadBar.style.animationDuration = `${tempoTela}ms`;
-            loadBar.classList.add('animate-shrink');
-            
-            clearTimeout(timeoutTotemMsg);
-            timeoutTotemMsg = setTimeout(() => { totemVoltarInicio(); }, tempoTela);
+            document.getElementById('totem-tela-mensagem').classList.remove('hidden'); lucide.createIcons();
+            void loadBar.offsetWidth; loadBar.style.animationDuration = `${tempoTela}ms`; loadBar.classList.add('animate-shrink');
+            clearTimeout(timeoutTotemMsg); timeoutTotemMsg = setTimeout(() => { totemVoltarInicio(); }, tempoTela);
         };
 
         // -----------------------------------------------------
@@ -1024,11 +975,7 @@
             const ehNiverHoje = diasParaAniversario(cliente.nascimento) === 0;
             const pendenteAniversario = ehNiverHoje && cliente.aniversarioResgatadoAno !== anoAtual;
 
-            if (pendenteAniversario) {
-                abrirAlertaAniversario(cliente, 'busca');
-                return;
-            }
-
+            if (pendenteAniversario) { abrirAlertaAniversario(cliente, 'busca'); return; }
             processarFluxoNormal(cliente);
         };
 
@@ -1037,10 +984,8 @@
             const pendentePremio = cliente.almocos >= 10;
 
             if (pendentePremio) {
-                const modal = document.getElementById('modal-trava');
-                modal.classList.remove('hidden'); prenderFocoModal(modal);
+                const modal = document.getElementById('modal-trava'); modal.classList.remove('hidden'); prenderFocoModal(modal);
                 document.getElementById('btn-trava-resgatar').onclick = () => { fecharModal('modal-trava'); efetuarResgateEImprimir(cliente); };
-                
                 const btnAcumular = document.getElementById('btn-trava-acumular');
                 if (jaRegistrou) {
                     btnAcumular.innerText = "Já acumulou hoje (Bloqueado)"; btnAcumular.disabled = true; btnAcumular.classList.add('opacity-50', 'cursor-not-allowed');
@@ -1050,24 +995,19 @@
                 }
             } else {
                 if (jaRegistrou) return mostrarToast('Bloqueado: Este cliente já registrou um almoço hoje!', 'erro');
-                
                 document.getElementById('texto-confirmacao').innerText = `Deseja registrar +1 almoço para ${cliente.nome}?`;
-                const modal = document.getElementById('modal-confirmacao');
-                modal.classList.remove('hidden'); prenderFocoModal(modal);
+                const modal = document.getElementById('modal-confirmacao'); modal.classList.remove('hidden'); prenderFocoModal(modal);
                 document.getElementById('btn-confirmar-almoco').onclick = () => { fecharModal('modal-confirmacao'); processarConfirmacao(cliente); };
             }
         };
 
         window.cadastrarCliente = (e) => {
-            e.preventDefault();
-            if(isProcessing) return;
-            
+            e.preventDefault(); if(isProcessing) return;
             const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
             if(!validarCPFReal(cpf)) return mostrarToast('CPF Inválido.', 'erro');
             if (clientesMap[cpf]) return mostrarToast('CPF já cadastrado!', 'erro');
 
             isProcessing = true; document.getElementById('btn-caixa-salvar').disabled = true;
-
             const nome = document.getElementById('cad-nome').value.trim();
             const nascimento = document.getElementById('cad-nascimento').value;
             const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
@@ -1082,27 +1022,23 @@
             };
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
-                document.getElementById('form-cadastro').reset();
-                mostrarToast('Cadastro feito com sucesso!', 'sucesso');
+                document.getElementById('form-cadastro').reset(); mostrarToast('Cadastro feito com sucesso!', 'sucesso');
                 isProcessing = false; document.getElementById('btn-caixa-salvar').disabled = false;
-
                 if(diasParaAniversario(novoCliente.nascimento) === 0) abrirAlertaAniversario(novoCliente, 'cadastro'); 
                 else document.getElementById('busca-cpf').focus();
-            });
+            }).catch(() => { isProcessing = false; document.getElementById('btn-caixa-salvar').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
         };
 
         function abrirAlertaAniversario(cliente, tipoAcao) {
             acaoPendente = cliente; tipoAcaoPendente = tipoAcao;
             document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-black">${cliente.nome}</strong>!`;
-            const modal = document.getElementById('modal-alerta-aniversario');
-            modal.classList.remove('hidden'); prenderFocoModal(modal);
+            const modal = document.getElementById('modal-alerta-aniversario'); modal.classList.remove('hidden'); prenderFocoModal(modal);
         }
 
         window.confirmarCortesiaAniversario = () => {
             if(!acaoPendente || isProcessing) return;
             isProcessing = true;
-            const cliente = acaoPendente;
-            const anoAtual = new Date().getFullYear();
+            const cliente = acaoPendente; const anoAtual = new Date().getFullYear();
             
             cliente.aniversarioResgatadoAno = anoAtual;
             if(!cliente.historicoAniversarios) cliente.historicoAniversarios = [];
@@ -1110,11 +1046,9 @@
             cliente.historicoAniversarios.push({ dataResgate: dataHoraResgate, ano: anoAtual });
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
-                isProcessing = false;
-                document.getElementById('modal-alerta-aniversario').classList.add('hidden');
-                mostrarToast("Voucher de Aniversário Baixado no Sistema!", "sucesso");
-                continuarPosAniversario();
-            });
+                isProcessing = false; document.getElementById('modal-alerta-aniversario').classList.add('hidden');
+                mostrarToast("Voucher de Aniversário Baixado no Sistema!", "sucesso"); continuarPosAniversario();
+            }).catch(() => { isProcessing = false; mostrarToast("Erro na conexão.", "erro"); });
         };
 
         window.continuarPosAniversario = () => {
@@ -1125,9 +1059,7 @@
         };
 
         function processarConfirmacao(cliente) {
-            if(isProcessing) return;
-            isProcessing = true;
-            document.getElementById('btn-confirmar-almoco').disabled = true;
+            if(isProcessing) return; isProcessing = true; document.getElementById('btn-confirmar-almoco').disabled = true;
 
             cliente.almocos = (cliente.almocos || 0) + 1;
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
@@ -1137,19 +1069,17 @@
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => { 
                 isProcessing = false; document.getElementById('btn-confirmar-almoco').disabled = false;
                 document.getElementById('busca-cpf').value = ''; mostrarToast('Almoço contabilizado!', 'sucesso'); 
-            });
+            }).catch(() => { isProcessing = false; document.getElementById('btn-confirmar-almoco').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
         }
 
         function efetuarResgateEImprimir(cliente) {
-            if(isProcessing) return;
-            isProcessing = true;
-            document.getElementById('btn-trava-resgatar').disabled = true;
+            if(isProcessing) return; isProcessing = true; document.getElementById('btn-trava-resgatar').disabled = true;
 
             const datasDoResgate = cliente.historico.slice(0, 10);
             cliente.historico = cliente.historico.slice(10);
             cliente.almocos -= 10;
             cliente.premiosResgatados = (cliente.premiosResgatados || 0) + 1;
-            cliente.notificadoPremio = false; // Reseta a flag para avisar no próximo ciclo de 10
+            cliente.notificadoPremio = false; 
             
             const dataHoraResgate = new Date().toLocaleString('pt-BR');
             if(!cliente.historicoResgates) cliente.historicoResgates = [];
@@ -1159,39 +1089,23 @@
                 isProcessing = false; document.getElementById('btn-trava-resgatar').disabled = false;
                 document.getElementById('busca-cpf').value = ''; mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
                 dispararImpressaoBobina10Almocos(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
-            });
+            }).catch(() => { isProcessing = false; document.getElementById('btn-trava-resgatar').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
         }
 
         window.dispararImpressaoBobina10Almocos = (nome, cpf, arrayDatas, dataHoraTop) => {
-            let listaHtml = '';
-            arrayDatas.forEach(data => listaHtml += `<li>[+] ${data}</li>`);
-
+            let listaHtml = ''; arrayDatas.forEach(data => listaHtml += `<li>[+] ${data}</li>`);
             const htmlImpressao = `
                 ${cabecalhoImpressao()}
                 <div class="linha-tracejada"></div>
-                <div style="text-align: center; margin-bottom: 5px;">
-                    <strong style="font-size: 14px; color: #000;">COMPROVANTE DE RESGATE</strong><br>
-                    <span style="font-size: 11px;">${dataHoraTop}</span>
-                </div>
+                <div style="text-align: center; margin-bottom: 5px;"><strong style="font-size: 14px; color: #000;">COMPROVANTE DE RESGATE</strong><br><span style="font-size: 11px;">${dataHoraTop}</span></div>
                 <div class="linha-tracejada"></div>
-                <div style="margin-bottom: 5px; font-size: 12px; color: #000;">
-                    <p style="margin:2px 0;"><strong>Cliente:</strong> ${nome.toUpperCase()}</p>
-                    <p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cpf)}</p>
-                </div>
+                <div style="margin-bottom: 5px; font-size: 12px; color: #000;"><p style="margin:2px 0;"><strong>Cliente:</strong> ${nome.toUpperCase()}</p><p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cpf)}</p></div>
                 <div class="linha-tracejada"></div>
-                <div style="margin-bottom: 5px;">
-                    <p style="font-weight: bold; margin:2px 0; color: #000;">ALMOÇOS CONTABILIZADOS:</p>
-                    <ol style="padding-left: 15px; margin:0; font-size: 11px; color: #000;">${listaHtml}</ol>
-                </div>
+                <div style="margin-bottom: 5px;"><p style="font-weight: bold; margin:2px 0; color: #000;">ALMOÇOS CONTABILIZADOS:</p><ol style="padding-left: 15px; margin:0; font-size: 11px; color: #000;">${listaHtml}</ol></div>
                 <div class="linha-tracejada"></div>
-                <div style="text-align: center; margin-top: 5px;">
-                    <p style="font-weight: 900; margin:0; font-size: 16px; color: #000;">CORTESIA LIBERADA</p>
-                    <p style="font-size: 11px; margin:2px 0;">Válido: 1 Almoço (Consumo até R$ 50,00).</p>
-                    <p style="font-size: 10px; margin:0;">*O valor excedente foi cobrado à parte.</p>
-                </div>
+                <div style="text-align: center; margin-top: 5px;"><p style="font-weight: 900; margin:0; font-size: 16px; color: #000;">CORTESIA LIBERADA</p><p style="font-size: 11px; margin:2px 0;">Válido: 1 Almoço (Consumo até R$ 50,00).</p><p style="font-size: 10px; margin:0;">*O valor excedente foi cobrado à parte.</p></div>
             `;
-            document.getElementById('secao-impressao').innerHTML = htmlImpressao;
-            window.print();
+            document.getElementById('secao-impressao').innerHTML = htmlImpressao; window.print();
         };
 
         window.abrirEditar = (cpf) => {
@@ -1199,12 +1113,9 @@
             document.getElementById('edit-cpf-raw').value = cliente.cpf;
             document.getElementById('edit-cpf-display').value = formatarCPF(cliente.cpf);
             document.getElementById('edit-nome').value = cliente.nome;
-            let niver = cliente.nascimento;
-            if(niver && niver.includes('-')) { const p = niver.split('-'); niver = `${p[2]}/${p[1]}/${p[0]}`; }
-            document.getElementById('edit-nascimento').value = niver;
-            document.getElementById('edit-telefone').value = formatarTel(cliente.telefone);
-            const modalEditar = document.getElementById('modal-editar');
-            modalEditar.classList.remove('hidden'); prenderFocoModal(modalEditar);
+            let niver = cliente.nascimento; if(niver && niver.includes('-')) { const p = niver.split('-'); niver = `${p[2]}/${p[1]}/${p[0]}`; }
+            document.getElementById('edit-nascimento').value = niver; document.getElementById('edit-telefone').value = formatarTel(cliente.telefone);
+            const modalEditar = document.getElementById('modal-editar'); modalEditar.classList.remove('hidden'); prenderFocoModal(modalEditar);
         };
 
         window.salvarEdicao = (e) => {
@@ -1213,30 +1124,24 @@
             const nome = document.getElementById('edit-nome').value;
             const telefone = document.getElementById('edit-telefone').value.replace(/\D/g, '');
             const nascimento = document.getElementById('edit-nascimento').value;
-            let niverConvertido = nascimento;
-            if(nascimento.includes('/')) { const p = nascimento.split('/'); niverConvertido = `${p[2]}-${p[1]}-${p[0]}`; }
+            let niverConvertido = nascimento; if(nascimento.includes('/')) { const p = nascimento.split('/'); niverConvertido = `${p[2]}-${p[1]}-${p[0]}`; }
             const cliente = clientesMap[cpf];
             cliente.nome = nome; cliente.telefone = telefone; cliente.nascimento = niverConvertido;
-            set(ref(db, 'clientes/' + cpf), cliente).then(() => {
-                mostrarToast("Cadastro atualizado com sucesso!", "sucesso"); fecharModal('modal-editar');
-            });
+            set(ref(db, 'clientes/' + cpf), cliente).then(() => { mostrarToast("Cadastro atualizado com sucesso!", "sucesso"); fecharModal('modal-editar'); });
         };
 
         window.filtrarPorPeriodo = () => {
-            const dtIni = document.getElementById('filtro-data-inicio').value;
-            const dtFim = document.getElementById('filtro-data-fim').value;
+            const dtIni = document.getElementById('filtro-data-inicio').value; const dtFim = document.getElementById('filtro-data-fim').value;
             if(!dtIni || !dtFim) return mostrarToast("Preencha as duas datas", "erro");
             filtrarLista('niver_periodo', dtIni, dtFim);
         };
 
         window.filtrarLista = (tipo, dataIni = null, dataFim = null) => {
             filtroAtual = tipo;
-            const textoFiltro = document.getElementById('filtro-atual-texto');
-            const subFiltroDiv = document.getElementById('sub-filtros-niver');
+            const textoFiltro = document.getElementById('filtro-atual-texto'); const subFiltroDiv = document.getElementById('sub-filtros-niver');
             let listaFiltrada = [];
 
-            if (tipo.startsWith('niver')) { subFiltroDiv.classList.remove('hidden'); } 
-            else { subFiltroDiv.classList.add('hidden'); }
+            if (tipo.startsWith('niver')) { subFiltroDiv.classList.remove('hidden'); } else { subFiltroDiv.classList.add('hidden'); }
 
             const anoAtual = new Date().getFullYear();
 
@@ -1250,7 +1155,6 @@
                 textoFiltro.innerText = `Central Aniversários: Período (${dI_BR} até ${dF_BR})`; 
                 listaFiltrada = clientesArray.filter(c => isNiverInPeriod(c.nascimento, dataIni, dataFim)); 
             }
-            // ALERTS
             else if (tipo === 'alerta_niver') {
                 textoFiltro.innerText = 'Exibindo: Aniversariantes aguardando aviso (Próx. 7 dias)';
                 listaFiltrada = clientesArray.filter(c => { const d = diasParaAniversario(c.nascimento); return d >= 0 && d <= 7 && c.notificadoAniversarioAno !== anoAtual; });
@@ -1277,9 +1181,8 @@
         };
 
         function renderizarTabela(lista) {
-            const tbody = document.getElementById('tabela-clientes');
-            tbody.innerHTML = '';
-            if (lista.length === 0) return tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400 font-medium">Nenhum registro encontrado.</td></tr>`;
+            const tbody = document.getElementById('tabela-clientes'); tbody.innerHTML = '';
+            if (lista.length === 0) return tbody.innerHTML = `<tr><td colspan=\"5\" class=\"text-center py-8 text-slate-400 font-medium\">Nenhum registro encontrado.</td></tr>`;
 
             lista.forEach(c => {
                 const tr = document.createElement('tr');
@@ -1303,9 +1206,7 @@
         }
 
         window.abrirHistorico = (cpf) => {
-            const cliente = clientesMap[cpf];
-            const div = document.getElementById('lista-historico'); 
-            div.innerHTML = '';
+            const cliente = clientesMap[cpf]; const div = document.getElementById('lista-historico'); div.innerHTML = '';
             
             if (cliente.historicoResgates && cliente.historicoResgates.length > 0) {
                 div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Prêmios de 10 Almoços</h4>`;
@@ -1330,9 +1231,7 @@
                     `;
                 });
             }
-
-            const modal = document.getElementById('modal-historico'); 
-            modal.classList.remove('hidden'); prenderFocoModal(modal); lucide.createIcons();
+            const modal = document.getElementById('modal-historico'); modal.classList.remove('hidden'); prenderFocoModal(modal); lucide.createIcons();
         };
 
         window.reimprimirCupom10Almocos = (nome, cpf, arrayEncoded, dataResgate) => {
@@ -1370,8 +1269,7 @@
         };
 
         window.abrirModalSecreto = () => { 
-            document.getElementById('input-senha').value = ''; 
-            document.getElementById('area-opcoes-secretas').classList.add('hidden'); 
+            document.getElementById('input-senha').value = ''; document.getElementById('area-opcoes-secretas').classList.add('hidden'); 
             document.getElementById('area-senha-secreta').classList.remove('hidden'); 
             const modal = document.getElementById('modal-secreto'); modal.classList.remove('hidden'); prenderFocoModal(modal);
         };
@@ -1396,7 +1294,7 @@
         };
         
         window.mascaraCPF = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
-        window.mascaraTelefone = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
+        window.mascaraTelefone = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\\d)(\\d{4})$/, "$1-$2"); }
         window.mascaraData = (i) => { let v = i.value.replace(/\D/g, ""); v = v.replace(/(\d{2})(\d)/, "$1/$2"); v = v.replace(/(\d{2})(\d)/, "$1/$2"); i.value = v.substring(0, 10); };
         
         function formatarCPF(cpf) { return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
@@ -1409,4 +1307,3 @@
     </script>
 </body>
 </html>
-
