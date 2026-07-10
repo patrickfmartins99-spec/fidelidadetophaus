@@ -429,7 +429,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // BLINDAGEM 1: Quebra da String da API Key para o GitHub Secret Scanning não emitir alerta de "Credenciais Vazadas".
+        // CONFIGURAÇÃO FIREBASE BLINDADA CONTRA ROBÔS DO GITHUB
         const firebaseConfig = {
             apiKey: "AIzaSyDZBx7Vrsdfh" + "gOGxbDyDHAkfOhRvNiIg0Q",
             authDomain: "fidelidadetophausnavega.firebaseapp.com",
@@ -463,7 +463,7 @@
         let timerInatividade;
         let totemClienteTemp = null;
 
-        // BLINDAGEM 2: Função de Escape HTML (Evita alertas do GitHub CodeQL sobre Injeção de Código "DOM XSS")
+        // FUNÇÃO DE ESCAPE HTML (Evita injeção de código XSS)
         function escapeHTML(str) {
             if(!str) return '';
             return str.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -549,6 +549,7 @@
         // VALIDAÇÕES E DATAS 
         // -----------------------------------------------------
         function validarCPFReal(cpf) {
+            if(!cpf) return false;
             cpf = cpf.replace(/\D/g, '');
             if(cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
             let soma = 0, resto;
@@ -644,7 +645,7 @@
             clientesArray.forEach(c => {
                 const diasNiv = diasParaAniversario(c.nascimento);
                 if (diasNiv >= 0 && diasNiv <= 7 && c.notificadoAniversarioAno !== anoAtual) countNiverAlert++;
-                if (c.almocos >= 10 && !c.notificadoPremio) countPremioAlert++;
+                if ((c.almocos || 0) >= 10 && !c.notificadoPremio) countPremioAlert++;
                 
                 const dSumido = diasDesdeUltimaVisita(c);
                 const diasNotificadoInat = c.notificadoInativoData ? Math.floor((Date.now() - c.notificadoInativoData)/(1000*60*60*24)) : 999;
@@ -664,9 +665,9 @@
         }
 
         window.abrirCentralMarketing = () => {
-            document.getElementById('mkt-msg-niver').value = msgsMarketing.aniversario;
-            document.getElementById('mkt-msg-premio').value = msgsMarketing.premio;
-            document.getElementById('mkt-msg-inativo').value = msgsMarketing.inativo;
+            document.getElementById('mkt-msg-niver').value = msgsMarketing.aniversario || '';
+            document.getElementById('mkt-msg-premio').value = msgsMarketing.premio || '';
+            document.getElementById('mkt-msg-inativo').value = msgsMarketing.inativo || '';
             renderizarMensagensCustomizadas();
             const modal = document.getElementById('modal-marketing');
             modal.classList.remove('hidden'); prenderFocoModal(modal);
@@ -675,7 +676,13 @@
         window.renderizarMensagensCustomizadas = () => {
             const area = document.getElementById('area-mensagens-custom');
             area.innerHTML = '';
-            msgsMarketing.personalizadas.forEach((m, idx) => {
+            
+            // CORREÇÃO: Garante que lê como Array, mesmo se o Firebase salvou como Object
+            const listaMkt = Array.isArray(msgsMarketing.personalizadas) 
+                ? msgsMarketing.personalizadas 
+                : Object.values(msgsMarketing.personalizadas || {});
+                
+            listaMkt.forEach((m, idx) => {
                 area.innerHTML += `
                     <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative">
                         <button onclick="removerMsgCustom(${idx})" class="absolute top-2 right-2 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -687,11 +694,17 @@
         };
 
         window.adicionarMsgCustom = () => {
+            if(!Array.isArray(msgsMarketing.personalizadas)) {
+                msgsMarketing.personalizadas = Object.values(msgsMarketing.personalizadas || {});
+            }
             msgsMarketing.personalizadas.push({ titulo: "", texto: "" });
             renderizarMensagensCustomizadas();
         };
 
         window.removerMsgCustom = (idx) => {
+            if(!Array.isArray(msgsMarketing.personalizadas)) {
+                msgsMarketing.personalizadas = Object.values(msgsMarketing.personalizadas || {});
+            }
             msgsMarketing.personalizadas.splice(idx, 1);
             renderizarMensagensCustomizadas();
         };
@@ -701,10 +714,16 @@
             msgsMarketing.premio = document.getElementById('mkt-msg-premio').value;
             msgsMarketing.inativo = document.getElementById('mkt-msg-inativo').value;
             
-            msgsMarketing.personalizadas.forEach((m, idx) => {
+            const listaMkt = Array.isArray(msgsMarketing.personalizadas) 
+                ? msgsMarketing.personalizadas 
+                : Object.values(msgsMarketing.personalizadas || {});
+
+            listaMkt.forEach((m, idx) => {
                 m.titulo = document.getElementById(`mkt-custom-titulo-${idx}`).value;
                 m.texto = document.getElementById(`mkt-custom-texto-${idx}`).value;
             });
+            
+            msgsMarketing.personalizadas = listaMkt;
 
             set(ref(db, 'config/mensagens'), msgsMarketing).then(() => {
                 mostrarToast("Mensagens de Marketing Salvas!", "sucesso");
@@ -714,7 +733,8 @@
 
         window.abrirModalWhatsApp = (cpf) => {
             const cliente = clientesMap[cpf];
-            document.getElementById('whats-cliente-nome').innerText = cliente.nome.split(' ')[0];
+            if(!cliente) return;
+            document.getElementById('whats-cliente-nome').innerText = (cliente.nome || 'Cliente').split(' ')[0];
             
             const area = document.getElementById('lista-opcoes-whats');
             area.innerHTML = '';
@@ -723,14 +743,15 @@
             const iconNiv = ehNiverSemana ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-800';
             area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'aniversario')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="${iconNiv} p-2 rounded-lg"><i data-lucide="cake" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem de Aniversário</p><p class="text-xs text-gray-500">Voucher 20 Reais (Marca Notificado)</p></div></button>`;
 
-            const temPremio = cliente.almocos >= 10;
+            const temPremio = (cliente.almocos || 0) >= 10;
             const iconPre = temPremio ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-800';
             area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'premio')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="${iconPre} p-2 rounded-lg"><i data-lucide="gift" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem de 10 Almoços</p><p class="text-xs text-gray-500">Avisar cortesia liberada (Marca Notificado)</p></div></button>`;
 
             area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'inativo')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i data-lucide="user-minus" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem Recuperação</p><p class="text-xs text-gray-500">Avisar que notou ausência</p></div></button>`;
 
-            msgsMarketing.personalizadas.forEach((m, idx) => {
-                if(m.titulo.trim() !== "") {
+            const listaMkt = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas || {});
+            listaMkt.forEach((m, idx) => {
+                if(m.titulo && m.titulo.trim() !== "") {
                     area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'custom', ${idx})" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><i data-lucide="megaphone" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${escapeHTML(m.titulo)}</p><p class="text-xs text-gray-500">Ação de marketing personalizada</p></div></button>`;
                 }
             });
@@ -742,23 +763,29 @@
 
         window.dispararWhatsApp = (cpf, tipo, idxCustom = -1) => {
             const cliente = clientesMap[cpf];
+            if(!cliente || !cliente.telefone) {
+                mostrarToast("Cliente não possui telefone válido", "erro");
+                return;
+            }
+            
             let texto = "";
             let updatePromise = null;
 
             if (tipo === 'aniversario') {
-                texto = msgsMarketing.aniversario;
+                texto = msgsMarketing.aniversario || "";
                 updatePromise = set(ref(db, `clientes/${cpf}/notificadoAniversarioAno`), new Date().getFullYear());
             } else if (tipo === 'premio') {
-                texto = msgsMarketing.premio;
+                texto = msgsMarketing.premio || "";
                 updatePromise = set(ref(db, `clientes/${cpf}/notificadoPremio`), true);
             } else if (tipo === 'inativo') {
-                texto = msgsMarketing.inativo;
+                texto = msgsMarketing.inativo || "";
                 updatePromise = set(ref(db, `clientes/${cpf}/notificadoInativoData`), Date.now());
             } else if (tipo === 'custom') {
-                texto = msgsMarketing.personalizadas[idxCustom].texto;
+                const listaMkt = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas || {});
+                texto = listaMkt[idxCustom].texto || "";
             }
 
-            texto = texto.replace(/\[Nome\]/g, cliente.nome.split(' ')[0]).replace(/\[Acumulados\]/g, cliente.almocos);
+            texto = texto.replace(/\[Nome\]/g, (cliente.nome || '').split(' ')[0]).replace(/\[Acumulados\]/g, (cliente.almocos || 0));
             const url = `https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
             fecharModal('modal-whatsapp');
@@ -813,6 +840,7 @@
             if(!validarCPFReal(cpfNum)) return totemMostrarMensagem('erro_cpf');
             
             isProcessing = true; document.getElementById('btn-totem-avancar').disabled = true; document.activeElement.blur(); 
+            setTimeout(() => { isProcessing = false; }, 8000); // TRAVA DE SEGURANÇA
 
             const cliente = clientesMap[cpfNum];
             
@@ -830,7 +858,7 @@
                 }
                 
                 totemClienteTemp = cliente;
-                if(cliente.almocos >= 10) {
+                if((cliente.almocos || 0) >= 10) {
                     document.getElementById('totem-tela-busca').classList.add('hidden');
                     document.getElementById('totem-tela-opcoes').classList.remove('hidden');
                     isProcessing = false; resetarTimerTotem();
@@ -845,6 +873,7 @@
             e.preventDefault();
             if(isProcessing) return;
             isProcessing = true; document.getElementById('btn-totem-salvar').disabled = true; document.activeElement.blur(); 
+            setTimeout(() => { isProcessing = false; if(document.getElementById('btn-totem-salvar')) document.getElementById('btn-totem-salvar').disabled = false; }, 8000); // TRAVA
 
             const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
             const nome = document.getElementById('totem-cad-nome').value.trim();
@@ -876,6 +905,7 @@
             if(isProcessing) return;
             isProcessing = true;
             const btnAcumular = document.getElementById('btn-totem-acumular'); if(btnAcumular) btnAcumular.disabled = true;
+            setTimeout(() => { isProcessing = false; if(btnAcumular) btnAcumular.disabled = false; }, 8000); // TRAVA
 
             const cliente = totemClienteTemp;
             cliente.almocos = (cliente.almocos || 0) + 1;
@@ -914,7 +944,7 @@
             loadBar.classList.remove('animate-shrink');
             
             let tempoTela = 5000;
-            const nomeCurto = totemClienteTemp ? escapeHTML(totemClienteTemp.nome.split(' ')[0]) : '';
+            const nomeCurto = totemClienteTemp && totemClienteTemp.nome ? escapeHTML(totemClienteTemp.nome.split(' ')[0]) : '';
 
             if(tipo === 'erro_cpf') {
                 icone.innerHTML = `<i data-lucide="x" class="w-14 h-14"></i>`;
@@ -937,7 +967,7 @@
             else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') {
                 icone.innerHTML = `<i data-lucide="check" class="w-14 h-14"></i>`;
                 titulo.innerText = `Almoço Registrado, ${nomeCurto}!`;
-                texto.innerHTML = `Você possui <strong>${totemClienteTemp.almocos}</strong> almoço(s) acumulado(s).<br>Volte sempre!`;
+                texto.innerHTML = `Você possui <strong>${totemClienteTemp.almocos || 1}</strong> almoço(s) acumulado(s).<br>Volte sempre!`;
             }
             else if(tipo === 'meta_atingida') {
                 icone.innerHTML = `<i data-lucide="star" class="w-14 h-14"></i>`;
@@ -978,7 +1008,7 @@
 
         window.processarFluxoNormal = (cliente) => {
             const jaRegistrou = jaRegistrouHoje(cliente);
-            const pendentePremio = cliente.almocos >= 10;
+            const pendentePremio = (cliente.almocos || 0) >= 10;
 
             if (pendentePremio) {
                 const modal = document.getElementById('modal-trava'); modal.classList.remove('hidden'); prenderFocoModal(modal);
@@ -1005,6 +1035,8 @@
             if (clientesMap[cpf]) return mostrarToast('CPF já cadastrado!', 'erro');
 
             isProcessing = true; document.getElementById('btn-caixa-salvar').disabled = true;
+            setTimeout(() => { isProcessing = false; if(document.getElementById('btn-caixa-salvar')) document.getElementById('btn-caixa-salvar').disabled = false; }, 8000); // TRAVA
+
             const nome = document.getElementById('cad-nome').value.trim();
             const nascimento = document.getElementById('cad-nascimento').value;
             const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
@@ -1035,6 +1067,8 @@
         window.confirmarCortesiaAniversario = () => {
             if(!acaoPendente || isProcessing) return;
             isProcessing = true;
+            setTimeout(() => { isProcessing = false; }, 8000); // TRAVA
+
             const cliente = acaoPendente; const anoAtual = new Date().getFullYear();
             
             cliente.aniversarioResgatadoAno = anoAtual;
@@ -1057,6 +1091,7 @@
 
         function processarConfirmacao(cliente) {
             if(isProcessing) return; isProcessing = true; document.getElementById('btn-confirmar-almoco').disabled = true;
+            setTimeout(() => { isProcessing = false; if(document.getElementById('btn-confirmar-almoco')) document.getElementById('btn-confirmar-almoco').disabled = false; }, 8000); // TRAVA
 
             cliente.almocos = (cliente.almocos || 0) + 1;
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
@@ -1071,9 +1106,10 @@
 
         function efetuarResgateEImprimir(cliente) {
             if(isProcessing) return; isProcessing = true; document.getElementById('btn-trava-resgatar').disabled = true;
+            setTimeout(() => { isProcessing = false; if(document.getElementById('btn-trava-resgatar')) document.getElementById('btn-trava-resgatar').disabled = false; }, 8000); // TRAVA
 
-            const datasDoResgate = cliente.historico.slice(0, 10);
-            cliente.historico = cliente.historico.slice(10);
+            const datasDoResgate = (cliente.historico || []).slice(0, 10);
+            cliente.historico = (cliente.historico || []).slice(10);
             cliente.almocos -= 10;
             cliente.premiosResgatados = (cliente.premiosResgatados || 0) + 1;
             cliente.notificadoPremio = false; 
@@ -1090,13 +1126,13 @@
         }
 
         window.dispararImpressaoBobina10Almocos = (nome, cpf, arrayDatas, dataHoraTop) => {
-            let listaHtml = ''; arrayDatas.forEach(data => listaHtml += `<li>[+] ${escapeHTML(data)}</li>`);
+            let listaHtml = ''; (arrayDatas || []).forEach(data => listaHtml += `<li>[+] ${escapeHTML(data)}</li>`);
             const htmlImpressao = `
                 ${cabecalhoImpressao()}
                 <div class="linha-tracejada"></div>
                 <div style="text-align: center; margin-bottom: 5px;"><strong style="font-size: 14px; color: #000;">COMPROVANTE DE RESGATE</strong><br><span style="font-size: 11px;">${dataHoraTop}</span></div>
                 <div class="linha-tracejada"></div>
-                <div style="margin-bottom: 5px; font-size: 12px; color: #000;"><p style="margin:2px 0;"><strong>Cliente:</strong> ${escapeHTML(nome.toUpperCase())}</p><p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cpf)}</p></div>
+                <div style="margin-bottom: 5px; font-size: 12px; color: #000;"><p style="margin:2px 0;"><strong>Cliente:</strong> ${escapeHTML((nome || 'Cliente').toUpperCase())}</p><p style="margin:2px 0;"><strong>CPF:</strong> ${formatarCPF(cpf)}</p></div>
                 <div class="linha-tracejada"></div>
                 <div style="margin-bottom: 5px;"><p style="font-weight: bold; margin:2px 0; color: #000;">ALMOÇOS CONTABILIZADOS:</p><ol style="padding-left: 15px; margin:0; font-size: 11px; color: #000;">${listaHtml}</ol></div>
                 <div class="linha-tracejada"></div>
@@ -1107,11 +1143,15 @@
 
         window.abrirEditar = (cpf) => {
             const cliente = clientesMap[cpf];
-            document.getElementById('edit-cpf-raw').value = cliente.cpf;
+            if(!cliente) return;
+            document.getElementById('edit-cpf-raw').value = cliente.cpf || '';
             document.getElementById('edit-cpf-display').value = formatarCPF(cliente.cpf);
-            document.getElementById('edit-nome').value = cliente.nome;
+            document.getElementById('edit-nome').value = cliente.nome || '';
+            
             let niver = cliente.nascimento; if(niver && niver.includes('-')) { const p = niver.split('-'); niver = `${p[2]}/${p[1]}/${p[0]}`; }
-            document.getElementById('edit-nascimento').value = niver; document.getElementById('edit-telefone').value = formatarTel(cliente.telefone);
+            document.getElementById('edit-nascimento').value = niver || ''; 
+            document.getElementById('edit-telefone').value = formatarTel(cliente.telefone);
+            
             const modalEditar = document.getElementById('modal-editar'); modalEditar.classList.remove('hidden'); prenderFocoModal(modalEditar);
         };
 
@@ -1121,10 +1161,13 @@
             const nome = document.getElementById('edit-nome').value;
             const telefone = document.getElementById('edit-telefone').value.replace(/\D/g, '');
             const nascimento = document.getElementById('edit-nascimento').value;
+            
             let niverConvertido = nascimento; if(nascimento.includes('/')) { const p = nascimento.split('/'); niverConvertido = `${p[2]}-${p[1]}-${p[0]}`; }
             const cliente = clientesMap[cpf];
-            cliente.nome = nome; cliente.telefone = telefone; cliente.nascimento = niverConvertido;
-            set(ref(db, 'clientes/' + cpf), cliente).then(() => { mostrarToast("Cadastro atualizado com sucesso!", "sucesso"); fecharModal('modal-editar'); });
+            if(cliente) {
+                cliente.nome = nome; cliente.telefone = telefone; cliente.nascimento = niverConvertido;
+                set(ref(db, 'clientes/' + cpf), cliente).then(() => { mostrarToast("Cadastro atualizado com sucesso!", "sucesso"); fecharModal('modal-editar'); });
+            }
         };
 
         window.filtrarPorPeriodo = () => {
@@ -1143,8 +1186,8 @@
             const anoAtual = new Date().getFullYear();
 
             if (tipo === 'todos') { textoFiltro.innerText = 'Exibindo: Todos os clientes'; listaFiltrada = clientesArray; }
-            else if (tipo === 'premios') { textoFiltro.innerText = 'Exibindo: Aguardando Resgate'; listaFiltrada = clientesArray.filter(c => c.almocos >= 10); }
-            else if (tipo === 'vips') { textoFiltro.innerText = 'Exibindo: VIPs'; listaFiltrada = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).sort((a,b) => b.premiosResgatados - a.premiosResgatados); }
+            else if (tipo === 'premios') { textoFiltro.innerText = 'Exibindo: Aguardando Resgate'; listaFiltrada = clientesArray.filter(c => (c.almocos || 0) >= 10); }
+            else if (tipo === 'vips') { textoFiltro.innerText = 'Exibindo: VIPs'; listaFiltrada = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).sort((a,b) => (b.premiosResgatados || 0) - (a.premiosResgatados || 0)); }
             else if (tipo === 'niver_mes') { textoFiltro.innerText = 'Central Aniversários: Mês Atual'; listaFiltrada = clientesArray.filter(c => isNiverMesCheck(c.nascimento)); }
             else if (tipo === 'niver_periodo') {
                 const partsI = dataIni.split('-'); const dI_BR = `${partsI[2]}/${partsI[1]}/${partsI[0]}`;
@@ -1158,7 +1201,7 @@
             }
             else if (tipo === 'alerta_premio') {
                 textoFiltro.innerText = 'Exibindo: Prêmios aguardando aviso';
-                listaFiltrada = clientesArray.filter(c => c.almocos >= 10 && !c.notificadoPremio);
+                listaFiltrada = clientesArray.filter(c => (c.almocos || 0) >= 10 && !c.notificadoPremio);
             }
             else if (tipo === 'alerta_inativos') {
                 textoFiltro.innerText = 'Exibindo: Clientes Inativos (+30 dias)';
@@ -1174,12 +1217,12 @@
 
         window.filtrarPorTexto = (valor) => {
             const busca = valor.toLowerCase();
-            renderizarTabela(clientesArray.filter(c => c.nome.toLowerCase().includes(busca) || c.cpf.includes(busca)));
+            renderizarTabela(clientesArray.filter(c => (c.nome || '').toLowerCase().includes(busca) || (c.cpf || '').includes(busca)));
         };
 
         function renderizarTabela(lista) {
             const tbody = document.getElementById('tabela-clientes'); tbody.innerHTML = '';
-            if (lista.length === 0) { 
+            if (!lista || lista.length === 0) { 
                 tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400 font-medium">Nenhum registro encontrado.</td></tr>`;
                 return;
             }
@@ -1196,7 +1239,7 @@
                 tr.innerHTML = `
                     <td class="py-3 px-6 font-bold text-gray-800">${escapeHTML(c.nome)}</td>
                     <td class="py-3 px-6 font-mono text-gray-500 text-xs">${formatarCPF(c.cpf)}<br>${formatarTel(c.telefone)}</td>
-                    <td class="py-3 px-6 text-center font-bold text-base ${c.almocos>=10 ? 'text-black' : 'text-gray-500'}">${c.almocos}</td>
+                    <td class="py-3 px-6 text-center font-bold text-base ${(c.almocos || 0)>=10 ? 'text-black' : 'text-gray-500'}">${c.almocos || 0}</td>
                     <td class="py-3 px-6 text-center font-bold text-gray-500">${c.premiosResgatados || 0}</td>
                     <td class="py-3 px-6 text-right"><div class="flex justify-end gap-1 items-center">${btnZap}${btnEditar}${btnHistorico}</div></td>
                 `;
@@ -1207,6 +1250,7 @@
 
         window.abrirHistorico = (cpf) => {
             const cliente = clientesMap[cpf]; const div = document.getElementById('lista-historico'); div.innerHTML = '';
+            if(!cliente) return;
             
             if (cliente.historicoResgates && cliente.historicoResgates.length > 0) {
                 div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Prêmios de 10 Almoços</h4>`;
@@ -1233,7 +1277,6 @@
             const modal = document.getElementById('modal-historico'); modal.classList.remove('hidden'); prenderFocoModal(modal); lucide.createIcons();
         };
 
-        // BLINDAGEM 4: Chamada simplificada sem injetar string gigante no HTML
         window.reimprimirCupomPorCpf = (cpf, index) => {
             fecharModal('modal-historico');
             const cliente = clientesMap[cpf];
@@ -1245,7 +1288,7 @@
 
         function atualizarIndicadores() {
             document.getElementById('card-total').innerText = clientesArray.length;
-            document.getElementById('card-premios').innerText = clientesArray.filter(c => c.almocos >= 10).length;
+            document.getElementById('card-premios').innerText = clientesArray.filter(c => (c.almocos || 0) >= 10).length;
             document.getElementById('card-vips').innerText = clientesArray.filter(c => (c.premiosResgatados || 0) > 0).length;
             document.getElementById('card-niver-central').innerText = clientesArray.filter(c => isNiverMesCheck(c.nascimento)).length;
         }
@@ -1267,7 +1310,7 @@
         window.exportarExcel = () => {
             if(clientesArray.length === 0) return mostrarToast("Nenhum dado", "erro");
             let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almocos_Acumulados;Premios_Resgatados;Origem;Data_Cadastro\n";
-            clientesArray.forEach(c => csv += `${c.nome};${c.cpf};${c.nascimento || ''};${c.telefone};${c.almocos};${c.premiosResgatados || 0};${c.origemCadastro || 'N/A'};${c.dataCadastro || 'N/A'}\n`);
+            clientesArray.forEach(c => csv += `${c.nome};${c.cpf};${c.nascimento || ''};${c.telefone || ''};${c.almocos || 0};${c.premiosResgatados || 0};${c.origemCadastro || 'N/A'};${c.dataCadastro || 'N/A'}\n`);
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
             link.download = `Clientes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`; link.click();
         };
@@ -1286,3 +1329,30 @@
         window.resetarSistema = () => { 
             if(confirm("ALERTA MÁXIMO! Tem certeza que deseja apagar TODOS os clientes?")) { set(ref(db, 'clientes'), null).then(() => { mostrarToast("Banco resetado", "sucesso"); fecharModal('modal-secreto'); }); }
         };
+
+        window.mudarSenha = () => { 
+            const nova = document.getElementById('nova-senha').value; 
+            if(nova.trim() !== '') { set(ref(db, 'config/senhaReset'), nova).then(() => { mostrarToast("Senha alterada!", "sucesso"); fecharModal('modal-secreto'); }); }
+        };
+        
+        window.fecharModal = (id) => { 
+            document.getElementById(id).classList.add('hidden'); 
+            if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar' && id !== 'modal-marketing' && id !== 'modal-whatsapp') { const b = document.getElementById('busca-cpf'); if(b) b.focus(); } 
+        };
+        
+        // CORREÇÃO: Tratamento para não falhar (crash) se o input for preenchido com dados antigos nulos
+        window.mascaraCPF = (i) => { let v = (i.value||"").replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
+        window.mascaraTelefone = (i) => { let v = (i.value||"").replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
+        window.mascaraData = (i) => { let v = (i.value||"").replace(/\D/g, ""); v = v.replace(/(\d{2})(\d)/, "$1/$2"); v = v.replace(/(\d{2})(\d)/, "$1/$2"); i.value = v.substring(0, 10); };
+        
+        // CORREÇÃO MÁXIMA PARA A TABELA: Se o cliente antigo não tem dado, retorna espaço vazio, não dá crash de JS.
+        function formatarCPF(cpf) { if(!cpf) return ''; return cpf.toString().replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
+        function formatarTel(tel) { if(!tel) return ''; return tel.toString().replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); }
+        function formatarNasc(nasc) { 
+            if(!nasc) return '';
+            if(nasc.includes('-')) { const p = nasc.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+            return nasc;
+        }
+    </script>
+</body>
+</html>
