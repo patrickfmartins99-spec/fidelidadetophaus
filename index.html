@@ -34,6 +34,7 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- MODO CAIXA E ADMINISTRATIVO -->
     <div class="no-print">
         <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -58,6 +59,7 @@
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- CONTABILIZAR CAIXA -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
@@ -75,6 +77,7 @@
                     </button>
                 </div>
 
+                <!-- CADASTRO CAIXA -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -107,6 +110,7 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
+                <!-- NOTIFICAÇÕES INTELIGENTES -->
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -179,6 +183,7 @@
             </section>
         </main>
 
+        <!-- ALERTA DE ANIVERSÁRIO (CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -197,14 +202,15 @@
             </div>
         </div>
 
+        <!-- MODAL WHATSAPP BLOQUEADO/INTELIGENTE -->
         <div id="modal-whatsapp" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-green-500">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-green-500">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="message-circle" class="w-5 h-5 text-green-500"></i> Enviar Mensagem</h3>
                     <button onclick="fecharModal('modal-whatsapp')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                <p class="text-sm text-gray-500 mb-4">Qual mensagem deseja enviar para <strong id="whats-cliente-nome"></strong>?</p>
-                <div class="flex flex-col gap-2" id="lista-opcoes-whats"></div>
+                <p class="text-sm text-gray-500 mb-4 border-b border-gray-100 pb-2">Destinatário: <strong id="whats-cliente-nome" class="text-black text-base"></strong></p>
+                <div class="flex flex-col gap-3" id="lista-opcoes-whats"></div>
             </div>
         </div>
 
@@ -214,7 +220,7 @@
                     <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automatically e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
+                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
 
                 <div class="space-y-6">
                     <div>
@@ -232,7 +238,7 @@
                     
                     <div class="pt-4 border-t border-gray-200">
                         <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-bold text-gray-800">Mensagens Personalizadas (Promoções)</h4>
+                            <h4 class="font-bold text-gray-800">Mensagens Personalizadas (Sempre Livres)</h4>
                             <button onclick="adicionarMsgCustom()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-bold hover:bg-gray-800">+ Nova Ação</button>
                         </div>
                         <div id="area-mensagens-custom" class="space-y-4"></div>
@@ -340,10 +346,15 @@
 
     </div>
 
+    <!-- ========================================== -->
+    <!-- INTERFACE MODO TOTEM (OTIMIZADO PAISAGEM)  -->
+    <!-- ========================================== -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] font-sans overflow-y-auto scroll-smooth">
         
+        <!-- CONTAINER PRINCIPAL LIMITADOR -->
         <div class="w-full min-h-[100dvh] max-w-6xl mx-auto flex flex-col justify-center px-12 py-16 relative" id="area-totem-interativa">
             
+            <!-- Tela 1: Busca Dividida -->
             <div id="totem-tela-busca" class="w-full flex items-center gap-12 transition-all">
                 <div class="w-1/2 flex flex-col items-center justify-center border-r border-gray-800 pr-12 cursor-pointer" id="btn-sair-totem">
                     <img src="./logo.jpg" alt="Top Haus" class="h-40 w-auto object-contain mb-4 rounded-xl">
@@ -359,6 +370,7 @@
                 </div>
             </div>
 
+            <!-- Tela 2: Cadastro Dividido -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
                 <div class="text-center mb-10">
                     <h2 class="text-5xl font-black text-white">Primeira vez aqui?</h2>
@@ -383,6 +395,7 @@
                 </form>
             </div>
 
+            <!-- Tela 3: Opções Dividida -->
             <div id="totem-tela-opcoes" class="hidden w-full flex items-center gap-12 transition-all">
                 <div class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12">
                     <div class="w-32 h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="gift" class="w-16 h-16"></i></div>
@@ -398,15 +411,18 @@
                 </div>
             </div>
 
+            <!-- Tela 4: Mensagem Sucesso & Avaliação (Dinâmica) -->
             <div id="totem-tela-mensagem" class="hidden w-full flex items-center gap-12 transition-all pb-24 pt-8">
                 
-                <div class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12">
+                <!-- Lado Esquerdo: A Mensagem Principal -->
+                <div id="totem-msg-esquerda" class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12 transition-all duration-500">
                     <div id="totem-icone-msg" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
                     <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4 leading-tight"></h2>
                     <p id="totem-texto-msg" class="text-gray-300 text-2xl leading-relaxed"></p>
                 </div>
 
-                <div id="totem-area-avaliacao" class="w-1/2 pl-4 flex flex-col items-center text-center">
+                <!-- Lado Direito: A Avaliação Mágica (Some em prêmios e aniversário) -->
+                <div id="totem-area-avaliacao" class="w-1/2 pl-4 flex flex-col items-center text-center transition-all duration-500">
                     <h3 class="text-3xl font-black text-amber-400 mb-4 tracking-wide uppercase flex items-center gap-3">
                         <i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!
                     </h3>
@@ -427,6 +443,7 @@
                 </div>
             </div>
             
+            <!-- Barra Inferior e Fuga (Exibida só na tela de mensagem) -->
             <div id="totem-bottom-bar" class="hidden absolute bottom-8 left-0 w-full px-12 flex flex-col items-center">
                 <button onclick="totemVoltarInicio()" class="mb-8 px-12 py-4 bg-gray-800/80 hover:bg-gray-700 text-white text-xl font-bold rounded-2xl backdrop-blur-md border border-gray-600 transition-all shadow-xl">
                     Pular / Finalizar Atendimento
@@ -436,21 +453,10 @@
                 </div>
             </div>
 
-            <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
-                <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
-                    <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
-                    <h3 class="text-white text-xl font-bold mb-6">Acesso Administrativo</h3>
-                    <input type="password" inputmode="numeric" id="input-senha-totem" placeholder="Senha..." class="w-full text-center text-2xl py-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-white mb-6">
-                    <div class="flex gap-3">
-                        <button onclick="fecharSenhaTotem()" class="w-1/2 py-3 bg-gray-700 text-white font-bold rounded-xl">Cancelar</button>
-                        <button onclick="validarSaidaTotem()" class="w-1/2 py-3 bg-white text-black font-bold rounded-xl">Sair</button>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
+    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA -->
     <div id="secao-impressao" class="print-area"></div>
 
     <style>
@@ -574,16 +580,14 @@
             areaTotem.addEventListener('touchstart', resetarTimerTotem);
             areaTotem.addEventListener('keydown', resetarTimerTotem);
             
-            // --- CÓDIGO NOVO: SCROLL AUTOMÁTICO DO TECLADO ---
             const inputsTotem = document.querySelectorAll('#tela-totem input');
             inputsTotem.forEach(input => {
                 input.addEventListener('focus', () => {
                     setTimeout(() => { 
                         input.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                    }, 400); // 400ms é o tempo exato para esperar a animação do teclado do Android subir
+                    }, 400); 
                 });
             });
-            // --------------------------------------------------
         });
 
         function validarCPFReal(cpf) {
@@ -816,19 +820,39 @@
             area.innerHTML = '';
 
             const ehNiverSemana = diasParaAniversario(cliente.nascimento) >= 0 && diasParaAniversario(cliente.nascimento) <= 7;
-            const iconNiv = ehNiverSemana ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-800';
-            area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'aniversario')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="${iconNiv} p-2 rounded-lg"><i data-lucide="cake" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem de Aniversário</p><p class="text-xs text-gray-500">Voucher 20 Reais (Marca Notificado)</p></div></button>`;
-
             const temPremio = (cliente.almocos || 0) >= 10;
-            const iconPre = temPremio ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-800';
-            area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'premio')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="${iconPre} p-2 rounded-lg"><i data-lucide="gift" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem de 10 Almoços</p><p class="text-xs text-gray-500">Avisar cortesia liberada (Marca Notificado)</p></div></button>`;
+            const diasAusente = diasDesdeUltimaVisita(cliente);
+            const ehInativo = diasAusente > 30 && diasAusente !== 999;
 
-            area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'inativo')" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i data-lucide="user-minus" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem Recuperação</p><p class="text-xs text-gray-500">Avisar que notou ausência</p></div></button>`;
+            // Aniversário
+            if(ehNiverSemana) {
+                area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'aniversario')" class="flex items-center gap-3 p-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 transition w-full text-left"><div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="cake" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem de Aniversário</p><p class="text-xs text-gray-600">Voucher 20 Reais (Marca Notificado)</p></div></button>`;
+            } else {
+                const diasFaltam = diasParaAniversario(cliente.nascimento);
+                const msgDias = diasFaltam > 0 ? `Faltam ${diasFaltam} dias` : 'Data não informada';
+                area.innerHTML += `<div class="opacity-60 cursor-not-allowed flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50 w-full text-left"><div class="bg-gray-200 text-gray-500 p-2 rounded-lg"><i data-lucide="lock" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-500">Mensagem de Aniversário</p><p class="text-xs text-gray-400">Bloqueado (${msgDias})</p></div></div>`;
+            }
 
+            // Prêmio
+            if(temPremio) {
+                area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'premio')" class="flex items-center gap-3 p-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 transition w-full text-left"><div class="bg-amber-500 text-white p-2 rounded-lg"><i data-lucide="gift" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem de 10 Almoços</p><p class="text-xs text-gray-600">Avisar cortesia liberada</p></div></button>`;
+            } else {
+                area.innerHTML += `<div class="opacity-60 cursor-not-allowed flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50 w-full text-left"><div class="bg-gray-200 text-gray-500 p-2 rounded-lg"><i data-lucide="lock" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-500">Mensagem de 10 Almoços</p><p class="text-xs text-gray-400">Bloqueado (Possui ${cliente.almocos || 0} almoços)</p></div></div>`;
+            }
+
+            // Inativo
+            if(ehInativo) {
+                area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'inativo')" class="flex items-center gap-3 p-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 transition w-full text-left"><div class="bg-blue-500 text-white p-2 rounded-lg"><i data-lucide="user-minus" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem Recuperação</p><p class="text-xs text-gray-600">Ausente há ${diasAusente} dias</p></div></button>`;
+            } else {
+                const statusLocal = diasAusente === 999 ? "Sem almoços registrados" : `Ativo (Última visita: ${diasAusente === 0 ? 'Hoje' : diasAusente + ' dias atrás'})`;
+                area.innerHTML += `<div class="opacity-60 cursor-not-allowed flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50 w-full text-left"><div class="bg-gray-200 text-gray-500 p-2 rounded-lg"><i data-lucide="lock" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-500">Mensagem Recuperação</p><p class="text-xs text-gray-400">Bloqueado (${statusLocal})</p></div></div>`;
+            }
+
+            // Customizadas (Sempre Livres)
             const listaMkt = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas || {});
             listaMkt.forEach((m, idx) => {
                 if(m.titulo && m.titulo.trim() !== "") {
-                    area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'custom', ${idx})" class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition w-full text-left"><div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><i data-lucide="megaphone" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${escapeHTML(m.titulo)}</p><p class="text-xs text-gray-500">Ação de marketing personalizada</p></div></button>`;
+                    area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'custom', ${idx})" class="flex items-center gap-3 p-3 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 transition w-full text-left mt-2"><div class="bg-indigo-500 text-white p-2 rounded-lg"><i data-lucide="megaphone" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${escapeHTML(m.titulo)}</p><p class="text-xs text-gray-600">Ação de marketing livre</p></div></button>`;
                 }
             });
 
@@ -976,12 +1000,12 @@
             const novoCliente = { 
                 cpf, nome, nascimento: niverF, telefone, 
                 almocos: 1, premiosResgatados: 0, historico: [],
-                origemCadastro: 'Totem', dataCadastro: new Date().toLocaleDateString('pt-BR')
+                origemCadastro: 'Totem', dataCadastro: new Date().toLocaleDateString('pt-BR'),
+                ultimaVisitaTimestamp: Date.now() 
             };
             
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
             novoCliente.historico.push(dataF);
-            novoCliente.ultimaVisitaTimestamp = Date.now();
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
                 totemClienteTemp = novoCliente; document.getElementById('btn-totem-salvar').disabled = false; isProcessing = false; operacoesAtivas[cpf] = false;
@@ -1034,59 +1058,63 @@
             const titulo = document.getElementById('totem-titulo-msg');
             const texto = document.getElementById('totem-texto-msg');
             const loadBar = document.getElementById('totem-loading-bar');
+            
+            const ladoEsq = document.getElementById('totem-msg-esquerda');
             const areaAvaliacao = document.getElementById('totem-area-avaliacao');
             
-            // Reseta botões e animações
+            // Reseta layout
+            ladoEsq.className = "w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12 transition-all duration-500";
+            areaAvaliacao.classList.remove('hidden');
             icone.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black";
             loadBar.classList.remove('animate-shrink');
             document.getElementById('btn-revelar-qr').classList.remove('hidden');
             document.getElementById('area-qr-revelado').classList.add('hidden');
             
-            // 30 Segundos por Padrão para sucesso
             let tempoTela = 30000; 
             const nomeCurto = totemClienteTemp && totemClienteTemp.nome ? escapeHTML(totemClienteTemp.nome.split(' ')[0]) : '';
+
+            // Função helper para esconder avaliação e focar na mensagem
+            function focarMensagemPrincipal() {
+                areaAvaliacao.classList.add('hidden');
+                ladoEsq.className = "w-full flex flex-col items-center text-center px-12 transition-all duration-500";
+            }
 
             if(tipo === 'erro_cpf') {
                 icone.innerHTML = `<i data-lucide="x" class="w-12 h-12"></i>`;
                 titulo.innerText = "CPF Inválido";
                 texto.innerText = "Por favor, digite um CPF real de 11 números.";
-                areaAvaliacao.classList.add('invisible'); 
+                focarMensagemPrincipal();
                 tempoTela = 6000; 
             } 
             else if(tipo === 'ja_registrado') {
                 icone.innerHTML = `<i data-lucide="check-check" class="w-12 h-12"></i>`;
                 titulo.innerText = `Tudo Certo, ${nomeCurto}!`;
                 texto.innerText = "Seu almoço de hoje já está contabilizado. Muito obrigado por escolher o Top Haus!";
-                areaAvaliacao.classList.remove('invisible');
             }
             else if(tipo === 'aviso_caixa') {
                 icone.innerHTML = `<i data-lucide="info" class="w-12 h-12"></i>`;
                 titulo.innerText = "Resgate Solicitado";
                 texto.innerHTML = `Avise o operador de caixa para validar o seu desconto de R$ 50,00, <strong>${nomeCurto}</strong>!`;
-                areaAvaliacao.classList.remove('invisible');
             }
             else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') {
                 icone.innerHTML = `<i data-lucide="check" class="w-12 h-12"></i>`;
                 titulo.innerText = `Almoço Registrado, ${nomeCurto}!`;
                 texto.innerHTML = `Você possui <strong>${totemClienteTemp.almocos || 1}</strong> almoço(s) acumulado(s).<br>Volte sempre!`;
-                areaAvaliacao.classList.remove('invisible');
             }
             else if(tipo === 'meta_atingida') {
                 icone.innerHTML = `<i data-lucide="star" class="w-12 h-12"></i>`;
                 titulo.innerText = `Parabéns, ${nomeCurto}!`;
                 texto.innerHTML = "Você acaba de completar 10 almoços.<br>Na sua próxima visita, você tem direito a um almoço de até R$ 50,00 (por nossa conta)";
-                areaAvaliacao.classList.remove('invisible');
+                focarMensagemPrincipal(); // Some avaliação
             }
             else if(tipo === 'aniversario_totem') {
                 icone.innerHTML = `<i data-lucide="cake" class="w-12 h-12"></i>`;
                 titulo.innerText = `Feliz Aniversário, ${nomeCurto}!`;
                 texto.innerHTML = `Seu almoço foi registrado.<br>🎁 Hoje é seu aniversário e você tem um <strong>Voucher de R$ 20,00</strong> liberado!<br><br>Avise o caixa agora mesmo!`;
-                areaAvaliacao.classList.remove('invisible');
+                focarMensagemPrincipal(); // Some avaliação
             }
 
             document.getElementById('totem-tela-mensagem').classList.remove('hidden'); 
-            
-            // Exibe a barra de tempo apenas nas telas de sucesso (ou erro duradouro)
             document.getElementById('totem-bottom-bar').classList.remove('hidden');
 
             lucide.createIcons();
@@ -1158,7 +1186,8 @@
             const novoCliente = { 
                 cpf, nome, nascimento: niverF, telefone, 
                 almocos: 0, premiosResgatados: 0, historico: [],
-                origemCadastro: 'Caixa Administrativo', dataCadastro: new Date().toLocaleDateString('pt-BR')
+                origemCadastro: 'Caixa Administrativo', dataCadastro: new Date().toLocaleDateString('pt-BR'),
+                ultimaVisitaTimestamp: Date.now() 
             };
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
