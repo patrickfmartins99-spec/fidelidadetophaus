@@ -179,6 +179,7 @@
             </section>
         </main>
 
+        <!-- ALERTA DE ANIVERSÁRIO (TELA DO CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -341,6 +342,9 @@
 
     </div>
 
+    <!-- ========================================== -->
+    <!-- INTERFACE MODO TOTEM -->
+    <!-- ========================================== -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] overflow-y-auto font-sans">
         
         <div class="min-h-[100dvh] w-full max-w-md mx-auto flex flex-col pt-12 px-6 pb-40" id="area-totem-interativa">
@@ -352,6 +356,7 @@
                 </div>
             </div>
 
+            <!-- Tela 1: Busca -->
             <div id="totem-tela-busca" class="w-full text-center transition-all">
                 <h1 class="text-3xl font-black text-white mb-2">Bem-vindo!</h1>
                 <p class="text-gray-300 mb-8 text-lg">Digite seu CPF para registrar seu almoço:</p>
@@ -361,6 +366,7 @@
                 </button>
             </div>
 
+            <!-- Tela 2: Cadastro Completo -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-black text-white">Primeira vez aqui?</h2>
@@ -391,6 +397,7 @@
                 </form>
             </div>
 
+            <!-- Tela 3: Opções -->
             <div id="totem-tela-opcoes" class="hidden w-full text-center transition-all">
                 <div class="w-24 h-24 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="gift" class="w-12 h-12"></i></div>
                 <h2 class="text-4xl font-black text-white mb-2">Parabéns!</h2>
@@ -401,13 +408,32 @@
                 </div>
             </div>
 
+            <!-- Tela 4: Mensagem Sucesso (AGORA COM QR CODE) -->
             <div id="totem-tela-mensagem" class="hidden w-full text-center transition-all">
-                <div id="totem-icone-msg" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
-                <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4"></h2>
-                <p id="totem-texto-msg" class="text-gray-300 text-2xl leading-relaxed"></p>
-                <div class="w-full bg-gray-800 h-1.5 mt-10 rounded-full overflow-hidden"><div id="totem-loading-bar" class="bg-white h-full w-full"></div></div>
+                <div id="totem-icone-msg" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
+                <h2 id="totem-titulo-msg" class="text-3xl font-black text-white mb-2"></h2>
+                <p id="totem-texto-msg" class="text-gray-300 text-xl leading-relaxed mb-6"></p>
+                
+                <!-- ÁREA DO QR CODE BOMBOM -->
+                <div id="totem-area-qrcode" class="hidden bg-gray-800/50 p-4 rounded-3xl border border-gray-600 inline-block w-full max-w-xs mx-auto mb-4 shadow-xl">
+                    <p class="text-amber-400 font-black text-lg mb-2 uppercase tracking-wide flex items-center justify-center gap-2 leading-tight">
+                        <i data-lucide="gift" class="w-6 h-6"></i> Escaneie e Ganhe!
+                    </p>
+                    <p class="text-gray-300 text-sm mb-3">Leia o QR Code abaixo para retirar o seu bombom no caixa.</p>
+                    <div class="bg-white p-2 rounded-2xl inline-block">
+                        <img src="./qrcode.png" alt="QR Code Bombom" class="w-32 h-32 object-contain">
+                    </div>
+                </div>
+
+                <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden"><div id="totem-loading-bar" class="bg-white h-full w-full"></div></div>
+                
+                <!-- BOTÃO PARA FINALIZAR MAIS CEDO -->
+                <button onclick="totemVoltarInicio()" class="mt-6 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition">
+                    Finalizar Atendimento
+                </button>
             </div>
             
+            <!-- Modal de Saída do Totem -->
             <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
                 <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
                     <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
@@ -423,6 +449,7 @@
         </div>
     </div>
 
+    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA -->
     <div id="secao-impressao" class="print-area"></div>
 
     <script type="module">
@@ -447,10 +474,8 @@
         let clientesMap = {}; 
         let filtroAtual = 'todos';
         
-        // REQUISITO 7: Senha mascarada em base64 localmente ("4732423")
         let senhaAtualBanco = "NDczMjQyMw=="; 
         
-        // REQUISITO 5: Proteção rigorosa contra múltiplos cliques simultâneos
         let operacoesAtivas = {}; 
         let acaoPendente = null; 
         let tipoAcaoPendente = null; 
@@ -523,7 +548,6 @@
             });
             onValue(ref(db, 'config/senhaReset'), (snapshot) => { if(snapshot.val()) senhaAtualBanco = snapshot.val(); });
 
-            // REQUISITO 10: Bloqueio do Totem aprimorado (7 cliques consecutivos em 3 segundos)
             let clicksSair = 0;
             let timerCliques = null;
             document.getElementById('btn-sair-totem').addEventListener('click', () => {
@@ -552,9 +576,6 @@
             });
         });
 
-        // -----------------------------------------------------
-        // VALIDAÇÕES COMPLETAS DE REGRA DE NEGÓCIO
-        // -----------------------------------------------------
         function validarCPFReal(cpf) {
             if(!cpf) return false;
             cpf = cpf.replace(/\D/g, '');
@@ -571,7 +592,6 @@
             return resto === parseInt(cpf.substring(10, 11));
         }
 
-        // REQUISITO 2: Validação Real de Telefone
         function telefoneValido(tel) {
             const num = (tel || '').replace(/\D/g, '');
             if (num.length !== 11) return false;
@@ -579,7 +599,6 @@
             return true;
         }
 
-        // REQUISITO 3: Validação Real de Datas
         function validarDataReal(dataStr) {
             if(!dataStr) return false;
             if(dataStr.includes('-')) {
@@ -638,7 +657,6 @@
                    (dataNiverTeste2 >= dIni && dataNiverTeste2 <= dFim);
         }
 
-        // REQUISITO 1: Controle de registro via Timestamp Real
         function jaRegistrouHoje(cliente) {
             if (cliente.ultimaVisitaTimestamp) {
                 const hoje = new Date();
@@ -647,7 +665,6 @@
                        hoje.getMonth() === ultima.getMonth() &&
                        hoje.getFullYear() === ultima.getFullYear();
             }
-            // Fallback Legacy
             const dataHoje = new Date().toLocaleDateString('pt-BR');
             if (cliente.historico && cliente.historico.length > 0) {
                 const ultimoRegistro = cliente.historico[cliente.historico.length - 1];
@@ -660,7 +677,6 @@
             if (cliente.ultimaVisitaTimestamp) {
                 return Math.floor((Date.now() - cliente.ultimaVisitaTimestamp) / (1000 * 60 * 60 * 24));
             }
-            // Fallback Legacy
             if (!cliente.historico || cliente.historico.length === 0) return 999;
             const ultimoReg = cliente.historico[cliente.historico.length - 1];
             const dataStr = ultimoReg.split(' às ')[0];
@@ -670,7 +686,6 @@
             return Math.floor((Date.now() - dUltima) / (1000 * 60 * 60 * 24));
         }
 
-        // REQUISITO 4: Limitação inteligente de histórico (máximo 50 inserções)
         function limitarHistorico(historico) {
             if (!historico) return [];
             if (historico.length > 50) return historico.slice(-50);
@@ -689,9 +704,6 @@
             `;
         }
 
-        // -----------------------------------------------------
-        // ================= SISTEMA CRM & MARKETING ============
-        // -----------------------------------------------------
         function calcularNotificacoesPainel() {
             const painel = document.getElementById('painel-notificacoes');
             painel.innerHTML = '';
@@ -844,12 +856,8 @@
             if(updatePromise) { updatePromise.then(() => { calcularNotificacoesPainel(); }); }
         };
 
-        // -----------------------------------------------------
-        // ================= LÓGICA MODO TOTEM =================
-        // -----------------------------------------------------
         window.fecharSenhaTotem = () => { document.getElementById('modal-senha-totem').classList.add('hidden'); };
         
-        // REQUISITO 7: Validação da senha mascarada em local hash/base64
         function verificarSenha(input) { return input === senhaAtualBanco || btoa(input) === senhaAtualBanco; }
 
         window.validarSaidaTotem = () => {
@@ -894,12 +902,11 @@
             const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
             if(!validarCPFReal(cpfNum)) return totemMostrarMensagem('erro_cpf');
             
-            // REQUISITO 5: Bloqueio contra requisições simultâneas
             if(operacoesAtivas[cpfNum]) return mostrarToast('Aguarde, processando este cliente.', 'erro');
 
             isProcessing = true; operacoesAtivas[cpfNum] = true;
             document.getElementById('btn-totem-avancar').disabled = true; document.activeElement.blur(); 
-            setTimeout(() => { isProcessing = false; operacoesAtivas[cpfNum] = false; }, 8000); // Liberação de Trava
+            setTimeout(() => { isProcessing = false; operacoesAtivas[cpfNum] = false; }, 8000); 
 
             const cliente = clientesMap[cpfNum];
             
@@ -999,6 +1006,7 @@
             });
         };
 
+        // NOVA FUNÇÃO COM SUPORTE AO QR CODE
         window.totemMostrarMensagem = (tipo) => {
             clearTimeout(timerInatividade); 
             document.getElementById('totem-tela-busca').classList.add('hidden');
@@ -1009,47 +1017,54 @@
             const titulo = document.getElementById('totem-titulo-msg');
             const texto = document.getElementById('totem-texto-msg');
             const loadBar = document.getElementById('totem-loading-bar');
+            const areaQr = document.getElementById('totem-area-qrcode'); // Referência do QR Code
             
-            icone.className = "w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black";
+            // Tamanho ajustado para caber o QR Code na tela
+            icone.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black";
             loadBar.classList.remove('animate-shrink');
+            areaQr.classList.add('hidden'); // Oculta o QR code por padrão
             
             let tempoTela = 5000;
             const nomeCurto = totemClienteTemp && totemClienteTemp.nome ? escapeHTML(totemClienteTemp.nome.split(' ')[0]) : '';
 
             if(tipo === 'erro_cpf') {
-                icone.innerHTML = `<i data-lucide="x" class="w-14 h-14"></i>`;
+                icone.innerHTML = `<i data-lucide="x" class="w-10 h-10"></i>`;
                 titulo.innerText = "CPF Inválido";
                 texto.innerText = "Por favor, digite um CPF real de 11 números.";
                 tempoTela = 3500;
             } 
             else if(tipo === 'ja_registrado') {
-                icone.innerHTML = `<i data-lucide="check-check" class="w-14 h-14"></i>`;
+                icone.innerHTML = `<i data-lucide="check-check" class="w-10 h-10"></i>`;
                 titulo.innerText = `Tudo Certo, ${nomeCurto}!`;
                 texto.innerText = "Seu almoço de hoje já está contabilizado. Muito obrigado por escolher o Top Haus!";
                 tempoTela = 5000;
             }
             else if(tipo === 'aviso_caixa') {
-                icone.innerHTML = `<i data-lucide="info" class="w-14 h-14"></i>`;
+                icone.innerHTML = `<i data-lucide="info" class="w-10 h-10"></i>`;
                 titulo.innerText = "Resgate Solicitado";
                 texto.innerHTML = `Avise o operador de caixa para validar o seu desconto de R$ 50,00, <strong>${nomeCurto}</strong>!`;
-                tempoTela = 6000;
+                tempoTela = 8000;
             }
             else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') {
-                icone.innerHTML = `<i data-lucide="check" class="w-14 h-14"></i>`;
+                icone.innerHTML = `<i data-lucide="check" class="w-10 h-10"></i>`;
                 titulo.innerText = `Almoço Registrado, ${nomeCurto}!`;
                 texto.innerHTML = `Você possui <strong>${totemClienteTemp.almocos || 1}</strong> almoço(s) acumulado(s).<br>Volte sempre!`;
+                areaQr.classList.remove('hidden'); // Exibe QR Code
+                tempoTela = 12000; // Tempo longo para poder escanear
             }
             else if(tipo === 'meta_atingida') {
-                icone.innerHTML = `<i data-lucide="star" class="w-14 h-14"></i>`;
+                icone.innerHTML = `<i data-lucide="star" class="w-10 h-10"></i>`;
                 titulo.innerText = `Parabéns, ${nomeCurto}!`;
                 texto.innerHTML = "Você acaba de completar 10 almoços.<br>Na sua próxima visita, você tem direito a um almoço de até R$ 50,00 (por nossa conta)";
-                tempoTela = 6500;
+                areaQr.classList.remove('hidden'); // Exibe QR Code
+                tempoTela = 15000; 
             }
             else if(tipo === 'aniversario_totem') {
-                icone.innerHTML = `<i data-lucide="cake" class="w-14 h-14"></i>`;
+                icone.innerHTML = `<i data-lucide="cake" class="w-10 h-10"></i>`;
                 titulo.innerText = `Feliz Aniversário, ${nomeCurto}!`;
                 texto.innerHTML = `Seu almoço foi registrado.<br>🎁 Hoje é seu aniversário e você tem um <strong>Voucher de R$ 20,00</strong> liberado!<br><br>Avise o caixa agora mesmo!`;
-                tempoTela = 8000; 
+                areaQr.classList.remove('hidden'); // Exibe QR Code
+                tempoTela = 15000; 
             }
 
             document.getElementById('totem-tela-mensagem').classList.remove('hidden'); lucide.createIcons();
@@ -1057,9 +1072,6 @@
             clearTimeout(timeoutTotemMsg); timeoutTotemMsg = setTimeout(() => { totemVoltarInicio(); }, tempoTela);
         };
 
-        // -----------------------------------------------------
-        // CAIXA PRINCIPAL
-        // -----------------------------------------------------
         window.buscarEContabilizar = () => {
             const cpfBusca = document.getElementById('busca-cpf').value.replace(/\D/g, '');
             if (!cpfBusca) return mostrarToast('Informe o CPF para buscar.', 'erro');
@@ -1301,7 +1313,6 @@
             renderizarTabela(listaFiltrada);
         };
 
-        // REQUISITO 9: A busca agora também considera o telefone do cliente
         window.filtrarPorTexto = (valor) => {
             const busca = valor.toLowerCase();
             renderizarTabela(clientesArray.filter(c => 
@@ -1398,7 +1409,6 @@
             }
         };
 
-        // REQUISITO 8: Exportar em CSV ocultando partes do CPF, mas com telefone
         function mascararCPFExportacao(cpf) {
             if(!cpf || cpf.length < 11) return cpf;
             return cpf.substring(0,3) + '.***.***-' + cpf.substring(9,11);
@@ -1427,7 +1437,6 @@
             else { mostrarToast("Senha incorreta.", "erro"); }
         };
 
-        // REQUISITO 6: Dupla Confirmação Rigorosa para Reset do Banco
         window.resetarSistema = () => { 
             const digitado = prompt("ALERTA MÁXIMO! Digite APAGAR para confirmar a exclusão de TODOS os clientes:");
             if(digitado === "APAGAR") { 
@@ -1465,4 +1474,3 @@
     </script>
 </body>
 </html>
-
