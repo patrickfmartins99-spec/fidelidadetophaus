@@ -34,6 +34,7 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- MODO CAIXA E ADMINISTRATIVO -->
     <div class="no-print">
         <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -58,6 +59,7 @@
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- CONTABILIZAR CAIXA -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
@@ -75,6 +77,7 @@
                     </button>
                 </div>
 
+                <!-- CADASTRO CAIXA -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -107,6 +110,7 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
+                <!-- NOTIFICAÇÕES INTELIGENTES -->
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -179,7 +183,7 @@
             </section>
         </main>
 
-        <!-- ALERTA DE ANIVERSÁRIO (TELA DO CAIXA) -->
+        <!-- ALERTA DE ANIVERSÁRIO (CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -215,7 +219,6 @@
                     <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
-                
                 <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
 
                 <div class="space-y-6">
@@ -326,7 +329,7 @@
                 </div>
                 <div id="area-opcoes-secretas" class="hidden flex flex-col gap-3">
                     <button onclick="entrarModoTotem()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-                        <i data-lucide="tablet" class="w-4 h-4"></i> ENTRAR MODO TOTEM
+                        <i data-lucide="tablet" class="w-4 h-4"></i> ENTRAR MODO TOTEM (PAISAGEM)
                     </button>
                     <hr>
                     <button onclick="resetarSistema()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
@@ -343,97 +346,113 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- INTERFACE MODO TOTEM -->
+    <!-- INTERFACE MODO TOTEM (OTIMIZADO PAISAGEM)  -->
     <!-- ========================================== -->
-    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] overflow-y-auto font-sans">
+    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] font-sans overflow-hidden flex items-center justify-center">
         
-        <div class="min-h-[100dvh] w-full max-w-md mx-auto flex flex-col pt-12 px-6 pb-40" id="area-totem-interativa">
+        <!-- CONTAINER PRINCIPAL LIMITADOR -->
+        <div class="w-full h-[100dvh] max-w-6xl mx-auto flex flex-col justify-center px-12 relative" id="area-totem-interativa">
             
-            <div class="w-full flex justify-center mb-10">
-                <div class="flex flex-col items-center cursor-pointer" id="btn-sair-totem">
-                    <img src="./logo.jpg" alt="Top Haus" class="h-24 w-auto object-contain mb-1">
-                    <span class="text-white font-light text-xl tracking-widest uppercase">Fidelidade</span>
+            <!-- Tela 1: Busca Dividida -->
+            <div id="totem-tela-busca" class="w-full flex items-center gap-12 transition-all">
+                <div class="w-1/2 flex flex-col items-center justify-center border-r border-gray-800 pr-12 cursor-pointer" id="btn-sair-totem">
+                    <img src="./logo.jpg" alt="Top Haus" class="h-40 w-auto object-contain mb-4 rounded-xl">
+                    <span class="text-white font-light text-3xl tracking-widest uppercase">Fidelidade</span>
+                </div>
+                <div class="w-1/2 pl-4 text-center">
+                    <h1 class="text-4xl font-black text-white mb-4">Bem-vindo!</h1>
+                    <p class="text-gray-400 mb-10 text-2xl">Digite seu CPF para registrar seu almoço:</p>
+                    <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-5xl py-6 rounded-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
+                    <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-3xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
+                        Avançar
+                    </button>
                 </div>
             </div>
 
-            <!-- Tela 1: Busca -->
-            <div id="totem-tela-busca" class="w-full text-center transition-all">
-                <h1 class="text-3xl font-black text-white mb-2">Bem-vindo!</h1>
-                <p class="text-gray-300 mb-8 text-lg">Digite seu CPF para registrar seu almoço:</p>
-                <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-4xl py-5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
-                <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl py-5 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
-                    Avançar
-                </button>
-            </div>
-
-            <!-- Tela 2: Cadastro Completo -->
+            <!-- Tela 2: Cadastro Dividido -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-black text-white">Primeira vez aqui?</h2>
-                    <p class="text-gray-300 text-base mt-2">Preencha rapidamente para participar.</p>
+                <div class="text-center mb-10">
+                    <h2 class="text-5xl font-black text-white">Primeira vez aqui?</h2>
+                    <p class="text-gray-400 text-2xl mt-2">Preencha rapidamente para participar do clube.</p>
                 </div>
-                <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="space-y-5">
-                    <div>
-                        <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-200 border-2 border-gray-300 text-gray-800 px-5 py-4 rounded-xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
-                    </div>
-                    <div>
-                        <input type="text" id="totem-cad-nome" required placeholder="Nome Completo" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg">
-                    </div>
-                    <div>
-                        <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
-                    </div>
-                    <div>
-                        <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-5 py-4 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-gray-400 placeholder-gray-400 shadow-lg font-mono">
+                <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full">
+                    <div class="grid grid-cols-2 gap-8 mb-8">
+                        <div class="space-y-8">
+                            <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-800 border-2 border-gray-700 text-gray-300 px-6 py-5 rounded-2xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
+                            <input type="text" id="totem-cad-nome" required placeholder="Nome Completo" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
+                        </div>
+                        <div class="space-y-8">
+                            <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                            <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                        </div>
                     </div>
                     
-                    <p class="text-gray-400 text-xs text-center leading-tight pt-2">
-                        <i data-lucide="lock" class="w-3 h-3 inline"></i> Seus dados são protegidos e usados exclusivamente para os benefícios do Clube Top Haus.
-                    </p>
-
-                    <div class="flex gap-4 pt-4">
-                        <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-xl py-5 rounded-2xl shadow-lg active:scale-95 transition-transform">Voltar</button>
-                        <button type="submit" id="btn-totem-salvar" class="w-2/3 bg-white text-black font-black text-xl py-5 rounded-2xl shadow-[0_0_20px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">Salvar dados</button>
+                    <div class="flex gap-6 mt-4">
+                        <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-2xl py-6 rounded-2xl shadow-xl active:scale-95 transition-transform">Voltar</button>
+                        <button type="submit" id="btn-totem-salvar" class="w-2/3 bg-white text-black font-black text-3xl py-6 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50">Salvar Dados</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Tela 3: Opções -->
-            <div id="totem-tela-opcoes" class="hidden w-full text-center transition-all">
-                <div class="w-24 h-24 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="gift" class="w-12 h-12"></i></div>
-                <h2 class="text-4xl font-black text-white mb-2">Parabéns!</h2>
-                <p class="text-gray-300 text-xl mb-10">Você possui um benefício de<br><strong class="text-white text-2xl">R$ 50,00</strong> disponível!<br><br>O que deseja fazer hoje?</p>
-                <div class="flex flex-col gap-5">
-                    <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-2xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">Resgatar Agora</button>
-                    <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-xl py-6 rounded-2xl active:scale-95 transition-transform shadow-lg disabled:opacity-50">Continuar Acumulando</button>
+            <!-- Tela 3: Opções Dividida -->
+            <div id="totem-tela-opcoes" class="hidden w-full flex items-center gap-12 transition-all">
+                <div class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12">
+                    <div class="w-32 h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="gift" class="w-16 h-16"></i></div>
+                    <h2 class="text-5xl font-black text-white mb-4">Parabéns!</h2>
+                    <p class="text-gray-300 text-2xl mb-2">Você possui um benefício de</p>
+                    <strong class="text-amber-400 text-5xl font-black mb-6">R$ 50,00</strong>
+                    <p class="text-gray-400 text-xl">disponível para uso hoje.</p>
+                </div>
+                <div class="w-1/2 pl-4 flex flex-col justify-center gap-8">
+                    <h3 class="text-3xl text-white font-bold text-center mb-6">O que deseja fazer?</h3>
+                    <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-3xl py-8 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50">Resgatar Agora</button>
+                    <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-2xl py-8 rounded-2xl active:scale-95 transition-transform shadow-xl disabled:opacity-50">Continuar Acumulando</button>
                 </div>
             </div>
 
-            <!-- Tela 4: Mensagem Sucesso (AGORA COM QR CODE) -->
-            <div id="totem-tela-mensagem" class="hidden w-full text-center transition-all">
-                <div id="totem-icone-msg" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
-                <h2 id="totem-titulo-msg" class="text-3xl font-black text-white mb-2"></h2>
-                <p id="totem-texto-msg" class="text-gray-300 text-xl leading-relaxed mb-6"></p>
+            <!-- Tela 4: Mensagem Sucesso & Avaliação (Dividida) -->
+            <div id="totem-tela-mensagem" class="hidden w-full flex items-center gap-12 transition-all pb-24 pt-8">
                 
-                <!-- ÁREA DO QR CODE BOMBOM -->
-                <div id="totem-area-qrcode" class="hidden bg-gray-800/50 p-4 rounded-3xl border border-gray-600 inline-block w-full max-w-xs mx-auto mb-4 shadow-xl">
-                    <p class="text-amber-400 font-black text-lg mb-2 uppercase tracking-wide flex items-center justify-center gap-2 leading-tight">
-                        <i data-lucide="gift" class="w-6 h-6"></i> Escaneie e Ganhe!
+                <!-- Lado Esquerdo: A Mensagem Principal -->
+                <div class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12">
+                    <div id="totem-icone-msg" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
+                    <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4 leading-tight"></h2>
+                    <p id="totem-texto-msg" class="text-gray-300 text-2xl leading-relaxed"></p>
+                </div>
+
+                <!-- Lado Direito: A Avaliação Mágica -->
+                <div id="totem-area-avaliacao" class="w-1/2 pl-4 flex flex-col items-center text-center">
+                    <h3 class="text-3xl font-black text-amber-400 mb-4 tracking-wide uppercase flex items-center gap-3">
+                        <i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!
+                    </h3>
+                    <p class="text-gray-300 text-xl mb-10 leading-relaxed">
+                        Avalie nosso atendimento agora mesmo e ganhe um <strong class="text-white">bombom especial</strong> de sobremesa.
                     </p>
-                    <p class="text-gray-300 text-sm mb-3">Leia o QR Code abaixo para retirar o seu bombom no caixa.</p>
-                    <div class="bg-white p-2 rounded-2xl inline-block">
-                        <img src="./qrcode.png" alt="QR Code Bombom" class="w-32 h-32 object-contain">
+                    
+                    <button id="btn-revelar-qr" onclick="revelarQRAvaliacao()" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold text-2xl py-6 px-10 rounded-3xl shadow-2xl transition-all active:scale-95 flex items-center gap-4">
+                        <i data-lucide="qrcode" class="w-8 h-8"></i> Mostrar QR Code
+                    </button>
+
+                    <div id="area-qr-revelado" class="hidden flex flex-col items-center transition-all animate-fade-in">
+                        <div class="bg-white p-4 rounded-3xl mb-4 shadow-[0_0_40px_rgba(255,255,255,0.2)]">
+                            <img src="./qrcode.png" alt="QR Code" class="w-56 h-56 object-contain rounded-xl">
+                        </div>
+                        <p class="text-gray-400 text-lg font-medium">Aponte a câmera do seu celular</p>
                     </div>
                 </div>
-
-                <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden"><div id="totem-loading-bar" class="bg-white h-full w-full"></div></div>
-                
-                <!-- BOTÃO PARA FINALIZAR MAIS CEDO -->
-                <button onclick="totemVoltarInicio()" class="mt-6 px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition">
-                    Finalizar Atendimento
-                </button>
             </div>
             
-            <!-- Modal de Saída do Totem -->
+            <!-- Barra Inferior e Fuga (Exibida só na tela de mensagem) -->
+            <div id="totem-bottom-bar" class="hidden absolute bottom-8 left-0 w-full px-12 flex flex-col items-center">
+                <button onclick="totemVoltarInicio()" class="mb-8 px-12 py-4 bg-gray-800/80 hover:bg-gray-700 text-white text-xl font-bold rounded-2xl backdrop-blur-md border border-gray-600 transition-all shadow-xl">
+                    Pular / Finalizar Atendimento
+                </button>
+                <div class="w-full bg-gray-900 h-4 rounded-full overflow-hidden border border-gray-800">
+                    <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
+                </div>
+            </div>
+
+            <!-- Modal Senha -->
             <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
                 <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
                     <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
@@ -451,6 +470,11 @@
 
     <!-- IMPRESSÃO BOBINA 80MM DINÂMICA -->
     <div id="secao-impressao" class="print-area"></div>
+
+    <style>
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -527,7 +551,7 @@
             container.appendChild(toast);
             lucide.createIcons();
             setTimeout(() => toast.classList.remove('translate-x-full'), 10);
-            setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3500);
+            setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 3500); }, 3500);
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -567,13 +591,6 @@
             areaTotem.addEventListener('mousemove', resetarTimerTotem);
             areaTotem.addEventListener('touchstart', resetarTimerTotem);
             areaTotem.addEventListener('keydown', resetarTimerTotem);
-            
-            const inputsTotem = document.querySelectorAll('#tela-totem input');
-            inputsTotem.forEach(input => {
-                input.addEventListener('focus', () => {
-                    setTimeout(() => { window.scrollTo({ top: input.offsetTop - 50, behavior: 'smooth' }); }, 300);
-                });
-            });
         });
 
         function validarCPFReal(cpf) {
@@ -880,7 +897,9 @@
         function resetarTimerTotem() {
             clearTimeout(timerInatividade);
             if(document.getElementById('tela-totem').classList.contains('hidden')) return;
-            if(document.getElementById('totem-tela-busca').classList.contains('hidden')) { timerInatividade = setTimeout(() => { totemVoltarInicio(); }, 45000); }
+            if(!document.getElementById('totem-tela-busca').classList.contains('hidden')) return;
+            
+            timerInatividade = setTimeout(() => { totemVoltarInicio(); }, 45000);
         }
 
         window.totemVoltarInicio = () => {
@@ -892,9 +911,15 @@
             document.getElementById('totem-tela-cadastro').classList.add('hidden');
             document.getElementById('totem-tela-opcoes').classList.add('hidden');
             document.getElementById('totem-tela-mensagem').classList.add('hidden');
+            document.getElementById('totem-bottom-bar').classList.add('hidden');
             
             const inputCpf = document.getElementById('totem-cpf');
             inputCpf.value = ''; inputCpf.blur();
+        };
+
+        window.revelarQRAvaliacao = () => {
+            document.getElementById('btn-revelar-qr').classList.add('hidden');
+            document.getElementById('area-qr-revelado').classList.remove('hidden');
         };
 
         window.totemProcessarCPF = () => {
@@ -1006,7 +1031,6 @@
             });
         };
 
-        // NOVA FUNÇÃO COM SUPORTE AO QR CODE
         window.totemMostrarMensagem = (tipo) => {
             clearTimeout(timerInatividade); 
             document.getElementById('totem-tela-busca').classList.add('hidden');
@@ -1017,57 +1041,62 @@
             const titulo = document.getElementById('totem-titulo-msg');
             const texto = document.getElementById('totem-texto-msg');
             const loadBar = document.getElementById('totem-loading-bar');
-            const areaQr = document.getElementById('totem-area-qrcode'); // Referência do QR Code
+            const areaAvaliacao = document.getElementById('totem-area-avaliacao');
             
-            // Tamanho ajustado para caber o QR Code na tela
-            icone.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black";
+            // Reseta botões e animações
+            icone.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black";
             loadBar.classList.remove('animate-shrink');
-            areaQr.classList.add('hidden'); // Oculta o QR code por padrão
+            document.getElementById('btn-revelar-qr').classList.remove('hidden');
+            document.getElementById('area-qr-revelado').classList.add('hidden');
             
-            let tempoTela = 5000;
+            // 30 Segundos por Padrão para sucesso
+            let tempoTela = 30000; 
             const nomeCurto = totemClienteTemp && totemClienteTemp.nome ? escapeHTML(totemClienteTemp.nome.split(' ')[0]) : '';
 
             if(tipo === 'erro_cpf') {
-                icone.innerHTML = `<i data-lucide="x" class="w-10 h-10"></i>`;
+                icone.innerHTML = `<i data-lucide="x" class="w-12 h-12"></i>`;
                 titulo.innerText = "CPF Inválido";
                 texto.innerText = "Por favor, digite um CPF real de 11 números.";
-                tempoTela = 3500;
+                areaAvaliacao.classList.add('invisible'); 
+                tempoTela = 6000; 
             } 
             else if(tipo === 'ja_registrado') {
-                icone.innerHTML = `<i data-lucide="check-check" class="w-10 h-10"></i>`;
+                icone.innerHTML = `<i data-lucide="check-check" class="w-12 h-12"></i>`;
                 titulo.innerText = `Tudo Certo, ${nomeCurto}!`;
                 texto.innerText = "Seu almoço de hoje já está contabilizado. Muito obrigado por escolher o Top Haus!";
-                tempoTela = 5000;
+                areaAvaliacao.classList.remove('invisible');
             }
             else if(tipo === 'aviso_caixa') {
-                icone.innerHTML = `<i data-lucide="info" class="w-10 h-10"></i>`;
+                icone.innerHTML = `<i data-lucide="info" class="w-12 h-12"></i>`;
                 titulo.innerText = "Resgate Solicitado";
                 texto.innerHTML = `Avise o operador de caixa para validar o seu desconto de R$ 50,00, <strong>${nomeCurto}</strong>!`;
-                tempoTela = 8000;
+                areaAvaliacao.classList.remove('invisible');
             }
             else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') {
-                icone.innerHTML = `<i data-lucide="check" class="w-10 h-10"></i>`;
+                icone.innerHTML = `<i data-lucide="check" class="w-12 h-12"></i>`;
                 titulo.innerText = `Almoço Registrado, ${nomeCurto}!`;
                 texto.innerHTML = `Você possui <strong>${totemClienteTemp.almocos || 1}</strong> almoço(s) acumulado(s).<br>Volte sempre!`;
-                areaQr.classList.remove('hidden'); // Exibe QR Code
-                tempoTela = 12000; // Tempo longo para poder escanear
+                areaAvaliacao.classList.remove('invisible');
             }
             else if(tipo === 'meta_atingida') {
-                icone.innerHTML = `<i data-lucide="star" class="w-10 h-10"></i>`;
+                icone.innerHTML = `<i data-lucide="star" class="w-12 h-12"></i>`;
                 titulo.innerText = `Parabéns, ${nomeCurto}!`;
                 texto.innerHTML = "Você acaba de completar 10 almoços.<br>Na sua próxima visita, você tem direito a um almoço de até R$ 50,00 (por nossa conta)";
-                areaQr.classList.remove('hidden'); // Exibe QR Code
-                tempoTela = 15000; 
+                areaAvaliacao.classList.remove('invisible');
             }
             else if(tipo === 'aniversario_totem') {
-                icone.innerHTML = `<i data-lucide="cake" class="w-10 h-10"></i>`;
+                icone.innerHTML = `<i data-lucide="cake" class="w-12 h-12"></i>`;
                 titulo.innerText = `Feliz Aniversário, ${nomeCurto}!`;
                 texto.innerHTML = `Seu almoço foi registrado.<br>🎁 Hoje é seu aniversário e você tem um <strong>Voucher de R$ 20,00</strong> liberado!<br><br>Avise o caixa agora mesmo!`;
-                areaQr.classList.remove('hidden'); // Exibe QR Code
-                tempoTela = 15000; 
+                areaAvaliacao.classList.remove('invisible');
             }
 
-            document.getElementById('totem-tela-mensagem').classList.remove('hidden'); lucide.createIcons();
+            document.getElementById('totem-tela-mensagem').classList.remove('hidden'); 
+            
+            // Exibe a barra de tempo apenas nas telas de sucesso (ou erro duradouro)
+            document.getElementById('totem-bottom-bar').classList.remove('hidden');
+
+            lucide.createIcons();
             void loadBar.offsetWidth; loadBar.style.animationDuration = `${tempoTela}ms`; loadBar.classList.add('animate-shrink');
             clearTimeout(timeoutTotemMsg); timeoutTotemMsg = setTimeout(() => { totemVoltarInicio(); }, tempoTela);
         };
