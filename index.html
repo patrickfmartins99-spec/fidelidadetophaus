@@ -34,7 +34,6 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- MODO CAIXA E ADMINISTRATIVO -->
     <div class="no-print">
         <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -59,7 +58,6 @@
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- CONTABILIZAR CAIXA -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
@@ -77,7 +75,6 @@
                     </button>
                 </div>
 
-                <!-- CADASTRO CAIXA -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -110,7 +107,6 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
-                <!-- NOTIFICAÇÕES INTELIGENTES -->
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -183,7 +179,6 @@
             </section>
         </main>
 
-        <!-- ALERTA DE ANIVERSÁRIO (CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -219,7 +214,7 @@
                     <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
+                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automatically e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
 
                 <div class="space-y-6">
                     <div>
@@ -345,15 +340,10 @@
 
     </div>
 
-    <!-- ========================================== -->
-    <!-- INTERFACE MODO TOTEM (OTIMIZADO PAISAGEM)  -->
-    <!-- ========================================== -->
-    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] font-sans overflow-hidden flex items-center justify-center">
+    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] font-sans overflow-y-auto scroll-smooth">
         
-        <!-- CONTAINER PRINCIPAL LIMITADOR -->
-        <div class="w-full h-[100dvh] max-w-6xl mx-auto flex flex-col justify-center px-12 relative" id="area-totem-interativa">
+        <div class="w-full min-h-[100dvh] max-w-6xl mx-auto flex flex-col justify-center px-12 py-16 relative" id="area-totem-interativa">
             
-            <!-- Tela 1: Busca Dividida -->
             <div id="totem-tela-busca" class="w-full flex items-center gap-12 transition-all">
                 <div class="w-1/2 flex flex-col items-center justify-center border-r border-gray-800 pr-12 cursor-pointer" id="btn-sair-totem">
                     <img src="./logo.jpg" alt="Top Haus" class="h-40 w-auto object-contain mb-4 rounded-xl">
@@ -369,7 +359,6 @@
                 </div>
             </div>
 
-            <!-- Tela 2: Cadastro Dividido -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
                 <div class="text-center mb-10">
                     <h2 class="text-5xl font-black text-white">Primeira vez aqui?</h2>
@@ -394,7 +383,6 @@
                 </form>
             </div>
 
-            <!-- Tela 3: Opções Dividida -->
             <div id="totem-tela-opcoes" class="hidden w-full flex items-center gap-12 transition-all">
                 <div class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12">
                     <div class="w-32 h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="gift" class="w-16 h-16"></i></div>
@@ -410,17 +398,14 @@
                 </div>
             </div>
 
-            <!-- Tela 4: Mensagem Sucesso & Avaliação (Dividida) -->
             <div id="totem-tela-mensagem" class="hidden w-full flex items-center gap-12 transition-all pb-24 pt-8">
                 
-                <!-- Lado Esquerdo: A Mensagem Principal -->
                 <div class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12">
                     <div id="totem-icone-msg" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
                     <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4 leading-tight"></h2>
                     <p id="totem-texto-msg" class="text-gray-300 text-2xl leading-relaxed"></p>
                 </div>
 
-                <!-- Lado Direito: A Avaliação Mágica -->
                 <div id="totem-area-avaliacao" class="w-1/2 pl-4 flex flex-col items-center text-center">
                     <h3 class="text-3xl font-black text-amber-400 mb-4 tracking-wide uppercase flex items-center gap-3">
                         <i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!
@@ -442,7 +427,6 @@
                 </div>
             </div>
             
-            <!-- Barra Inferior e Fuga (Exibida só na tela de mensagem) -->
             <div id="totem-bottom-bar" class="hidden absolute bottom-8 left-0 w-full px-12 flex flex-col items-center">
                 <button onclick="totemVoltarInicio()" class="mb-8 px-12 py-4 bg-gray-800/80 hover:bg-gray-700 text-white text-xl font-bold rounded-2xl backdrop-blur-md border border-gray-600 transition-all shadow-xl">
                     Pular / Finalizar Atendimento
@@ -452,7 +436,6 @@
                 </div>
             </div>
 
-            <!-- Modal Senha -->
             <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
                 <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
                     <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
@@ -468,7 +451,6 @@
         </div>
     </div>
 
-    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA -->
     <div id="secao-impressao" class="print-area"></div>
 
     <style>
@@ -591,6 +573,17 @@
             areaTotem.addEventListener('mousemove', resetarTimerTotem);
             areaTotem.addEventListener('touchstart', resetarTimerTotem);
             areaTotem.addEventListener('keydown', resetarTimerTotem);
+            
+            // --- CÓDIGO NOVO: SCROLL AUTOMÁTICO DO TECLADO ---
+            const inputsTotem = document.querySelectorAll('#tela-totem input');
+            inputsTotem.forEach(input => {
+                input.addEventListener('focus', () => {
+                    setTimeout(() => { 
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                    }, 400); // 400ms é o tempo exato para esperar a animação do teclado do Android subir
+                });
+            });
+            // --------------------------------------------------
         });
 
         function validarCPFReal(cpf) {
