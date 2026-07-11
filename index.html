@@ -150,7 +150,7 @@
                             <p class="text-xs text-slate-400 mt-0.5" id="filtro-atual-texto">Exibindo: Todos os clientes (Sincronizado na Nuvem)</p>
                         </div>
                         <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar cliente..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm w-full sm:w-64">
+                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm w-full sm:w-64">
                             <button onclick="abrirCentralMarketing()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
                                 <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing
                             </button>
@@ -215,7 +215,7 @@
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
                 
-                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para o sistema puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
+                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
 
                 <div class="space-y-6">
                     <div>
@@ -381,7 +381,7 @@
                     </div>
                     
                     <p class="text-gray-400 text-xs text-center leading-tight pt-2">
-                        <i data-lucide="lock" class="w-3 h-3 inline"></i> Seus dados são protegidos e usados exclusivamente para os benefícios do Clube Top Haus, não sendo compartilhados com terceiros.
+                        <i data-lucide="lock" class="w-3 h-3 inline"></i> Seus dados são protegidos e usados exclusivamente para os benefícios do Clube Top Haus.
                     </p>
 
                     <div class="flex gap-4 pt-4">
@@ -429,7 +429,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // CONFIGURAÇÃO FIREBASE BLINDADA CONTRA ROBÔS DO GITHUB
+        // CONFIGURAÇÃO FIREBASE 
         const firebaseConfig = {
             apiKey: "AIzaSyDZBx7Vrsdfh" + "gOGxbDyDHAkfOhRvNiIg0Q",
             authDomain: "fidelidadetophausnavega.firebaseapp.com",
@@ -446,8 +446,12 @@
         let clientesArray = [];
         let clientesMap = {}; 
         let filtroAtual = 'todos';
-        let senhaAtualBanco = "4732423"; 
         
+        // REQUISITO 7: Senha mascarada em base64 localmente ("4732423")
+        let senhaAtualBanco = "NDczMjQyMw=="; 
+        
+        // REQUISITO 5: Proteção rigorosa contra múltiplos cliques simultâneos
+        let operacoesAtivas = {}; 
         let acaoPendente = null; 
         let tipoAcaoPendente = null; 
         let isProcessing = false;
@@ -463,7 +467,6 @@
         let timerInatividade;
         let totemClienteTemp = null;
 
-        // FUNÇÃO DE ESCAPE HTML (Evita injeção de código XSS)
         function escapeHTML(str) {
             if(!str) return '';
             return str.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -520,16 +523,20 @@
             });
             onValue(ref(db, 'config/senhaReset'), (snapshot) => { if(snapshot.val()) senhaAtualBanco = snapshot.val(); });
 
+            // REQUISITO 10: Bloqueio do Totem aprimorado (7 cliques consecutivos em 3 segundos)
             let clicksSair = 0;
+            let timerCliques = null;
             document.getElementById('btn-sair-totem').addEventListener('click', () => {
                 clicksSair++;
-                if (clicksSair >= 3) {
+                clearTimeout(timerCliques);
+                if (clicksSair >= 7) {
                     document.getElementById('input-senha-totem').value = '';
                     document.getElementById('modal-senha-totem').classList.remove('hidden');
                     document.getElementById('input-senha-totem').focus();
                     clicksSair = 0;
+                } else {
+                    timerCliques = setTimeout(() => { clicksSair = 0; }, 3000);
                 }
-                setTimeout(() => clicksSair = 0, 2000);
             });
 
             const areaTotem = document.getElementById('area-totem-interativa');
@@ -546,7 +553,7 @@
         });
 
         // -----------------------------------------------------
-        // VALIDAÇÕES E DATAS 
+        // VALIDAÇÕES COMPLETAS DE REGRA DE NEGÓCIO
         // -----------------------------------------------------
         function validarCPFReal(cpf) {
             if(!cpf) return false;
@@ -562,6 +569,38 @@
             resto = (soma * 10) % 11;
             if(resto === 10 || resto === 11) resto = 0;
             return resto === parseInt(cpf.substring(10, 11));
+        }
+
+        // REQUISITO 2: Validação Real de Telefone
+        function telefoneValido(tel) {
+            const num = (tel || '').replace(/\D/g, '');
+            if (num.length !== 11) return false;
+            if (/^(\d)\1{10}$/.test(num)) return false; 
+            return true;
+        }
+
+        // REQUISITO 3: Validação Real de Datas
+        function validarDataReal(dataStr) {
+            if(!dataStr) return false;
+            if(dataStr.includes('-')) {
+                const partes = dataStr.split('-');
+                dataStr = `${partes[2]}/${partes[1]}/${partes[0]}`;
+            }
+            const regexData = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+            if (!regexData.test(dataStr)) return false;
+            
+            const [_, dia, mes, ano] = dataStr.match(regexData);
+            const diaNum = parseInt(dia, 10);
+            const mesNum = parseInt(mes, 10);
+            const anoNum = parseInt(ano, 10);
+            
+            if (anoNum < 1900 || anoNum > new Date().getFullYear() + 1) return false;
+            if (mesNum < 1 || mesNum > 12) return false;
+            
+            const diasNoMes = new Date(anoNum, mesNum, 0).getDate();
+            if (diaNum < 1 || diaNum > diasNoMes) return false;
+            
+            return true;
         }
 
         function obterInfoNascimento(nascimento) {
@@ -599,7 +638,16 @@
                    (dataNiverTeste2 >= dIni && dataNiverTeste2 <= dFim);
         }
 
+        // REQUISITO 1: Controle de registro via Timestamp Real
         function jaRegistrouHoje(cliente) {
+            if (cliente.ultimaVisitaTimestamp) {
+                const hoje = new Date();
+                const ultima = new Date(cliente.ultimaVisitaTimestamp);
+                return hoje.getDate() === ultima.getDate() &&
+                       hoje.getMonth() === ultima.getMonth() &&
+                       hoje.getFullYear() === ultima.getFullYear();
+            }
+            // Fallback Legacy
             const dataHoje = new Date().toLocaleDateString('pt-BR');
             if (cliente.historico && cliente.historico.length > 0) {
                 const ultimoRegistro = cliente.historico[cliente.historico.length - 1];
@@ -609,6 +657,10 @@
         }
 
         function diasDesdeUltimaVisita(cliente) {
+            if (cliente.ultimaVisitaTimestamp) {
+                return Math.floor((Date.now() - cliente.ultimaVisitaTimestamp) / (1000 * 60 * 60 * 24));
+            }
+            // Fallback Legacy
             if (!cliente.historico || cliente.historico.length === 0) return 999;
             const ultimoReg = cliente.historico[cliente.historico.length - 1];
             const dataStr = ultimoReg.split(' às ')[0];
@@ -616,6 +668,13 @@
             if(p.length !== 3) return 999;
             const dUltima = new Date(p[2], p[1]-1, p[0]).getTime();
             return Math.floor((Date.now() - dUltima) / (1000 * 60 * 60 * 24));
+        }
+
+        // REQUISITO 4: Limitação inteligente de histórico (máximo 50 inserções)
+        function limitarHistorico(historico) {
+            if (!historico) return [];
+            if (historico.length > 50) return historico.slice(-50);
+            return historico;
         }
 
         function cabecalhoImpressao() {
@@ -677,7 +736,6 @@
             const area = document.getElementById('area-mensagens-custom');
             area.innerHTML = '';
             
-            // CORREÇÃO: Garante que lê como Array, mesmo se o Firebase salvou como Object
             const listaMkt = Array.isArray(msgsMarketing.personalizadas) 
                 ? msgsMarketing.personalizadas 
                 : Object.values(msgsMarketing.personalizadas || {});
@@ -694,17 +752,13 @@
         };
 
         window.adicionarMsgCustom = () => {
-            if(!Array.isArray(msgsMarketing.personalizadas)) {
-                msgsMarketing.personalizadas = Object.values(msgsMarketing.personalizadas || {});
-            }
+            if(!Array.isArray(msgsMarketing.personalizadas)) { msgsMarketing.personalizadas = Object.values(msgsMarketing.personalizadas || {}); }
             msgsMarketing.personalizadas.push({ titulo: "", texto: "" });
             renderizarMensagensCustomizadas();
         };
 
         window.removerMsgCustom = (idx) => {
-            if(!Array.isArray(msgsMarketing.personalizadas)) {
-                msgsMarketing.personalizadas = Object.values(msgsMarketing.personalizadas || {});
-            }
+            if(!Array.isArray(msgsMarketing.personalizadas)) { msgsMarketing.personalizadas = Object.values(msgsMarketing.personalizadas || {}); }
             msgsMarketing.personalizadas.splice(idx, 1);
             renderizarMensagensCustomizadas();
         };
@@ -763,10 +817,7 @@
 
         window.dispararWhatsApp = (cpf, tipo, idxCustom = -1) => {
             const cliente = clientesMap[cpf];
-            if(!cliente || !cliente.telefone) {
-                mostrarToast("Cliente não possui telefone válido", "erro");
-                return;
-            }
+            if(!cliente || !cliente.telefone) { return mostrarToast("Cliente não possui telefone válido", "erro"); }
             
             let texto = "";
             let updatePromise = null;
@@ -798,8 +849,12 @@
         // -----------------------------------------------------
         window.fecharSenhaTotem = () => { document.getElementById('modal-senha-totem').classList.add('hidden'); };
         
+        // REQUISITO 7: Validação da senha mascarada em local hash/base64
+        function verificarSenha(input) { return input === senhaAtualBanco || btoa(input) === senhaAtualBanco; }
+
         window.validarSaidaTotem = () => {
-            if(document.getElementById('input-senha-totem').value === senhaAtualBanco) { fecharSenhaTotem(); sairModoTotem(); } 
+            const inputSenha = document.getElementById('input-senha-totem').value;
+            if(verificarSenha(inputSenha)) { fecharSenhaTotem(); sairModoTotem(); } 
             else { mostrarToast("Senha incorreta", "erro"); document.getElementById('input-senha-totem').value = ''; }
         };
 
@@ -839,8 +894,12 @@
             const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
             if(!validarCPFReal(cpfNum)) return totemMostrarMensagem('erro_cpf');
             
-            isProcessing = true; document.getElementById('btn-totem-avancar').disabled = true; document.activeElement.blur(); 
-            setTimeout(() => { isProcessing = false; }, 8000); // TRAVA DE SEGURANÇA
+            // REQUISITO 5: Bloqueio contra requisições simultâneas
+            if(operacoesAtivas[cpfNum]) return mostrarToast('Aguarde, processando este cliente.', 'erro');
+
+            isProcessing = true; operacoesAtivas[cpfNum] = true;
+            document.getElementById('btn-totem-avancar').disabled = true; document.activeElement.blur(); 
+            setTimeout(() => { isProcessing = false; operacoesAtivas[cpfNum] = false; }, 8000); // Liberação de Trava
 
             const cliente = clientesMap[cpfNum];
             
@@ -850,20 +909,20 @@
                 document.getElementById('totem-cad-cpf').value = formatarCPF(cpfNum);
                 document.getElementById('totem-tela-cadastro').classList.remove('hidden');
                 setTimeout(() => document.getElementById('totem-cad-nome').focus(), 300);
-                isProcessing = false; resetarTimerTotem();
+                isProcessing = false; operacoesAtivas[cpfNum] = false; resetarTimerTotem();
             } else {
                 if(jaRegistrouHoje(cliente)) {
                     totemClienteTemp = cliente;
-                    isProcessing = false; return totemMostrarMensagem('ja_registrado');
+                    isProcessing = false; operacoesAtivas[cpfNum] = false; return totemMostrarMensagem('ja_registrado');
                 }
                 
                 totemClienteTemp = cliente;
                 if((cliente.almocos || 0) >= 10) {
                     document.getElementById('totem-tela-busca').classList.add('hidden');
                     document.getElementById('totem-tela-opcoes').classList.remove('hidden');
-                    isProcessing = false; resetarTimerTotem();
+                    isProcessing = false; operacoesAtivas[cpfNum] = false; resetarTimerTotem();
                 } else {
-                    isProcessing = false; 
+                    isProcessing = false; operacoesAtivas[cpfNum] = false; 
                     totemExecutarAcumulo();
                 }
             }
@@ -872,14 +931,20 @@
         window.totemSalvarCadastro = (e) => {
             e.preventDefault();
             if(isProcessing) return;
-            isProcessing = true; document.getElementById('btn-totem-salvar').disabled = true; document.activeElement.blur(); 
-            setTimeout(() => { isProcessing = false; if(document.getElementById('btn-totem-salvar')) document.getElementById('btn-totem-salvar').disabled = false; }, 8000); // TRAVA
-
             const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
-            const nome = document.getElementById('totem-cad-nome').value.trim();
-            const nascimento = document.getElementById('totem-cad-nasc').value;
+            
+            if(operacoesAtivas[cpf]) return mostrarToast('Aguarde, processando...', 'erro');
+            
             const telefone = document.getElementById('totem-cad-tel').value.replace(/\D/g, '');
+            if(!telefoneValido(telefone)) return mostrarToast('Telefone inválido (deve conter 11 dígitos).', 'erro');
 
+            const nascimento = document.getElementById('totem-cad-nasc').value;
+            if(!validarDataReal(nascimento)) return mostrarToast('Data de nascimento inválida ou inexistente.', 'erro');
+
+            isProcessing = true; operacoesAtivas[cpf] = true; document.getElementById('btn-totem-salvar').disabled = true; document.activeElement.blur(); 
+            setTimeout(() => { isProcessing = false; operacoesAtivas[cpf] = false; if(document.getElementById('btn-totem-salvar')) document.getElementById('btn-totem-salvar').disabled = false; }, 8000); 
+
+            const nome = document.getElementById('totem-cad-nome').value.trim();
             let niverF = nascimento;
             if(nascimento.includes('/')) { const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; }
 
@@ -891,31 +956,36 @@
             
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
             novoCliente.historico.push(dataF);
+            novoCliente.ultimaVisitaTimestamp = Date.now();
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
-                totemClienteTemp = novoCliente; document.getElementById('btn-totem-salvar').disabled = false; isProcessing = false;
+                totemClienteTemp = novoCliente; document.getElementById('btn-totem-salvar').disabled = false; isProcessing = false; operacoesAtivas[cpf] = false;
                 const ehNiverHoje = diasParaAniversario(novoCliente.nascimento) === 0;
                 if (ehNiverHoje) { totemMostrarMensagem('aniversario_totem'); } else { totemMostrarMensagem('cadastro_sucesso'); }
             }).catch(() => {
-                mostrarToast("Erro ao salvar.", "erro"); isProcessing = false; document.getElementById('btn-totem-salvar').disabled = false;
+                mostrarToast("Erro ao salvar.", "erro"); isProcessing = false; operacoesAtivas[cpf] = false; document.getElementById('btn-totem-salvar').disabled = false;
             });
         };
 
         window.totemExecutarAcumulo = () => {
             if(isProcessing) return;
-            isProcessing = true;
-            const btnAcumular = document.getElementById('btn-totem-acumular'); if(btnAcumular) btnAcumular.disabled = true;
-            setTimeout(() => { isProcessing = false; if(btnAcumular) btnAcumular.disabled = false; }, 8000); // TRAVA
-
             const cliente = totemClienteTemp;
+            if(!cliente) return;
+            
+            isProcessing = true; operacoesAtivas[cliente.cpf] = true;
+            const btnAcumular = document.getElementById('btn-totem-acumular'); if(btnAcumular) btnAcumular.disabled = true;
+            setTimeout(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; if(btnAcumular) btnAcumular.disabled = false; }, 8000); 
+
             cliente.almocos = (cliente.almocos || 0) + 1;
             
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
             if(!cliente.historico) cliente.historico = [];
             cliente.historico.push(dataF);
+            cliente.ultimaVisitaTimestamp = Date.now();
+            cliente.historico = limitarHistorico(cliente.historico);
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
-                isProcessing = false; if(btnAcumular) btnAcumular.disabled = false;
+                isProcessing = false; operacoesAtivas[cliente.cpf] = false; if(btnAcumular) btnAcumular.disabled = false;
 
                 const anoAtual = new Date().getFullYear();
                 const ehNiverHoje = diasParaAniversario(cliente.nascimento) === 0;
@@ -925,7 +995,7 @@
                 else if(cliente.almocos === 10) { totemMostrarMensagem('meta_atingida'); } 
                 else { totemMostrarMensagem('sucesso_acumulo'); }
             }).catch(() => {
-                isProcessing = false; if(btnAcumular) btnAcumular.disabled = false; mostrarToast("Erro na conexão.", "erro");
+                isProcessing = false; operacoesAtivas[cliente.cpf] = false; if(btnAcumular) btnAcumular.disabled = false; mostrarToast("Erro na conexão.", "erro");
             });
         };
 
@@ -994,6 +1064,8 @@
             const cpfBusca = document.getElementById('busca-cpf').value.replace(/\D/g, '');
             if (!cpfBusca) return mostrarToast('Informe o CPF para buscar.', 'erro');
             if(!validarCPFReal(cpfBusca)) return mostrarToast('CPF Inválido.', 'erro');
+            
+            if(operacoesAtivas[cpfBusca]) return mostrarToast('Operação em andamento para este cliente. Aguarde.', 'erro');
 
             const cliente = clientesMap[cpfBusca];
             if (!cliente) return mostrarToast('Cliente não encontrado no sistema.', 'erro');
@@ -1029,18 +1101,23 @@
         };
 
         window.cadastrarCliente = (e) => {
-            e.preventDefault(); if(isProcessing) return;
+            e.preventDefault(); 
+            if(isProcessing) return;
             const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
             if(!validarCPFReal(cpf)) return mostrarToast('CPF Inválido.', 'erro');
-            if (clientesMap[cpf]) return mostrarToast('CPF já cadastrado!', 'erro');
+            if(clientesMap[cpf]) return mostrarToast('CPF já cadastrado!', 'erro');
+            if(operacoesAtivas[cpf]) return mostrarToast('Operação em andamento, aguarde...', 'erro');
+            
+            const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
+            if(!telefoneValido(telefone)) return mostrarToast('Telefone inválido (deve conter 11 dígitos).', 'erro');
 
-            isProcessing = true; document.getElementById('btn-caixa-salvar').disabled = true;
-            setTimeout(() => { isProcessing = false; if(document.getElementById('btn-caixa-salvar')) document.getElementById('btn-caixa-salvar').disabled = false; }, 8000); // TRAVA
+            const nascimento = document.getElementById('cad-nascimento').value;
+            if(!validarDataReal(nascimento)) return mostrarToast('Data de nascimento inválida ou inexistente.', 'erro');
+
+            isProcessing = true; operacoesAtivas[cpf] = true; document.getElementById('btn-caixa-salvar').disabled = true;
+            setTimeout(() => { isProcessing = false; operacoesAtivas[cpf] = false; if(document.getElementById('btn-caixa-salvar')) document.getElementById('btn-caixa-salvar').disabled = false; }, 8000);
 
             const nome = document.getElementById('cad-nome').value.trim();
-            const nascimento = document.getElementById('cad-nascimento').value;
-            const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
-
             let niverF = nascimento;
             if(nascimento.includes('/')) { const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; }
 
@@ -1052,10 +1129,10 @@
 
             set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
                 document.getElementById('form-cadastro').reset(); mostrarToast('Cadastro feito com sucesso!', 'sucesso');
-                isProcessing = false; document.getElementById('btn-caixa-salvar').disabled = false;
+                isProcessing = false; operacoesAtivas[cpf] = false; document.getElementById('btn-caixa-salvar').disabled = false;
                 if(diasParaAniversario(novoCliente.nascimento) === 0) abrirAlertaAniversario(novoCliente, 'cadastro'); 
                 else document.getElementById('busca-cpf').focus();
-            }).catch(() => { isProcessing = false; document.getElementById('btn-caixa-salvar').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
+            }).catch(() => { isProcessing = false; operacoesAtivas[cpf] = false; document.getElementById('btn-caixa-salvar').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
         };
 
         function abrirAlertaAniversario(cliente, tipoAcao) {
@@ -1066,20 +1143,21 @@
 
         window.confirmarCortesiaAniversario = () => {
             if(!acaoPendente || isProcessing) return;
-            isProcessing = true;
-            setTimeout(() => { isProcessing = false; }, 8000); // TRAVA
-
-            const cliente = acaoPendente; const anoAtual = new Date().getFullYear();
+            const cliente = acaoPendente; 
             
+            isProcessing = true; operacoesAtivas[cliente.cpf] = true;
+            setTimeout(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; }, 8000); 
+
+            const anoAtual = new Date().getFullYear();
             cliente.aniversarioResgatadoAno = anoAtual;
             if(!cliente.historicoAniversarios) cliente.historicoAniversarios = [];
             const dataHoraResgate = new Date().toLocaleString('pt-BR');
             cliente.historicoAniversarios.push({ dataResgate: dataHoraResgate, ano: anoAtual });
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
-                isProcessing = false; document.getElementById('modal-alerta-aniversario').classList.add('hidden');
+                isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('modal-alerta-aniversario').classList.add('hidden');
                 mostrarToast("Voucher de Aniversário Baixado no Sistema!", "sucesso"); continuarPosAniversario();
-            }).catch(() => { isProcessing = false; mostrarToast("Erro na conexão.", "erro"); });
+            }).catch(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; mostrarToast("Erro na conexão.", "erro"); });
         };
 
         window.continuarPosAniversario = () => {
@@ -1090,23 +1168,27 @@
         };
 
         function processarConfirmacao(cliente) {
-            if(isProcessing) return; isProcessing = true; document.getElementById('btn-confirmar-almoco').disabled = true;
-            setTimeout(() => { isProcessing = false; if(document.getElementById('btn-confirmar-almoco')) document.getElementById('btn-confirmar-almoco').disabled = false; }, 8000); // TRAVA
+            if(isProcessing) return; 
+            isProcessing = true; operacoesAtivas[cliente.cpf] = true; document.getElementById('btn-confirmar-almoco').disabled = true;
+            setTimeout(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; if(document.getElementById('btn-confirmar-almoco')) document.getElementById('btn-confirmar-almoco').disabled = false; }, 8000); 
 
             cliente.almocos = (cliente.almocos || 0) + 1;
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
             if(!cliente.historico) cliente.historico = [];
             cliente.historico.push(dataF);
+            cliente.ultimaVisitaTimestamp = Date.now();
+            cliente.historico = limitarHistorico(cliente.historico);
             
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => { 
-                isProcessing = false; document.getElementById('btn-confirmar-almoco').disabled = false;
+                isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('btn-confirmar-almoco').disabled = false;
                 document.getElementById('busca-cpf').value = ''; mostrarToast('Almoço contabilizado!', 'sucesso'); 
-            }).catch(() => { isProcessing = false; document.getElementById('btn-confirmar-almoco').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
+            }).catch(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('btn-confirmar-almoco').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
         }
 
         function efetuarResgateEImprimir(cliente) {
-            if(isProcessing) return; isProcessing = true; document.getElementById('btn-trava-resgatar').disabled = true;
-            setTimeout(() => { isProcessing = false; if(document.getElementById('btn-trava-resgatar')) document.getElementById('btn-trava-resgatar').disabled = false; }, 8000); // TRAVA
+            if(isProcessing) return; 
+            isProcessing = true; operacoesAtivas[cliente.cpf] = true; document.getElementById('btn-trava-resgatar').disabled = true;
+            setTimeout(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; if(document.getElementById('btn-trava-resgatar')) document.getElementById('btn-trava-resgatar').disabled = false; }, 8000); 
 
             const datasDoResgate = (cliente.historico || []).slice(0, 10);
             cliente.historico = (cliente.historico || []).slice(10);
@@ -1119,10 +1201,10 @@
             cliente.historicoResgates.push({ dataResgate: dataHoraResgate, datas: datasDoResgate });
 
             set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
-                isProcessing = false; document.getElementById('btn-trava-resgatar').disabled = false;
+                isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('btn-trava-resgatar').disabled = false;
                 document.getElementById('busca-cpf').value = ''; mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
                 dispararImpressaoBobina10Almocos(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
-            }).catch(() => { isProcessing = false; document.getElementById('btn-trava-resgatar').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
+            }).catch(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('btn-trava-resgatar').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
         }
 
         window.dispararImpressaoBobina10Almocos = (nome, cpf, arrayDatas, dataHoraTop) => {
@@ -1159,8 +1241,12 @@
             e.preventDefault();
             const cpf = document.getElementById('edit-cpf-raw').value;
             const nome = document.getElementById('edit-nome').value;
+            
             const telefone = document.getElementById('edit-telefone').value.replace(/\D/g, '');
+            if(!telefoneValido(telefone)) return mostrarToast('Telefone inválido (deve conter 11 dígitos).', 'erro');
+
             const nascimento = document.getElementById('edit-nascimento').value;
+            if(!validarDataReal(nascimento)) return mostrarToast('Data de nascimento inválida.', 'erro');
             
             let niverConvertido = nascimento; if(nascimento.includes('/')) { const p = nascimento.split('/'); niverConvertido = `${p[2]}-${p[1]}-${p[0]}`; }
             const cliente = clientesMap[cpf];
@@ -1215,9 +1301,14 @@
             renderizarTabela(listaFiltrada);
         };
 
+        // REQUISITO 9: A busca agora também considera o telefone do cliente
         window.filtrarPorTexto = (valor) => {
             const busca = valor.toLowerCase();
-            renderizarTabela(clientesArray.filter(c => (c.nome || '').toLowerCase().includes(busca) || (c.cpf || '').includes(busca)));
+            renderizarTabela(clientesArray.filter(c => 
+                (c.nome || '').toLowerCase().includes(busca) || 
+                (c.cpf || '').includes(busca) || 
+                (c.telefone || '').includes(busca)
+            ));
         };
 
         function renderizarTabela(lista) {
@@ -1307,10 +1398,16 @@
             }
         };
 
+        // REQUISITO 8: Exportar em CSV ocultando partes do CPF, mas com telefone
+        function mascararCPFExportacao(cpf) {
+            if(!cpf || cpf.length < 11) return cpf;
+            return cpf.substring(0,3) + '.***.***-' + cpf.substring(9,11);
+        }
+
         window.exportarExcel = () => {
             if(clientesArray.length === 0) return mostrarToast("Nenhum dado", "erro");
             let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almocos_Acumulados;Premios_Resgatados;Origem;Data_Cadastro\n";
-            clientesArray.forEach(c => csv += `${c.nome};${c.cpf};${c.nascimento || ''};${c.telefone || ''};${c.almocos || 0};${c.premiosResgatados || 0};${c.origemCadastro || 'N/A'};${c.dataCadastro || 'N/A'}\n`);
+            clientesArray.forEach(c => csv += `${c.nome};${mascararCPFExportacao(c.cpf)};${c.nascimento || ''};${c.telefone || ''};${c.almocos || 0};${c.premiosResgatados || 0};${c.origemCadastro || 'N/A'};${c.dataCadastro || 'N/A'}\n`);
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
             link.download = `Clientes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`; link.click();
         };
@@ -1322,17 +1419,31 @@
         };
         
         window.validarSenha = () => { 
-            if (document.getElementById('input-senha').value === senhaAtualBanco) { document.getElementById('area-senha-secreta').classList.add('hidden'); document.getElementById('area-opcoes-secretas').classList.remove('hidden'); } 
+            const inputSenha = document.getElementById('input-senha').value;
+            if (verificarSenha(inputSenha)) { 
+                document.getElementById('area-senha-secreta').classList.add('hidden'); 
+                document.getElementById('area-opcoes-secretas').classList.remove('hidden'); 
+            } 
             else { mostrarToast("Senha incorreta.", "erro"); }
         };
 
+        // REQUISITO 6: Dupla Confirmação Rigorosa para Reset do Banco
         window.resetarSistema = () => { 
-            if(confirm("ALERTA MÁXIMO! Tem certeza que deseja apagar TODOS os clientes?")) { set(ref(db, 'clientes'), null).then(() => { mostrarToast("Banco resetado", "sucesso"); fecharModal('modal-secreto'); }); }
+            const digitado = prompt("ALERTA MÁXIMO! Digite APAGAR para confirmar a exclusão de TODOS os clientes:");
+            if(digitado === "APAGAR") { 
+                set(ref(db, 'clientes'), null).then(() => { mostrarToast("Banco resetado", "sucesso"); fecharModal('modal-secreto'); }); 
+            } else {
+                mostrarToast("Operação cancelada! Palavra incorreta.", "erro");
+            }
         };
 
         window.mudarSenha = () => { 
             const nova = document.getElementById('nova-senha').value; 
-            if(nova.trim() !== '') { set(ref(db, 'config/senhaReset'), nova).then(() => { mostrarToast("Senha alterada!", "sucesso"); fecharModal('modal-secreto'); }); }
+            if(nova.trim() !== '') { 
+                set(ref(db, 'config/senhaReset'), btoa(nova)).then(() => { 
+                    mostrarToast("Senha alterada!", "sucesso"); fecharModal('modal-secreto'); 
+                }); 
+            }
         };
         
         window.fecharModal = (id) => { 
@@ -1340,12 +1451,10 @@
             if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar' && id !== 'modal-marketing' && id !== 'modal-whatsapp') { const b = document.getElementById('busca-cpf'); if(b) b.focus(); } 
         };
         
-        // CORREÇÃO: Tratamento para não falhar (crash) se o input for preenchido com dados antigos nulos
         window.mascaraCPF = (i) => { let v = (i.value||"").replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
         window.mascaraTelefone = (i) => { let v = (i.value||"").replace(/\D/g, ""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); }
         window.mascaraData = (i) => { let v = (i.value||"").replace(/\D/g, ""); v = v.replace(/(\d{2})(\d)/, "$1/$2"); v = v.replace(/(\d{2})(\d)/, "$1/$2"); i.value = v.substring(0, 10); };
         
-        // CORREÇÃO MÁXIMA PARA A TABELA: Se o cliente antigo não tem dado, retorna espaço vazio, não dá crash de JS.
         function formatarCPF(cpf) { if(!cpf) return ''; return cpf.toString().replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"); }
         function formatarTel(tel) { if(!tel) return ''; return tel.toString().replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); }
         function formatarNasc(nasc) { 
@@ -1356,3 +1465,4 @@
     </script>
 </body>
 </html>
+
