@@ -66,10 +66,10 @@
                             <i data-lucide="check-square" class="w-6 h-6"></i>
                             <h2 class="text-xl font-bold">Contabilizar Almoço</h2>
                         </div>
-                        <p class="text-sm text-slate-500 mb-4">Insira o CPF do cliente para buscar o cadastro.</p>
+                        <p class="text-sm text-slate-500 mb-4 text-center">Insira o CPF do cliente para buscar o cadastro.</p>
                         <div class="mb-4">
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">CPF do Cliente</label>
-                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF do Cliente</label>
+                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg text-center">
                         </div>
                     </div>
                     <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
@@ -85,20 +85,20 @@
                     </div>
                     <form id="form-cadastro" onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">CPF (Obrigatório)</label>
-                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF (Obrigatório)</label>
+                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Completo</label>
-                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Nome Completo</label>
+                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-center">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Data de Nascimento (DD/MM/AAAA)</label>
-                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="Ex: 30/04/1999" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Data de Nascimento (DD/MM/AAAA)</label>
+                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="Ex: 30/04/1999" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Telefone / WhatsApp</label>
-                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Telefone / WhatsApp</label>
+                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-center">
                         </div>
                         <div class="sm:col-span-2 mt-2">
                             <button type="submit" id="btn-caixa-salvar" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
@@ -114,35 +114,35 @@
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
+                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
                         <p id="card-total" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden">
-                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-gray-800"></i> Aguardando Resgate</p>
+                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden text-center">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-gray-800"></i> Aguardando Resgate</p>
                         <p id="card-premios" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition">
-                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-gray-800"></i> Mais Fiéis (VIPs)</p>
+                    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-gray-800"></i> Mais Fiéis (VIPs)</p>
                         <p id="card-vips" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('niver_mes')" class="bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden">
+                    <div onclick="filtrarLista('niver_mes')" class="bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden text-center">
                         <div class="absolute top-0 right-0 w-2 h-full bg-black"></div>
-                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Central Aniversários</p>
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Central Aniversários</p>
                         <p id="card-niver-central" class="text-2xl font-black text-black">0</p>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
-                        <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center border border-gray-200">
+                        <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center justify-center border border-gray-200">
                             <span class="text-xs font-bold text-gray-600 uppercase"><i data-lucide="filter" class="w-4 h-4 inline"></i> Filtro de Aniversários:</span>
                             <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')" class="px-4 py-2 bg-black text-white rounded-lg text-xs font-bold transition shadow-sm">Todo o Mês Atual</button>
                             <span class="text-sm font-semibold text-gray-400">OU PERÍODO:</span>
                             <div class="flex items-center gap-2">
-                                <input type="date" id="filtro-data-inicio" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black">
+                                <input type="date" id="filtro-data-inicio" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black text-center">
                                 <span class="text-gray-400 text-sm">até</span>
-                                <input type="date" id="filtro-data-fim" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black">
+                                <input type="date" id="filtro-data-fim" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black text-center">
                                 <button onclick="filtrarPorPeriodo()" class="px-4 py-2 bg-white border border-gray-300 hover:border-black text-black rounded-lg text-xs font-bold transition shadow-sm">Buscar</button>
                             </div>
                         </div>
@@ -154,7 +154,7 @@
                             <p class="text-xs text-slate-400 mt-0.5" id="filtro-atual-texto">Exibindo: Todos os clientes (Sincronizado na Nuvem)</p>
                         </div>
                         <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm w-full sm:w-64">
+                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm text-center w-full sm:w-64">
                             <button onclick="abrirCentralMarketing()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
                                 <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing
                             </button>
@@ -168,8 +168,8 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-100">
-                                    <th class="py-3 px-6">Nome</th>
-                                    <th class="py-3 px-6">CPF / Whats</th>
+                                    <th class="py-3 px-6 text-center">Nome</th>
+                                    <th class="py-3 px-6 text-center">CPF / Whats</th>
                                     <th class="py-3 px-6 text-center">Acumulados</th>
                                     <th class="py-3 px-6 text-center">Resgates</th>
                                     <th class="py-3 px-6 text-right">Ações</th>
@@ -209,7 +209,7 @@
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="message-circle" class="w-5 h-5 text-green-500"></i> Enviar Mensagem</h3>
                     <button onclick="fecharModal('modal-whatsapp')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 border-b border-gray-100 pb-2">Destinatário: <strong id="whats-cliente-nome" class="text-black text-base"></strong></p>
+                <p class="text-sm text-gray-500 mb-4 border-b border-gray-100 pb-2 text-center">Destinatário: <strong id="whats-cliente-nome" class="text-black text-base"></strong></p>
                 <div class="flex flex-col gap-3" id="lista-opcoes-whats"></div>
             </div>
         </div>
@@ -220,20 +220,20 @@
                     <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
+                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg text-center"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
 
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Mensagem: Aniversário (Antecipação)</label>
-                        <textarea id="mkt-msg-niver" rows="4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem: Aniversário (Antecipação)</label>
+                        <textarea id="mkt-msg-niver" rows="4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Mensagem: Prêmio de 10 Almoços</label>
-                        <textarea id="mkt-msg-premio" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem: Prêmio de 10 Almoços</label>
+                        <textarea id="mkt-msg-premio" rows="4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Mensagem: Recuperação (Clientes Inativos)</label>
-                        <textarea id="mkt-msg-inativo" rows="2" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem: Recuperação (Clientes Inativos)</label>
+                        <textarea id="mkt-msg-inativo" rows="4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
                     
                     <div class="pt-4 border-t border-gray-200">
@@ -261,21 +261,21 @@
                 <form id="form-editar" onsubmit="salvarEdicao(event)" class="space-y-4">
                     <input type="hidden" id="edit-cpf-raw">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">CPF (Não editável)</label>
-                        <input type="text" id="edit-cpf-display" disabled class="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 font-mono cursor-not-allowed">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1 text-center">CPF (Não editável)</label>
+                        <input type="text" id="edit-cpf-display" disabled class="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 font-mono cursor-not-allowed text-center">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome Completo</label>
-                        <input type="text" id="edit-nome" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800">
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Nome Completo</label>
+                        <input type="text" id="edit-nome" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 text-center">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nascimento</label>
-                            <input type="tel" inputmode="numeric" id="edit-nascimento" required maxlength="10" oninput="mascaraData(this)" placeholder="DD/MM/AAAA" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 font-mono">
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Nascimento</label>
+                            <input type="tel" inputmode="numeric" id="edit-nascimento" required maxlength="10" oninput="mascaraData(this)" placeholder="DD/MM/AAAA" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 font-mono text-center">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">WhatsApp</label>
-                            <input type="tel" inputmode="numeric" id="edit-telefone" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800">
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">WhatsApp</label>
+                            <input type="tel" inputmode="numeric" id="edit-telefone" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 text-center">
                         </div>
                     </div>
                     <div class="pt-2 flex gap-3">
@@ -288,8 +288,8 @@
 
         <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
-                <h3 class="text-lg font-bold text-gray-800 mb-2">Contabilizar Refeição</h3>
-                <p class="text-gray-600 mb-6" id="texto-confirmacao">Deseja registrar +1 almoço?</p>
+                <h3 class="text-lg font-bold text-gray-800 mb-2 text-center">Contabilizar Refeição</h3>
+                <p class="text-gray-600 mb-6 text-center" id="texto-confirmacao">Deseja registrar +1 almoço?</p>
                 <div class="flex justify-end gap-3">
                     <button onclick="fecharModal('modal-confirmacao')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold">Cancelar</button>
                     <button id="btn-confirmar-almoco" class="px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-xl font-bold disabled:opacity-50">Confirmar</button>
@@ -299,11 +299,11 @@
 
         <div id="modal-trava" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-black">
-                <div class="flex items-center gap-2 mb-2 text-black">
+                <div class="flex items-center justify-center gap-2 mb-2 text-black">
                     <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                     <h3 class="text-lg font-bold">Almoço Cortesia Disponível!</h3>
                 </div>
-                <p class="text-gray-600 mb-6 text-sm">Este cliente já possui 10 almoços acumulados. Você deseja <strong>Resgatar agora</strong> ou ele deseja <strong>Acumular</strong> este para o futuro?</p>
+                <p class="text-gray-600 mb-6 text-sm text-center">Este cliente já possui 10 almoços acumulados. Você deseja <strong>Resgatar agora</strong> ou ele deseja <strong>Acumular</strong> este para o futuro?</p>
                 <div class="flex flex-col gap-2">
                     <button id="btn-trava-resgatar" class="w-full px-5 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"><i data-lucide="printer" class="w-4 h-4"></i> Resgatar e Imprimir Cupom</button>
                     <button id="btn-trava-acumular" class="w-full px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold disabled:opacity-50">Apenas Acumular (+1 pago)</button>
@@ -330,7 +330,7 @@
                 </div>
                 <div id="area-opcoes-secretas" class="hidden flex flex-col gap-3">
                     <button onclick="entrarModoTotem()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-                        <i data-lucide="tablet" class="w-4 h-4"></i> ENTRAR MODO TOTEM (PAISAGEM)
+                        <i data-lucide="tablet" class="w-4 h-4"></i> ENTRAR MODO TOTEM
                     </button>
                     <hr>
                     <button onclick="resetarSistema()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
@@ -380,11 +380,11 @@
                     <div class="grid grid-cols-2 gap-8 mb-8">
                         <div class="space-y-8">
                             <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-800 border-2 border-gray-700 text-gray-300 px-6 py-5 rounded-2xl font-mono text-2xl text-center shadow-inner cursor-not-allowed">
-                            <input type="text" id="totem-cad-nome" required placeholder="Nome Completo" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
+                            <input type="text" id="totem-cad-nome" required placeholder="Nome Completo" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
                         </div>
                         <div class="space-y-8">
-                            <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
-                            <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                            <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nascimento (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                            <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp com DDD" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
                         </div>
                     </div>
                     
@@ -430,7 +430,7 @@
                         Avalie nosso atendimento agora mesmo e ganhe um <strong class="text-white">bombom especial</strong> de sobremesa.
                     </p>
                     
-                    <button id="btn-revelar-qr" onclick="revelarQRAvaliacao()" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold text-2xl py-6 px-10 rounded-3xl shadow-2xl transition-all active:scale-95 flex items-center gap-4">
+                    <button id="btn-revelar-qr" onclick="revelarQRAvaliacao()" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold text-2xl py-6 px-10 rounded-3xl shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-4 w-full max-w-sm">
                         <i data-lucide="qrcode" class="w-8 h-8"></i> Mostrar QR Code
                     </button>
 
@@ -446,10 +446,23 @@
             <!-- Barra Inferior e Fuga (Exibida só na tela de mensagem) -->
             <div id="totem-bottom-bar" class="hidden absolute bottom-8 left-0 w-full px-12 flex flex-col items-center">
                 <button onclick="totemVoltarInicio()" class="mb-8 px-12 py-4 bg-gray-800/80 hover:bg-gray-700 text-white text-xl font-bold rounded-2xl backdrop-blur-md border border-gray-600 transition-all shadow-xl">
-                    Pular / Finalizar Atendimento
+                    Finalizar Atendimento
                 </button>
                 <div class="w-full bg-gray-900 h-4 rounded-full overflow-hidden border border-gray-800">
                     <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
+                </div>
+            </div>
+
+            <!-- Modal Senha -->
+            <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
+                <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
+                    <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
+                    <h3 class="text-white text-xl font-bold mb-6">Acesso Administrativo</h3>
+                    <input type="password" inputmode="numeric" id="input-senha-totem" placeholder="Senha..." class="w-full text-center text-2xl py-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-white mb-6">
+                    <div class="flex gap-3">
+                        <button onclick="fecharSenhaTotem()" class="w-1/2 py-3 bg-gray-700 text-white font-bold rounded-xl">Cancelar</button>
+                        <button onclick="validarSaidaTotem()" class="w-1/2 py-3 bg-white text-black font-bold rounded-xl">Sair</button>
+                    </div>
                 </div>
             </div>
 
@@ -568,6 +581,7 @@
                 if (clicksSair >= 7) {
                     document.getElementById('input-senha-totem').value = '';
                     document.getElementById('modal-senha-totem').classList.remove('hidden');
+                    document.getElementById('modal-senha-totem').classList.add('flex');
                     document.getElementById('input-senha-totem').focus();
                     clicksSair = 0;
                 } else {
@@ -770,8 +784,8 @@
                 area.innerHTML += `
                     <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative">
                         <button onclick="removerMsgCustom(${idx})" class="absolute top-2 right-2 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        <input type="text" id="mkt-custom-titulo-${idx}" value="${escapeHTML(m.titulo)}" placeholder="Título da Ação (Ex: Dia das Mães)" class="font-bold text-sm text-gray-800 mb-2 bg-transparent border-b border-gray-200 w-3/4 outline-none focus:border-black pb-1">
-                        <textarea id="mkt-custom-texto-${idx}" rows="2" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-black">${escapeHTML(m.texto)}</textarea>
+                        <input type="text" id="mkt-custom-titulo-${idx}" value="${escapeHTML(m.titulo)}" placeholder="Título da Ação (Ex: Dia das Mães)" class="font-bold text-sm text-gray-800 mb-2 bg-transparent border-b border-gray-200 w-3/4 outline-none focus:border-black pb-1 text-center">
+                        <textarea id="mkt-custom-texto-${idx}" rows="4" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-black text-center">${escapeHTML(m.texto)}</textarea>
                     </div>`;
             });
             lucide.createIcons();
@@ -890,7 +904,10 @@
             if(updatePromise) { updatePromise.then(() => { calcularNotificacoesPainel(); }); }
         };
 
-        window.fecharSenhaTotem = () => { document.getElementById('modal-senha-totem').classList.add('hidden'); };
+        window.fecharSenhaTotem = () => { 
+            document.getElementById('modal-senha-totem').classList.add('hidden'); 
+            document.getElementById('modal-senha-totem').classList.remove('flex'); 
+        };
         
         function verificarSenha(input) { return input === senhaAtualBanco || btoa(input) === senhaAtualBanco; }
 
@@ -1390,8 +1407,8 @@
                 const btnZap = `<button onclick="abrirModalWhatsApp('${c.cpf}')" class="text-green-600 bg-green-50 border border-green-200 hover:bg-green-100 p-1.5 rounded-lg transition" title="Mensagens WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>`;
 
                 tr.innerHTML = `
-                    <td class="py-3 px-6 font-bold text-gray-800">${escapeHTML(c.nome)}</td>
-                    <td class="py-3 px-6 font-mono text-gray-500 text-xs">${formatarCPF(c.cpf)}<br>${formatarTel(c.telefone)}</td>
+                    <td class="py-3 px-6 font-bold text-gray-800 text-center">${escapeHTML(c.nome)}</td>
+                    <td class="py-3 px-6 font-mono text-gray-500 text-xs text-center">${formatarCPF(c.cpf)}<br>${formatarTel(c.telefone)}</td>
                     <td class="py-3 px-6 text-center font-bold text-base ${(c.almocos || 0)>=10 ? 'text-black' : 'text-gray-500'}">${c.almocos || 0}</td>
                     <td class="py-3 px-6 text-center font-bold text-gray-500">${c.premiosResgatados || 0}</td>
                     <td class="py-3 px-6 text-right"><div class="flex justify-end gap-1 items-center">${btnZap}${btnEditar}${btnHistorico}</div></td>
