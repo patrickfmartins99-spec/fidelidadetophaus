@@ -1330,11 +1330,12 @@
             let niverF = nascimento;
             if(nascimento.includes('/')) { const p = nascimento.split('/'); niverF = `${p[2]}-${p[1]}-${p[0]}`; }
 
+            // CORREÇÃO: Removido o ultimaVisitaTimestamp do momento do cadastro (agora ele nasce como null)
             const novoCliente = { 
                 cpf, nome, nascimento: niverF, telefone, 
                 almocos: 0, premiosResgatados: 0, historico: [],
                 origemCadastro: 'Caixa Administrativo', dataCadastro: new Date().toLocaleDateString('pt-BR'),
-                ultimaVisitaTimestamp: Date.now() 
+                ultimaVisitaTimestamp: null 
             };
 
             set(ref(db, PATH_CLIENTES + '/' + cpf), novoCliente).then(() => {
