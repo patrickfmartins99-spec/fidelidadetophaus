@@ -1101,17 +1101,18 @@
                 setTimeout(() => document.getElementById('totem-cad-nome').focus(), 300);
                 isProcessing = false; operacoesAtivas[cpfNum] = false; resetarTimerTotem();
             } else {
-                if(jaRegistrouHoje(cliente)) {
-                    totemClienteTemp = cliente;
-                    isProcessing = false; operacoesAtivas[cpfNum] = false; return totemMostrarMensagem('ja_registrado');
-                }
-                
                 totemClienteTemp = cliente;
+                
+                // CORREÇÃO: O sistema agora verifica se tem prêmio ANTES da trava diária
                 if((cliente.almocos || 0) >= 10) {
                     document.getElementById('totem-tela-busca').classList.add('hidden');
                     document.getElementById('totem-tela-opcoes').classList.remove('hidden');
                     isProcessing = false; operacoesAtivas[cpfNum] = false; resetarTimerTotem();
                 } else {
+                    // Se não tiver prêmio, verifica a trava de segurança normalmente
+                    if(jaRegistrouHoje(cliente)) {
+                        isProcessing = false; operacoesAtivas[cpfNum] = false; return totemMostrarMensagem('ja_registrado');
+                    }
                     isProcessing = false; operacoesAtivas[cpfNum] = false; 
                     totemExecutarAcumulo();
                 }
@@ -1161,6 +1162,11 @@
             if(isProcessing) return;
             const cliente = totemClienteTemp;
             if(!cliente) return;
+
+            // CORREÇÃO: A trava diária foi movida para proteger o botão "Continuar Acumulando"
+            if(jaRegistrouHoje(cliente)) {
+                return totemMostrarMensagem('ja_registrado');
+            }
             
             isProcessing = true; operacoesAtivas[cliente.cpf] = true;
             const btnAcumular = document.getElementById('btn-totem-acumular'); if(btnAcumular) btnAcumular.disabled = true;
