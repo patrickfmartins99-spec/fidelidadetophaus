@@ -32,9 +32,18 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
 
+    <div id="banner-simulacao" class="hidden bg-orange-600 text-white font-bold py-2 px-6 shadow-md z-[99999] fixed top-0 left-0 w-full flex flex-col sm:flex-row justify-center items-center gap-3">
+        <div class="flex items-center gap-2">
+            <i data-lucide="flask-conical" class="w-5 h-5"></i>
+            <span>AMBIENTE DE SIMULAÇÃO ATIVO - DADOS REAIS BLINDADOS</span>
+        </div>
+        <button onclick="desativarSimulacao()" class="bg-white text-orange-600 px-4 py-1.5 rounded-lg text-sm hover:bg-orange-50 transition shadow-sm font-black">
+            Sair e Voltar ao Normal
+        </button>
+    </div>
+
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- MODO CAIXA E ADMINISTRATIVO -->
     <div class="no-print">
         <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -59,7 +68,6 @@
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- CONTABILIZAR CAIXA -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
@@ -77,7 +85,6 @@
                     </button>
                 </div>
 
-                <!-- CADASTRO CAIXA -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -110,7 +117,6 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
-                <!-- NOTIFICAÇÕES INTELIGENTES -->
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -183,7 +189,6 @@
             </section>
         </main>
 
-        <!-- ALERTA DE ANIVERSÁRIO (CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -202,7 +207,6 @@
             </div>
         </div>
 
-        <!-- MODAL WHATSAPP BLOQUEADO/INTELIGENTE -->
         <div id="modal-whatsapp" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-green-500">
                 <div class="flex justify-between items-center mb-4">
@@ -332,6 +336,9 @@
                     <button onclick="entrarModoTotem()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
                         <i data-lucide="tablet" class="w-4 h-4"></i> ENTRAR MODO TOTEM
                     </button>
+                    <button id="btn-ativar-simulacao" onclick="ativarSimulacao()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                        <i data-lucide="flask-conical" class="w-4 h-4"></i> ATIVAR MODO SIMULAÇÃO
+                    </button>
                     <hr>
                     <button onclick="resetarSistema()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
                         <i data-lucide="trash-2" class="w-4 h-4"></i> ZERAR BANCO DE DADOS
@@ -344,17 +351,51 @@
             </div>
         </div>
 
+        <div id="modal-simulacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-orange-500">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="flask-conical" class="w-5 h-5 text-orange-500"></i> Ajustes de Depuração</h3>
+                    <button type="button" onclick="fecharModal('modal-simulacao')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <p class="text-sm text-gray-500 mb-4 border-b border-gray-100 pb-2 text-center">Cliente: <strong id="sim-cliente-nome" class="text-black text-base"></strong></p>
+                
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">Saldo de Almoços</p>
+                            <p class="text-xs text-gray-500">Atual: <span id="sim-qtd-atual" class="font-bold"></span></p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="sim-input-almocos" class="w-16 px-2 py-1 border border-gray-300 rounded text-center font-bold" min="0">
+                            <button onclick="salvarSimulacaoAlmocos()" class="bg-black hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Salvar</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
+                        <p class="text-sm font-bold text-gray-800 mb-1">Simulação de Data Festiva</p>
+                        <p class="text-xs text-gray-500 mb-3">Altera a data de nascimento para hoje e zera histórico de resgate no ano atual.</p>
+                        <button onclick="simularAniversarioHoje()" class="w-full bg-red-100 text-red-600 hover:bg-red-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2">
+                            <i data-lucide="cake" class="w-4 h-4"></i> Fazer Aniversário Hoje
+                        </button>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
+                        <p class="text-sm font-bold text-gray-800 mb-1">Manipulação de Última Visita</p>
+                        <p class="text-xs text-gray-500 mb-3">Retrocede a última visita e limpa notificações para testar recuperação.</p>
+                        <button onclick="simularInatividade()" class="w-full bg-blue-100 text-blue-600 hover:bg-blue-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2">
+                            <i data-lucide="calendar-clock" class="w-4 h-4"></i> Simular Ausência (40 dias)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- ========================================== -->
-    <!-- INTERFACE MODO TOTEM (OTIMIZADO PAISAGEM)  -->
-    <!-- ========================================== -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[100] font-sans overflow-y-auto scroll-smooth">
         
-        <!-- CONTAINER PRINCIPAL LIMITADOR -->
         <div class="w-full min-h-[100dvh] max-w-6xl mx-auto flex flex-col justify-center px-12 py-16 relative" id="area-totem-interativa">
             
-            <!-- Tela 1: Busca Dividida -->
             <div id="totem-tela-busca" class="w-full flex items-center gap-12 transition-all">
                 <div class="w-1/2 flex flex-col items-center justify-center border-r border-gray-800 pr-12 cursor-pointer" id="btn-sair-totem">
                     <img src="./logo.jpg" alt="Top Haus" class="h-40 w-auto object-contain mb-4 rounded-xl">
@@ -370,7 +411,6 @@
                 </div>
             </div>
 
-            <!-- Tela 2: Cadastro Dividido -->
             <div id="totem-tela-cadastro" class="hidden w-full transition-all">
                 <div class="text-center mb-10">
                     <h2 class="text-5xl font-black text-white">Primeira vez aqui?</h2>
@@ -395,7 +435,6 @@
                 </form>
             </div>
 
-            <!-- Tela 3: Opções Dividida -->
             <div id="totem-tela-opcoes" class="hidden w-full flex items-center gap-12 transition-all">
                 <div class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12">
                     <div class="w-32 h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="gift" class="w-16 h-16"></i></div>
@@ -411,17 +450,14 @@
                 </div>
             </div>
 
-            <!-- Tela 4: Mensagem Sucesso & Avaliação (Dinâmica) -->
             <div id="totem-tela-mensagem" class="hidden w-full flex items-center gap-12 transition-all pb-24 pt-8">
                 
-                <!-- Lado Esquerdo: A Mensagem Principal -->
                 <div id="totem-msg-esquerda" class="w-1/2 flex flex-col items-center text-center border-r border-gray-800 pr-12 transition-all duration-500">
                     <div id="totem-icone-msg" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
                     <h2 id="totem-titulo-msg" class="text-4xl font-black text-white mb-4 leading-tight"></h2>
                     <p id="totem-texto-msg" class="text-gray-300 text-2xl leading-relaxed"></p>
                 </div>
 
-                <!-- Lado Direito: A Avaliação Mágica (Some em prêmios e aniversário) -->
                 <div id="totem-area-avaliacao" class="w-1/2 pl-4 flex flex-col items-center text-center transition-all duration-500">
                     <h3 class="text-3xl font-black text-amber-400 mb-4 tracking-wide uppercase flex items-center gap-3">
                         <i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!
@@ -443,7 +479,6 @@
                 </div>
             </div>
             
-            <!-- Barra Inferior e Fuga (Exibida só na tela de mensagem) -->
             <div id="totem-bottom-bar" class="hidden absolute bottom-8 left-0 w-full px-12 flex flex-col items-center">
                 <button onclick="totemVoltarInicio()" class="mb-8 px-12 py-4 bg-gray-800/80 hover:bg-gray-700 text-white text-xl font-bold rounded-2xl backdrop-blur-md border border-gray-600 transition-all shadow-xl">
                     Finalizar Atendimento
@@ -453,7 +488,6 @@
                 </div>
             </div>
 
-            <!-- Modal Senha -->
             <div id="modal-senha-totem" tabindex="-1" class="hidden absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-[110] p-6">
                 <div class="bg-gray-900 border border-gray-700 p-8 rounded-3xl w-full max-w-sm text-center">
                     <i data-lucide="lock" class="w-10 h-10 text-white mx-auto mb-4"></i>
@@ -469,7 +503,6 @@
         </div>
     </div>
 
-    <!-- IMPRESSÃO BOBINA 80MM DINÂMICA -->
     <div id="secao-impressao" class="print-area"></div>
 
     <style>
@@ -495,12 +528,25 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // ========================================================
+        // AMBIENTE DE SIMULAÇÃO (ISOLAMENTO DE DADOS)
+        // ========================================================
+        let isSimulationMode = localStorage.getItem('modoSimulacao') === 'true';
+        
+        function getDbPath(base) {
+            if (base === 'clientes') return isSimulationMode ? 'clientes_simulacao' : 'clientes';
+            if (base === 'mensagens') return isSimulationMode ? 'config/mensagens_simulacao' : 'config/mensagens';
+            return base;
+        }
+
+        const PATH_CLIENTES = getDbPath('clientes');
+        const PATH_MENSAGENS = getDbPath('mensagens');
+        let clienteSimulacaoAtual = null;
+
         let clientesArray = [];
         let clientesMap = {}; 
         let filtroAtual = 'todos';
-        
         let senhaAtualBanco = "NDczMjQyMw=="; 
-        
         let operacoesAtivas = {}; 
         let acaoPendente = null; 
         let tipoAcaoPendente = null; 
@@ -558,12 +604,19 @@
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             
-            onValue(ref(db, 'config/mensagens'), (snapshot) => {
+            // Renderiza UI Especial se Simulação Ativa
+            if(isSimulationMode) {
+                document.getElementById('banner-simulacao').classList.remove('hidden');
+                document.body.classList.add('pt-12'); // Empurra o conteúdo para baixo
+                document.getElementById('btn-ativar-simulacao').classList.add('hidden'); 
+            }
+
+            onValue(ref(db, PATH_MENSAGENS), (snapshot) => {
                 const data = snapshot.val();
                 if (data) { msgsMarketing = {...msgsMarketing, ...data}; if(!msgsMarketing.personalizadas) msgsMarketing.personalizadas = []; }
             });
 
-            onValue(ref(db, 'clientes'), (snapshot) => {
+            onValue(ref(db, PATH_CLIENTES), (snapshot) => {
                 const data = snapshot.val();
                 if (data) { clientesMap = data; clientesArray = Object.values(data); } 
                 else { clientesMap = {}; clientesArray = []; }
@@ -571,6 +624,7 @@
                 calcularNotificacoesPainel();
                 filtrarLista(filtroAtual);
             });
+
             onValue(ref(db, 'config/senhaReset'), (snapshot) => { if(snapshot.val()) senhaAtualBanco = snapshot.val(); });
 
             let clicksSair = 0;
@@ -604,6 +658,76 @@
             });
         });
 
+        // ========================================================
+        // FERRAMENTAS DO AMBIENTE DE SIMULAÇÃO
+        // ========================================================
+        window.ativarSimulacao = () => {
+            localStorage.setItem('modoSimulacao', 'true');
+            window.location.reload();
+        };
+
+        window.desativarSimulacao = () => {
+            localStorage.setItem('modoSimulacao', 'false');
+            window.location.reload();
+        };
+
+        window.abrirSimulador = (cpf) => {
+            clienteSimulacaoAtual = clientesMap[cpf];
+            if(!clienteSimulacaoAtual) return;
+            document.getElementById('sim-cliente-nome').innerText = clienteSimulacaoAtual.nome.split(' ')[0];
+            document.getElementById('sim-qtd-atual').innerText = clienteSimulacaoAtual.almocos || 0;
+            document.getElementById('sim-input-almocos').value = clienteSimulacaoAtual.almocos || 0;
+            
+            const modal = document.getElementById('modal-simulacao');
+            modal.classList.remove('hidden'); prenderFocoModal(modal);
+        };
+
+        window.salvarSimulacaoAlmocos = () => {
+            if(!clienteSimulacaoAtual) return;
+            const novaQtd = parseInt(document.getElementById('sim-input-almocos').value) || 0;
+            clienteSimulacaoAtual.almocos = novaQtd;
+            
+            set(ref(db, PATH_CLIENTES + '/' + clienteSimulacaoAtual.cpf), clienteSimulacaoAtual).then(() => {
+                mostrarToast("Saldo de almoços ajustado!", "sucesso");
+                fecharModal('modal-simulacao');
+            });
+        };
+
+        window.simularAniversarioHoje = () => {
+            if(!clienteSimulacaoAtual) return;
+            const hoje = new Date();
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const ano = hoje.getFullYear() - 30; // Idade genérica
+            
+            clienteSimulacaoAtual.nascimento = `${ano}-${mes}-${dia}`;
+            clienteSimulacaoAtual.aniversarioResgatadoAno = null; // Limpa resgate deste ano
+            
+            if(clienteSimulacaoAtual.historicoAniversarios) {
+                clienteSimulacaoAtual.historicoAniversarios = clienteSimulacaoAtual.historicoAniversarios.filter(h => h.ano !== hoje.getFullYear());
+            }
+
+            set(ref(db, PATH_CLIENTES + '/' + clienteSimulacaoAtual.cpf), clienteSimulacaoAtual).then(() => {
+                mostrarToast("Data Festiva configurada para hoje!", "sucesso");
+                fecharModal('modal-simulacao');
+            });
+        };
+
+        window.simularInatividade = () => {
+            if(!clienteSimulacaoAtual) return;
+            const dataPassado = Date.now() - (40 * 24 * 60 * 60 * 1000); // Exatos 40 dias atrás
+            clienteSimulacaoAtual.ultimaVisitaTimestamp = dataPassado;
+            clienteSimulacaoAtual.notificadoInativoData = null; // Limpa flags de contato
+            
+            set(ref(db, PATH_CLIENTES + '/' + clienteSimulacaoAtual.cpf), clienteSimulacaoAtual).then(() => {
+                mostrarToast("Última visita retrocedida em 40 dias!", "sucesso");
+                fecharModal('modal-simulacao');
+            });
+        };
+
+        // ========================================================
+        // FUNÇÕES GERAIS DE VALIDAÇÃO
+        // ========================================================
         function validarCPFReal(cpf) {
             if(!cpf) return false;
             cpf = cpf.replace(/\D/g, '');
@@ -819,7 +943,7 @@
             
             msgsMarketing.personalizadas = listaMkt;
 
-            set(ref(db, 'config/mensagens'), msgsMarketing).then(() => {
+            set(ref(db, PATH_MENSAGENS), msgsMarketing).then(() => {
                 mostrarToast("Mensagens de Marketing Salvas!", "sucesso");
                 fecharModal('modal-marketing');
             });
@@ -884,13 +1008,13 @@
 
             if (tipo === 'aniversario') {
                 texto = msgsMarketing.aniversario || "";
-                updatePromise = set(ref(db, `clientes/${cpf}/notificadoAniversarioAno`), new Date().getFullYear());
+                updatePromise = set(ref(db, PATH_CLIENTES + `/${cpf}/notificadoAniversarioAno`), new Date().getFullYear());
             } else if (tipo === 'premio') {
                 texto = msgsMarketing.premio || "";
-                updatePromise = set(ref(db, `clientes/${cpf}/notificadoPremio`), true);
+                updatePromise = set(ref(db, PATH_CLIENTES + `/${cpf}/notificadoPremio`), true);
             } else if (tipo === 'inativo') {
                 texto = msgsMarketing.inativo || "";
-                updatePromise = set(ref(db, `clientes/${cpf}/notificadoInativoData`), Date.now());
+                updatePromise = set(ref(db, PATH_CLIENTES + `/${cpf}/notificadoInativoData`), Date.now());
             } else if (tipo === 'custom') {
                 const listaMkt = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas || {});
                 texto = listaMkt[idxCustom].texto || "";
@@ -1024,7 +1148,7 @@
             const dataF = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
             novoCliente.historico.push(dataF);
 
-            set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
+            set(ref(db, PATH_CLIENTES + '/' + cpf), novoCliente).then(() => {
                 totemClienteTemp = novoCliente; document.getElementById('btn-totem-salvar').disabled = false; isProcessing = false; operacoesAtivas[cpf] = false;
                 const ehNiverHoje = diasParaAniversario(novoCliente.nascimento) === 0;
                 if (ehNiverHoje) { totemMostrarMensagem('aniversario_totem'); } else { totemMostrarMensagem('cadastro_sucesso'); }
@@ -1050,7 +1174,7 @@
             cliente.ultimaVisitaTimestamp = Date.now();
             cliente.historico = limitarHistorico(cliente.historico);
 
-            set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
+            set(ref(db, PATH_CLIENTES + '/' + cliente.cpf), cliente).then(() => {
                 isProcessing = false; operacoesAtivas[cliente.cpf] = false; if(btnAcumular) btnAcumular.disabled = false;
 
                 const anoAtual = new Date().getFullYear();
@@ -1207,7 +1331,7 @@
                 ultimaVisitaTimestamp: Date.now() 
             };
 
-            set(ref(db, 'clientes/' + cpf), novoCliente).then(() => {
+            set(ref(db, PATH_CLIENTES + '/' + cpf), novoCliente).then(() => {
                 document.getElementById('form-cadastro').reset(); mostrarToast('Cadastro feito com sucesso!', 'sucesso');
                 isProcessing = false; operacoesAtivas[cpf] = false; document.getElementById('btn-caixa-salvar').disabled = false;
                 if(diasParaAniversario(novoCliente.nascimento) === 0) abrirAlertaAniversario(novoCliente, 'cadastro'); 
@@ -1234,7 +1358,7 @@
             const dataHoraResgate = new Date().toLocaleString('pt-BR');
             cliente.historicoAniversarios.push({ dataResgate: dataHoraResgate, ano: anoAtual });
 
-            set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
+            set(ref(db, PATH_CLIENTES + '/' + cliente.cpf), cliente).then(() => {
                 isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('modal-alerta-aniversario').classList.add('hidden');
                 mostrarToast("Voucher de Aniversário Baixado no Sistema!", "sucesso"); continuarPosAniversario();
             }).catch(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; mostrarToast("Erro na conexão.", "erro"); });
@@ -1259,7 +1383,7 @@
             cliente.ultimaVisitaTimestamp = Date.now();
             cliente.historico = limitarHistorico(cliente.historico);
             
-            set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => { 
+            set(ref(db, PATH_CLIENTES + '/' + cliente.cpf), cliente).then(() => { 
                 isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('btn-confirmar-almoco').disabled = false;
                 document.getElementById('busca-cpf').value = ''; mostrarToast('Almoço contabilizado!', 'sucesso'); 
             }).catch(() => { isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('btn-confirmar-almoco').disabled = false; mostrarToast("Erro na conexão.", "erro"); });
@@ -1280,7 +1404,7 @@
             if(!cliente.historicoResgates) cliente.historicoResgates = [];
             cliente.historicoResgates.push({ dataResgate: dataHoraResgate, datas: datasDoResgate });
 
-            set(ref(db, 'clientes/' + cliente.cpf), cliente).then(() => {
+            set(ref(db, PATH_CLIENTES + '/' + cliente.cpf), cliente).then(() => {
                 isProcessing = false; operacoesAtivas[cliente.cpf] = false; document.getElementById('btn-trava-resgatar').disabled = false;
                 document.getElementById('busca-cpf').value = ''; mostrarToast('Resgate efetuado com sucesso!', 'sucesso');
                 dispararImpressaoBobina10Almocos(cliente.nome, cliente.cpf, datasDoResgate, dataHoraResgate);
@@ -1332,7 +1456,7 @@
             const cliente = clientesMap[cpf];
             if(cliente) {
                 cliente.nome = nome; cliente.telefone = telefone; cliente.nascimento = niverConvertido;
-                set(ref(db, 'clientes/' + cpf), cliente).then(() => { mostrarToast("Cadastro atualizado com sucesso!", "sucesso"); fecharModal('modal-editar'); });
+                set(ref(db, PATH_CLIENTES + '/' + cpf), cliente).then(() => { mostrarToast("Cadastro atualizado com sucesso!", "sucesso"); fecharModal('modal-editar'); });
             }
         };
 
@@ -1405,13 +1529,16 @@
                 const btnHistorico = temHistorico ? `<button onclick="abrirHistorico('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Ver Histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` : ``;
                 const btnEditar = `<button onclick="abrirEditar('${c.cpf}')" class="text-gray-500 hover:text-black hover:bg-gray-200 p-1.5 rounded-lg transition" title="Editar Cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
                 const btnZap = `<button onclick="abrirModalWhatsApp('${c.cpf}')" class="text-green-600 bg-green-50 border border-green-200 hover:bg-green-100 p-1.5 rounded-lg transition" title="Mensagens WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>`;
+                
+                // Botão Mágico do Modo Simulação (Exibido apenas quando ativo)
+                const btnSimular = isSimulationMode ? `<button onclick="abrirSimulador('${c.cpf}')" class="text-orange-600 bg-orange-50 border border-orange-200 hover:bg-orange-100 p-1.5 rounded-lg transition" title="Ajustes de Depuração"><i data-lucide="flask-conical" class="w-4 h-4"></i></button>` : ``;
 
                 tr.innerHTML = `
                     <td class="py-3 px-6 font-bold text-gray-800 text-center">${escapeHTML(c.nome)}</td>
                     <td class="py-3 px-6 font-mono text-gray-500 text-xs text-center">${formatarCPF(c.cpf)}<br>${formatarTel(c.telefone)}</td>
                     <td class="py-3 px-6 text-center font-bold text-base ${(c.almocos || 0)>=10 ? 'text-black' : 'text-gray-500'}">${c.almocos || 0}</td>
                     <td class="py-3 px-6 text-center font-bold text-gray-500">${c.premiosResgatados || 0}</td>
-                    <td class="py-3 px-6 text-right"><div class="flex justify-end gap-1 items-center">${btnZap}${btnEditar}${btnHistorico}</div></td>
+                    <td class="py-3 px-6 text-right"><div class="flex justify-end gap-1 items-center">${btnSimular}${btnZap}${btnEditar}${btnHistorico}</div></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1506,9 +1633,13 @@
         };
 
         window.resetarSistema = () => { 
-            const digitado = prompt("ALERTA MÁXIMO! Digite APAGAR para confirmar a exclusão de TODOS os clientes:");
+            const msgAlerta = isSimulationMode 
+                ? "Deseja resetar TODOS os dados APENAS DA SIMULAÇÃO?" 
+                : "ALERTA MÁXIMO! Digite APAGAR para confirmar a exclusão de TODOS os clientes REAIS:";
+                
+            const digitado = prompt(msgAlerta);
             if(digitado === "APAGAR") { 
-                set(ref(db, 'clientes'), null).then(() => { mostrarToast("Banco resetado", "sucesso"); fecharModal('modal-secreto'); }); 
+                set(ref(db, PATH_CLIENTES), null).then(() => { mostrarToast("Banco resetado", "sucesso"); fecharModal('modal-secreto'); }); 
             } else {
                 mostrarToast("Operação cancelada! Palavra incorreta.", "erro");
             }
@@ -1525,7 +1656,7 @@
         
         window.fecharModal = (id) => { 
             document.getElementById(id).classList.add('hidden'); 
-            if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar' && id !== 'modal-marketing' && id !== 'modal-whatsapp') { const b = document.getElementById('busca-cpf'); if(b) b.focus(); } 
+            if (id !== 'modal-secreto' && id !== 'modal-historico' && id !== 'modal-editar' && id !== 'modal-marketing' && id !== 'modal-whatsapp' && id !== 'modal-simulacao') { const b = document.getElementById('busca-cpf'); if(b) b.focus(); } 
         };
         
         window.mascaraCPF = (i) => { let v = (i.value||"").replace(/\D/g, ""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
