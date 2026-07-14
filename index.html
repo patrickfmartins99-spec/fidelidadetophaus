@@ -47,14 +47,8 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
 
-    <!-- ==========================================================================
-         TOAST DE AVISOS GLOBAIS
-         ========================================================================== -->
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- ==========================================================================
-         TELA DE LOGIN E AUTENTICAÇÃO (FIREBASE) - PADRÃO ALL BLACK TOP HAUS
-         ========================================================================== -->
     <div id="tela-login" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
         <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-hidden border border-gray-800">
             <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
@@ -79,9 +73,6 @@
         </div>
     </div>
 
-    <!-- ==========================================================================
-         BANNER MODO DE SIMULAÇÃO (LABORATÓRIO)
-         ========================================================================== -->
     <div id="banner-simulacao" class="hidden bg-orange-600 text-white font-bold py-2 px-6 shadow-md z-[99999] fixed top-0 left-0 w-full flex flex-col sm:flex-row justify-center items-center gap-3">
         <div class="flex items-center gap-2">
             <i data-lucide="flask-conical" class="w-5 h-5"></i>
@@ -92,18 +83,13 @@
         </button>
     </div>
 
-    <!-- ==========================================================================
-         SISTEMA PRINCIPAL (DASHBOARD) - FICA OCULTO ATÉ O LOGIN TER SUCESSO
-         ========================================================================== -->
     <div id="app-dashboard" class="hidden no-print">
         
-        <!-- CABEÇALHO SUPERIOR -->
         <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
                     <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain rounded">
                     <span class="text-gray-400 font-light text-lg hidden sm:block">| Top Haus Fidelidade</span>
-                    <!-- Exibição do Usuário Logado -->
                     <span id="nome-usuario-logado" class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full font-bold uppercase tracking-wider ml-2 shadow-inner"></span>
                 </div>
                 <div class="flex gap-3">
@@ -112,6 +98,9 @@
                     </button>
                     <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition hidden">
                         <i data-lucide="shield" class="w-4 h-4"></i> Painel Gerencial
+                    </button>
+                    <button onclick="entrarModoTotemDaTelaLogin()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-white shadow-md">
+                        <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir Totem</span>
                     </button>
                     <div class="h-10 w-px bg-gray-700 mx-1"></div>
                     <button onclick="fazerLogout()" title="Sair do Sistema" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center justify-center">
@@ -123,12 +112,7 @@
 
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
-            <!-- ==============================================================
-                 ABA CAIXA (Atendimento Rápido)
-                 ============================================================== -->
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <!-- Coluna Esquerda: Bipar Almoço -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
@@ -146,7 +130,6 @@
                     </button>
                 </div>
 
-                <!-- Coluna Direita: Cadastro Rápido -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
@@ -178,12 +161,7 @@
                 </div>
             </section>
 
-            <!-- ==============================================================
-                 ABA ADMINISTRATIVA E GERENCIAL
-                 ============================================================== -->
             <section id="aba-admin" class="hidden space-y-6">
-                
-                <!-- PAINEL DE ATALHOS RESTRITOS (Aparece apenas para ADMIN) -->
                 <div class="flex flex-wrap gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                     <div class="text-sm font-black text-gray-800 uppercase flex items-center gap-2 pr-4 border-r border-gray-200">
                         <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i> Gestão
@@ -199,10 +177,8 @@
                     </button>
                 </div>
 
-                <!-- ALARMES E NOTIFICAÇÕES (Aniversariantes, Prêmios e Inativos) -->
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
-                <!-- CARDS DE MÉTRICAS E FILTROS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-500 uppercase">Total Clientes</p>
@@ -223,10 +199,8 @@
                     </div>
                 </div>
 
-                <!-- TABELA DE CLIENTES -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     
-                    <!-- Sub-filtro de Aniversariantes -->
                     <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
                         <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center justify-center border border-gray-200">
                             <span class="text-xs font-bold text-gray-600 uppercase"><i data-lucide="filter" class="w-4 h-4 inline"></i> Filtro de Aniversários:</span>
@@ -241,7 +215,6 @@
                         </div>
                     </div>
 
-                    <!-- Cabeçalho da Tabela -->
                     <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">Painel de Clientes</h2>
@@ -250,7 +223,7 @@
                         <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
                             <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Pesquisar Nome/CPF..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm text-center w-full sm:w-64">
                             <button onclick="abrirCentralMarketing()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
-                                <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing
+                                <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing (Robô)
                             </button>
                             <button onclick="exportarExcel()" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
                                 <i data-lucide="download" class="w-4 h-4"></i> Exportar
@@ -258,7 +231,6 @@
                         </div>
                     </div>
                     
-                    <!-- Corpo da Tabela -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -271,19 +243,13 @@
                                 </tr>
                             </thead>
                             <tbody id="tabela-clientes" class="divide-y divide-slate-150 text-sm">
-                                <!-- Preenchido via JavaScript -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </section>
         </main>
         
-        <!-- ==========================================================================
-             MODAIS DA APLICAÇÃO (Pop-ups)
-             ========================================================================== -->
-             
-        <!-- MODAL ALERTA DE ANIVERSÁRIO (APARECE NO CAIXA) -->
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -302,11 +268,10 @@
             </div>
         </div>
 
-        <!-- MODAL DISPARO DE WHATSAPP -->
         <div id="modal-whatsapp" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-green-500">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="message-circle" class="w-5 h-5 text-green-500"></i> Enviar Mensagem</h3>
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="message-circle" class="w-5 h-5 text-green-500"></i> Enviar p/ Fila do Robô</h3>
                     <button onclick="fecharModal('modal-whatsapp')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 border-b border-gray-100 pb-2 text-center">Destinatário: <strong id="whats-cliente-nome" class="text-black text-base"></strong></p>
@@ -314,46 +279,58 @@
             </div>
         </div>
 
-        <!-- MODAL CENTRAL DE MARKETING -->
-        <div id="modal-marketing" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto">
+        <div id="modal-marketing" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto border-t-4 border-indigo-600">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg text-center"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. Para formatar em negrito no WhatsApp, coloque o texto entre asteriscos (ex: *texto*).</p>
+                <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg text-center"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços. O Robô Node.js fará o disparo de forma invisível.</p>
 
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem: Aniversário (Antecipação)</label>
-                        <textarea id="mkt-msg-niver" rows="4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Aviso de Aniversário (Automático 7 dias antes)</label>
+                        <textarea id="mkt-msg-niver" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem: Prêmio de 10 Almoços</label>
-                        <textarea id="mkt-msg-premio" rows="4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Prêmio Alcançado (Aviso do 10º Almoço)</label>
+                        <textarea id="mkt-msg-premio" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem: Recuperação (Clientes Inativos)</label>
-                        <textarea id="mkt-msg-inativo" rows="4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Recuperação de Inativos (No 16º Dia de Ausência)</label>
+                        <textarea id="mkt-msg-inativo" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200 bg-indigo-50 p-4 rounded-xl">
+                        <div class="flex items-center gap-2 mb-3 text-indigo-900 justify-center">
+                            <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+                            <h4 class="font-bold text-center">Agendar Disparo Automático (Massa)</h4>
+                        </div>
+                        <div class="flex gap-2 mb-2">
+                            <input type="date" id="mkt-agenda-data" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/3 outline-none text-center">
+                            <input type="text" id="mkt-agenda-titulo" placeholder="Ex: Promoção Dia das Mães" class="p-2 border border-indigo-200 rounded-lg text-sm w-2/3 outline-none text-center">
+                        </div>
+                        <textarea id="mkt-agenda-texto" rows="2" placeholder="Digite a mensagem promocional. Use [Nome] para personalizar." class="w-full p-2 border border-indigo-200 rounded-lg text-sm mb-2 outline-none text-center"></textarea>
+                        <button onclick="adicionarAgendamento()" class="w-full bg-indigo-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-indigo-700 transition text-sm mb-4">+ Agendar Disparo para Toda a Base</button>
+                        <div id="area-agendamentos" class="space-y-3"></div>
                     </div>
                     
                     <div class="pt-4 border-t border-gray-200">
                         <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-bold text-gray-800">Mensagens Personalizadas (Sempre Livres)</h4>
-                            <button onclick="adicionarMsgCustom()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-bold hover:bg-gray-800">+ Nova Ação</button>
+                            <h4 class="font-bold text-gray-800">Botões Customizados (Envio Individual)</h4>
+                            <button onclick="adicionarMsgCustom()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-bold hover:bg-gray-800">+ Novo Botão</button>
                         </div>
                         <div id="area-mensagens-custom" class="space-y-4"></div>
                     </div>
                 </div>
 
-                <div class="mt-8 flex justify-end gap-3">
+                <div class="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-4">
                     <button onclick="fecharModal('modal-marketing')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold">Cancelar</button>
-                    <button onclick="salvarCentralMarketing()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i> Salvar Alterações</button>
+                    <button onclick="salvarCentralMarketing()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i> Salvar e Integrar c/ Robô</button>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL EDITAR CADASTRO -->
         <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800">
                 <div class="flex items-center justify-between mb-4">
@@ -388,7 +365,6 @@
             </div>
         </div>
 
-        <!-- MODAL GESTÃO DE ACESSOS (CRIAR/EDITAR SENHAS) -->
         <div id="modal-usuarios" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-indigo-600">
                 <div class="flex items-center justify-between mb-4">
@@ -409,13 +385,10 @@
                 </form>
 
                 <h4 class="text-sm font-black text-gray-800 uppercase mb-2 border-b border-gray-100 pb-1">Usuários Cadastrados</h4>
-                <div id="lista-usuarios-cadastrados" class="space-y-2 max-h-48 overflow-y-auto text-sm pr-1">
-                    <!-- Dinâmico via JS -->
-                </div>
+                <div id="lista-usuarios-cadastrados" class="space-y-2 max-h-48 overflow-y-auto text-sm pr-1"></div>
             </div>
         </div>
 
-        <!-- MODAL CONFIRMAÇÃO DE ALMOÇO NORMAL -->
         <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-gray-800 mb-2 text-center">Contabilizar Refeição</h3>
@@ -427,7 +400,6 @@
             </div>
         </div>
 
-        <!-- MODAL TRAVA DE PRÊMIO (R$ 50) -->
         <div id="modal-trava" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-black">
                 <div class="flex items-center justify-center gap-2 mb-2 text-black">
@@ -438,12 +410,11 @@
                 <div class="flex flex-col gap-2">
                     <button id="btn-trava-resgatar" class="w-full px-5 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"><i data-lucide="printer" class="w-4 h-4"></i> Resgatar e Imprimir Cupom</button>
                     <button id="btn-trava-acumular" class="w-full px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold disabled:opacity-50">Apenas Acumular (+1 pago)</button>
-                    <button onclick="fecharModal('modal-trava')" class="text-xs text-gray-400 mt-2 underline font-medium">Cancelar operação</button>
+                    <button onclick="fecharModal('modal-trava')" class="text-xs text-gray-400 mt-2 underline font-medium text-center block">Cancelar operação</button>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL HISTÓRICO DE RESGATES -->
         <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border-t-4 border-gray-800">
                 <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> Histórico de Resgates</h3>
@@ -452,7 +423,6 @@
             </div>
         </div>
 
-        <!-- MODAL AMBIENTE DE SIMULAÇÃO (LABORATÓRIO) -->
         <div id="modal-simulacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-orange-500">
                 <div class="flex items-center justify-between mb-4">
@@ -492,21 +462,13 @@
             </div>
         </div>
 
-    </div> <!-- /FIM DO APP DASHBOARD -->
-
-    <!-- ==========================================================================
-         INTERFACE DO MODEM TOTEM (FRENTE DE LOJA) - REPAGINADO
-         ========================================================================== -->
-    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-hidden">
+    </div> <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-hidden">
         <div class="w-full flex h-[100dvh]">
             
-            <!-- LADO ESQUERDO: BARRA FIXA DA MARCA E AVALIAÇÃO COM QR CODE -->
             <div class="w-2/5 bg-black border-r border-gray-800 flex flex-col items-center justify-center p-12 relative shadow-2xl z-10">
-                <button onclick="sairModoTotem()" title="Sair do Modo Totem" class="absolute top-8 left-8 text-gray-600 hover:text-white transition">
-                    <i data-lucide="power" class="w-8 h-8"></i>
-                </button>
                 
-                <img src="./logo.jpg" alt="Top Haus" class="h-40 w-auto object-contain mb-2 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.05)]">
+                <img src="./logo.jpg" alt="Top Haus" onclick="sairModoTotem()" class="h-40 w-auto object-contain mb-2 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.05)] cursor-pointer" title="Área Secreta">
+                
                 <span class="text-white font-light text-3xl tracking-widest uppercase mb-12">Fidelidade</span>
 
                 <h3 class="text-3xl font-black text-amber-400 mb-6 tracking-wide uppercase flex items-center gap-3">
@@ -523,10 +485,8 @@
                 <p class="text-gray-500 text-sm mt-6 uppercase tracking-widest font-bold">Aponte a câmera do celular</p>
             </div>
 
-            <!-- LADO DIREITO: ÁREA DINÂMICA DE INTERAÇÃO (BIPAR CPF) -->
             <div class="w-3/5 flex flex-col items-center justify-center p-12 relative overflow-y-auto" id="totem-dynamic-area">
                 
-                <!-- Totem Tela 1: Busca -->
                 <div id="totem-tela-busca" class="w-full max-w-lg text-center transition-all">
                     <h1 class="text-5xl font-black text-white mb-4">Bem-vindo!</h1>
                     <p class="text-gray-400 mb-10 text-2xl">Digite seu CPF para registrar seu almoço:</p>
@@ -536,7 +496,6 @@
                     </button>
                 </div>
 
-                <!-- Totem Tela 2: Cadastro -->
                 <div id="totem-tela-cadastro" class="hidden w-full max-w-2xl text-center transition-all">
                     <h2 class="text-5xl font-black text-white mb-2">Primeira vez aqui?</h2>
                     <p class="text-gray-400 text-2xl mb-10">Preencha rapidamente para participar do clube.</p>
@@ -554,7 +513,6 @@
                     </form>
                 </div>
 
-                <!-- Totem Tela 3: Opções de Prêmio (R$ 50) -->
                 <div id="totem-tela-opcoes" class="hidden w-full max-w-lg text-center transition-all">
                     <div class="w-32 h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
                         <i data-lucide="gift" class="w-16 h-16"></i>
@@ -572,16 +530,14 @@
                     </div>
                 </div>
 
-                <!-- Totem Tela 4: Mensagem Final -->
                 <div id="totem-tela-mensagem" class="hidden w-full max-w-xl text-center transition-all pb-12 pt-8">
                     <div id="totem-icone-msg" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black"></div>
                     <h2 id="totem-titulo-msg" class="text-5xl font-black text-white mb-6 leading-tight"></h2>
                     <p id="totem-texto-msg" class="text-gray-300 text-3xl leading-relaxed"></p>
                 </div>
                 
-                <!-- Barra de Tempo do Totem -->
                 <div id="totem-bottom-bar" class="hidden absolute bottom-12 left-1/2 -translate-x-1/2 w-3/4 flex flex-col items-center">
-                    <button onclick="totemVoltarInicio()" class="mb-6 px-10 py-3 bg-gray-800 text-white text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar</button>
+                    <button onclick="totemVoltarInicio()" class="mb-6 px-10 py-3 bg-gray-800 text-white text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar / Voltar</button>
                     <div class="w-full bg-gray-900 h-3 rounded-full overflow-hidden border border-gray-800">
                         <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
                     </div>
@@ -591,18 +547,12 @@
         </div>
     </div>
 
-    <!-- ==========================================================================
-         ZONA INVISÍVEL DE IMPRESSÃO (Bobina 80mm)
-         ========================================================================== -->
     <div id="secao-impressao" class="print-area"></div>
 
-    <!-- ==========================================================================
-         LÓGICA PRINCIPAL DO SISTEMA
-         ========================================================================== -->
     <script type="module">
-        // Importações do Firebase SDK
+        // Importações do Firebase SDK (Adicionado o push para a fila)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, get, push, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         // Configuração do Projeto Firebase
@@ -616,17 +566,15 @@
             appId: "1:49897143111:web:e1a155197cf3b433d02a62"
         };
 
-        // Inicialização Principal
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
         
-        // App Secundário para o Admin criar contas para funcionários sem deslogar a si mesmo
         const appSecundario = initializeApp(firebaseConfig, "AppMestreCriador");
         const authSecundario = getAuth(appSecundario);
 
         // ==========================================================================
-        // AMBIENTE DE SIMULAÇÃO (LABORATÓRIO) E VARIÁVEIS GLOBAIS
+        // AMBIENTE DE SIMULAÇÃO E VARIÁVEIS GLOBAIS
         // ==========================================================================
         let isSimulationMode = localStorage.getItem('modoSimulacao') === 'true';
         
@@ -639,25 +587,23 @@
         const PATH_CLIENTES = getDbPath('clientes');
         const PATH_MENSAGENS = getDbPath('mensagens');
 
-        // Estado Global de Dados
         let usuarioLogado = null;
         let cargoLogado = null;
         let clientesArray = [];
         let clientesMap = {}; 
         let filtroAtual = 'todos';
         
-        // Controles de Duplicidade e Interface
         let operacoesAtivas = {}; 
         let acaoPendente = null; 
         let tipoAcaoPendente = null; 
         let isProcessing = false;
         let clienteSimulacaoAtual = null;
 
-        // Configurações Padrão de Marketing
         let msgsMarketing = {
-            aniversario: "Olá, *[Nome]*! Vimos aqui que o *seu aniversário está chegando*! 🎉\nE a equipe Top Haus faz questão de comemorar com você.\nPreparamos um *Desconto de R$ 50,00* exclusivo para você usar no seu almoço.\nPara resgatar, é só *apresentar esta mensagem no nosso caixa* no dia exato do seu aniversário!\nTe esperamos para celebrar!",
+            aniversario: "Olá, *[Nome]*! Vimos aqui que o *seu aniversário está chegando*! 🎉\nE a equipe Top Haus faz questão de comemorar com você.\nPreparamos um *Desconto de R$ 50,00* exclusivo para você usar no seu almoço.\nPara resgatar, é só apresentar esta mensagem no nosso caixa no dia exato do seu aniversário!\nTe esperamos para celebrar!",
             premio: "🎉 Parabéns, *[Nome]*!\nVocê acaba de completar 10 almoços.\nNa sua próxima visita, você tem direito a *R$ 50,00 de desconto* na sua refeição!",
             inativo: "Olá *[Nome]*, faz tempo que não te vemos por aqui! Que tal almoçar com a gente essa semana?",
+            agendadas: [],
             personalizadas: []
         };
 
@@ -666,22 +612,50 @@
         let totemClienteTemp = null;
 
         // ==========================================================================
+        // NOVA FUNÇÃO DO ROBÔ: ENVIAR PARA FILA NO FIREBASE (Substitui WhatsApp Web)
+        // ==========================================================================
+        window.enviarParaFilaRobo = (cpf, telefone, textoMensagem) => {
+            if(!telefone || !textoMensagem) return;
+            const telLimpo = telefone.toString().replace(/\D/g, '');
+            if(telLimpo.length < 10) return; // Garante que é um celular válido
+            
+            push(ref(db, 'fila_mensagens'), {
+                cpf: cpf,
+                telefone: telLimpo,
+                texto: textoMensagem,
+                timestamp: Date.now()
+            }).then(() => {
+                console.log("Ordem despachada para o Robô Node.js");
+            });
+        };
+
+        // Função responsável por avisar em tempo real a cada almoço contabilizado
+        function checarEAvisarAlmoco(c) {
+            const faltam = 10 - (c.almocos || 0);
+            if(faltam > 0 && faltam < 10) {
+                const msg = `Olá *${(c.nome||'').split(' ')[0]}*, seu almoço de hoje foi contabilizado no Top Haus! 🍽️\nVocê tem *${c.almocos} almoço(s)* acumulados.\nFaltam apenas *${faltam}* para você ganhar seus *R$ 50,00 de desconto*!`;
+                enviarParaFilaRobo(c.cpf, c.telefone, msg);
+            } else if (c.almocos === 10) {
+                const txtPremio = msgsMarketing.premio || "Parabéns [Nome]! Você completou 10 almoços. No próximo você ganha R$ 50 de desconto!";
+                const msg = txtPremio.replace(/\[Nome\]/g, (c.nome||'').split(' ')[0]).replace(/\[Acumulados\]/g, c.almocos);
+                enviarParaFilaRobo(c.cpf, c.telefone, msg);
+                set(ref(db, PATH_CLIENTES+`/${c.cpf}/notificadoPremio`), true);
+            }
+        }
+
+        // ==========================================================================
         // MÓDULO DE AUTENTICAÇÃO E NÍVEIS DE PERMISSÃO
         // ==========================================================================
-        
-        // Escuta as mudanças de estado de Login/Logout
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 usuarioLogado = user;
                 const usernameReal = user.email.split('@')[0];
                 
-                // Checa no banco de dados qual o nível de acesso (Caixa, Gerente ou Admin)
                 get(ref(db, `usuarios/${usernameReal}`)).then((snap) => {
                     if (snap.exists()) {
                         cargoLogado = snap.val().cargo;
                         aplicarRegrasNaInterface(cargoLogado, usernameReal);
                     } else {
-                        // Segurança: Se a conta existe mas foi removida do banco de dados de acessos
                         if (usernameReal === 'admin') {
                             cargoLogado = 'admin';
                             aplicarRegrasNaInterface(cargoLogado, usernameReal);
@@ -703,7 +677,6 @@
             }
         });
 
-        // Efetua o Login convertendo o usuário simples em email do sistema
         window.fazerLogin = (e) => {
             e.preventDefault();
             const rawUser = document.getElementById('login-user').value.trim().toLowerCase();
@@ -711,17 +684,12 @@
             const emailFicticio = `${rawUser}@tophaus.com.br`;
 
             const btn = document.getElementById('btn-login');
-            btn.disabled = true; 
-            btn.innerText = 'Autenticando...';
+            btn.disabled = true; btn.innerText = 'Autenticando...';
 
             signInWithEmailAndPassword(auth, emailFicticio, pass).then(() => {
-                btn.disabled = false; 
-                btn.innerText = 'ENTRAR';
+                btn.disabled = false; btn.innerText = 'ENTRAR';
             }).catch((error) => {
-                btn.disabled = false; 
-                btn.innerText = 'ENTRAR';
-                
-                // CRIAÇÃO AUTOMÁTICA DA CONTA ADMIN NO PRIMEIRO ACESSO
+                btn.disabled = false; btn.innerText = 'ENTRAR';
                 if (rawUser === 'admin' && (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found')) {
                     createUserWithEmailAndPassword(auth, emailFicticio, pass).then(() => {
                         set(ref(db, `usuarios/${rawUser}`), { cargo: 'admin' });
@@ -733,12 +701,8 @@
             });
         };
 
-        // Realiza o Logout
-        window.fazerLogout = () => { 
-            signOut(auth); 
-        };
+        window.fazerLogout = () => { signOut(auth); };
 
-        // Aplica o bloqueio visual dependendo da permissão do usuário
         function aplicarRegrasNaInterface(cargo, username) {
             document.getElementById('tela-login').classList.add('hidden');
             document.getElementById('tela-login').classList.remove('flex');
@@ -766,7 +730,6 @@
             }
         }
 
-        // Abre o Modal de Senhas de Acesso (Agora com Edição e Exclusão)
         window.abrirGerenciadorUsuarios = () => {
             if(cargoLogado !== 'admin') return;
             const lista = document.getElementById('lista-usuarios-cadastrados');
@@ -796,7 +759,6 @@
             prenderFocoModal(modal);
         };
 
-        // Cria novos funcionários
         window.criarUsuario = (e) => {
             e.preventDefault();
             const user = document.getElementById('novo-user').value.trim().toLowerCase();
@@ -818,10 +780,8 @@
             });
         };
 
-        // Remove um funcionário do banco de dados de acessos
         window.removerAcesso = (username) => {
             if(username === 'admin') return mostrarToast("Você não pode remover o administrador principal.", "erro");
-            
             if(confirm(`Tem certeza que deseja remover o acesso de "${username}"?\nA conta será deslogada imediatamente.`)) {
                 set(ref(db, `usuarios/${username}`), null).then(() => {
                     mostrarToast("Acesso removido com sucesso!", "sucesso");
@@ -830,12 +790,9 @@
             }
         };
 
-        // Altera o cargo de um funcionário existente
         window.alterarCargo = (username, cargoAtual) => {
-            if(username === 'admin') return mostrarToast("Você não pode alterar o cargo do administrador principal.", "erro");
-            
+            if(username === 'admin') return mostrarToast("Você não pode alterar o administrador.", "erro");
             const novoCargo = prompt(`Alterar cargo de "${username}".\nCargos válidos: caixa, gerente, admin\nCargo atual: ${cargoAtual}`, cargoAtual);
-            
             if(novoCargo && ['caixa', 'gerente', 'admin'].includes(novoCargo.trim().toLowerCase())) {
                 set(ref(db, `usuarios/${username}/cargo`), novoCargo.trim().toLowerCase()).then(() => {
                     mostrarToast("Cargo atualizado com sucesso!", "sucesso");
@@ -855,7 +812,6 @@
             return str.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
         };
 
-        // Garante que a navegação pelo teclado não saia do pop-up ativo
         window.prenderFocoModal = (modalElement) => {
             const todosFocaveis = modalElement.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
             const elementosFocaveis = Array.from(todosFocaveis).filter(el => !el.disabled && el.offsetParent !== null);
@@ -880,7 +836,6 @@
             setTimeout(() => { if(p) p.focus(); }, 50);
         };
 
-        // Central de Avisos Visuais (Toast)
         window.mostrarToast = (msg, tipo = 'sucesso') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -912,16 +867,15 @@
                 document.body.classList.add('pt-12'); 
             }
 
-            // Ouvinte das Configurações de Marketing
             onValue(ref(db, PATH_MENSAGENS), (snapshot) => {
                 const data = snapshot.val();
                 if (data) { 
                     msgsMarketing = {...msgsMarketing, ...data}; 
                     if(!msgsMarketing.personalizadas) msgsMarketing.personalizadas = []; 
+                    if(!msgsMarketing.agendadas) msgsMarketing.agendadas = []; 
                 }
             });
 
-            // Ouvinte de Clientes (Sincronização Total)
             onValue(ref(db, PATH_CLIENTES), (snapshot) => {
                 const data = snapshot.val();
                 if (data) { 
@@ -936,7 +890,6 @@
                 filtrarLista(filtroAtual);
             });
 
-            // Reseta o Totem ao notar inatividade do usuário
             const areaTotem = document.getElementById('area-totem-interativa') || document.getElementById('totem-dynamic-area');
             if(areaTotem) {
                 areaTotem.addEventListener('mousemove', resetarTimerTotem);
@@ -946,26 +899,17 @@
         });
 
         // ==========================================================================
-        // AMBIENTE DE SIMULAÇÃO (Depuração e Testes)
+        // AMBIENTE DE SIMULAÇÃO (LABORATÓRIO)
         // ==========================================================================
-        window.ativarSimulacao = () => { 
-            localStorage.setItem('modoSimulacao', 'true'); 
-            window.location.reload(); 
-        };
-        
-        window.desativarSimulacao = () => { 
-            localStorage.setItem('modoSimulacao', 'false'); 
-            window.location.reload(); 
-        };
+        window.ativarSimulacao = () => { localStorage.setItem('modoSimulacao', 'true'); window.location.reload(); };
+        window.desativarSimulacao = () => { localStorage.setItem('modoSimulacao', 'false'); window.location.reload(); };
 
         window.abrirSimulador = (cpf) => {
             clienteSimulacaoAtual = clientesMap[cpf];
             if(!clienteSimulacaoAtual) return;
-            
             document.getElementById('sim-cliente-nome').innerText = clienteSimulacaoAtual.nome.split(' ')[0];
             document.getElementById('sim-qtd-atual').innerText = clienteSimulacaoAtual.almocos || 0;
             document.getElementById('sim-input-almocos').value = clienteSimulacaoAtual.almocos || 0;
-            
             const modal = document.getElementById('modal-simulacao'); 
             modal.classList.remove('hidden'); 
             prenderFocoModal(modal);
@@ -974,41 +918,30 @@
         window.salvarSimulacaoAlmocos = () => {
             if(!clienteSimulacaoAtual) return;
             clienteSimulacaoAtual.almocos = parseInt(document.getElementById('sim-input-almocos').value) || 0;
-            
             set(ref(db, PATH_CLIENTES + '/' + clienteSimulacaoAtual.cpf), clienteSimulacaoAtual).then(() => { 
-                mostrarToast("Saldo de almoços ajustado!", "sucesso"); 
-                fecharModal('modal-simulacao'); 
+                mostrarToast("Saldo de almoços ajustado!", "sucesso"); fecharModal('modal-simulacao'); 
             });
         };
 
         window.simularAniversarioHoje = () => {
             if(!clienteSimulacaoAtual) return;
-            const hoje = new Date(); 
-            const dia = String(hoje.getDate()).padStart(2, '0'); 
-            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-            
+            const hoje = new Date(); const dia = String(hoje.getDate()).padStart(2, '0'); const mes = String(hoje.getMonth() + 1).padStart(2, '0');
             clienteSimulacaoAtual.nascimento = `${hoje.getFullYear() - 30}-${mes}-${dia}`;
             clienteSimulacaoAtual.aniversarioResgatadoAno = null;
-            
             if(clienteSimulacaoAtual.historicoAniversarios) {
                 clienteSimulacaoAtual.historicoAniversarios = clienteSimulacaoAtual.historicoAniversarios.filter(h => h.ano !== hoje.getFullYear());
             }
-            
             set(ref(db, PATH_CLIENTES + '/' + clienteSimulacaoAtual.cpf), clienteSimulacaoAtual).then(() => { 
-                mostrarToast("Data Festiva configurada!", "sucesso"); 
-                fecharModal('modal-simulacao'); 
+                mostrarToast("Data Festiva configurada!", "sucesso"); fecharModal('modal-simulacao'); 
             });
         };
 
         window.simularInatividade = () => {
             if(!clienteSimulacaoAtual) return;
-            // Configura a data para 16 dias atrás (ativa a nova regra de 15 dias)
             clienteSimulacaoAtual.ultimaVisitaTimestamp = Date.now() - (16 * 24 * 60 * 60 * 1000); 
             clienteSimulacaoAtual.notificadoInativoData = null;
-            
             set(ref(db, PATH_CLIENTES + '/' + clienteSimulacaoAtual.cpf), clienteSimulacaoAtual).then(() => { 
-                mostrarToast("Ausência retrocedida!", "sucesso"); 
-                fecharModal('modal-simulacao'); 
+                mostrarToast("Ausência retrocedida!", "sucesso"); fecharModal('modal-simulacao'); 
             });
         };
 
@@ -1040,10 +973,8 @@
             if(!d) return false; 
             if(d.includes('-')) d=`${d.split('-')[2]}/${d.split('-')[1]}/${d.split('-')[0]}`;
             if (!/^(\d{2})\/(\d{2})\/(\d{4})$/.test(d)) return false;
-            
             const [_, di, m, a] = d.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
             const dn = parseInt(di,10), mn = parseInt(m,10), an = parseInt(a,10);
-            
             if (an < 1900 || an > new Date().getFullYear()+1 || mn < 1 || mn > 12) return false;
             return dn >= 1 && dn <= new Date(an, mn, 0).getDate();
         }
@@ -1058,12 +989,9 @@
         function diasParaAniversario(n) {
             const inf = obterInfoNascimento(n); 
             if(!inf) return -1;
-            
-            const hj = new Date(); 
-            hj.setHours(0,0,0,0);
+            const hj = new Date(); hj.setHours(0,0,0,0);
             const nv = new Date(hj.getFullYear(), inf.mes, inf.dia); 
             if (nv < hj) nv.setFullYear(hj.getFullYear() + 1);
-            
             return Math.ceil((nv - hj) / 86400000);
         }
 
@@ -1075,7 +1003,6 @@
         function isNiverInPeriod(n, di, df) {
             const i = obterInfoNascimento(n); 
             if(!i) return false;
-            
             const d1 = new Date(di+'T12:00:00'), d2 = new Date(df+'T12:00:00');
             const nv1 = new Date(d1.getFullYear(), i.mes, i.dia, 12,0,0), nv2 = new Date(d2.getFullYear(), i.mes, i.dia, 12,0,0);
             return (nv1 >= d1 && nv1 <= d2) || (nv2 >= d1 && nv2 <= d2);
@@ -1122,7 +1049,6 @@
                 const dSum = diasDesdeUltimaVisita(c);
                 const dNot = c.notificadoInativoData ? Math.floor((Date.now() - c.notificadoInativoData) / 86400000) : 999;
                 
-                // NOVA REGRA DE INATIVIDADE: 15 DIAS
                 if (dSum > 15 && dNot > 15) nIna++; 
             });
             
@@ -1151,7 +1077,7 @@
         }
 
         // ==========================================================================
-        // MARKETING E INTEGRAÇÃO COM WHATSAPP
+        // MARKETING E INTEGRAÇÃO (NOVO PAINEL DE AGENDAMENTOS)
         // ==========================================================================
         
         window.abrirCentralMarketing = () => {
@@ -1165,37 +1091,62 @@
         };
         
         window.renderizarMensagensCustomizadas = () => {
-            const area = document.getElementById('area-mensagens-custom'); 
-            area.innerHTML = '';
+            // Agendamentos (Massa)
+            const areaAg = document.getElementById('area-agendamentos'); 
+            areaAg.innerHTML = '';
+            const listaAg = Array.isArray(msgsMarketing.agendadas) ? msgsMarketing.agendadas : Object.values(msgsMarketing.agendadas || {});
             
-            const listaMkt = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas || {});
+            listaAg.forEach((m, idx) => {
+                areaAg.innerHTML += `
+                    <div class="bg-white border border-indigo-200 p-3 rounded-xl shadow-sm relative">
+                        <button onclick="removerAgendamento(${idx})" class="absolute top-2 right-2 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <p class="font-bold text-sm text-indigo-900 mb-1 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${m.data.split('-').reverse().join('/')} - ${escapeHTML(m.titulo)}</p>
+                        <p class="text-xs text-gray-600 text-left">${escapeHTML(m.texto)}</p>
+                    </div>`;
+            }); 
             
-            listaMkt.forEach((m, idx) => {
-                area.innerHTML += `
+            // Mensagens Customizadas (Individuais)
+            const areaCs = document.getElementById('area-mensagens-custom'); 
+            areaCs.innerHTML = '';
+            const listaCs = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas || {});
+            
+            listaCs.forEach((m, idx) => {
+                areaCs.innerHTML += `
                     <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative">
                         <button onclick="removerMsgCustom(${idx})" class="absolute top-2 right-2 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        <input type="text" id="mkt-custom-titulo-${idx}" value="${escapeHTML(m.titulo)}" placeholder="Título" class="font-bold text-sm mb-2 w-3/4 outline-none border-b border-gray-200 text-center">
-                        <textarea id="mkt-custom-texto-${idx}" rows="3" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm outline-none text-center">${escapeHTML(m.texto)}</textarea>
+                        <input type="text" id="mkt-custom-titulo-${idx}" value="${escapeHTML(m.titulo)}" placeholder="Nome do Botão" class="font-bold text-sm mb-2 w-3/4 outline-none border-b border-gray-200 text-center">
+                        <textarea id="mkt-custom-texto-${idx}" rows="2" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm outline-none text-center">${escapeHTML(m.texto)}</textarea>
                     </div>`;
             }); 
             lucide.createIcons();
         };
 
-        window.adicionarMsgCustom = () => { 
-            if(!Array.isArray(msgsMarketing.personalizadas)) msgsMarketing.personalizadas = Object.values(msgsMarketing.personalizadas||{}); 
-            msgsMarketing.personalizadas.push({ titulo: "", texto: "" }); 
+        window.adicionarAgendamento = () => {
+            const data = document.getElementById('mkt-agenda-data').value;
+            const titulo = document.getElementById('mkt-agenda-titulo').value;
+            const texto = document.getElementById('mkt-agenda-texto').value;
+            
+            if(!data || !titulo || !texto) return mostrarToast("Preencha todos os campos do agendamento!", "erro");
+            
+            if(!Array.isArray(msgsMarketing.agendadas)) msgsMarketing.agendadas = Object.values(msgsMarketing.agendadas||{}); 
+            msgsMarketing.agendadas.push({ data: data, titulo: titulo, texto: texto });
+            
+            document.getElementById('mkt-agenda-data').value = '';
+            document.getElementById('mkt-agenda-titulo').value = '';
+            document.getElementById('mkt-agenda-texto').value = '';
             renderizarMensagensCustomizadas(); 
         };
 
-        window.removerMsgCustom = (idx) => { 
-            msgsMarketing.personalizadas.splice(idx, 1); 
-            renderizarMensagensCustomizadas(); 
-        };
+        window.removerAgendamento = (idx) => { msgsMarketing.agendadas.splice(idx, 1); renderizarMensagensCustomizadas(); };
+        window.adicionarMsgCustom = () => { if(!Array.isArray(msgsMarketing.personalizadas)) msgsMarketing.personalizadas = Object.values(msgsMarketing.personalizadas||{}); msgsMarketing.personalizadas.push({ titulo: "", texto: "" }); renderizarMensagensCustomizadas(); };
+        window.removerMsgCustom = (idx) => { msgsMarketing.personalizadas.splice(idx, 1); renderizarMensagensCustomizadas(); };
 
         window.salvarCentralMarketing = () => {
             msgsMarketing.aniversario = document.getElementById('mkt-msg-niver').value;
             msgsMarketing.premio = document.getElementById('mkt-msg-premio').value;
             msgsMarketing.inativo = document.getElementById('mkt-msg-inativo').value;
+            
+            msgsMarketing.agendadas = Array.isArray(msgsMarketing.agendadas) ? msgsMarketing.agendadas : Object.values(msgsMarketing.agendadas||{});
             
             const lista = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas||{});
             lista.forEach((m, idx) => { 
@@ -1205,7 +1156,7 @@
             msgsMarketing.personalizadas = lista;
             
             set(ref(db, PATH_MENSAGENS), msgsMarketing).then(() => { 
-                mostrarToast("Marketing Salvo!"); 
+                mostrarToast("Salvo e Integrado com o Robô!"); 
                 fecharModal('modal-marketing'); 
             });
         };
@@ -1219,31 +1170,14 @@
             area.innerHTML = '';
 
             const ehNiverSemana = diasParaAniversario(cliente.nascimento) >= 0 && diasParaAniversario(cliente.nascimento) <= 7;
-            const temPremio = (cliente.almocos || 0) >= 10;
-            const diasAusente = diasDesdeUltimaVisita(cliente);
-            const ehInativo = diasAusente > 15 && diasAusente !== 999; // NOVA REGRA 15 DIAS
 
             if(ehNiverSemana) {
-                area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'aniversario')" class="flex items-center gap-3 p-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 w-full text-left"><div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="cake" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Mensagem Aniversário</p><p class="text-xs text-gray-600">Avisar R$ 50 de Desconto</p></div></button>`;
-            } else {
-                area.innerHTML += `<div class="opacity-60 flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50 w-full text-left"><div class="bg-gray-200 text-gray-500 p-2 rounded-lg"><i data-lucide="lock" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-500">Mensagem Aniversário</p><p class="text-xs text-gray-400">Bloqueado</p></div></div>`;
-            }
-
-            if(temPremio) {
-                area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'premio')" class="flex items-center gap-3 p-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 w-full text-left"><div class="bg-amber-500 text-white p-2 rounded-lg"><i data-lucide="gift" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Prêmio 10 Almoços</p><p class="text-xs text-gray-600">Avisar R$ 50 de Desconto</p></div></button>`;
-            } else {
-                area.innerHTML += `<div class="opacity-60 flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50 w-full text-left"><div class="bg-gray-200 text-gray-500 p-2 rounded-lg"><i data-lucide="lock" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-500">Prêmio 10 Almoços</p><p class="text-xs text-gray-400">Bloqueado</p></div></div>`;
-            }
-
-            if(ehInativo) {
-                area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'inativo')" class="flex items-center gap-3 p-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 w-full text-left"><div class="bg-blue-500 text-white p-2 rounded-lg"><i data-lucide="user-minus" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Recuperação</p><p class="text-xs text-gray-600">Ausente há ${diasAusente} dias</p></div></button>`;
-            } else {
-                area.innerHTML += `<div class="opacity-60 flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50 w-full text-left"><div class="bg-gray-200 text-gray-500 p-2 rounded-lg"><i data-lucide="lock" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-500">Recuperação</p><p class="text-xs text-gray-400">Ativo</p></div></div>`;
-            }
+                area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'aniversario')" class="flex items-center gap-3 p-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 w-full text-left"><div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="cake" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">Forçar Aniversário</p><p class="text-xs text-gray-600">Disparar agora</p></div></button>`;
+            } 
 
             const listaMkt = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas || {});
             listaMkt.forEach((m, idx) => { 
-                if(m.titulo) area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'custom', ${idx})" class="flex items-center gap-3 p-3 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 w-full text-left mt-2"><div class="bg-indigo-500 text-white p-2 rounded-lg"><i data-lucide="megaphone" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${escapeHTML(m.titulo)}</p></div></button>`; 
+                if(m.titulo) area.innerHTML += `<button onclick="dispararWhatsApp('${cpf}', 'custom', ${idx})" class="flex items-center gap-3 p-3 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 w-full text-left mt-2"><div class="bg-indigo-500 text-white p-2 rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${escapeHTML(m.titulo)}</p></div></button>`; 
             });
 
             const modal = document.getElementById('modal-whatsapp'); 
@@ -1252,31 +1186,28 @@
             lucide.createIcons();
         };
 
+        // Disparo Envia para a Fila do Robô ao invés de Abrir Aba Web
         window.dispararWhatsApp = (cpf, tipo, idx = -1) => {
             const cliente = clientesMap[cpf]; 
             if(!cliente || !cliente.telefone) return mostrarToast("Sem telefone válido", "erro");
             
             let t = ""; 
-            let prom = null;
             
             if (tipo === 'aniversario') { 
                 t = msgsMarketing.aniversario; 
-                prom = set(ref(db, PATH_CLIENTES+`/${cpf}/notificadoAniversarioAno`), new Date().getFullYear()); 
-            } else if (tipo === 'premio') { 
-                t = msgsMarketing.premio; 
-                prom = set(ref(db, PATH_CLIENTES+`/${cpf}/notificadoPremio`), true); 
-            } else if (tipo === 'inativo') { 
-                t = msgsMarketing.inativo; 
-                prom = set(ref(db, PATH_CLIENTES+`/${cpf}/notificadoInativoData`), Date.now()); 
+                set(ref(db, PATH_CLIENTES+`/${cpf}/notificadoAniversarioAno`), new Date().getFullYear()); 
             } else if (tipo === 'custom') { 
                 const l = Array.isArray(msgsMarketing.personalizadas) ? msgsMarketing.personalizadas : Object.values(msgsMarketing.personalizadas||{}); 
                 t = l[idx].texto; 
             }
 
             t = t.replace(/\[Nome\]/g, (cliente.nome||'').split(' ')[0]).replace(/\[Acumulados\]/g, (cliente.almocos||0));
-            window.open(`https://api.whatsapp.com/send?phone=55${cliente.telefone}&text=${encodeURIComponent(t)}`, '_blank');
+            
+            // Joga para a fila do Firebase em vez de window.open
+            enviarParaFilaRobo(cliente.cpf, cliente.telefone, t);
+            
+            mostrarToast("A ordem foi para a fila do Robô!");
             fecharModal('modal-whatsapp'); 
-            if(prom) prom.then(() => calcularNotificacoesPainel());
         };
 
         // ==========================================================================
@@ -1285,6 +1216,7 @@
         
         window.entrarModoTotemDaTelaLogin = () => {
             document.getElementById('tela-login').classList.add('hidden');
+            document.getElementById('app-dashboard').classList.add('hidden');
             document.documentElement.requestFullscreen().catch(()=>{});
             document.getElementById('tela-totem').classList.remove('hidden');
             totemVoltarInicio();
@@ -1323,10 +1255,10 @@
             document.getElementById('totem-tela-busca').classList.remove('hidden');
             const inp = document.getElementById('totem-cpf'); 
             inp.value = ''; 
+            inp.disabled = false;
             inp.blur();
         };
 
-        // Processamento Central de CPF via Totem
         window.totemProcessarCPF = () => {
             if(isProcessing) return;
             const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
@@ -1337,13 +1269,13 @@
             isProcessing = true; 
             operacoesAtivas[cpfNum] = true; 
             document.getElementById('btn-totem-avancar').disabled = true; 
+            document.getElementById('totem-cpf').disabled = true;
             document.activeElement.blur(); 
             setTimeout(() => { isProcessing = false; operacoesAtivas[cpfNum] = false; }, 8000); 
 
             const cliente = clientesMap[cpfNum];
             
             if(!cliente) {
-                // Cliente não existe, enviar para cadastro rápido
                 document.getElementById('totem-tela-busca').classList.add('hidden');
                 document.getElementById('totem-form').reset();
                 document.getElementById('totem-cad-cpf').value = formatarCPF(cpfNum);
@@ -1355,7 +1287,6 @@
             } else {
                 totemClienteTemp = cliente;
                 
-                // CHECA PRÊMIO ANTES
                 if((cliente.almocos || 0) >= 10) {
                     document.getElementById('totem-tela-busca').classList.add('hidden');
                     document.getElementById('totem-tela-opcoes').classList.remove('hidden');
@@ -1363,7 +1294,6 @@
                     operacoesAtivas[cpfNum] = false; 
                     resetarTimerTotem();
                 } else {
-                    // TRAVA DIÁRIA PROTEGE APENAS ALMOÇO COMUM
                     if(jaRegistrouHoje(cliente)) { 
                         isProcessing = false; 
                         operacoesAtivas[cpfNum] = false; 
@@ -1376,7 +1306,6 @@
             }
         };
 
-        // Salvar cadastro via Totem
         window.totemSalvarCadastro = (e) => {
             e.preventDefault(); 
             if(isProcessing) return;
@@ -1416,6 +1345,9 @@
                 totemClienteTemp = novoCliente; 
                 isProcessing = false; 
                 operacoesAtivas[cpf] = false;
+                
+                checarEAvisarAlmoco(novoCliente); // DISPARA MENSAGEM A CADA ALMOÇO
+                
                 if(diasParaAniversario(novoCliente.nascimento) === 0) {
                     totemMostrarMensagem('aniversario_totem'); 
                 } else {
@@ -1457,6 +1389,8 @@
                 if(b) b.disabled = false;
                 const a = new Date().getFullYear();
                 
+                checarEAvisarAlmoco(cliente); // DISPARA MENSAGEM A CADA ALMOÇO
+                
                 if (diasParaAniversario(cliente.nascimento) === 0 && cliente.aniversarioResgatadoAno !== a) {
                     totemMostrarMensagem('aniversario_totem');
                 } else if(cliente.almocos === 10) {
@@ -1481,14 +1415,14 @@
             const lb = document.getElementById('totem-loading-bar');
             
             lb.classList.remove('animate-shrink'); 
-            let tempo = 12000;
+            let tempo = 10000;
             const nomeC = totemClienteTemp && totemClienteTemp.nome ? escapeHTML(totemClienteTemp.nome.split(' ')[0]) : '';
 
             if(tipo === 'erro_cpf') { 
                 ic.innerHTML = `<i data-lucide="x" class="w-12 h-12"></i>`; 
                 ti.innerText = "CPF Inválido"; 
                 te.innerText = "Por favor, digite 11 números."; 
-                tempo = 6000; 
+                tempo = 5000; 
             } else if(tipo === 'ja_registrado') { 
                 ic.innerHTML = `<i data-lucide="check-check" class="w-12 h-12"></i>`; 
                 ti.innerText = `Tudo Certo, ${nomeC}!`; 
@@ -1496,7 +1430,8 @@
             } else if(tipo === 'aviso_caixa') { 
                 ic.innerHTML = `<i data-lucide="info" class="w-12 h-12"></i>`; 
                 ti.innerText = "Resgate Solicitado"; 
-                te.innerHTML = `Avise o operador de caixa para validar o seu desconto de <strong>R$ 50,00</strong>, <strong>${nomeC}</strong>!`; 
+                te.innerHTML = `Avise o operador de caixa para validar o seu desconto de <strong>R$ 50,00</strong>, <strong>${nomeC}</strong>!`;
+                tempo = 15000; 
             } else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') { 
                 ic.innerHTML = `<i data-lucide="check" class="w-12 h-12"></i>`; 
                 ti.innerText = `Registrado, ${nomeC}!`; 
@@ -1504,13 +1439,13 @@
             } else if(tipo === 'meta_atingida') { 
                 ic.innerHTML = `<i data-lucide="star" class="w-12 h-12"></i>`; 
                 ti.innerText = `Parabéns, ${nomeC}!`; 
-                te.innerHTML = "Você acaba de completar 10 almoços.<br>Na sua próxima visita, você tem direito a <strong>R$ 50,00 de desconto</strong>!"; 
-                tempo = 18000; 
+                te.innerHTML = "Você acaba de completar 10 almoços. No próximo o desconto de <strong>R$ 50,00</strong> é seu!"; 
+                tempo = 15000; 
             } else if(tipo === 'aniversario_totem') { 
                 ic.innerHTML = `<i data-lucide="cake" class="w-12 h-12"></i>`; 
                 ti.innerText = `Feliz Aniversário, ${nomeC}!`; 
                 te.innerHTML = `🎁 Hoje é seu aniversário e você tem <strong>R$ 50,00 de Desconto</strong> liberado!<br><br>Avise o caixa agora mesmo!`; 
-                tempo = 18000; 
+                tempo = 15000; 
             }
 
             document.getElementById('totem-tela-mensagem').classList.remove('hidden'); 
@@ -1679,7 +1614,7 @@
             acaoPendente = null; 
         };
 
-        function processarConfirmacao(c) {
+        window.processarConfirmacao = (c) => {
             if(isProcessing) return; 
             isProcessing = true; 
             operacoesAtivas[c.cpf] = true; 
@@ -1703,10 +1638,12 @@
                 document.getElementById('btn-confirmar-almoco').disabled = false; 
                 document.getElementById('busca-cpf').value = ''; 
                 mostrarToast('Contabilizado!'); 
+                
+                checarEAvisarAlmoco(c); // DISPARA MENSAGEM A CADA ALMOÇO
             });
         }
 
-        function efetuarResgateEImprimir(c) {
+        window.efetuarResgateEImprimir = (c) => {
             if(isProcessing) return; 
             isProcessing = true; 
             operacoesAtivas[c.cpf] = true; 
