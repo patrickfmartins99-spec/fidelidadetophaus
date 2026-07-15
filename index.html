@@ -3,283 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
-    <title>Top Haus | Executive Console</title>
+    <title>Top Haus Fidelidade</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        /* ==========================================================================
+           ESTILOS GERAIS E IMPRESSÃO
+           ========================================================================== */
+        @media screen { 
+            .print-area { display: none !important; } 
+        }
         
-        /* Oculta scrollbar mas mantém funcionalidade */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .view-section.active { display: block; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shrinkBar { from { width: 100%; } to { width: 0%; } }
-        .animate-shrink { animation: shrinkBar linear forwards; }
-        
-        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        
-        /* Impressão */
-        @media screen { .print-area { display: none !important; } }
         @media print {
             @page { margin: 0; size: 80mm auto; }
-            body * { visibility: hidden; }
-            .print-area, .print-area * { visibility: visible; }
-            .print-area { position: absolute; left: 0; top: 0; width: 72mm; margin: 0 auto; padding: 0; font-size: 13px; font-weight: bold; color: #000; font-family: 'Courier New', monospace;}
+            body { background: white !important; padding: 0; margin: 0; font-family: 'Courier New', Courier, monospace; color: #000 !important; }
+            .no-print { display: none !important; }
+            .print-area { display: block !important; width: 72mm; margin: 0 auto; padding: 0; font-size: 13px; font-weight: bold !important; color: #000 !important; }
             .linha-tracejada { border-top: 2px dashed #000 !important; margin: 6px 0; }
+            strong { font-weight: 900 !important; }
         }
+
+        /* Remove setas dos inputs numéricos */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        /* Ocultar barra de rolagem mas manter funcionamento */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Animação da barra de tempo do Totem */
+        @keyframes shrinkBar { 
+            from { width: 100%; } 
+            to { width: 0%; } 
+        }
+        .animate-shrink { 
+            animation: shrinkBar linear forwards; 
+        }
+
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="text-slate-800 h-screen overflow-hidden flex bg-slate-50 relative">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
 
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    <div id="tela-login" class="fixed inset-0 bg-slate-900 z-[200] flex flex-col items-center justify-center p-4">
-        <div class="bg-white p-10 rounded-3xl w-full max-w-md shadow-2xl text-center relative overflow-hidden">
-            <div class="w-20 h-20 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg rotate-3">
-                <i data-lucide="building-2" class="w-10 h-10 -rotate-3"></i>
-            </div>
-            <h1 class="text-2xl font-black text-slate-800 tracking-tight mb-1">Top Haus</h1>
-            <p class="text-sm font-medium text-slate-500 mb-8 uppercase tracking-widest">Executive Console</p>
+    <div id="tela-login" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
+        <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-hidden border border-gray-800">
+            <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
+            <span class="text-white font-light text-xl tracking-widest uppercase block mb-8">Fidelidade</span>
             
-            <form id="form-login" onsubmit="fazerLogin(event)" class="space-y-4">
-                <input type="text" id="login-user" required placeholder="Usuário (ex: admin)" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none font-bold text-center transition-all">
-                <input type="password" id="login-senha" required placeholder="Senha" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none font-bold text-center transition-all">
-                <button type="submit" id="btn-login" class="w-full bg-slate-900 text-white font-black py-4 rounded-xl hover:bg-indigo-600 transition-colors shadow-md">ENTRAR NO SISTEMA</button>
+            <h2 class="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Acesso ao Sistema</h2>
+            
+            <form id="form-login" onsubmit="fazerLogin(event)" class="space-y-4 relative z-10">
+                <input type="text" id="login-user" required placeholder="Usuário (ex: caixa)" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
+                <input type="password" id="login-senha" required placeholder="Senha" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
+                <button type="submit" id="btn-login" class="w-full bg-white text-black font-black py-4 rounded-xl transition hover:bg-gray-200 shadow-md">
+                    ENTRAR
+                </button>
             </form>
-            <div class="mt-8 pt-6 border-t border-slate-100">
-                <button onclick="entrarModoTotemDaTelaLogin()" class="w-full bg-indigo-50 text-indigo-700 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-indigo-100 transition">
-                    <i data-lucide="tablet-smartphone" class="w-5 h-5"></i> ABRIR TOTEM (LOJA)
+
+            <div class="mt-8 pt-8 border-t border-gray-800 relative z-10">
+                <p class="text-xs text-gray-500 mb-3 font-bold uppercase">Acesso Rápido Frente de Loja</p>
+                <button onclick="entrarModoTotemDaTelaLogin()" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition border border-gray-700">
+                    <i data-lucide="tablet" class="w-5 h-5"></i> ABRIR TOTEM
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="app-dashboard" class="hidden w-full h-full flex">
+    <div id="banner-simulacao" class="hidden bg-orange-600 text-white font-bold py-2 px-6 shadow-md z-[99999] fixed top-0 left-0 w-full flex flex-col sm:flex-row justify-center items-center gap-3">
+        <div class="flex items-center gap-2">
+            <i data-lucide="flask-conical" class="w-5 h-5"></i>
+            <span>AMBIENTE DE SIMULAÇÃO ATIVO - DADOS REAIS BLINDADOS</span>
+        </div>
+        <button onclick="desativarSimulacao()" class="bg-white text-orange-600 px-4 py-1.5 rounded-lg text-sm hover:bg-orange-50 transition shadow-sm font-black">
+            Sair e Voltar ao Normal
+        </button>
+    </div>
+
+    <div id="app-dashboard" class="hidden no-print">
         
-        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col h-full flex-shrink-0 transition-all z-40" id="sidebar">
-            <div class="h-16 flex items-center px-6 bg-slate-950 border-b border-slate-800">
-                <i data-lucide="building-2" class="w-6 h-6 text-indigo-400 mr-3"></i>
-                <span class="text-white font-black tracking-wider uppercase text-lg">Top Haus</span>
-            </div>
-            
-            <div class="flex-1 overflow-y-auto py-4 no-scrollbar flex flex-col gap-1 px-3">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 px-3 mt-2">Visão Geral</p>
-                <button onclick="navegarPara('dashboard')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition text-sm font-medium" data-target="dashboard"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
-                
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 px-3 mt-6">Operação</p>
-                <button onclick="navegarPara('caixa')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition text-sm font-medium" data-target="caixa"><i data-lucide="calculator" class="w-5 h-5"></i> Frente de Caixa</button>
-                <button onclick="navegarPara('clientes')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition text-sm font-medium" data-target="clientes"><i class="w-5 h-5" data-lucide="users"></i> Gestão de Clientes</button>
-                
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 px-3 mt-6">Inteligência</p>
-                <button onclick="navegarPara('ranking')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition text-sm font-medium" data-target="ranking"><i data-lucide="trophy" class="w-5 h-5"></i> Ranking VIP</button>
-                <button onclick="navegarPara('marketing')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition text-sm font-medium" data-target="marketing"><i data-lucide="megaphone" class="w-5 h-5"></i> Marketing & Robô</button>
-                <button onclick="navegarPara('automacoes')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition text-sm font-medium" data-target="automacoes"><i data-lucide="bot" class="w-5 h-5"></i> Automações</button>
-                
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 px-3 mt-6">Sistema</p>
-                <button onclick="navegarPara('auditoria')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition text-sm font-medium" data-target="auditoria"><i data-lucide="clipboard-list" class="w-5 h-5"></i> Log de Auditoria</button>
-                <button onclick="navegarPara('configuracoes')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition text-sm font-medium hidden-caixa" data-target="configuracoes"><i data-lucide="settings" class="w-5 h-5"></i> Configurações</button>
-            </div>
-
-            <div class="p-4 bg-slate-950 border-t border-slate-800">
-                <button onclick="fazerLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg transition text-sm font-bold">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Sair do Sistema
-                </button>
-            </div>
-        </aside>
-
-        <div class="flex-1 flex flex-col h-full overflow-hidden relative">
-            
-            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 shadow-sm z-30">
+        <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
-                    <h2 class="text-xl font-black text-slate-800 hidden sm:block" id="header-title">Dashboard</h2>
-                </div>
-                <div class="flex items-center gap-6">
-                    <div class="hidden md:flex items-center gap-4 text-[11px] font-bold uppercase tracking-wider">
-                        <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div><span class="text-slate-600">Firebase On</span></div>
-                        <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div><span class="text-slate-600" id="ind-robo">Robô Ativo</span></div>
+                    <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain rounded">
+                    <span class="text-gray-400 font-light text-lg hidden sm:block">| Top Haus Fidelidade</span>
+                    <span id="nome-usuario-logado" class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full font-bold uppercase tracking-wider ml-2 shadow-inner"></span>
+                    
+                    <div class="hidden md:flex items-center gap-3 ml-4">
+                        <div class="flex items-center gap-1.5 text-xs"><div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div><span class="text-gray-400">DB On</span></div>
+                        <div class="flex items-center gap-1.5 text-xs"><div id="ind-robo-cor" class="w-2 h-2 rounded-full bg-indigo-500"></div><span id="ind-robo-texto" class="text-gray-400">Robô On</span></div>
                     </div>
-                    <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
-                    <button onclick="entrarModoTotemDaTelaLogin()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-lg font-bold flex items-center gap-2 transition text-xs shadow-sm">
-                        <i data-lucide="monitor-smartphone" class="w-4 h-4"></i> Abrir Totem
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="calculator" class="w-4 h-4"></i> Caixa
                     </button>
-                    <div class="flex items-center gap-3">
-                        <div class="text-right hidden sm:block">
-                            <p class="text-sm font-bold text-slate-800 leading-none" id="user-display-name">Carregando...</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider" id="user-display-role">Cargo</p>
+                    <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition hidden text-sm">
+                        <i data-lucide="shield" class="w-4 h-4"></i> Painel Gerencial
+                    </button>
+                    <button onclick="entrarModoTotemDaTelaLogin()" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-white shadow-md text-sm">
+                        <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Totem</span>
+                    </button>
+                    <div class="h-10 w-px bg-gray-700 mx-1"></div>
+                    <button onclick="fazerLogout()" title="Sair do Sistema" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center justify-center">
+                        <i data-lucide="power" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 pb-12">
+            
+            <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4 text-slate-900">
+                            <i data-lucide="check-square" class="w-6 h-6"></i>
+                            <h2 class="text-xl font-bold">Contabilizar Almoço</h2>
                         </div>
-                        <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
-                            <i data-lucide="user" class="w-5 h-5"></i>
+                        <p class="text-sm text-slate-500 mb-4 text-center">Insira o CPF do cliente para buscar o cadastro.</p>
+                        <div class="mb-4">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF do Cliente</label>
+                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg text-center transition">
                         </div>
                     </div>
+                    <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
+                        <i data-lucide="search" class="w-5 h-5"></i> Buscar Cliente
+                    </button>
                 </div>
-            </header>
 
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50 relative scroll-smooth" id="main-scroll">
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2 mb-4 text-slate-900">
+                        <i data-lucide="user-plus" class="w-6 h-6"></i>
+                        <h2 class="text-xl font-bold">Primeiro Cadastro</h2>
+                    </div>
+                    <form id="form-cadastro" onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF (Obrigatório)</label>
+                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Nome Completo</label>
+                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Data Nascimento</label>
+                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">WhatsApp (Obrigatório)</label>
+                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
+                        </div>
+                        <div class="sm:col-span-2 mt-2">
+                            <button type="submit" id="btn-caixa-salvar" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
+                                <i data-lucide="save" class="w-5 h-5"></i> Finalizar Cadastro Rápido
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section id="aba-admin" class="hidden">
                 
-                <section id="view-dashboard" class="view-section active space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start justify-between">
+                <div class="bg-white p-2 rounded-xl shadow-sm border border-slate-200 mb-6 flex overflow-x-auto gap-2 no-scrollbar">
+                    <button onclick="abrirSubAba('dashboard')" id="btn-sub-dashboard" class="sub-aba-btn bg-slate-900 text-white px-5 py-2.5 rounded-lg font-bold text-sm whitespace-nowrap transition flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Executivo</button>
+                    <button onclick="abrirSubAba('clientes')" id="btn-sub-clientes" class="sub-aba-btn text-slate-600 hover:bg-slate-100 px-5 py-2.5 rounded-lg font-bold text-sm whitespace-nowrap transition flex items-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> Clientes</button>
+                    <button onclick="abrirSubAba('marketing')" id="btn-sub-marketing" class="sub-aba-btn text-slate-600 hover:bg-slate-100 px-5 py-2.5 rounded-lg font-bold text-sm whitespace-nowrap transition flex items-center gap-2"><i data-lucide="bot" class="w-4 h-4"></i> Robô & Marketing</button>
+                    <button onclick="abrirSubAba('ranking')" id="btn-sub-ranking" class="sub-aba-btn text-slate-600 hover:bg-slate-100 px-5 py-2.5 rounded-lg font-bold text-sm whitespace-nowrap transition flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4"></i> Ranking VIP</button>
+                    <button onclick="abrirSubAba('automacoes')" id="btn-sub-automacoes" class="sub-aba-btn text-slate-600 hover:bg-slate-100 px-5 py-2.5 rounded-lg font-bold text-sm whitespace-nowrap transition flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4"></i> Automações</button>
+                    <button onclick="abrirSubAba('auditoria')" id="btn-sub-auditoria" class="sub-aba-btn text-slate-600 hover:bg-slate-100 px-5 py-2.5 rounded-lg font-bold text-sm whitespace-nowrap transition flex items-center gap-2"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Auditoria</button>
+                </div>
+
+                <div id="sub-aba-dashboard" class="sub-aba-content space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-start">
                             <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Cadastros Hoje</p><h3 class="text-3xl font-black text-slate-800" id="kpi-cad-hoje">0</h3></div>
                             <div class="p-3 bg-indigo-50 rounded-xl text-indigo-600"><i data-lucide="user-plus" class="w-6 h-6"></i></div>
                         </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start justify-between">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-start">
                             <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Almoços Hoje</p><h3 class="text-3xl font-black text-slate-800" id="kpi-alm-hoje">0</h3></div>
                             <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600"><i data-lucide="utensils" class="w-6 h-6"></i></div>
                         </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start justify-between">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-start">
                             <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Resgates Hoje</p><h3 class="text-3xl font-black text-slate-800" id="kpi-res-hoje">0</h3></div>
                             <div class="p-3 bg-amber-50 rounded-xl text-amber-600"><i data-lucide="gift" class="w-6 h-6"></i></div>
                         </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start justify-between">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-start">
                             <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nivers 7 Dias</p><h3 class="text-3xl font-black text-slate-800" id="kpi-niv-7d">0</h3></div>
                             <div class="p-3 bg-pink-50 rounded-xl text-pink-600"><i data-lucide="cake" class="w-6 h-6"></i></div>
                         </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start justify-between">
-                            <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Msgs Fila</p><h3 class="text-3xl font-black text-slate-800" id="kpi-fila">0</h3></div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-start">
+                            <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fila do Robô</p><h3 class="text-3xl font-black text-slate-800" id="kpi-fila">0</h3></div>
                             <div class="p-3 bg-blue-50 rounded-xl text-blue-600"><i data-lucide="list-ordered" class="w-6 h-6"></i></div>
                         </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start justify-between">
-                            <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Msgs Hoje</p><h3 class="text-3xl font-black text-slate-800" id="kpi-msg-hoje">0</h3></div>
-                            <div class="p-3 bg-cyan-50 rounded-xl text-cyan-600"><i data-lucide="send" class="w-6 h-6"></i></div>
-                        </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start justify-between">
-                            <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Inativos (+15d)</p><h3 class="text-3xl font-black text-slate-800" id="kpi-inativos">0</h3></div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-start">
+                            <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Inativos graves</p><h3 class="text-3xl font-black text-slate-800" id="kpi-inativos">0</h3></div>
                             <div class="p-3 bg-red-50 rounded-xl text-red-600"><i data-lucide="user-minus" class="w-6 h-6"></i></div>
                         </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-start justify-between">
-                            <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total VIPs</p><h3 class="text-3xl font-black text-slate-800" id="kpi-vips">0</h3></div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-start">
+                            <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Clientes VIP</p><h3 class="text-3xl font-black text-slate-800" id="kpi-vips">0</h3></div>
                             <div class="p-3 bg-purple-50 rounded-xl text-purple-600"><i data-lucide="medal" class="w-6 h-6"></i></div>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <section id="view-caixa" class="view-section space-y-6">
-                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        <div class="xl:col-span-1 bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                            <div class="flex flex-col items-center mb-6">
-                                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-800 mb-4"><i data-lucide="check-square" class="w-8 h-8"></i></div>
-                                <h2 class="text-2xl font-black text-slate-800">Bipar Almoço</h2>
-                                <p class="text-sm text-slate-500 text-center mt-1">Busque o cliente para pontuar</p>
-                            </div>
-                            <input type="tel" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-5 py-4 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none font-mono text-xl text-center mb-4 transition">
-                            <button onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-md">
-                                <i data-lucide="search" class="w-5 h-5"></i> BUSCAR CLIENTE
-                            </button>
-                        </div>
-
-                        <div class="xl:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                                <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600"><i data-lucide="user-plus" class="w-6 h-6"></i></div>
-                                <div><h2 class="text-xl font-black text-slate-800">Novo Cliente</h2><p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Cadastro Rápido</p></div>
-                            </div>
-                            <form id="form-cadastro" onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">CPF *</label><input type="tel" id="cad-cpf" required maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono"></div>
-                                <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome Completo *</label><input type="text" id="cad-nome" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"></div>
-                                <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nascimento *</label><input type="tel" id="cad-nascimento" required maxlength="10" oninput="mascaraData(this)" placeholder="DD/MM/AAAA" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono"></div>
-                                <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">WhatsApp *</label><input type="tel" id="cad-telefone" required maxlength="15" oninput="mascaraTelefone(this)" placeholder="(00) 00000-0000" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono"></div>
-                                <div class="md:col-span-2 pt-2">
-                                    <button type="submit" id="btn-caixa-salvar" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-md">
-                                        <i data-lucide="save" class="w-5 h-5"></i> FINALIZAR CADASTRO
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="view-clientes" class="view-section space-y-6">
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-8rem)]">
-                        <div class="p-5 border-b border-slate-200 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0">
-                            <div class="flex items-center gap-3 w-full md:w-auto">
-                                <i data-lucide="users" class="w-6 h-6 text-slate-400 hidden md:block"></i>
-                                <input type="text" id="filtro-texto-cli" oninput="renderizarTabelaClientes()" placeholder="Pesquisar Nome/CPF/Fone..." class="w-full md:w-80 px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
-                            </div>
-                            <div class="flex gap-2 w-full md:w-auto overflow-x-auto no-scrollbar">
-                                <select id="filtro-tipo-cli" onchange="renderizarTabelaClientes()" class="px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 outline-none">
+                <div id="sub-aba-clientes" class="sub-aba-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                        <div class="p-5 border-b border-slate-200 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <input type="text" id="filtro-texto-cli" oninput="renderizarTabelaClientes()" placeholder="Pesquisar Nome/CPF/Fone..." class="w-full md:w-80 px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-800 outline-none text-sm">
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <select id="filtro-tipo-cli" onchange="renderizarTabelaClientes()" class="w-full md:w-auto px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 outline-none">
                                     <option value="todos">Todos os Clientes</option>
                                     <option value="vips">Apenas VIPs</option>
                                     <option value="premios">Prêmios Pendentes</option>
                                     <option value="inativos">Inativos (+15d)</option>
                                     <option value="niver_mes">Aniversariantes do Mês</option>
                                 </select>
-                                <button onclick="exportarExcel()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-lg font-bold flex items-center gap-2 text-sm whitespace-nowrap"><i data-lucide="download" class="w-4 h-4"></i> Exportar</button>
+                                <button onclick="exportarExcel()" class="bg-slate-900 text-white px-4 py-2.5 rounded-lg font-bold text-sm whitespace-nowrap"><i data-lucide="download" class="w-4 h-4 inline"></i> Exportar</button>
                             </div>
                         </div>
-                        <div class="flex-1 overflow-y-auto bg-white">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="sticky top-0 bg-white shadow-sm z-10">
-                                    <tr class="bg-slate-100 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-max">
+                                <thead class="bg-slate-100 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                    <tr>
                                         <th class="py-4 px-6">Cliente</th>
                                         <th class="py-4 px-6 text-center">Contato</th>
-                                        <th class="py-4 px-6 text-center">Progresso (Fidelidade)</th>
-                                        <th class="py-4 px-6 text-center">Status</th>
-                                        <th class="py-4 px-6 text-right">Ações</th>
+                                        <th class="py-4 px-6 text-center">Fidelidade</th>
+                                        <th class="py-4 px-6 text-center">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tabela-clientes-body" class="divide-y divide-slate-100 text-sm"></tbody>
                             </table>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <section id="view-ranking" class="view-section space-y-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div class="p-5 border-b border-slate-100 flex items-center gap-3 bg-amber-50">
-                                <i data-lucide="trophy" class="w-6 h-6 text-amber-500"></i>
-                                <h3 class="font-black text-slate-800">Top 10: Mais Almoços</h3>
-                            </div>
-                            <div class="p-0"><ul id="lista-ranking-almocos" class="divide-y divide-slate-50"></ul></div>
-                        </div>
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div class="p-5 border-b border-slate-100 flex items-center gap-3 bg-indigo-50">
-                                <i data-lucide="award" class="w-6 h-6 text-indigo-500"></i>
-                                <h3 class="font-black text-slate-800">Top 10: Mais Resgates (VIPs)</h3>
-                            </div>
-                            <div class="p-0"><ul id="lista-ranking-resgates" class="divide-y divide-slate-50"></ul></div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="view-marketing" class="view-section space-y-6">
+                <div id="sub-aba-marketing" class="sub-aba-content hidden space-y-6">
+                    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-slate-900 text-white p-5 rounded-2xl flex flex-col justify-between border border-slate-800 shadow-lg relative overflow-hidden">
+                        <div class="bg-black text-white p-6 rounded-2xl flex flex-col justify-between border border-gray-800 shadow-lg relative overflow-hidden">
                             <div class="absolute -right-4 -top-4 opacity-10"><i data-lucide="bot" class="w-32 h-32"></i></div>
-                            <div>
-                                <div class="flex items-center gap-2 mb-2"><i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i><span class="text-xs font-bold uppercase tracking-wider text-slate-400">Status Robô</span></div>
-                                <h3 class="text-2xl font-black mb-4">Online & Operante</h3>
+                            <div class="relative z-10">
+                                <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Motor de Envio</p>
+                                <h3 class="text-2xl font-black mb-4" id="robo-titulo-status">Robô Conectado</h3>
                             </div>
-                            <button onclick="dispararVarreduraRobo()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Forçar Varredura Agora</button>
+                            <button onclick="dispararVarreduraRobo()" class="w-full py-3 bg-white text-black rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:bg-gray-200 transition relative z-10"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Forçar Varredura Agora</button>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Métricas do Robô</p>
+                            <h3 class="text-4xl font-black text-slate-800 mt-2" id="robo-enviadas-hoje">0 <span class="text-sm text-slate-400">hoje</span></h3>
+                            <p class="text-xs text-slate-500 mt-2">Total no mês: <strong id="robo-enviadas-mes">0</strong></p>
                         </div>
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Métricas de Envio</p>
-                            <div class="flex items-end gap-3 mb-2">
-                                <h3 class="text-4xl font-black text-slate-800" id="robo-enviadas-hoje">0</h3>
-                                <span class="text-sm font-bold text-slate-400 mb-1">hoje</span>
-                            </div>
-                            <p class="text-xs text-slate-500">Total no mês: <strong id="robo-enviadas-mes">0</strong> envios</p>
-                        </div>
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fila & Erros</p>
-                            <div class="flex items-center justify-between mt-2">
-                                <div><p class="text-2xl font-black text-amber-500" id="robo-fila-qtd">0</p><p class="text-[10px] font-bold text-slate-400 uppercase">Aguardando</p></div>
-                                <div class="h-8 w-px bg-slate-100"></div>
-                                <div><p class="text-2xl font-black text-red-500" id="robo-erros-qtd">0</p><p class="text-[10px] font-bold text-slate-400 uppercase">Erros Recentes</p></div>
+                            <div class="flex items-center justify-between">
+                                <div><p class="text-3xl font-black text-amber-500" id="robo-fila-qtd">0</p><p class="text-[10px] font-bold text-slate-400 uppercase">Na Fila</p></div>
+                                <div class="h-10 w-px bg-slate-100"></div>
+                                <div><p class="text-3xl font-black text-red-500" id="robo-erros-qtd">0</p><p class="text-[10px] font-bold text-slate-400 uppercase">Erros</p></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="flex border-b border-slate-100 bg-slate-50 px-2 pt-2 overflow-x-auto no-scrollbar">
-                            <button onclick="mudarAbaMkt('nova')" id="tab-mkt-nova" class="px-6 py-3 text-sm font-bold border-b-2 border-indigo-600 text-indigo-600">Nova Campanha</button>
+                        <div class="flex border-b border-slate-100 bg-slate-50 px-2 pt-2">
+                            <button onclick="mudarAbaMkt('nova')" id="tab-mkt-nova" class="px-6 py-3 text-sm font-bold border-b-2 border-slate-900 text-slate-900">Nova Campanha</button>
                             <button onclick="mudarAbaMkt('historico')" id="tab-mkt-historico" class="px-6 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800">Histórico de Disparos</button>
                         </div>
                         
@@ -289,7 +283,7 @@
                                     <div class="lg:col-span-1 space-y-4">
                                         <div>
                                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Modelos Prontos</label>
-                                            <select id="mkt-modelo" onchange="aplicarModeloCampanha()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <select id="mkt-modelo" onchange="aplicarModeloCampanha()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-slate-800">
                                                 <option value="">-- Personalizada --</option>
                                                 <option value="sushi">Terça do Sushi</option>
                                                 <option value="casal">Quarta do Casal</option>
@@ -301,254 +295,243 @@
                                         </div>
                                         <div>
                                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Segmentação (Público)</label>
-                                            <select id="mkt-segmento" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <select id="mkt-segmento" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-slate-800">
                                                 <option value="todos">Todos os Clientes</option>
-                                                <option value="aniversariantes">Apenas Aniversariantes do Mês</option>
-                                                <option value="inativos">Apenas Inativos (+15d)</option>
                                                 <option value="vips">Apenas VIPs</option>
                                                 <option value="5_almocos">Clientes com 5+ almoços</option>
                                                 <option value="10_almocos">Clientes com 10+ almoços</option>
+                                                <option value="inativos">Apenas Inativos (+15d)</option>
+                                                <option value="aniversariantes">Aniversariantes do Mês</option>
                                             </select>
                                         </div>
-                                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                                            <label class="block text-xs font-black text-indigo-800 uppercase tracking-wider mb-3"><i data-lucide="clock" class="w-3 h-3 inline"></i> Recorrência & Horário</label>
+                                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                            <label class="block text-xs font-black text-slate-800 uppercase tracking-wider mb-3"><i data-lucide="clock" class="w-3 h-3 inline"></i> Recorrência e Horário</label>
                                             <div class="space-y-3">
-                                                <select id="mkt-recorrencia" onchange="toggleRecorrencia()" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm outline-none">
+                                                <select id="mkt-recorrencia" onchange="toggleRecorrencia()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm outline-none">
                                                     <option value="unica">Data Única (Agendada)</option>
                                                     <option value="imediata">Disparo Imediato</option>
-                                                    <option value="semanal">Semanal (Dia da Semana)</option>
-                                                    <option value="mensal">Mensal (Dia do Mês)</option>
+                                                    <option value="semanal">Semanal</option>
+                                                    <option value="mensal">Mensal</option>
                                                 </select>
-                                                <input type="date" id="mkt-data-unica" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm outline-none">
-                                                <select id="mkt-dia-semana" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm outline-none hidden">
-                                                    <option value="1">Toda Segunda-feira</option><option value="2">Toda Terça-feira</option><option value="3">Toda Quarta-feira</option><option value="4">Toda Quinta-feira</option><option value="5">Toda Sexta-feira</option><option value="6">Todo Sábado</option><option value="0">Todo Domingo</option>
+                                                <input type="date" id="mkt-data-unica" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm outline-none">
+                                                <select id="mkt-dia-semana" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm outline-none hidden">
+                                                    <option value="1">Segunda-feira</option><option value="2">Terça-feira</option><option value="3">Quarta-feira</option><option value="4">Quinta-feira</option><option value="5">Sexta-feira</option><option value="6">Sábado</option><option value="0">Domingo</option>
                                                 </select>
-                                                <select id="mkt-dia-mes" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm outline-none hidden">
-                                                    <option value="10">Todo dia 10</option><option value="15">Todo dia 15</option><option value="ultimo">Todo último dia do mês</option>
+                                                <select id="mkt-dia-mes" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm outline-none hidden">
+                                                    <option value="10">Todo dia 10</option><option value="15">Todo dia 15</option><option value="ultimo">Todo último dia</option>
                                                 </select>
-                                                <input type="time" id="mkt-horario" value="11:00" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm outline-none font-mono">
+                                                <input type="time" id="mkt-horario" value="11:00" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm outline-none font-mono">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="lg:col-span-2 flex flex-col">
-                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mensagem WhatsApp</label>
-                                        <input type="text" id="mkt-nome-campanha" placeholder="Nome interno da campanha (Ex: Promo Mães)" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-t-xl text-sm font-bold outline-none focus:border-indigo-500 mb-[-1px] z-10 relative">
-                                        <textarea id="mkt-texto" rows="10" placeholder="Olá [Nome], venha aproveitar..." class="w-full flex-1 p-4 bg-slate-50 border border-slate-200 rounded-b-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500 resize-none font-sans leading-relaxed"></textarea>
-                                        <p class="text-xs text-slate-400 mt-2 font-medium">Variáveis: <strong class="text-indigo-500 bg-indigo-50 px-1 rounded">[Nome]</strong>, <strong class="text-indigo-500 bg-indigo-50 px-1 rounded">[Acumulados]</strong>, <strong class="text-indigo-500 bg-indigo-50 px-1 rounded">[Faltam]</strong></p>
-                                        
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mensagem do WhatsApp</label>
+                                        <input type="text" id="mkt-nome-campanha" placeholder="Nome Interno da Campanha (Ex: Promo Mães)" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-t-xl text-sm font-bold outline-none focus:border-slate-800 mb-[-1px] relative z-10">
+                                        <textarea id="mkt-texto" rows="10" placeholder="Olá [Nome], venha aproveitar..." class="w-full flex-1 p-4 bg-slate-50 border border-slate-200 rounded-b-xl text-sm outline-none focus:ring-2 focus:ring-slate-800 resize-none font-sans"></textarea>
+                                        <p class="text-xs text-slate-400 mt-2 font-medium">Variáveis: <strong class="text-indigo-600">[Nome]</strong>, <strong class="text-indigo-600">[Acumulados]</strong>, <strong class="text-indigo-600">[Faltam]</strong></p>
                                         <div class="mt-4 flex justify-end">
-                                            <button onclick="salvarCampanha()" class="bg-slate-900 hover:bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition shadow-md">
-                                                <i data-lucide="calendar-plus" class="w-5 h-5"></i> AGENDAR CAMPANHA
+                                            <button onclick="salvarCampanha()" class="bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition shadow-md">
+                                                <i data-lucide="send" class="w-5 h-5"></i> CADASTRAR CAMPANHA
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div id="mkt-area-historico" class="hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse text-sm">
-                                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                            <tr><th class="p-4">Campanha</th><th class="p-4">Gatilho / Data</th><th class="p-4 text-center">Horário</th><th class="p-4 text-center">Destinatários</th><th class="p-4 text-center">Status</th></tr>
-                                        </thead>
-                                        <tbody id="tabela-historico-campanhas" class="divide-y divide-slate-100"></tbody>
-                                    </table>
-                                </div>
+                            <div id="mkt-area-historico" class="hidden overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                                        <tr><th class="p-4">Campanha</th><th class="p-4">Gatilho/Data</th><th class="p-4 text-center">Horário</th><th class="p-4 text-center">Qtd</th><th class="p-4 text-center">Status</th></tr>
+                                    </thead>
+                                    <tbody id="tabela-historico-campanhas" class="divide-y divide-slate-100"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <section id="view-automacoes" class="view-section space-y-6 max-w-4xl mx-auto">
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
-                            <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600"><i data-lucide="bot" class="w-6 h-6"></i></div>
-                            <div><h2 class="text-2xl font-black text-slate-800">Central de Automações</h2><p class="text-sm text-slate-500">Configure as regras de envio autônomo do Robô</p></div>
+                <div id="sub-aba-ranking" class="sub-aba-content hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="p-5 border-b border-slate-100 flex items-center gap-3 bg-amber-50">
+                                <i data-lucide="trophy" class="w-6 h-6 text-amber-500"></i><h3 class="font-black text-slate-800">Top 10 Almoços</h3>
+                            </div>
+                            <ul id="lista-ranking-almocos" class="divide-y divide-slate-50"></ul>
                         </div>
-                        
-                        <div class="space-y-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="p-5 border-b border-slate-100 flex items-center gap-3 bg-slate-900">
+                                <i data-lucide="award" class="w-6 h-6 text-amber-400"></i><h3 class="font-black text-white">Top 10 VIPs (Resgates)</h3>
+                            </div>
+                            <ul id="lista-ranking-resgates" class="divide-y divide-slate-50"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sub-aba-automacoes" class="sub-aba-content hidden max-w-3xl mx-auto space-y-6">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                        <h2 class="text-2xl font-black text-slate-800 mb-2">Central de Automações</h2>
+                        <p class="text-sm text-slate-500 mb-8">Ligue ou desligue as ações automáticas do robô.</p>
+                        <div class="space-y-4">
                             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <div class="flex gap-4 items-center">
-                                    <i data-lucide="cake" class="w-5 h-5 text-pink-500"></i>
-                                    <div><p class="font-bold text-slate-800">Aviso de Aniversário Antecipado</p><p class="text-xs text-slate-500">Envia msg automática 7 dias antes do aniversário.</p></div>
-                                </div>
+                                <div><p class="font-bold text-slate-800">Aniversariantes (Antecipado)</p><p class="text-xs text-slate-500">Envia msg 7 dias antes do aniversário.</p></div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="auto-niver" class="sr-only peer" onchange="salvarAutomacoes()">
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
                                 </label>
                             </div>
                             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <div class="flex gap-4 items-center">
-                                    <i data-lucide="user-minus" class="w-5 h-5 text-red-500"></i>
-                                    <div><p class="font-bold text-slate-800">Recuperação de Inativos (16º Dia)</p><p class="text-xs text-slate-500">Envia msg "Estamos com saudade" após 15 dias sem visita.</p></div>
-                                </div>
+                                <div><p class="font-bold text-slate-800">Recuperação de Inativos</p><p class="text-xs text-slate-500">Avisa clientes que sumiram por mais de 15 dias.</p></div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="auto-inativo" class="sr-only peer" onchange="salvarAutomacoes()">
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
                                 </label>
                             </div>
                             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <div class="flex gap-4 items-center">
-                                    <i data-lucide="utensils" class="w-5 h-5 text-amber-500"></i>
-                                    <div><p class="font-bold text-slate-800">Aviso Pós-Almoço (Tempo Real)</p><p class="text-xs text-slate-500">Envia saldo atualizado a cada bip no Totem/Caixa.</p></div>
-                                </div>
+                                <div><p class="font-bold text-slate-800">Aviso Pós-Almoço</p><p class="text-xs text-slate-500">Notifica o saldo via WhatsApp a cada almoço bipado.</p></div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="auto-pos-almoco" class="sr-only peer" onchange="salvarAutomacoes()">
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
                                 </label>
                             </div>
                             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <div class="flex gap-4 items-center">
-                                    <i data-lucide="calendar-clock" class="w-5 h-5 text-blue-500"></i>
-                                    <div><p class="font-bold text-slate-800">Disparo de Campanhas Agendadas</p><p class="text-xs text-slate-500">Permite que o robô leia e envie campanhas do painel de marketing.</p></div>
-                                </div>
+                                <div><p class="font-bold text-slate-800">Ler Campanhas Agendadas</p><p class="text-xs text-slate-500">Permite que o robô leia os agendamentos do marketing.</p></div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="auto-campanhas" class="sr-only peer" onchange="salvarAutomacoes()">
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
                                 </label>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <section id="view-auditoria" class="view-section space-y-6">
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-8rem)]">
-                        <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
-                            <h2 class="text-lg font-black text-slate-800 flex items-center gap-2"><i data-lucide="shield-check" class="w-5 h-5 text-indigo-600"></i> Log de Auditoria de Sistema</h2>
-                            <button onclick="limparAuditoria()" class="text-xs text-red-500 hover:text-red-700 font-bold border border-red-200 px-3 py-1.5 rounded bg-white">Limpar Logs</button>
+                <div id="sub-aba-auditoria" class="sub-aba-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[600px]">
+                        <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                            <h2 class="text-lg font-black text-slate-800">Log de Auditoria</h2>
+                            <button onclick="limparAuditoria()" class="text-xs text-red-500 border border-red-200 px-3 py-1.5 rounded bg-white hover:bg-red-50 font-bold transition">Limpar Logs</button>
                         </div>
-                        <div class="flex-1 overflow-y-auto bg-white">
+                        <div class="flex-1 overflow-y-auto">
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead class="sticky top-0 bg-white shadow-sm z-10">
+                                <thead class="sticky top-0 bg-white shadow-sm">
                                     <tr class="bg-slate-100 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                        <th class="py-3 px-6 w-40">Data/Hora</th>
-                                        <th class="py-3 px-6 w-32">Usuário</th>
-                                        <th class="py-3 px-6 w-40">Ação</th>
-                                        <th class="py-3 px-6">Detalhes</th>
+                                        <th class="p-4">Data/Hora</th><th class="p-4">Usuário</th><th class="p-4">Ação</th><th class="p-4">Detalhes</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tabela-auditoria" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
                     </div>
-                </section>
-
-            </main>
-        </div>
-    </div> <div id="modal-cliente" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-            <div class="bg-slate-900 p-6 flex justify-between items-start text-white shrink-0 relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 opacity-10"><i data-lucide="user" class="w-48 h-48"></i></div>
-                <div class="relative z-10">
-                    <div class="flex items-center gap-3 mb-2">
-                        <h2 class="text-2xl font-black tracking-tight" id="mc-nome">Nome Cliente</h2>
-                        <span id="mc-vip-badge" class="hidden bg-amber-400 text-amber-900 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">VIP</span>
-                    </div>
-                    <div class="flex items-center gap-4 text-slate-400 text-sm font-mono">
-                        <span id="mc-cpf">000.000.000-00</span>
-                        <span>•</span>
-                        <span id="mc-tel">(00) 00000-0000</span>
-                    </div>
                 </div>
-                <button onclick="fecharModal('modal-cliente')" class="text-slate-400 hover:text-white relative z-10 bg-slate-800 p-2 rounded-xl"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </section>
+        </main>
+    </div>
+
+    <div id="modal-cliente" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="bg-black p-6 flex justify-between items-start text-white relative">
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-1">
+                        <h2 class="text-2xl font-black" id="mc-nome">Nome</h2>
+                        <span id="mc-vip-badge" class="hidden bg-amber-400 text-black text-[10px] font-black uppercase px-2 py-0.5 rounded">VIP</span>
+                    </div>
+                    <p class="text-gray-400 font-mono text-sm"><span id="mc-cpf"></span> • <span id="mc-tel"></span></p>
+                </div>
+                <button onclick="fecharModal('modal-cliente')" class="text-gray-400 hover:text-white bg-gray-800 p-2 rounded-xl relative z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
             <div class="flex-1 overflow-y-auto p-6 bg-slate-50 space-y-6">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-end mb-3">
-                        <div><p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Fidelidade Atual</p><p class="text-lg font-black text-slate-800"><span id="mc-almocos" class="text-3xl text-indigo-600">0</span> / 10 almoços</p></div>
-                        <p class="text-sm font-bold text-slate-400" id="mc-faltam">Faltam 10 para resgate</p>
+                        <div><p class="text-xs font-bold text-slate-500 uppercase">Fidelidade</p><p class="text-lg font-black"><span id="mc-almocos" class="text-3xl text-slate-900">0</span> / 10</p></div>
+                        <p class="text-sm font-bold text-slate-400" id="mc-faltam">Faltam X</p>
                     </div>
-                    <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200"><div id="mc-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                    <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200"><div id="mc-bar" class="bg-slate-900 h-full rounded-full transition-all" style="width: 0%"></div></div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white p-4 rounded-xl border border-slate-200"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Nascimento</p><p class="font-mono font-bold text-slate-700" id="mc-nasc">--/--/----</p></div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Última Visita</p><p class="font-bold text-slate-700" id="mc-ultima">Nunca</p></div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Resgates</p><p class="font-black text-slate-800 text-xl" id="mc-resgates">0</p></div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200"><p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Cadastro</p><p class="text-sm font-bold text-slate-600" id="mc-cad">--</p></div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200"><p class="text-[10px] font-bold text-slate-400 uppercase">Nascimento</p><p class="font-mono font-bold text-slate-700" id="mc-nasc"></p></div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200"><p class="text-[10px] font-bold text-slate-400 uppercase">Última Visita</p><p class="font-bold text-slate-700" id="mc-ultima"></p></div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200"><p class="text-[10px] font-bold text-slate-400 uppercase">Total Resgates</p><p class="font-black text-slate-800 text-xl" id="mc-resgates"></p></div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200"><p class="text-[10px] font-bold text-slate-400 uppercase">Cadastro</p><p class="text-sm font-bold text-slate-600" id="mc-cad"></p></div>
                 </div>
 
                 <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
                     <div class="flex border-b border-slate-100 bg-slate-50">
-                        <button onclick="mudarAbaClienteModal('almocos')" id="tab-cli-almocos" class="flex-1 py-3 text-xs font-bold uppercase text-indigo-600 border-b-2 border-indigo-600">Últimos Almoços</button>
-                        <button onclick="mudarAbaClienteModal('resgates')" id="tab-cli-resgates" class="flex-1 py-3 text-xs font-bold uppercase text-slate-500 border-b-2 border-transparent hover:text-slate-800">Histórico Resgates</button>
+                        <button onclick="mudarAbaClienteModal('almocos')" id="tab-cli-almocos" class="flex-1 py-3 text-xs font-bold uppercase text-slate-900 border-b-2 border-slate-900">Últimos Almoços</button>
+                        <button onclick="mudarAbaClienteModal('resgates')" id="tab-cli-resgates" class="flex-1 py-3 text-xs font-bold uppercase text-slate-500 border-b-2 border-transparent hover:text-slate-800">Resgates</button>
                     </div>
-                    <div class="p-0 max-h-48 overflow-y-auto text-sm">
-                        <ul id="mc-lista-almocos" class="divide-y divide-slate-50"></ul>
-                        <ul id="mc-lista-resgates" class="divide-y divide-slate-50 hidden"></ul>
-                    </div>
+                    <ul id="mc-lista-almocos" class="divide-y divide-slate-50 max-h-40 overflow-y-auto p-4 text-sm"></ul>
+                    <ul id="mc-lista-resgates" class="divide-y divide-slate-50 max-h-40 overflow-y-auto p-4 text-sm hidden"></ul>
                 </div>
             </div>
             
-            <div class="p-4 bg-white border-t border-slate-100 flex gap-3 shrink-0">
-                <button onclick="editarClienteModal()" class="flex-1 px-4 py-3 border border-slate-200 hover:bg-slate-50 rounded-xl font-bold text-slate-700 transition">Editar Cadastro</button>
-                <button onclick="abrirModalWhatsAppManual()" class="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 transition shadow-md"><i data-lucide="message-circle" class="w-4 h-4"></i> Enviar Whats</button>
+            <div class="p-4 bg-white border-t border-slate-100 flex gap-3">
+                <button onclick="editarClienteModal()" class="flex-1 px-4 py-3 border border-slate-200 hover:bg-slate-50 rounded-xl font-bold text-slate-700">Editar</button>
+                <button onclick="abrirModalWhatsAppManual()" class="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 shadow-md"><i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp</button>
             </div>
         </div>
     </div>
 
-    <div id="modal-editar" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+    <div id="modal-editar" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden">
             <div class="p-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center"><h3 class="font-black text-slate-800">Editar Cadastro</h3><button onclick="fecharModal('modal-editar')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button></div>
             <form onsubmit="salvarEdicao(event)" class="p-5 space-y-4">
                 <input type="hidden" id="edit-cpf">
-                <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nome</label><input type="text" id="edit-nome" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-sm font-medium"></div>
-                <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1">Telefone</label><input type="tel" id="edit-tel" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-indigo-500 font-mono text-sm"></div>
-                <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nascimento</label><input type="tel" id="edit-nasc" required maxlength="10" oninput="mascaraData(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-indigo-500 font-mono text-sm"></div>
-                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 rounded-lg mt-2">Salvar Alterações</button>
+                <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nome</label><input type="text" id="edit-nome" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium"></div>
+                <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1">Telefone</label><input type="tel" id="edit-tel" required maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-mono text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nascimento</label><input type="tel" id="edit-nasc" required maxlength="10" oninput="mascaraData(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-mono text-sm"></div>
+                <button type="submit" class="w-full bg-black text-white font-bold py-3 rounded-lg mt-2">Salvar</button>
             </form>
         </div>
     </div>
 
-    <div id="modal-acao" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border-t-8 border-indigo-600 p-8 text-center" id="ma-container">
-            <div id="ma-icone" class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="info" class="w-10 h-10"></i></div>
+    <div id="modal-acao" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border-t-8 border-slate-900 p-8 text-center" id="ma-container">
+            <div id="ma-icone" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-slate-100 text-slate-900"><i data-lucide="info" class="w-10 h-10"></i></div>
             <h3 class="text-2xl font-black text-slate-800 mb-2" id="ma-titulo">Título</h3>
-            <p class="text-slate-500 mb-8" id="ma-texto">Texto da ação</p>
+            <p class="text-slate-500 mb-8" id="ma-texto">Texto</p>
             <div class="flex flex-col gap-3" id="ma-botoes"></div>
         </div>
     </div>
 
-    <div id="tela-totem" class="hidden fixed inset-0 bg-slate-900 z-[250] overflow-hidden flex">
-        <div class="w-5/12 bg-black flex flex-col items-center justify-center p-12 relative shadow-2xl z-10 border-r border-slate-800">
-            <img src="./logo.jpg" alt="Top Haus" onclick="sairModoTotem()" class="h-40 w-auto object-contain mb-2 rounded-2xl shadow-lg cursor-pointer opacity-90 hover:opacity-100 transition" title="Toque para sair">
-            <span class="text-white font-light text-2xl tracking-[0.3em] uppercase mb-16">Fidelidade</span>
-            <h3 class="text-3xl font-black text-amber-400 mb-8 tracking-wide uppercase flex items-center gap-3"><i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!</h3>
-            <div class="bg-white p-4 rounded-3xl mb-8 shadow-2xl"><img src="./qrcode.png" alt="QR Code" class="w-48 h-48 object-contain rounded-xl"></div>
-            <p class="text-slate-300 text-xl text-center leading-relaxed">Avalie nosso atendimento e ganhe um <strong class="text-white">bombom especial</strong>.</p>
+    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] overflow-hidden flex">
+        <div class="w-5/12 bg-black flex flex-col items-center justify-center p-12 border-r border-gray-800 shadow-2xl relative z-10">
+            <img src="./logo.jpg" alt="Top Haus" onclick="sairModoTotem()" class="h-40 w-auto object-contain mb-8 rounded-2xl cursor-pointer hover:opacity-80 transition" title="Sair do Totem">
+            <h3 class="text-3xl font-black text-amber-400 mb-8 tracking-wide uppercase text-center"><i data-lucide="star" class="w-8 h-8 fill-amber-400 inline mb-1"></i> Fidelidade Top Haus</h3>
+            <p class="text-gray-400 text-xl text-center leading-relaxed">Acumule almoços e ganhe <strong>R$ 50,00 de desconto</strong> na sua 11ª visita!</p>
+            
+            <div class="mt-16 bg-white p-4 rounded-3xl shadow-lg"><img src="./qrcode.png" alt="Avalie-nos" class="w-40 h-40 object-contain rounded-xl" onerror="this.style.display='none'"></div>
         </div>
         
-        <div class="w-7/12 bg-slate-900 flex flex-col items-center justify-center p-12 relative">
+        <div class="w-7/12 bg-gray-900 flex flex-col items-center justify-center p-12 relative">
             <div id="totem-busca" class="w-full max-w-lg text-center">
-                <h1 class="text-5xl font-black text-white mb-4">Bem-vindo!</h1>
-                <p class="text-slate-400 mb-12 text-2xl">Digite seu CPF para registrar seu almoço:</p>
-                <input type="tel" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessar()" class="w-full bg-white/10 border-2 border-slate-700 text-white text-center text-5xl py-6 rounded-2xl focus:border-indigo-500 outline-none font-mono mb-8 placeholder-slate-600 transition">
-                <button onclick="totemProcessar()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black text-3xl py-6 rounded-2xl shadow-xl active:scale-95 transition-all">AVANÇAR</button>
+                <h1 class="text-5xl font-black text-white mb-6">Bem-vindo!</h1>
+                <p class="text-gray-400 mb-12 text-2xl">Digite seu CPF para registrar seu almoço:</p>
+                <input type="tel" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessar()" class="w-full bg-black border-2 border-gray-700 text-white text-center text-5xl py-6 rounded-2xl focus:border-white outline-none font-mono mb-8 transition">
+                <button onclick="totemProcessar()" class="w-full bg-white hover:bg-gray-200 text-black font-black text-3xl py-6 rounded-2xl shadow-xl transition-all">AVANÇAR</button>
             </div>
             
             <div id="totem-info" class="hidden w-full max-w-xl text-center pb-12 pt-8">
-                <div id="totem-info-icon" class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-8 text-white"><i data-lucide="check" class="w-12 h-12"></i></div>
-                <h2 id="totem-info-titulo" class="text-5xl font-black text-white mb-4 leading-tight">Olá, Nome!</h2>
-                <p id="totem-info-msg" class="text-slate-300 text-2xl leading-relaxed mb-10">Você tem 0 almoços.</p>
+                <div id="totem-info-icon" class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-8 text-white"><i data-lucide="check" class="w-12 h-12"></i></div>
+                <h2 id="totem-info-titulo" class="text-5xl font-black text-white mb-4 leading-tight">Olá!</h2>
+                <p id="totem-info-msg" class="text-gray-300 text-2xl leading-relaxed mb-10"></p>
                 
-                <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 w-full mb-10">
+                <div class="bg-black p-6 rounded-3xl border border-gray-800 w-full mb-10">
                     <div class="flex justify-between items-end mb-3">
-                        <p class="text-indigo-400 font-black text-2xl" id="totem-prog-txt">0/10</p>
-                        <p class="text-slate-400 font-bold text-lg" id="totem-prog-faltam">Faltam 10</p>
+                        <p class="text-white font-black text-2xl" id="totem-prog-txt">0/10</p>
+                        <p class="text-gray-400 font-bold text-lg" id="totem-prog-faltam"></p>
                     </div>
-                    <div class="w-full bg-slate-900 h-6 rounded-full overflow-hidden border border-slate-700"><div id="totem-prog-bar" class="bg-gradient-to-r from-indigo-600 to-purple-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div></div>
+                    <div class="w-full bg-gray-900 h-6 rounded-full overflow-hidden"><div id="totem-prog-bar" class="bg-amber-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div></div>
                 </div>
                 
                 <div id="totem-botoes-resgate" class="hidden flex-col gap-4 mb-6">
-                    <button onclick="totemSolicitarResgate()" class="w-full bg-amber-500 text-amber-950 font-black text-3xl py-6 rounded-2xl shadow-xl active:scale-95 transition-all">RESGATAR R$ 50 AGORA</button>
-                    <button onclick="totemVoltarInicio()" class="w-full bg-transparent border-2 border-slate-600 text-slate-300 font-bold text-2xl py-6 rounded-2xl active:scale-95 transition-all">Acumular e Sair</button>
+                    <button onclick="totemSolicitarResgate()" class="w-full bg-amber-500 text-amber-950 font-black text-3xl py-6 rounded-2xl shadow-xl transition-all">RESGATAR R$ 50 AGORA</button>
+                    <button onclick="totemVoltarInicio()" class="w-full bg-transparent border-2 border-gray-600 text-gray-300 font-bold text-2xl py-6 rounded-2xl transition-all">Acumular e Sair</button>
                 </div>
             </div>
 
             <div id="totem-timer" class="hidden absolute bottom-12 left-1/2 -translate-x-1/2 w-3/4 flex flex-col items-center">
-                <button onclick="totemVoltarInicio()" class="mb-6 px-10 py-3 bg-slate-800 text-slate-300 text-lg font-bold rounded-full border border-slate-700 hover:bg-slate-700 transition">Finalizar</button>
-                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div id="totem-bar-anim" class="bg-slate-500 h-full w-full"></div></div>
+                <button onclick="totemVoltarInicio()" class="mb-6 px-10 py-3 bg-gray-800 text-gray-300 text-lg font-bold rounded-full border border-gray-700 transition">Finalizar</button>
+                <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden"><div id="totem-bar-anim" class="bg-gray-500 h-full w-full"></div></div>
             </div>
         </div>
     </div>
@@ -556,746 +539,864 @@
     <div id="secao-impressao" class="print-area"></div>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get, push, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, get, push, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-    // ==========================================================================
-    // 1. CONFIGURAÇÃO E ESTADOS GLOBAIS
-    // ==========================================================================
-    const firebaseConfig = {
-        apiKey: "AIzaSyDZBx7Vrsdfh" + "gOGxbDyDHAkfOhRvNiIg0Q",
-        authDomain: "fidelidadetophausnavega.firebaseapp.com",
-        databaseURL: "https://fidelidadetophausnavega-default-rtdb.firebaseio.com",
-        projectId: "fidelidadetophausnavega",
-        storageBucket: "fidelidadetophausnavega.firebasestorage.app"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZBx7Vrsdfh" + "gOGxbDyDHAkfOhRvNiIg0Q",
+            authDomain: "fidelidadetophausnavega.firebaseapp.com",
+            databaseURL: "https://fidelidadetophausnavega-default-rtdb.firebaseio.com",
+            projectId: "fidelidadetophausnavega",
+            storageBucket: "fidelidadetophausnavega.firebasestorage.app"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
 
-    // Estados do Sistema
-    let usuarioLogado = null;
-    let cargoLogado = null;
-    let isModoSimulacao = false; // Modo de testes seguro
-    
-    // Cache de Dados
-    let clientesMap = {};
-    let clientesArray = [];
-    let historicoCampanhas = [];
-    let auditoriaLogs = [];
-    
-    // Configurações
-    let configuracoesAutomacao = { 
-        niver: true, 
-        inativo: true, 
-        posAlmoco: true, 
-        campanhas: true 
-    };
-    
-    // Controles de Fluxo
-    let isProcessing = false;
-    let acaoPendente = null;
-    let totemClienteTemp = null;
-    let timeoutTotem;
-
-    // Inicialização da UI
-    window.addEventListener('DOMContentLoaded', () => {
-        lucide.createIcons();
-        iniciarListenersFirebase();
-    });
-
-    // ==========================================================================
-    // 2. AUTENTICAÇÃO E PERMISSÕES
-    // ==========================================================================
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            usuarioLogado = user;
-            const username = user.email.split('@')[0];
-            
-            // Busca o cargo do usuário no banco de dados
-            const snap = await get(ref(db, `usuarios/${username}`));
-            cargoLogado = snap.exists() ? snap.val().cargo : (username === 'admin' ? 'admin' : 'caixa');
-            
-            // Atualiza Interface Visual
-            document.getElementById('tela-login').classList.add('hidden');
-            document.getElementById('app-dashboard').classList.remove('hidden');
-            document.getElementById('user-display-name').innerText = username.toUpperCase();
-            document.getElementById('user-display-role').innerText = cargoLogado;
-            
-            // Controle de Acesso (Caixa vs Admin)
-            if(cargoLogado === 'caixa') {
-                document.querySelectorAll('.hidden-caixa').forEach(el => el.classList.add('hidden'));
-                navegarPara('caixa');
-            } else {
-                navegarPara('dashboard');
-            }
-            
-            logAuditoria('Login', `Acesso ao painel executivo. Nível: ${cargoLogado}`);
-        } else {
-            // Resetar estados e voltar para login
-            usuarioLogado = null; 
-            cargoLogado = null;
-            document.getElementById('app-dashboard').classList.add('hidden');
-            
-            // Só mostra a tela de login se não estiver no modo Totem
-            if (document.getElementById('tela-totem').classList.contains('hidden')) {
-                document.getElementById('tela-login').classList.remove('hidden');
-            }
-        }
-    });
-
-    window.fazerLogin = (evento) => {
-        evento.preventDefault();
-        const botao = document.getElementById('btn-login'); 
+        // ==========================================================================
+        // VARIÁVEIS DE ESTADO DO SISTEMA
+        // ==========================================================================
+        let usuarioLogado = null;
+        let cargoLogado = null;
+        window.isModoSimulacao = false; // Exposto no window para botões antigos
         
-        botao.disabled = true; 
-        botao.innerText = 'Autenticando...';
+        let clientesMap = {};
+        let clientesArray = [];
+        let historicoCampanhas = [];
+        let auditoriaLogs = [];
+        let configuracoesAutomacao = { niver: true, inativo: true, posAlmoco: true, campanhas: true };
         
-        const user = document.getElementById('login-user').value.trim().toLowerCase();
-        const pass = document.getElementById('login-senha').value;
-        
-        signInWithEmailAndPassword(auth, `${user}@tophaus.com.br`, pass).catch((erro) => {
-            mostrarToast("Acesso Negado! Verifique usuário e senha.", "erro"); 
-            botao.disabled = false; 
-            botao.innerText = 'ENTRAR NO SISTEMA';
-        });
-    };
+        let isProcessing = false;
+        let acaoPendente = null;
+        let totemClienteTemp = null;
+        let timeoutTotem;
 
-    window.fazerLogout = () => { 
-        logAuditoria('Logout', 'Saída do painel executivo'); 
-        signOut(auth); 
-    };
-
-    // ==========================================================================
-    // 3. LISTENERS DO FIREBASE (Sincronização em Tempo Real)
-    // ==========================================================================
-    function iniciarListenersFirebase() {
-        // Escutar alterações nos Clientes
-        onValue(ref(db, 'clientes'), (snapshot) => {
-            clientesMap = snapshot.val() || {};
-            clientesArray = Object.values(clientesMap);
-            
-            atualizarDashboardExecutivo();
-            
-            if(document.getElementById('view-clientes').classList.contains('active')) {
-                renderizarTabelaClientes();
-            }
-            if(document.getElementById('view-ranking').classList.contains('active')) {
-                atualizarRanking();
-            }
+        // Inicializa Sistema
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            iniciarListenersFirebase();
         });
 
-        // Escutar configurações de Automação
-        onValue(ref(db, 'config/automacoes'), (snapshot) => {
-            if(snapshot.exists()) {
-                configuracoesAutomacao = snapshot.val();
+        // ==========================================================================
+        // AUTENTICAÇÃO E LOGIN
+        // ==========================================================================
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                usuarioLogado = user;
+                const username = user.email.split('@')[0];
                 
-                document.getElementById('auto-niver').checked = configuracoesAutomacao.niver;
-                document.getElementById('auto-inativo').checked = configuracoesAutomacao.inativo;
-                document.getElementById('auto-pos-almoco').checked = configuracoesAutomacao.posAlmoco;
-                document.getElementById('auto-campanhas').checked = configuracoesAutomacao.campanhas;
-            }
-        });
-
-        // Escutar Status do Robô Node.js
-        onValue(ref(db, 'status_robo'), (snapshot) => {
-            const status = snapshot.val() || { online: false, enviadasHoje: 0, enviadasMes: 0, erros: 0 };
-            const indicador = document.getElementById('ind-robo');
-            const bolinha = indicador.previousElementSibling;
-            
-            if(status.online) { 
-                indicador.innerText = 'Robô Ativo'; 
-                bolinha.classList.replace('bg-red-500', 'bg-indigo-500'); 
-            } else { 
-                indicador.innerText = 'Robô Offline'; 
-                bolinha.classList.replace('bg-indigo-500', 'bg-red-500'); 
-            }
-            
-            document.getElementById('robo-enviadas-hoje').innerText = status.enviadasHoje;
-            document.getElementById('robo-enviadas-mes').innerText = status.enviadasMes;
-            document.getElementById('robo-erros-qtd').innerText = status.erros;
-        });
-
-        // Escutar Fila de Mensagens (Carteiro)
-        onValue(ref(db, 'fila_mensagens'), (snapshot) => {
-            const quantidade = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-            document.getElementById('kpi-fila').innerText = quantidade;
-            document.getElementById('robo-fila-qtd').innerText = quantidade;
-        });
-
-        // Escutar Histórico de Campanhas de Marketing
-        onValue(ref(db, 'historico_disparos'), (snapshot) => {
-            if(snapshot.exists()) {
-                // Inverte para mostrar as mais recentes primeiro
-                historicoCampanhas = Object.values(snapshot.val()).reverse(); 
+                const snap = await get(ref(db, `usuarios/${username}`));
+                cargoLogado = snap.exists() ? snap.val().cargo : (username === 'admin' ? 'admin' : 'caixa');
+                
+                document.getElementById('tela-login').classList.add('hidden');
+                document.getElementById('app-dashboard').classList.remove('hidden');
+                document.getElementById('nome-usuario-logado').innerText = username.toUpperCase();
+                
+                if(cargoLogado === 'caixa') {
+                    document.getElementById('btn-aba-admin').classList.add('hidden');
+                    alternarAba('caixa');
+                } else {
+                    document.getElementById('btn-aba-admin').classList.remove('hidden');
+                    alternarAba('admin');
+                    abrirSubAba('dashboard');
+                }
+                logAuditoria('Login', `Acesso ao painel. Nível: ${cargoLogado}`);
             } else {
-                historicoCampanhas = [];
-            }
-            renderizarHistoricoCampanhas();
-        });
-
-        // Escutar Logs de Auditoria
-        onValue(ref(db, 'auditoria'), (snapshot) => {
-            if(snapshot.exists()) {
-                // Ordena por timestamp mais recente
-                auditoriaLogs = Object.values(snapshot.val()).sort((a, b) => b.timestamp - a.timestamp);
-            } else {
-                auditoriaLogs = [];
-            }
-            renderizarAuditoria();
-        });
-    }
-
-    // ==========================================================================
-    // 4. RENDERIZAÇÃO DE INTERFACE E DASHBOARD
-    // ==========================================================================
-    window.navegarPara = (alvo) => {
-        // Esconde todas as seções
-        document.querySelectorAll('.view-section').forEach(elemento => {
-            elemento.classList.remove('active');
-        });
-        
-        // Mostra a seção alvo
-        document.getElementById(`view-${alvo}`).classList.add('active');
-        
-        // Atualiza botões do menu lateral
-        document.querySelectorAll('.nav-btn').forEach(botao => {
-            if(botao.dataset.target === alvo) { 
-                botao.classList.add('bg-slate-800', 'text-white'); 
-                botao.classList.remove('text-slate-300'); 
-            } else { 
-                botao.classList.remove('bg-slate-800', 'text-white'); 
-                botao.classList.add('text-slate-300'); 
+                usuarioLogado = null; 
+                cargoLogado = null;
+                document.getElementById('app-dashboard').classList.add('hidden');
+                if (document.getElementById('tela-totem').classList.contains('hidden')) {
+                    document.getElementById('tela-login').classList.remove('hidden');
+                }
             }
         });
-        
-        // Atualiza Título do Cabeçalho
-        const titulos = { 
-            dashboard: 'Dashboard Executivo', 
-            caixa: 'Frente de Caixa', 
-            clientes: 'Gestão de Clientes', 
-            ranking: 'Ranking VIP', 
-            marketing: 'Marketing & Robô WhatsApp', 
-            automacoes: 'Automações Inteligentes', 
-            auditoria: 'Log de Auditoria', 
-            configuracoes: 'Configurações do Sistema' 
-        };
-        document.getElementById('header-title').innerText = titulos[alvo] || '';
-        
-        // Renderizações específicas ao abrir a tela
-        if(alvo === 'clientes') renderizarTabelaClientes();
-        if(alvo === 'ranking') atualizarRanking();
-    };
 
-    function atualizarDashboardExecutivo() {
-        const hoje = new Date().toLocaleDateString('pt-BR');
-        
-        let métricas = {
-            cadastrosHoje: 0,
-            almocosHoje: 0,
-            resgatesHoje: 0,
-            aniversariantes7Dias: 0,
-            inativosGraves: 0,
-            totalVips: 0
+        window.fazerLogin = (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login'); 
+            btn.disabled = true; 
+            btn.innerText = 'Autenticando...';
+            
+            const user = document.getElementById('login-user').value.trim().toLowerCase();
+            const pass = document.getElementById('login-senha').value;
+            
+            signInWithEmailAndPassword(auth, `${user}@tophaus.com.br`, pass).catch(() => {
+                mostrarToast("Usuário ou senha incorretos!", "erro"); 
+                btn.disabled = false; 
+                btn.innerText = 'ENTRAR';
+            });
         };
         
-        clientesArray.forEach(cliente => {
-            // Cadastros
-            if(cliente.dataCadastro === hoje) {
-                métricas.cadastrosHoje++;
-            }
-            
-            // Almoços hoje (Verifica se alguma string do histórico começa com a data de hoje)
-            if(cliente.historico && cliente.historico.some(registro => registro.startsWith(hoje))) {
-                métricas.almocosHoje++;
-            }
-            
-            // Resgates hoje
-            if(cliente.historicoResgates && cliente.historicoResgates.some(registro => registro.dataResgate.startsWith(hoje))) {
-                métricas.resgatesHoje++;
-            }
-            
-            // VIPs (Mais de 0 resgates)
-            if((cliente.premiosResgatados || 0) > 0) {
-                métricas.totalVips++;
-            }
-            
-            // Inativos (+15 dias sem vir)
-            const diasAusente = calcularDiasDesdeVisita(cliente);
-            if(diasAusente > 15) {
-                métricas.inativosGraves++;
-            }
-            
-            // Aniversariantes próximos (0 a 7 dias)
-            const diasAniversario = calcularDiasParaAniversario(cliente.nascimento);
-            if(diasAniversario >= 0 && diasAniversario <= 7) {
-                métricas.aniversariantes7Dias++;
-            }
-        });
-        
-        // Preenche o HTML do Dashboard
-        document.getElementById('kpi-cad-hoje').innerText = métricas.cadastrosHoje;
-        document.getElementById('kpi-alm-hoje').innerText = métricas.almocosHoje;
-        document.getElementById('kpi-res-hoje').innerText = métricas.resgatesHoje;
-        document.getElementById('kpi-niv-7d').innerText = métricas.aniversariantes7Dias;
-        document.getElementById('kpi-inativos').innerText = métricas.inativosGraves;
-        document.getElementById('kpi-vips').innerText = métricas.totalVips;
-    }
-
-    window.renderizarTabelaClientes = () => {
-        const tbody = document.getElementById('tabela-clientes-body');
-        const termoBusca = document.getElementById('filtro-texto-cli').value.toLowerCase();
-        const tipoFiltro = document.getElementById('filtro-tipo-cli').value;
-        
-        // Lógica de Filtro Expandida e Clara
-        let clientesFiltrados = clientesArray.filter(cliente => {
-            const nome = (cliente.nome || '').toLowerCase();
-            const cpf = (cliente.cpf || '');
-            const telefone = (cliente.telefone || '');
-            
-            // Filtro de Texto Livre
-            const passouNoTexto = nome.includes(termoBusca) || cpf.includes(termoBusca) || telefone.includes(termoBusca);
-            if(!passouNoTexto) return false;
-            
-            // Filtros de Categoria (Dropdown)
-            if(tipoFiltro === 'vips' && (cliente.premiosResgatados || 0) === 0) return false;
-            if(tipoFiltro === 'premios' && (cliente.almocos || 0) < 10) return false;
-            if(tipoFiltro === 'inativos' && calcularDiasDesdeVisita(cliente) <= 15) return false;
-            if(tipoFiltro === 'niver_mes' && !verificarAniversarianteDoMes(cliente.nascimento)) return false;
-            
-            return true;
-        });
-        
-        // Ordena pelos mais recentes e limita a 50 para não travar o navegador
-        clientesFiltrados.sort((a, b) => b.ultimaVisitaTimestamp - a.ultimaVisitaTimestamp);
-        const clientesParaMostrar = clientesFiltrados.slice(0, 50);
-        
-        // Construção do HTML da Tabela
-        let htmlTabela = '';
-        
-        clientesParaMostrar.forEach(cliente => {
-            const quantidadeAlmocos = cliente.almocos || 0;
-            const resgates = cliente.premiosResgatados || 0;
-            
-            // Cálculo da barra de progresso (Ex: 17 almoços = 70%)
-            const percentualProgresso = Math.min(100, (quantidadeAlmocos % 10) * 10);
-            
-            const badgeVip = resgates > 0 ? `<span class="bg-amber-100 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded ml-2">VIP</span>` : '';
-            const alertaResgate = quantidadeAlmocos >= 10 ? `<span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">R$ 50 Liberado</span>` : `<span class="text-xs text-slate-400">Regular</span>`;
-            
-            htmlTabela += `
-            <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="abrirModalCliente('${cliente.cpf}')">
-                <td class="py-4 px-6">
-                    <p class="font-bold text-slate-800">${escapeHTML(cliente.nome)} ${badgeVip}</p>
-                    <p class="text-xs text-slate-400">Cadastrado em: ${cliente.dataCadastro || '--'}</p>
-                </td>
-                <td class="py-4 px-6 text-center">
-                    <p class="font-mono text-sm text-slate-600">${formatarCPFVisivel(cliente.cpf)}</p>
-                    <p class="font-mono text-xs text-slate-400">${formatarTelefoneVisivel(cliente.telefone)}</p>
-                </td>
-                <td class="py-4 px-6">
-                    <div class="flex items-center gap-3 justify-center">
-                        <span class="font-black text-slate-700 text-lg w-6 text-right">${quantidadeAlmocos}</span>
-                        <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
-                            <div class="bg-indigo-600 h-full rounded-full" style="width:${percentualProgresso}%"></div>
-                        </div>
-                    </div>
-                </td>
-                <td class="py-4 px-6 text-center">
-                    ${alertaResgate}
-                </td>
-                <td class="py-4 px-6 text-right">
-                    <button onclick="event.stopPropagation(); abrirModalWhatsAppManual('${cliente.cpf}')" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Enviar Mensagem Robô">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i>
-                    </button>
-                </td>
-            </tr>`;
-        });
-        
-        tbody.innerHTML = htmlTabela;
-        lucide.createIcons(); // Recarrega os ícones dinâmicos
-    };
-
-    // ==========================================================================
-    // 5. LÓGICA DE FRENTE DE CAIXA E FIDELIDADE
-    // ==========================================================================
-    window.buscarEContabilizar = () => {
-        // Remove pontos e traços para processar
-        const cpfLimpo = document.getElementById('busca-cpf').value.replace(/\D/g, '');
-        
-        if(!validarMatematicaCPF(cpfLimpo)) {
-            return mostrarToast('O CPF digitado é inválido.', 'erro');
-        }
-        
-        if(isProcessing) return;
-        
-        const clienteEncontrado = clientesMap[cpfLimpo];
-        if(!clienteEncontrado) {
-            return mostrarToast('Cliente não encontrado na base de dados.', 'erro');
-        }
-        
-        // Verificação Especial: Aniversário no Dia
-        const diasAniversario = calcularDiasParaAniversario(clienteEncontrado.nascimento);
-        const anoAtual = new Date().getFullYear();
-        
-        if(diasAniversario === 0 && clienteEncontrado.aniversarioResgatadoAno !== anoAtual) {
-            // Guarda o cliente numa variável global para quando o modal fechar
-            acaoPendente = clienteEncontrado; 
-            
-            abrirModalAcao('cake', 'Aniversariante do Dia!', 
-                `Hoje é aniversário de <strong>${escapeHTML(clienteEncontrado.nome)}</strong>. Libere o bônus de R$ 50,00!`, 
-                `<button onclick="confirmarBaixaAniversario()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-md">BAIXAR DESCONTO R$ 50</button>
-                 <button onclick="pularAcaoEContinuarFluxo()" class="w-full text-slate-500 font-bold py-2 mt-2">Pular e registrar apenas o almoço</button>`, 
-                'border-pink-500', 'text-pink-600', 'bg-pink-50'
-            );
-            return; // Interrompe o fluxo normal até o usuário clicar no modal
-        }
-        
-        // Se não for aniversário (ou se já tiver resgatado), segue o fluxo normal
-        fluxoNormalDeCaixa(clienteEncontrado);
-    };
-
-    function fluxoNormalDeCaixa(cliente) {
-        // Proteção contra bipagem dupla no mesmo dia
-        if(verificarSeJaRegistrouHoje(cliente) && !isModoSimulacao) {
-            return mostrarToast('Atenção: Este cliente já registrou um almoço hoje!', 'erro');
-        }
-        
-        const almoçosAcumulados = cliente.almocos || 0;
-        
-        // Cenário 1: Cliente atingiu 10 almoços e tem direito ao resgate
-        if(almoçosAcumulados >= 10) {
-            abrirModalAcao('gift', 'Desconto R$ 50 Liberado', 
-                `O cliente <strong>${escapeHTML(cliente.nome)}</strong> possui ${almoçosAcumulados} almoços acumulados.`,
-                `<button onclick="efetuarResgateFidelidade('${cliente.cpf}')" class="w-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-black py-4 rounded-xl shadow-lg transition">RESGATAR R$ 50 AGORA</button>
-                 <button onclick="confirmarAdicaoAlmoco('${cliente.cpf}')" class="w-full border-2 border-slate-200 text-slate-700 hover:bg-slate-50 font-bold py-4 rounded-xl mt-3 transition">Apenas Acumular (+1)</button>`, 
-                'border-amber-500', 'text-amber-500', 'bg-amber-50'
-            );
-        } 
-        // Cenário 2: Cliente normal, apenas soma +1
-        else {
-            abrirModalAcao('utensils', 'Registrar Novo Almoço', 
-                `Deseja adicionar +1 almoço para <strong>${escapeHTML(cliente.nome)}</strong>?`,
-                `<button onclick="confirmarAdicaoAlmoco('${cliente.cpf}')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-xl shadow-lg transition">CONFIRMAR +1 ALMOÇO</button>
-                 <button onclick="fecharModal('modal-acao')" class="w-full text-slate-500 hover:text-slate-700 font-bold py-2 mt-3 transition">Cancelar Operação</button>`, 
-                'border-indigo-600', 'text-indigo-600', 'bg-indigo-50'
-            );
-        }
-    }
-
-    // Processamento da Adição Simples de Almoço
-    window.confirmarAdicaoAlmoco = (cpf) => {
-        if(isProcessing) return; 
-        isProcessing = true;
-        
-        fecharModal('modal-acao');
-        const cliente = clientesMap[cpf];
-        
-        // Regra de Negócio: Incrementa almoço e salva data
-        cliente.almocos = (cliente.almocos || 0) + 1;
-        
-        if(!cliente.historico) cliente.historico = [];
-        const registroDataHora = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-        cliente.historico.push(registroDataHora);
-        
-        cliente.ultimaVisitaTimestamp = Date.now();
-        
-        // Limita o tamanho do array de histórico para evitar banco de dados inchado
-        if(cliente.historico.length > 50) {
-            cliente.historico = cliente.historico.slice(-50);
-        }
-        
-        // Define qual caminho salvar (se simulação, salva em outro nó para não poluir)
-        const caminhoFirebase = isModoSimulacao ? `simulacao/clientes/${cpf}` : `clientes/${cpf}`;
-        
-        set(ref(db, caminhoFirebase), cliente).then(() => {
-            isProcessing = false; 
-            document.getElementById('busca-cpf').value = '';
-            
-            logAuditoria('Almoço Adicionado', `+1 Almoço para ${cliente.nome}. Total agora: ${cliente.almocos}`);
-            mostrarToast('Almoço Contabilizado com Sucesso!');
-            
-            // Automação: Envia mensagem ao robô instantaneamente se ativado
-            if(configuracoesAutomacao.posAlmoco && !isModoSimulacao) {
-                enviarParaFilaRobo(cpf, 'pos_almoco');
-            }
-        }).catch(erro => {
-            isProcessing = false;
-            mostrarToast('Erro ao salvar no banco de dados', 'erro');
-        });
-    };
-
-    // Processamento do Resgate (Baixa de 10 almoços)
-    window.efetuarResgateFidelidade = (cpf) => {
-        if(isProcessing) return; 
-        isProcessing = true;
-        
-        fecharModal('modal-acao');
-        const cliente = clientesMap[cpf];
-        
-        // Pega as datas dos últimos 10 almoços para salvar no cupom
-        const datasConsumidas = (cliente.historico || []).slice(0, 10);
-        
-        // Regra de Negócio: Remove 10, adiciona 1 troféu VIP
-        cliente.historico = (cliente.historico || []).slice(10);
-        cliente.almocos -= 10; 
-        cliente.premiosResgatados = (cliente.premiosResgatados || 0) + 1; 
-        
-        const dataDoResgate = new Date().toLocaleString('pt-BR');
-        
-        if(!cliente.historicoResgates) cliente.historicoResgates = [];
-        cliente.historicoResgates.push({
-            dataResgate: dataDoResgate, 
-            datasDasVisitas: datasConsumidas
-        });
-        
-        const caminhoFirebase = isModoSimulacao ? `simulacao/clientes/${cpf}` : `clientes/${cpf}`;
-        
-        set(ref(db, caminhoFirebase), cliente).then(() => {
-            isProcessing = false; 
-            document.getElementById('busca-cpf').value = '';
-            
-            logAuditoria('Resgate Efetuado', `Desconto R$ 50 resgatado por ${cliente.nome}`);
-            mostrarToast('Resgate Registrado no Sistema!');
-            
-            // Abre impressão do comprovante (Cupom não fiscal)
-            gerarCupomImpressao(cliente.nome, cliente.cpf, datasConsumidas, dataDoResgate);
-        });
-    };
-
-    // Processamento de Cadastro Novo
-    window.cadastrarCliente = (evento) => {
-        evento.preventDefault(); 
-        if(isProcessing) return;
-        
-        const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
-        if(!validarMatematicaCPF(cpf)) return mostrarToast('Atenção: CPF Inválido', 'erro');
-        
-        if(clientesMap[cpf]) return mostrarToast('Erro: Este CPF já possui cadastro no sistema!', 'erro');
-        
-        const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '');
-        if(telefone.length < 10) return mostrarToast('Telefone Inválido. Digite DDD + Número', 'erro');
-        
-        isProcessing = true;
-        
-        // Padronização de data para o formato YYYY-MM-DD
-        const dataInput = document.getElementById('cad-nascimento').value;
-        const nascimentoFormatado = dataInput.includes('/') 
-            ? `${dataInput.split('/')[2]}-${dataInput.split('/')[1]}-${dataInput.split('/')[0]}` 
-            : dataInput;
-        
-        const novoClienteObj = { 
-            cpf: cpf, 
-            nome: document.getElementById('cad-nome').value.trim(), 
-            nascimento: nascimentoFormatado, 
-            telefone: telefone, 
-            almocos: 0, 
-            premiosResgatados: 0, 
-            historico: [], 
-            origemCadastro: 'Caixa Executivo', 
-            dataCadastro: new Date().toLocaleDateString('pt-BR'), 
-            ultimaVisitaTimestamp: null 
+        window.fazerLogout = () => { 
+            logAuditoria('Logout', 'Saída do sistema'); 
+            signOut(auth); 
         };
-        
-        set(ref(db, `clientes/${cpf}`), novoClienteObj).then(() => {
-            isProcessing = false; 
-            document.getElementById('form-cadastro').reset();
-            
-            logAuditoria('Novo Cadastro', `Cliente registrado: ${novoClienteObj.nome} (CPF: ${formatarCPFVisivel(cpf)})`);
-            mostrarToast('Cadastro finalizado com sucesso!');
-            
-            // Logo após cadastrar, sugere já bipar o almoço de hoje
-            fluxoNormalDeCaixa(novoClienteObj);
-        });
-    };
 
-    // ==========================================================================
-    // 6. INTEGRAÇÃO WHATSAPP (MÓDULO DE MARKETING E ROBÔ)
-    // ==========================================================================
-    
-    // Função principal que comunica o painel HTML com o motor Node.js do Robô
-    window.enviarParaFilaRobo = (cpf, tipoDeGatilho) => {
-        const cliente = clientesMap[cpf]; 
-        if(!cliente || !cliente.telefone) return;
-        
-        let textoFinalMensagem = '';
-        const almoçosFaltantes = 10 - (cliente.almocos || 0);
-        
-        // Define o texto baseado no gatilho que chamou a função
-        if(tipoDeGatilho === 'pos_almoco' || tipoDeGatilho === 'lembrete_manual') {
+        // ==========================================================================
+        // MODO SIMULAÇÃO (PRESERVAÇÃO INTEGRAL)
+        // ==========================================================================
+        window.ativarSimulacao = () => {
+            window.isModoSimulacao = true;
+            document.getElementById('banner-simulacao').classList.remove('hidden');
+            mostrarToast("Modo de Simulação Ativado. Nenhum dado real será alterado.");
+        };
+
+        window.desativarSimulacao = () => {
+            window.isModoSimulacao = false;
+            document.getElementById('banner-simulacao').classList.add('hidden');
+            mostrarToast("Saindo do modo de simulação. Operando com dados reais.");
+        };
+
+        // ==========================================================================
+        // LISTENERS DE BANCO DE DADOS (FIREBASE REAL-TIME)
+        // ==========================================================================
+        function iniciarListenersFirebase() {
+            // Monitora os Clientes do nó correto (Real ou Simulação)
+            const noClientes = window.isModoSimulacao ? 'simulacao/clientes' : 'clientes';
             
-            if(almoçosFaltantes > 0 && almoçosFaltantes < 10) {
-                textoFinalMensagem = `Olá *${cliente.nome.split(' ')[0]}*, seu almoço foi contabilizado no Top Haus! 🍽️\nVocê tem *${cliente.almocos}* almoços acumulados. Faltam apenas *${almoçosFaltantes}* para ganhar R$ 50,00 de desconto!`;
-            } 
-            else if(cliente.almocos === 10) {
-                textoFinalMensagem = `Parabéns *${cliente.nome.split(' ')[0]}*! 🎉\nVocê completou 10 almoços. Na sua próxima visita, você já tem R$ 50,00 de desconto garantido!`;
-            } 
-            else {
-                return; // Cliente acabou de resgatar ou não se encaixa nas regras de aviso.
-            }
-            
-        } else if(tipoDeGatilho === 'forcar_aniversario') {
-            textoFinalMensagem = `Olá *${cliente.nome.split(' ')[0]}*, feliz mês do seu aniversário! 🎂 Venha comemorar conosco no Top Haus e garanta seu bônus!`;
-        }
-        
-        // Disparo Real: Escreve no nó do Firebase que o Robô (Node.js) está escutando 24h
-        if(textoFinalMensagem !== '') {
-            
-            const telefoneFormatado = cliente.telefone.replace(/\D/g,'');
-            const pacoteMensagem = { 
-                cpf: cliente.cpf, 
-                telefone: telefoneFormatado, 
-                texto: textoFinalMensagem, 
-                timestamp: Date.now() 
-            };
-            
-            // Se estivermos em simulação, envia para fila fantasma para não incomodar ninguém
-            const nomeFilaDb = isModoSimulacao ? 'simulacao_fila_mensagens' : 'fila_mensagens';
-            
-            push(ref(db, nomeFilaDb), pacoteMensagem).then(() => {
-                mostrarToast(isModoSimulacao ? '[Simulação] Mensagem fingida com sucesso' : 'Ordem enviada para a fila do Robô!');
-                logAuditoria('Robô', `Ordem de disparo enfileirada para ${cliente.nome} (${tipoDeGatilho})`);
+            onValue(ref(db, noClientes), (snap) => {
+                clientesMap = snap.val() || {};
+                clientesArray = Object.values(clientesMap);
+                
+                atualizarDashboardExecutivo();
+                if(!document.getElementById('sub-aba-clientes').classList.contains('hidden')) renderizarTabelaClientes();
+                if(!document.getElementById('sub-aba-ranking').classList.contains('hidden')) atualizarRanking();
+            });
+
+            onValue(ref(db, 'config/automacoes'), (snap) => {
+                if(snap.exists()) {
+                    configuracoesAutomacao = snap.val();
+                    document.getElementById('auto-niver').checked = configuracoesAutomacao.niver;
+                    document.getElementById('auto-inativo').checked = configuracoesAutomacao.inativo;
+                    document.getElementById('auto-pos-almoco').checked = configuracoesAutomacao.posAlmoco;
+                    document.getElementById('auto-campanhas').checked = configuracoesAutomacao.campanhas;
+                }
+            });
+
+            onValue(ref(db, 'status_robo'), (snap) => {
+                const s = snap.val() || { online: false, enviadasHoje: 0, enviadasMes: 0, erros: 0 };
+                const textoRobo = document.getElementById('ind-robo-texto');
+                const corRobo = document.getElementById('ind-robo-cor');
+                
+                if(s.online) { 
+                    textoRobo.innerText = 'Robô On'; 
+                    corRobo.classList.replace('bg-red-500', 'bg-indigo-500'); 
+                    document.getElementById('robo-titulo-status').innerText = 'Robô Conectado';
+                } else { 
+                    textoRobo.innerText = 'Robô Off'; 
+                    corRobo.classList.replace('bg-indigo-500', 'bg-red-500'); 
+                    document.getElementById('robo-titulo-status').innerText = 'Robô Offline';
+                }
+                document.getElementById('robo-enviadas-hoje').innerText = s.enviadasHoje;
+                document.getElementById('robo-enviadas-mes').innerText = s.enviadasMes;
+                document.getElementById('robo-erros-qtd').innerText = s.erros;
+            });
+
+            onValue(ref(db, 'fila_mensagens'), (snap) => {
+                const qtd = snap.exists() ? Object.keys(snap.val()).length : 0;
+                document.getElementById('kpi-fila').innerText = qtd;
+                document.getElementById('robo-fila-qtd').innerText = qtd;
+            });
+
+            onValue(ref(db, 'historico_disparos'), (snap) => {
+                historicoCampanhas = snap.exists() ? Object.values(snap.val()).reverse() : [];
+                renderizarHistoricoCampanhas();
+            });
+
+            onValue(ref(db, 'auditoria'), (snap) => {
+                auditoriaLogs = snap.exists() ? Object.values(snap.val()).sort((a,b)=>b.timestamp - a.timestamp) : [];
+                renderizarAuditoria();
             });
         }
-    };
 
-    // ==========================================================================
-    // 7. FUNÇÕES AUXILIARES DE CÁLCULO E FORMATAÇÃO (MATEMÁTICA PURA)
-    // ==========================================================================
-    
-    function verificarSeJaRegistrouHoje(clienteObj) { 
-        if (clienteObj.ultimaVisitaTimestamp) { 
-            const hoje = new Date();
-            const visita = new Date(clienteObj.ultimaVisitaTimestamp); 
-            return hoje.getDate() === visita.getDate() && hoje.getMonth() === visita.getMonth() && hoje.getFullYear() === visita.getFullYear(); 
-        } 
-        return false; 
-    }
-    
-    function calcularDiasDesdeVisita(clienteObj) { 
-        return clienteObj.ultimaVisitaTimestamp ? Math.floor((Date.now() - clienteObj.ultimaVisitaTimestamp) / 86400000) : 999; 
-    }
-    
-    function calcularDiasParaAniversario(dataNasc) { 
-        if(!dataNasc) return -1; 
+        // ==========================================================================
+        // NAVEGAÇÃO E ABAS ORIGINAIS
+        // ==========================================================================
+        window.alternarAba = (abaId) => {
+            document.querySelectorAll('main > section').forEach(secao => secao.classList.add('hidden'));
+            document.getElementById(`aba-${abaId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.aba-btn').forEach(btn => {
+                if(btn.id === `btn-aba-${abaId}`) {
+                    btn.classList.add('bg-gray-800', 'border-gray-600');
+                    btn.classList.remove('bg-black', 'border-gray-800');
+                } else {
+                    btn.classList.remove('bg-gray-800', 'border-gray-600');
+                    btn.classList.add('bg-black', 'border-gray-800');
+                }
+            });
+            if(abaId === 'admin') abrirSubAba('dashboard');
+        };
+
+        window.abrirSubAba = (subId) => {
+            document.querySelectorAll('.sub-aba-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`sub-aba-${subId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.sub-aba-btn').forEach(btn => {
+                if(btn.id === `btn-sub-${subId}`) {
+                    btn.classList.add('bg-slate-900', 'text-white');
+                    btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+                } else {
+                    btn.classList.remove('bg-slate-900', 'text-white');
+                    btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+                }
+            });
+            
+            if(subId === 'clientes') renderizarTabelaClientes();
+            if(subId === 'ranking') atualizarRanking();
+        };
+
+        // ==========================================================================
+        // LÓGICA E REGRAS DE NEGÓCIO - CAIXA
+        // ==========================================================================
+        window.buscarEContabilizar = () => {
+            const inputCpf = document.getElementById('busca-cpf');
+            const cpf = inputCpf.value.replace(/\D/g, '');
+            
+            if(!validarMatematicaCPF(cpf)) return mostrarToast('CPF Inválido', 'erro');
+            if(isProcessing) return;
+            
+            const cliente = clientesMap[cpf];
+            if(!cliente) return mostrarToast('Cliente não cadastrado na base!', 'erro');
+            
+            // Regra Aniversário: Confere se é o dia
+            if(diasParaNiver(cliente.nascimento) === 0 && cliente.aniversarioResgatadoAno !== new Date().getFullYear()) {
+                acaoPendente = cliente;
+                abrirModalAcao('cake', 'Aniversariante do Dia!', 
+                `Hoje é o aniversário de <strong>${escapeHTML(cliente.nome)}</strong>. R$ 50 Liberado!`, 
+                `<button onclick="confirmarNiver()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-md">BAIXAR DESCONTO R$ 50</button>
+                 <button onclick="pularAcaoEContinuar()" class="w-full text-slate-500 font-bold py-2 mt-2">Pular e registrar apenas almoço</button>`, 
+                'border-pink-500', 'text-pink-600', 'bg-pink-50');
+                return;
+            }
+            fluxoNormalCaixa(cliente);
+        };
+
+        function fluxoNormalCaixa(cliente) {
+            if(jaRegistrouHoje(cliente) && !window.isModoSimulacao) {
+                return mostrarToast('Este cliente já registrou almoço hoje!', 'erro');
+            }
+            
+            if((cliente.almocos || 0) >= 10) {
+                abrirModalAcao('gift', 'Desconto R$ 50 Liberado', 
+                `<strong>${escapeHTML(cliente.nome)}</strong> já tem ${cliente.almocos} almoços.`,
+                `<button onclick="efetuarResgate('${cliente.cpf}')" class="w-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-black py-4 rounded-xl shadow-md">RESGATAR R$ 50 AGORA</button>
+                 <button onclick="confirmarAlmoco('${cliente.cpf}')" class="w-full border-2 border-slate-200 text-slate-700 font-bold py-4 rounded-xl mt-3">Apenas Acumular (+1)</button>`, 
+                'border-amber-500', 'text-amber-500', 'bg-amber-50');
+            } else {
+                abrirModalAcao('utensils', 'Registrar Almoço', 
+                `Deseja adicionar +1 almoço para <strong>${escapeHTML(cliente.nome)}</strong>?`,
+                `<button onclick="confirmarAlmoco('${cliente.cpf}')" class="w-full bg-slate-900 text-white font-black py-4 rounded-xl shadow-md">CONFIRMAR +1 ALMOÇO</button>
+                 <button onclick="fecharModal('modal-acao')" class="w-full text-slate-500 font-bold py-2 mt-3">Cancelar</button>`, 
+                'border-slate-900', 'text-slate-900', 'bg-slate-100');
+            }
+        }
+
+        window.cadastrarCliente = (e) => {
+            e.preventDefault(); 
+            if(isProcessing) return;
+            
+            const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, '');
+            if(!validarMatematicaCPF(cpf)) return mostrarToast('CPF Inválido', 'erro');
+            if(clientesMap[cpf]) return mostrarToast('CPF já cadastrado!', 'erro');
+            
+            const tel = document.getElementById('cad-telefone').value.replace(/\D/g, '');
+            if(tel.length < 10) return mostrarToast('Telefone Inválido', 'erro');
+            
+            isProcessing = true;
+            const nasc = document.getElementById('cad-nascimento').value;
+            const nascFormatado = nasc.includes('/') ? `${nasc.split('/')[2]}-${nasc.split('/')[1]}-${nasc.split('/')[0]}` : nasc;
+            
+            const novoCliente = { 
+                cpf: cpf, 
+                nome: document.getElementById('cad-nome').value.trim(), 
+                nascimento: nascFormatado, 
+                telefone: tel, 
+                almocos: 0, 
+                premiosResgatados: 0, 
+                historico: [], 
+                origemCadastro: 'Caixa', 
+                dataCadastro: new Date().toLocaleDateString('pt-BR'), 
+                ultimaVisitaTimestamp: null 
+            };
+            
+            const noDb = window.isModoSimulacao ? `simulacao/clientes/${cpf}` : `clientes/${cpf}`;
+            
+            set(ref(db, noDb), novoCliente).then(() => {
+                isProcessing = false; 
+                document.getElementById('form-cadastro').reset();
+                logAuditoria('Cadastro', `Novo cliente: ${novoCliente.nome}`);
+                mostrarToast('Cadastro finalizado!');
+                fluxoNormalCaixa(novoCliente);
+            });
+        };
+
+        window.confirmarAlmoco = (cpf) => {
+            if(isProcessing) return; 
+            isProcessing = true;
+            fecharModal('modal-acao');
+            
+            const c = clientesMap[cpf];
+            c.almocos = (c.almocos || 0) + 1;
+            
+            if(!c.historico) c.historico = [];
+            c.historico.push(new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}));
+            c.ultimaVisitaTimestamp = Date.now();
+            
+            if(c.historico.length > 50) c.historico = c.historico.slice(-50);
+            
+            const noDb = window.isModoSimulacao ? `simulacao/clientes/${cpf}` : `clientes/${cpf}`;
+            
+            set(ref(db, noDb), c).then(() => {
+                isProcessing = false; 
+                document.getElementById('busca-cpf').value = '';
+                logAuditoria('Almoço', `+1 Almoço para ${c.nome}. Total: ${c.almocos}`);
+                mostrarToast('Almoço Contabilizado!');
+                if(configuracoesAutomacao.posAlmoco) dispararFilaRobo(cpf, 'pos_almoco');
+            });
+        };
+
+        window.efetuarResgate = (cpf) => {
+            if(isProcessing) return; 
+            isProcessing = true;
+            fecharModal('modal-acao');
+            
+            const c = clientesMap[cpf];
+            const dts = (c.historico || []).slice(0, 10);
+            c.historico = (c.historico || []).slice(10);
+            c.almocos -= 10; 
+            c.premiosResgatados = (c.premiosResgatados || 0) + 1;
+            
+            const hr = new Date().toLocaleString('pt-BR');
+            if(!c.historicoResgates) c.historicoResgates = [];
+            c.historicoResgates.push({dataResgate: hr, datas: dts});
+            
+            const noDb = window.isModoSimulacao ? `simulacao/clientes/${cpf}` : `clientes/${cpf}`;
+            
+            set(ref(db, noDb), c).then(() => {
+                isProcessing = false; 
+                document.getElementById('busca-cpf').value = '';
+                logAuditoria('Resgate', `Resgate efetuado por ${c.nome}`);
+                mostrarToast('Resgate Registrado!');
+                imprimirCupom(c.nome, c.cpf, dts, hr);
+            });
+        };
+
+        window.confirmarNiver = () => {
+            if(!acaoPendente || isProcessing) return; 
+            isProcessing = true;
+            fecharModal('modal-acao'); 
+            
+            const c = acaoPendente; 
+            const ano = new Date().getFullYear();
+            c.aniversarioResgatadoAno = ano;
+            
+            if(!c.historicoAniversarios) c.historicoAniversarios = [];
+            c.historicoAniversarios.push({ dataResgate: new Date().toLocaleString('pt-BR'), ano: ano });
+            
+            const noDb = window.isModoSimulacao ? `simulacao/clientes/${c.cpf}` : `clientes/${c.cpf}`;
+            
+            set(ref(db, noDb), c).then(() => {
+                isProcessing = false; 
+                logAuditoria('Aniversário', `Desconto aniversário para ${c.nome}`);
+                mostrarToast('Desconto de Niver Baixado!'); 
+                pularAcaoEContinuar();
+            });
+        };
         
-        // Padroniza a string de data seja YYYY-MM-DD ou DD/MM/YYYY
-        const partesData = dataNasc.includes('-') ? dataNasc.split('-') : dataNasc.split('/').reverse(); 
+        window.pularAcaoEContinuar = () => { 
+            fecharModal('modal-acao'); 
+            fluxoNormalCaixa(acaoPendente); 
+            acaoPendente = null; 
+        };
+
+        // ==========================================================================
+        // MARKETING E ROBÔ (NÓS E ROTINAS)
+        // ==========================================================================
+        const msgTemplates = {
+            sushi: "Olá *[Nome]*, hoje é Terça do Sushi no Top Haus! 🍣\nVenha aproveitar nosso buffet.",
+            casal: "Olá *[Nome]*, Quarta do Casal no Top Haus! 👩‍❤️‍👨\nTraga seu amor.",
+            chopp: "Olá *[Nome]*, Quinta do Chopp em dobro! 🍺\nTe esperamos para o happy hour.",
+            promocao: "Olá *[Nome]*, promoção especial hoje no Top Haus!",
+            aniversario: "Olá *[Nome]*, feliz mês do seu aniversário! 🎂 Venha comemorar conosco.",
+            inativo: "Olá *[Nome]*, faz tempo que não te vemos por aqui! Que tal um almoço hoje?"
+        };
+
+        window.aplicarModeloCampanha = () => {
+            const v = document.getElementById('mkt-modelo').value;
+            if(v && msgTemplates[v]) document.getElementById('mkt-texto').value = msgTemplates[v];
+            else document.getElementById('mkt-texto').value = '';
+        };
+
+        window.toggleRecorrencia = () => {
+            const r = document.getElementById('mkt-recorrencia').value;
+            document.getElementById('mkt-data-unica').classList.add('hidden');
+            document.getElementById('mkt-dia-semana').classList.add('hidden');
+            document.getElementById('mkt-dia-mes').classList.add('hidden');
+            if(r === 'unica') document.getElementById('mkt-data-unica').classList.remove('hidden');
+            else if(r === 'semanal') document.getElementById('mkt-dia-semana').classList.remove('hidden');
+            else if(r === 'mensal') document.getElementById('mkt-dia-mes').classList.remove('hidden');
+        };
+
+        window.mudarAbaMkt = (aba) => {
+            document.getElementById('mkt-area-nova').classList.add('hidden');
+            document.getElementById('mkt-area-historico').classList.add('hidden');
+            document.getElementById('tab-mkt-nova').classList.remove('border-slate-900', 'text-slate-900'); document.getElementById('tab-mkt-nova').classList.add('border-transparent', 'text-slate-500');
+            document.getElementById('tab-mkt-historico').classList.remove('border-slate-900', 'text-slate-900'); document.getElementById('tab-mkt-historico').classList.add('border-transparent', 'text-slate-500');
+            
+            document.getElementById(`mkt-area-${aba}`).classList.remove('hidden');
+            document.getElementById(`tab-mkt-${aba}`).classList.remove('border-transparent', 'text-slate-500');
+            document.getElementById(`tab-mkt-${aba}`).classList.add('border-slate-900', 'text-slate-900');
+        };
+
+        window.salvarCampanha = () => {
+            const nome = document.getElementById('mkt-nome-campanha').value.trim();
+            const texto = document.getElementById('mkt-texto').value.trim();
+            const segmento = document.getElementById('mkt-segmento').value;
+            const rec = document.getElementById('mkt-recorrencia').value;
+            const hor = document.getElementById('mkt-horario').value;
+            
+            if(!nome || !texto) return mostrarToast('Preencha nome e texto', 'erro');
+            
+            let gatilho = rec;
+            if(rec === 'unica') gatilho = document.getElementById('mkt-data-unica').value;
+            if(rec === 'semanal') gatilho = `Semanal (Dia ${document.getElementById('mkt-dia-semana').value})`;
+            if(rec === 'mensal') gatilho = `Mensal (Dia ${document.getElementById('mkt-dia-mes').value})`;
+            
+            push(ref(db, 'historico_disparos'), {
+                nome, texto, segmento, recorrencia: rec, gatilho, horario: hor, timestamp: Date.now(), 
+                status: rec === 'imediata' ? 'Em Fila' : 'Agendado', 
+                destinatariosCount: calcularTamanhoPublico(segmento)
+            }).then(() => {
+                logAuditoria('Marketing', `Nova campanha agendada: ${nome}`);
+                mostrarToast('Campanha Agendada!');
+                document.getElementById('mkt-nome-campanha').value = ''; 
+                document.getElementById('mkt-texto').value = '';
+                mudarAbaMkt('historico');
+            });
+        };
+
+        function calcularTamanhoPublico(seg) {
+            if(seg === 'todos') return clientesArray.length;
+            if(seg === 'vips') return clientesArray.filter(c => (c.premiosResgatados||0) > 0).length;
+            if(seg === '5_almocos') return clientesArray.filter(c => (c.almocos||0) >= 5).length;
+            if(seg === '10_almocos') return clientesArray.filter(c => (c.almocos||0) >= 10).length;
+            if(seg === 'inativos') return clientesArray.filter(c => diasDesdeVisita(c) > 15).length;
+            if(seg === 'aniversariantes') return clientesArray.filter(c => isNiverMes(c.nascimento)).length;
+            return 0;
+        }
+
+        window.abrirModalWhatsAppManual = (cpf) => {
+            fecharModal('modal-cliente');
+            const c = clientesMap[cpf] || totemClienteTemp; 
+            if(!c) return;
+            
+            abrirModalAcao('send', 'Disparo Manual', 
+                `Enviar mensagem via Robô para <strong>${escapeHTML(c.nome)}</strong>.`,
+                `<button onclick="dispararFilaRobo('${c.cpf}', 'lembrete'); fecharModal('modal-acao');" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl mb-2">Aviso "Faltam X Almoços"</button>
+                 <button onclick="dispararFilaRobo('${c.cpf}', 'aniversario'); fecharModal('modal-acao');" class="w-full bg-pink-500 text-white font-bold py-3 rounded-xl mb-2">Felitações (Niver)</button>
+                 <button onclick="fecharModal('modal-acao')" class="w-full text-slate-500 font-bold py-2 mt-2">Cancelar</button>`, 
+                'border-slate-900', 'text-slate-900', 'bg-slate-100'
+            );
+        };
+
+        window.dispararFilaRobo = (cpf, tipo) => {
+            const c = clientesMap[cpf]; 
+            if(!c || !c.telefone) return;
+            
+            let txt = '';
+            const faltam = 10 - ((c.almocos || 0) % 10);
+            
+            if(tipo === 'pos_almoco' || tipo === 'lembrete') {
+                if(faltam > 0 && faltam < 10) txt = `Olá *${c.nome.split(' ')[0]}*, seu almoço foi contabilizado! 🍽️\nVocê tem *${c.almocos}* acumulados. Faltam *${faltam}* para ganhar R$ 50,00 de desconto!`;
+                else if(c.almocos >= 10 && faltam === 10) txt = `Parabéns *${c.nome.split(' ')[0]}*! 🎉\nVocê completou mais 10 almoços. No próximo você tem R$ 50,00 de desconto garantido!`;
+                else return; 
+            } else if(tipo === 'aniversario') {
+                txt = msgTemplates.aniversario.replace(/\[Nome\]/g, c.nome.split(' ')[0]);
+            }
+            
+            if(txt) {
+                const filaNome = window.isModoSimulacao ? 'simulacao_fila_mensagens' : 'fila_mensagens';
+                push(ref(db, filaNome), { cpf: c.cpf, telefone: c.telefone.replace(/\D/g,''), texto: txt, timestamp: Date.now() });
+                mostrarToast('Enviado para fila do Robô!');
+            }
+        };
+
+        window.dispararVarreduraRobo = () => { 
+            push(ref(db, 'fila_mensagens'), { cmd_interno: 'force_cron', timestamp: Date.now() }); 
+            mostrarToast('Comando enviado ao Robô'); 
+            logAuditoria('Robô', 'Varredura forçada solicitada no painel'); 
+        };
+
+        window.salvarAutomacoes = () => {
+            const conf = {
+                niver: document.getElementById('auto-niver').checked,
+                inativo: document.getElementById('auto-inativo').checked,
+                posAlmoco: document.getElementById('auto-pos-almoco').checked,
+                campanhas: document.getElementById('auto-campanhas').checked
+            };
+            set(ref(db, 'config/automacoes'), conf).then(() => { 
+                logAuditoria('Automação', 'Configurações de automação atualizadas'); 
+                mostrarToast('Configurações Salvas!'); 
+            });
+        };
+
+        // ==========================================================================
+        // RENDERIZADORES DE UI E DASHBOARDS
+        // ==========================================================================
+        function atualizarDashboardExecutivo() {
+            const hj = new Date().toLocaleDateString('pt-BR');
+            let cadHj=0, almHj=0, resHj=0, niv7d=0, inat=0, vips=0;
+            
+            clientesArray.forEach(c => {
+                if(c.dataCadastro === hj) cadHj++;
+                if(c.historico && c.historico.some(h => h.startsWith(hj))) almHj++;
+                if(c.historicoResgates && c.historicoResgates.some(h => h.dataResgate.startsWith(hj))) resHj++;
+                if((c.premiosResgatados||0) > 0) vips++;
+                
+                if(diasDesdeVisita(c) > 15) inat++;
+                const dNiv = diasParaNiver(c.nascimento);
+                if(dNiv >= 0 && dNiv <= 7) niv7d++;
+            });
+            
+            document.getElementById('kpi-cad-hoje').innerText = cadHj;
+            document.getElementById('kpi-alm-hoje').innerText = almHj;
+            document.getElementById('kpi-res-hoje').innerText = resHj;
+            document.getElementById('kpi-niv-7d').innerText = niv7d;
+            document.getElementById('kpi-inativos').innerText = inat;
+            document.getElementById('kpi-vips').innerText = vips;
+        }
+
+        window.renderizarTabelaClientes = () => {
+            const tbody = document.getElementById('tabela-clientes-body');
+            const txt = document.getElementById('filtro-texto-cli').value.toLowerCase();
+            const tipo = document.getElementById('filtro-tipo-cli').value;
+            
+            let lista = clientesArray.filter(c => {
+                const matchTxt = (c.nome||'').toLowerCase().includes(txt) || (c.cpf||'').includes(txt) || (c.telefone||'').includes(txt);
+                if(!matchTxt) return false;
+                if(tipo === 'vips' && (c.premiosResgatados||0) === 0) return false;
+                if(tipo === 'premios' && (c.almocos||0) < 10) return false;
+                if(tipo === 'inativos' && diasDesdeVisita(c) <= 15) return false;
+                if(tipo === 'niver_mes' && !isNiverMes(c.nascimento)) return false;
+                return true;
+            }).sort((a,b) => b.ultimaVisitaTimestamp - a.ultimaVisitaTimestamp).slice(0, 100); 
+            
+            tbody.innerHTML = lista.map(c => {
+                const perc = Math.min(100, ((c.almocos||0)%10)*10);
+                const badge = (c.premiosResgatados||0)>0 ? `<span class="bg-amber-100 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded ml-2">VIP</span>` : '';
+                return `
+                <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="abrirModalCliente('${c.cpf}')">
+                    <td class="py-4 px-6"><p class="font-bold text-slate-800">${escapeHTML(c.nome)} ${badge}</p><p class="text-xs text-slate-400">Cad: ${c.dataCadastro||'--'}</p></td>
+                    <td class="py-4 px-6 text-center"><p class="font-mono text-sm text-slate-600">${fmtCPF(c.cpf)}</p><p class="font-mono text-xs text-slate-400">${fmtTel(c.telefone)}</p></td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3 justify-center">
+                            <span class="font-black text-slate-700 text-lg w-6 text-right">${c.almocos||0}</span>
+                            <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-slate-900 h-full rounded-full" style="width:${perc}%"></div></div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-center"><button onclick="event.stopPropagation(); abrirModalWhatsAppManual('${c.cpf}')" class="p-2 text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg"><i data-lucide="message-circle" class="w-4 h-4"></i></button></td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        };
+
+        window.atualizarRanking = () => {
+            const listAlm = [...clientesArray].sort((a,b)=>(b.almocos||0)-(a.almocos||0)).slice(0,10);
+            const listRes = [...clientesArray].filter(c=>(c.premiosResgatados||0)>0).sort((a,b)=>(b.premiosResgatados||0)-(a.premiosResgatados||0)).slice(0,10);
+            
+            document.getElementById('lista-ranking-almocos').innerHTML = listAlm.map((c,i) => `
+                <li class="flex items-center justify-between p-4 hover:bg-white transition cursor-pointer" onclick="abrirModalCliente('${c.cpf}')">
+                    <div class="flex items-center gap-4"><span class="w-6 text-center font-black text-slate-300 text-xl">${i+1}</span><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">${c.nome.charAt(0).toUpperCase()}</div><div><p class="font-bold text-slate-800">${escapeHTML(c.nome)}</p><p class="text-xs text-slate-400">Última: ${c.ultimaVisitaTimestamp ? new Date(c.ultimaVisitaTimestamp).toLocaleDateString('pt-BR') : '--'}</p></div></div>
+                    <div class="text-right"><p class="text-2xl font-black text-amber-500">${c.almocos||0}</p><p class="text-[10px] font-bold text-slate-400 uppercase">Almoços</p></div>
+                </li>`).join('');
+                
+            document.getElementById('lista-ranking-resgates').innerHTML = listRes.map((c,i) => `
+                <li class="flex items-center justify-between p-4 hover:bg-slate-800 transition cursor-pointer" onclick="abrirModalCliente('${c.cpf}')">
+                    <div class="flex items-center gap-4"><span class="w-6 text-center font-black text-slate-600 text-xl">${i+1}</span><div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-amber-400"><i data-lucide="crown" class="w-5 h-5"></i></div><div><p class="font-bold text-white">${escapeHTML(c.nome)}</p><p class="text-xs text-slate-400">Cliente VIP</p></div></div>
+                    <div class="text-right"><p class="text-2xl font-black text-amber-400">${c.premiosResgatados||0}</p><p class="text-[10px] font-bold text-slate-400 uppercase">Resgates</p></div>
+                </li>`).join('');
+            lucide.createIcons();
+        };
+
+        function renderizarHistoricoCampanhas() {
+            const tb = document.getElementById('tabela-historico-campanhas');
+            tb.innerHTML = historicoCampanhas.map(h => {
+                const badge = h.status === 'Agendado' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700';
+                return `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4 font-bold text-slate-800">${escapeHTML(h.nome)}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${h.segmento}</span></td>
+                    <td class="p-4 text-slate-600 text-xs">${h.gatilho}</td>
+                    <td class="p-4 text-center font-mono text-slate-600 text-xs">${h.horario}</td>
+                    <td class="p-4 text-center font-black text-slate-700">${h.destinatariosCount}</td>
+                    <td class="p-4 text-center"><span class="px-2 py-1 rounded text-xs font-bold ${badge}">${h.status}</span></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderizarAuditoria() {
+            document.getElementById('tabela-auditoria').innerHTML = auditoriaLogs.map(l => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4 font-mono text-xs text-slate-500">${new Date(l.timestamp).toLocaleString('pt-BR')}</td>
+                    <td class="p-4 font-bold text-slate-700">${l.usuario}</td>
+                    <td class="p-4"><span class="bg-slate-200 text-slate-700 text-[10px] font-black uppercase px-2 py-1 rounded">${l.acao}</span></td>
+                    <td class="p-4 text-slate-600 truncate max-w-xs">${l.detalhes}</td>
+                </tr>`).join('');
+        }
+        window.limparAuditoria = () => { if(confirm('Apagar histórico de auditoria?')) set(ref(db, 'auditoria'), null); };
+
+        // ==========================================================================
+        // MODAL DO CLIENTE E EDIÇÃO
+        // ==========================================================================
+        window.abrirModalCliente = (cpf) => {
+            const c = clientesMap[cpf]; if(!c) return;
+            document.getElementById('mc-nome').innerText = c.nome;
+            document.getElementById('mc-cpf').innerText = fmtCPF(c.cpf);
+            document.getElementById('mc-tel').innerText = fmtTel(c.telefone);
+            document.getElementById('mc-nasc').innerText = c.nascimento||'--';
+            document.getElementById('mc-ultima').innerText = c.ultimaVisitaTimestamp ? new Date(c.ultimaVisitaTimestamp).toLocaleDateString('pt-BR') : '--';
+            document.getElementById('mc-resgates').innerText = c.premiosResgatados||0;
+            document.getElementById('mc-cad').innerText = c.dataCadastro||'--';
+            document.getElementById('mc-almocos').innerText = c.almocos||0;
+            
+            const badge = document.getElementById('mc-vip-badge');
+            if((c.premiosResgatados||0)>0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+            
+            const faltam = 10 - ((c.almocos||0)%10);
+            const perc = ((c.almocos||0)%10)*10;
+            document.getElementById('mc-bar').style.width = `${perc}%`;
+            document.getElementById('mc-faltam').innerText = c.almocos>=10 && faltam===10 ? 'R$ 50 Liberado!' : `Faltam ${faltam}`;
+            
+            document.getElementById('mc-lista-almocos').innerHTML = (c.historico||[]).slice().reverse().map(h=>`<li class="py-2 text-slate-600"><i data-lucide="check" class="w-3 h-3 inline mr-2 text-emerald-500"></i>${h}</li>`).join('') || '<li class="py-2 text-slate-400">Sem registros</li>';
+            document.getElementById('mc-lista-resgates').innerHTML = (c.historicoResgates||[]).slice().reverse().map(r=>`<li class="py-2 text-slate-600"><i data-lucide="gift" class="w-3 h-3 inline mr-2 text-amber-500"></i>${r.dataResgate}</li>`).join('') || '<li class="py-2 text-slate-400">Sem resgates</li>';
+            
+            document.getElementById('edit-cpf').value = c.cpf;
+            document.getElementById('modal-cliente').classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.mudarAbaClienteModal = (aba) => {
+            document.getElementById('mc-lista-almocos').classList.add('hidden'); 
+            document.getElementById('mc-lista-resgates').classList.add('hidden');
+            document.getElementById('tab-cli-almocos').classList.replace('text-slate-900','text-slate-500'); document.getElementById('tab-cli-almocos').classList.replace('border-slate-900','border-transparent');
+            document.getElementById('tab-cli-resgates').classList.replace('text-slate-900','text-slate-500'); document.getElementById('tab-cli-resgates').classList.replace('border-slate-900','border-transparent');
+            
+            document.getElementById(`mc-lista-${aba}`).classList.remove('hidden');
+            document.getElementById(`tab-cli-${aba}`).classList.replace('text-slate-500','text-slate-900'); document.getElementById(`tab-cli-${aba}`).classList.replace('border-transparent','border-slate-900');
+        };
+
+        window.editarClienteModal = () => {
+            const c = clientesMap[document.getElementById('edit-cpf').value]; if(!c) return;
+            document.getElementById('edit-nome').value = c.nome;
+            document.getElementById('edit-tel').value = fmtTel(c.telefone);
+            document.getElementById('edit-nasc').value = c.nascimento && c.nascimento.includes('-') ? c.nascimento.split('-').reverse().join('/') : (c.nascimento||'');
+            document.getElementById('modal-editar').classList.remove('hidden');
+        };
+
+        window.salvarEdicao = (e) => {
+            e.preventDefault();
+            const c = clientesMap[document.getElementById('edit-cpf').value]; if(!c) return;
+            c.nome = document.getElementById('edit-nome').value;
+            c.telefone = document.getElementById('edit-tel').value.replace(/\D/g, '');
+            const n = document.getElementById('edit-nasc').value;
+            c.nascimento = n.includes('/') ? n.split('/').reverse().join('-') : n;
+            const noDb = window.isModoSimulacao ? `simulacao/clientes/${c.cpf}` : `clientes/${c.cpf}`;
+            
+            set(ref(db, noDb), c).then(() => { 
+                logAuditoria('Edição', `Cadastro alterado: ${c.nome}`); 
+                mostrarToast('Salvo com sucesso!'); 
+                fecharModal('modal-editar'); 
+                abrirModalCliente(c.cpf); 
+            });
+        };
+
+        // ==========================================================================
+        // LÓGICA DO TOTEM
+        // ==========================================================================
+        window.entrarModoTotemDaTelaLogin = () => { 
+            document.getElementById('tela-login').classList.add('hidden'); 
+            document.getElementById('app-dashboard').classList.add('hidden'); 
+            document.documentElement.requestFullscreen().catch(()=>{}); 
+            document.getElementById('tela-totem').classList.remove('hidden'); 
+            totemVoltarInicio(); 
+        };
         
-        const hoje = new Date(); 
-        hoje.setHours(0,0,0,0); 
+        window.sairModoTotem = () => { 
+            if(document.fullscreenElement) document.exitFullscreen(); 
+            document.getElementById('tela-totem').classList.add('hidden'); 
+            clearTimeout(timeoutTotem); 
+            if(usuarioLogado) document.getElementById('app-dashboard').classList.remove('hidden'); 
+            else document.getElementById('tela-login').classList.remove('hidden'); 
+        };
         
-        const dataAniversarioAnoAtual = new Date(hoje.getFullYear(), parseInt(partesData[1]) - 1, parseInt(partesData[2])); 
-        
-        // Se o aniversário deste ano já passou, calcula os dias para o aniversário do ano que vem
-        if(dataAniversarioAnoAtual < hoje) {
-            dataAniversarioAnoAtual.setFullYear(hoje.getFullYear() + 1); 
+        window.totemVoltarInicio = () => { 
+            clearTimeout(timeoutTotem); 
+            totemClienteTemp = null; 
+            isProcessing = false; 
+            document.getElementById('totem-info').classList.add('hidden'); 
+            document.getElementById('totem-timer').classList.add('hidden'); 
+            document.getElementById('totem-busca').classList.remove('hidden'); 
+            const i = document.getElementById('totem-cpf'); 
+            i.value = ''; 
+            i.disabled = false; 
+            i.focus(); 
+        };
+
+        window.totemProcessar = () => {
+            if(isProcessing) return;
+            const cpf = document.getElementById('totem-cpf').value.replace(/\D/g, '');
+            
+            if(!validarMatematicaCPF(cpf)) { mostrarToast('CPF Inválido', 'erro'); return; }
+            const c = clientesMap[cpf];
+            
+            if(!c) {
+                abrirModalAcao('user-plus', 'Não Encontrado', 'Por favor, dirija-se ao caixa para seu primeiro cadastro e ganhe seu ponto!', `<button onclick="totemVoltarInicio(); fecharModal('modal-acao')" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl">Entendi</button>`, 'border-slate-900', 'text-slate-900', 'bg-slate-100');
+                return;
+            }
+            if(jaRegistrouHoje(c) && !window.isModoSimulacao) { 
+                totemMostrarMsg('check-check', `Tudo Certo, ${c.nome.split(' ')[0]}!`, 'Seu almoço de hoje já está contabilizado.', c, 5000); 
+                return; 
+            }
+            
+            isProcessing = true; 
+            document.getElementById('totem-cpf').disabled = true;
+            c.almocos = (c.almocos || 0) + 1;
+            
+            if(!c.historico) c.historico=[]; 
+            c.historico.push(new Date().toLocaleDateString('pt-BR')+' às '+new Date().toLocaleTimeString('pt-BR'));
+            c.ultimaVisitaTimestamp = Date.now();
+            
+            const noDb = window.isModoSimulacao ? `simulacao/clientes/${cpf}` : `clientes/${cpf}`;
+            
+            set(ref(db, noDb), c).then(() => {
+                isProcessing = false; 
+                totemClienteTemp = c;
+                if(configuracoesAutomacao.posAlmoco) dispararFilaRobo(cpf, 'pos_almoco');
+                
+                const faltam = 10 - ((c.almocos||0)%10);
+                if((c.almocos||0) >= 10 && faltam === 10) totemMostrarMsg('star', `Parabéns, ${c.nome.split(' ')[0]}!`, 'Você completou 10 almoços! O desconto de R$ 50,00 está liberado!', c, 15000, true);
+                else totemMostrarMsg('check', `Registrado, ${c.nome.split(' ')[0]}!`, 'Bom apetite e obrigado por escolher o Top Haus.', c, 8000);
+            });
+        };
+
+        function totemMostrarMsg(icon, tit, txt, c, time, showResgate=false) {
+            document.getElementById('totem-busca').classList.add('hidden');
+            document.getElementById('totem-info-icon').innerHTML = `<i data-lucide="${icon}" class="w-12 h-12"></i>`;
+            document.getElementById('totem-info-titulo').innerText = tit;
+            document.getElementById('totem-info-msg').innerHTML = txt;
+            
+            const perc = ((c.almocos||0)%10)*10;
+            const faltam = 10 - ((c.almocos||0)%10);
+            document.getElementById('totem-prog-txt').innerText = `${c.almocos||0}/10`;
+            document.getElementById('totem-prog-faltam').innerText = (c.almocos>=10 && faltam===10) ? 'R$ 50 Disponível!' : `Faltam ${faltam}`;
+            document.getElementById('totem-prog-bar').style.width = `${perc}%`;
+            
+            if(showResgate) document.getElementById('totem-botoes-resgate').classList.remove('hidden');
+            else document.getElementById('totem-botoes-resgate').classList.add('hidden');
+
+            document.getElementById('totem-info').classList.remove('hidden'); 
+            document.getElementById('totem-timer').classList.remove('hidden');
+            lucide.createIcons();
+            
+            const bar = document.getElementById('totem-bar-anim'); 
+            bar.classList.remove('animate-shrink'); 
+            void bar.offsetWidth; 
+            bar.style.animationDuration = `${time}ms`; 
+            bar.classList.add('animate-shrink');
+            
+            timeoutTotem = setTimeout(() => totemVoltarInicio(), time);
         }
         
-        return Math.ceil((dataAniversarioAnoAtual - hoje) / 86400000); 
-    }
-    
-    function verificarAniversarianteDoMes(dataNasc) { 
-        if(!dataNasc) return false; 
-        const partesData = dataNasc.includes('-') ? dataNasc.split('-') : dataNasc.split('/').reverse(); 
-        return parseInt(partesData[1]) - 1 === new Date().getMonth(); 
-    }
-    
-    // Algoritmo Oficial de Validação de CPF da Receita Federal
-    window.validarMatematicaCPF = (cpfString) => { 
-        let strCPF = (cpfString || '').replace(/\D/g, ''); 
-        if(strCPF.length !== 11 || /^(\d)\1{10}$/.test(strCPF)) return false; 
-        
-        let soma = 0, resto; 
-        
-        for(let i = 1; i <= 9; i++) {
-            soma = soma + parseInt(strCPF.substring(i-1, i)) * (11 - i); 
-        }
-        resto = (soma * 10) % 11; 
-        if((resto === 10) || (resto === 11)) resto = 0; 
-        if(resto !== parseInt(strCPF.substring(9, 10))) return false; 
-        
-        soma = 0; 
-        for(let i = 1; i <= 10; i++) {
-            soma = soma + parseInt(strCPF.substring(i-1, i)) * (12 - i); 
-        }
-        resto = (soma * 10) % 11; 
-        if((resto === 10) || (resto === 11)) resto = 0; 
-        if(resto !== parseInt(strCPF.substring(10, 11))) return false; 
-        
-        return true; 
-    };
+        window.totemSolicitarResgate = () => { 
+            clearTimeout(timeoutTotem); 
+            document.getElementById('totem-botoes-resgate').classList.add('hidden'); 
+            document.getElementById('totem-info-msg').innerHTML = `Avise o operador de caixa para aplicar seu desconto de <strong>R$ 50,00</strong>!`; 
+            timeoutTotem = setTimeout(() => totemVoltarInicio(), 10000); 
+        };
 
-    // Máscaras de Input Visuais
-    window.mascaraCPF = (inputElement) => { 
-        let v = (inputElement.value || "").replace(/\D/g, ""); 
-        v = v.replace(/(\d{3})(\d)/, "$1.$2"); 
-        v = v.replace(/(\d{3})(\d)/, "$1.$2"); 
-        inputElement.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); 
-    };
-
-    window.mascaraTelefone = (inputElement) => { 
-        let v = (inputElement.value || "").replace(/\D/g, ""); 
-        v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); 
-        inputElement.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); 
-    };
-
-    window.mascaraData = (inputElement) => { 
-        let v = (inputElement.value || "").replace(/\D/g, ""); 
-        v = v.replace(/(\d{2})(\d)/, "$1/$2"); 
-        v = v.replace(/(\d{2})(\d)/, "$1/$2"); 
-        inputElement.value = v.substring(0, 10); 
-    };
-
-    // Formatação Apenas para Leitura HTML
-    window.formatarCPFVisivel = (cpf) => {
-        return cpf ? cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : '';
-    };
-    
-    window.formatarTelefoneVisivel = (tel) => {
-        return tel ? tel.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : '';
-    };
-    
-    window.escapeHTML = (stringPerigosa) => {
-        if(!stringPerigosa) return '';
-        return stringPerigosa.toString()
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-    };
-
-    // Função Compartilhada de Auditoria
-    function logAuditoria(tipoAcao, detalhes) { 
-        const nomeUsuario = usuarioLogado ? usuarioLogado.email.split('@')[0] : 'Totem da Loja';
+        // ==========================================================================
+        // MATEMÁTICA, VALIDAÇÕES E UTILITÁRIOS
+        // ==========================================================================
+        function logAuditoria(acao, det) { push(ref(db, 'auditoria'), { usuario: usuarioLogado?usuarioLogado.email.split('@')[0]:'Totem', acao, detalhes: det, timestamp: Date.now() }); }
         
-        push(ref(db, 'auditoria'), { 
-            usuario: nomeUsuario, 
-            acao: tipoAcao, 
-            detalhes: detalhes, 
-            timestamp: Date.now() 
-        }); 
-    }
+        window.abrirModalAcao = (icon, titulo, texto, htmlBotoes, bClass, iColor, iBg) => {
+            document.getElementById('ma-container').className = `bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border-t-8 ${bClass} p-8 text-center`;
+            document.getElementById('ma-icone').className = `w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${iBg} ${iColor}`;
+            document.getElementById('ma-icone').innerHTML = `<i data-lucide="${icon}" class="w-10 h-10"></i>`;
+            document.getElementById('ma-titulo').innerText = titulo;
+            document.getElementById('ma-texto').innerHTML = texto;
+            document.getElementById('ma-botoes').innerHTML = htmlBotoes;
+            document.getElementById('modal-acao').classList.remove('hidden');
+            lucide.createIcons();
+        };
 
-    // Modal Builder Universal
-    window.abrirModalAcao = (icon, titulo, texto, htmlBotoes, borderColorClass, iconColorClass, iconBgClass) => {
-        document.getElementById('ma-container').className = `bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border-t-8 ${borderColorClass} p-8 text-center`;
-        document.getElementById('ma-icone').className = `w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${iconBgClass} ${iconColorClass}`;
-        document.getElementById('ma-icone').innerHTML = `<i data-lucide="${icon}" class="w-10 h-10"></i>`;
+        window.fecharModal = (id) => { 
+            document.getElementById(id).classList.add('hidden'); 
+            const b = document.getElementById('busca-cpf'); 
+            if(b && !document.getElementById('aba-caixa').classList.contains('hidden')) b.focus(); 
+        };
         
-        document.getElementById('ma-titulo').innerText = titulo;
-        document.getElementById('ma-texto').innerHTML = texto;
-        document.getElementById('ma-botoes').innerHTML = htmlBotoes;
-        
-        document.getElementById('modal-acao').classList.remove('hidden');
-        lucide.createIcons();
-    };
+        window.mostrarToast = (msg, tipo = 'sucesso') => {
+            const container = document.getElementById('toast-container'); 
+            const toast = document.createElement('div');
+            toast.className = `${tipo === 'sucesso' ? 'bg-black text-white' : 'bg-red-600 text-white'} px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 font-bold z-[10000] animate-fade-in`;
+            toast.innerHTML = `<i data-lucide="${tipo==='sucesso'?'check-circle':'alert-circle'}" class="w-5 h-5"></i> <span>${escapeHTML(msg)}</span>`;
+            container.appendChild(toast); 
+            lucide.createIcons(); 
+            setTimeout(() => { toast.style.opacity=0; setTimeout(()=>toast.remove(),300); }, 3000);
+        };
 
-    window.fecharModal = (idModalString) => { 
-        document.getElementById(idModalString).classList.add('hidden'); 
-    };
+        window.imprimirCupom = (n,c,d,h) => {
+            document.getElementById('secao-impressao').innerHTML = `
+                <div style="text-align:center;margin-bottom:5px;line-height:1.2;">
+                    <strong>TOP HAUS EXECUTIVE</strong><br>CNPJ: 26.845.124/0001-61<br>Navegantes - SC
+                </div><div class="linha-tracejada"></div>
+                <div style="text-align:center;margin-bottom:5px;"><strong>COMPROVANTE RESGATE</strong><br><span style="font-size:11px;">${h}</span></div>
+                <div class="linha-tracejada"></div>
+                <div style="font-size:12px;"><p><strong>Cliente:</strong> ${escapeHTML((n||'').toUpperCase())}</p><p><strong>CPF:</strong> ${fmtCPF(c)}</p></div>
+                <div class="linha-tracejada"></div>
+                <div><p style="font-weight:bold;">ALMOÇOS:</p><ol style="padding-left:15px;font-size:11px;">${d.map(x=>`<li>${x}</li>`).join('')}</ol></div>
+                <div class="linha-tracejada"></div>
+                <div style="text-align:center;margin-top:5px;"><p style="font-weight:900;font-size:16px;">R$ 50,00 LIBERADO</p></div>`;
+            window.print();
+        };
+
+        window.exportarExcel = () => {
+            let csv = "\ufeffNome;CPF;Nascimento;WhatsApp;Almoco_Atual;Resgates_Total\n";
+            clientesArray.forEach(c => csv += `${c.nome};${c.cpf};${c.nascimento||''};${c.telefone||''};${c.almocos||0};${c.premiosResgatados||0}\n`);
+            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'})); a.download = "TopHaus_Clientes.csv"; a.click();
+        };
+
+        function jaRegistrouHoje(c) { if (c.ultimaVisitaTimestamp) { const hj=new Date(), u=new Date(c.ultimaVisitaTimestamp); return hj.getDate()===u.getDate() && hj.getMonth()===u.getMonth() && hj.getFullYear()===u.getFullYear(); } return false; }
+        function diasDesdeVisita(c) { return c.ultimaVisitaTimestamp ? Math.floor((Date.now() - c.ultimaVisitaTimestamp)/86400000) : 999; }
+        function diasParaNiver(n) { if(!n) return -1; const p=n.includes('-')?n.split('-'):n.split('/').reverse(); const hj=new Date(); hj.setHours(0,0,0,0); const nv=new Date(hj.getFullYear(), parseInt(p[1])-1, parseInt(p[2])); if(nv<hj) nv.setFullYear(hj.getFullYear()+1); return Math.ceil((nv-hj)/86400000); }
+        function isNiverMes(n) { if(!n) return false; const p=n.includes('-')?n.split('-'):n.split('/').reverse(); return parseInt(p[1])-1 === new Date().getMonth(); }
         
+        window.validarMatematicaCPF = (cpfString) => { 
+            let strCPF = (cpfString || '').replace(/\D/g, ''); 
+            if(strCPF.length !== 11 || /^(\d)\1{10}$/.test(strCPF)) return false; 
+            let soma = 0, resto; 
+            for(let i = 1; i <= 9; i++) soma = soma + parseInt(strCPF.substring(i-1, i)) * (11 - i); 
+            resto = (soma * 10) % 11; 
+            if((resto === 10) || (resto === 11)) resto = 0; 
+            if(resto !== parseInt(strCPF.substring(9, 10))) return false; 
+            soma = 0; 
+            for(let i = 1; i <= 10; i++) soma = soma + parseInt(strCPF.substring(i-1, i)) * (12 - i); 
+            resto = (soma * 10) % 11; 
+            if((resto === 10) || (resto === 11)) resto = 0; 
+            if(resto !== parseInt(strCPF.substring(10, 11))) return false; 
+            return true; 
+        };
+
+        window.mascaraCPF = (i) => { let v = (i.value||"").replace(/\D/g,""); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); i.value = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); };
+        window.mascaraTelefone = (i) => { let v = (i.value||"").replace(/\D/g,""); v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); i.value = v.replace(/(\d)(\d{4})$/, "$1-$2"); };
+        window.mascaraData = (i) => { let v = (i.value||"").replace(/\D/g,""); v = v.replace(/(\d{2})(\d)/, "$1/$2"); v = v.replace(/(\d{2})(\d)/, "$1/$2"); i.value = v.substring(0,10); };
+        window.fmtCPF = (c) => c ? c.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : '';
+        window.fmtTel = (t) => t ? t.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : '';
+        window.escapeHTML = (s) => !s?'':s.toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
     </script>
 </body>
 </html>
