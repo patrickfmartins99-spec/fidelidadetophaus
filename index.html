@@ -175,6 +175,9 @@
                     <button id="btn-lixeira" onclick="abrirLixeira()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
                         <i data-lucide="archive" class="w-4 h-4"></i> Arquivados
                     </button>
+                    <button id="btn-mesclar" onclick="abrirModalMesclagem()" class="hidden bg-purple-50 text-purple-600 hover:bg-purple-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="merge" class="w-4 h-4"></i> Mesclar
+                    </button>
                     <button id="btn-ativar-simulacao" onclick="ativarSimulacao()" class="hidden bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
                         <i data-lucide="flask-conical" class="w-4 h-4"></i> Modo Simulação
                     </button>
@@ -185,6 +188,7 @@
 
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
+                <!-- Painel Primário de Métricas -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-500 uppercase">Todos os clientes</p>
@@ -202,6 +206,26 @@
                         <div class="absolute top-0 right-0 w-2 h-full bg-black"></div>
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Aniversariantes</p>
                         <p id="card-niver-central" class="text-2xl font-black text-black">0</p>
+                    </div>
+                </div>
+
+                <!-- Painel Secundário de Métricas (Novo) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="painel-metricas-avancadas">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Taxa de Resgate</p>
+                        <p id="card-taxa-resgate" class="text-lg font-black text-indigo-600">--</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Retenção (30d)</p>
+                        <p id="card-retencao" class="text-lg font-black text-green-600">--</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Reativados</p>
+                        <p id="card-reativacao" class="text-lg font-black text-blue-600">--</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="filtrarLista('inativos_30d')">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Inativos (+30d)</p>
+                        <p id="card-inativos-total" class="text-lg font-black text-red-600">--</p>
                     </div>
                 </div>
 
@@ -309,7 +333,18 @@
                         <textarea id="mkt-msg-inativo" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
 
-                    <div class="pt-4 border-t border-gray-200 bg-indigo-50 p-4 rounded-xl">
+                    <!-- Fila de Envios (Novo) -->
+                    <div class="pt-4 border-t border-gray-200 mt-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-indigo-600"></i> Fila de Envios e Status</h4>
+                            <button id="btn-limpar-fila" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-100 transition shadow-sm hidden">Limpar Fila</button>
+                        </div>
+                        <div id="area-fila-envio" class="space-y-2 max-h-40 overflow-y-auto pr-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                            <p class="text-sm text-gray-500 text-center py-2">Nenhuma mensagem na fila no momento.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200 bg-indigo-50 p-4 rounded-xl mt-4">
                         <div class="flex items-center gap-2 mb-3 text-indigo-900 justify-center">
                             <i data-lucide="calendar-clock" class="w-5 h-5"></i>
                             <h4 class="font-bold text-center">Agendar disparo automático</h4>
@@ -524,6 +559,30 @@
                         <tbody id="tabela-auditoria" class="divide-y divide-gray-100 text-sm">
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-mesclagem" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-purple-600">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="merge" class="w-5 h-5 text-purple-600"></i> Mesclar Cadastros</h3>
+                    <button type="button" onclick="fecharModal('modal-mesclagem')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">Combine dois cadastros em um só. O CPF de origem será arquivado e seus almoços transferidos para o CPF de destino.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">CPF de Origem (Sairá do sistema)</label>
+                        <input type="tel" inputmode="numeric" id="mescla-cpf-origem" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono" oninput="mascaraCPF(this)">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">CPF de Destino (Receberá os dados)</label>
+                        <input type="tel" inputmode="numeric" id="mescla-cpf-destino" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono" oninput="mascaraCPF(this)">
+                    </div>
+                </div>
+                <div class="mt-6 flex gap-3">
+                    <button type="button" onclick="fecharModal('modal-mesclagem')" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">Cancelar</button>
+                    <button type="button" id="btn-mesclar-salvar" onclick="executarMesclagem()" class="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition"><span id="btn-mesclar-salvar-text">Confirmar Mesclagem</span></button>
                 </div>
             </div>
         </div>
