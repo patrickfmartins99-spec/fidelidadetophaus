@@ -79,7 +79,12 @@ window.fecharModal = (id) => {
     }
 
     // Modais que não devem devolver o foco automaticamente para o input de CPF do caixa
-    const modaisParaNaoFocarCPF = ['modal-historico', 'modal-editar', 'modal-marketing', 'modal-whatsapp', 'modal-simulacao', 'modal-usuarios', 'modal-lixeira', 'modal-auditoria', 'modal-totem-saida', 'modal-alerta-generico'];
+    // Atualizado com a inclusão de 'modal-mesclagem' (Nova Funcionalidade)
+    const modaisParaNaoFocarCPF = [
+        'modal-historico', 'modal-editar', 'modal-marketing', 'modal-whatsapp', 
+        'modal-simulacao', 'modal-usuarios', 'modal-lixeira', 'modal-auditoria', 
+        'modal-totem-saida', 'modal-alerta-generico', 'modal-mesclagem'
+    ];
     
     if(!modaisParaNaoFocarCPF.includes(id)){ 
         const b = document.getElementById('busca-cpf'); 
@@ -224,5 +229,6 @@ window.diasDesdeUltimaVisita = (c) => {
 };
 
 window.limitarHistorico = (h) => { 
-    return h && h.length > 50 ? h.slice(-50) : (h||[]); 
+    // Ampliado de 50 para 100 devido à funcionalidade de mesclagem (pode gerar arrays maiores subitamente)
+    return h && h.length > 100 ? h.slice(-100) : (h||[]); 
 };
