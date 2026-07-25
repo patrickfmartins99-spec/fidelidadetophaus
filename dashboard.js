@@ -120,14 +120,68 @@ window.alternarAba = (a) => {
 };
 
 // ==========================================================================
-// RENDERIZAÇÃO DO PAINEL E INDICADORES ESTÁTICOS (Filtrando Arquivados)
+// RENDERIZAÇÃO DO PAINEL E INDICADORES ESTÁTICOS E AVANÇADOS
 // ==========================================================================
 window.atualizarIndicadores = () => { 
     const ativos = window.clientesArray.filter(c => !c.arquivado);
+    
+    // Cards Primários Originais
     document.getElementById('card-total').innerText = ativos.length; 
     document.getElementById('card-premios').innerText = ativos.filter(c => (c.almocos||0) >= 10).length; 
     document.getElementById('card-vips').innerText = ativos.filter(c => (c.premiosResgatados||0) > 0).length; 
     document.getElementById('card-niver-central').innerText = ativos.filter(c => window.isNiverMesCheck(c.nascimento)).length; 
+
+    // Cálculo das Métricas Avançadas
+    let totalPremiosGerados = 0;
+    let totalPremiosResgatados = 0;
+    let retencao30d = 0;
+    let reativados30d = 0;
+    let inativos30d = 0;
+
+    ativos.forEach(c => {
+        // Cálculo de Taxa de Resgate (Resgatados vs Total Disponibilizado na história)
+        const tr = (c.premiosResgatados || 0);
+        totalPremiosResgatados += tr;
+        totalPremiosGerados += tr + Math.floor((c.almocos || 0) / 10);
+
+        // Cálculo de Saúde da Base
+        const dUltimaVisita = window.diasDesdeUltimaVisita(c);
+        
+        if (dUltimaVisita <= 30) {
+            retencao30d++;
+            
+            // Lógica para Reativação: Identificar se antes dessa visita de 30d ele esteve inativo
+            if (c.historico && c.historico.length >= 2) {
+                const strPenultima = c.historico[c.historico.length - 2].split(' às ')[0].split('/');
+                const penultimaTime = new Date(strPenultima[2], strPenultima[1] - 1, strPenultima[0]).getTime();
+                if (Date.now() - penultimaTime > 30 * 86400000) {
+                    reativados30d++;
+                }
+            } else if (c.historico && c.historico.length === 1 && c.dataCadastro) {
+                // Visitou recentemente, só tem 1 visita, mas o cadastro tem mais de 30 dias (era um lead frio)
+                const partesCad = c.dataCadastro.split('/');
+                if(partesCad.length === 3) {
+                    const cadTime = new Date(partesCad[2], partesCad[1]-1, partesCad[0]).getTime();
+                    if (Date.now() - cadTime > 30 * 86400000) reativados30d++;
+                }
+            }
+        } else if (dUltimaVisita > 30 && dUltimaVisita !== 999) {
+            inativos30d++;
+        }
+    });
+
+    const txResgate = totalPremiosGerados > 0 ? Math.round((totalPremiosResgatados / totalPremiosGerados) * 100) : 0;
+    
+    // Atualização dos Cards Avançados
+    const cardTaxa = document.getElementById('card-taxa-resgate');
+    const cardRetencao = document.getElementById('card-retencao');
+    const cardReativacao = document.getElementById('card-reativacao');
+    const cardInativosTotal = document.getElementById('card-inativos-total');
+
+    if(cardTaxa) cardTaxa.innerText = `${txResgate}%`;
+    if(cardRetencao) cardRetencao.innerText = retencao30d;
+    if(cardReativacao) cardReativacao.innerText = reativados30d;
+    if(cardInativosTotal) cardInativosTotal.innerText = inativos30d;
 };
 
 window.calcularNotificacoesPainel = () => {
@@ -217,12 +271,16 @@ window.filtrarLista = (t, dI=null, dF=null) => {
         tf.innerText = 'Exibindo: Prêmios aguardando aviso'; 
         l = ativos.filter(c => (c.almocos||0) >= 10 && !c.notificadoPremio); 
     } else if (t === 'alerta_inativos') { 
-        tf.innerText = 'Exibindo: Inativos (+15 dias)'; 
+        tf.innerText = 'Exibindo: Inativos (Alerta +15 dias)'; 
         l = ativos.filter(c => {
             const dSum = window.diasDesdeUltimaVisita(c);
             const dNot = c.notificadoInativoData ? Math.floor((Date.now() - c.notificadoInativoData)/86400000) : 999; 
             return dSum > 15 && dNot > 15;
         }); 
+    } else if (t === 'inativos_30d') { 
+        // Novo filtro ativado pelo Card Avançado
+        tf.innerText = 'Exibindo: Inativos (Visão Geral +30 dias)'; 
+        l = ativos.filter(c => window.diasDesdeUltimaVisita(c) > 30 && window.diasDesdeUltimaVisita(c) !== 999); 
     }
     
     window.renderizarTabela(l);
@@ -282,30 +340,33 @@ window.renderizarTabela = (l) => {
 };
 
 // ==========================================================================
-// EXPORTAÇÃO E RESET DO SISTEMA
+// EXPORTAÇÃO E RESET DO SISTEMA (Aprimorado)
 // ==========================================================================
 window.exportarExcel = () => { 
     if(!window.permissoesLogado || !window.permissoesLogado.clientes) {
         return window.mostrarToast("Seu perfil não tem acesso a esta ação.", "erro");
     }
 
-    let csvContent = "\ufeffNome;CPF;Nascimento;WhatsApp;Acumulados;Resgates\n"; 
+    let csvContent = "\ufeffNome;CPF;Nascimento;WhatsApp;Acumulados;Resgates;Status;Ultima Visita\n"; 
     const ativos = window.clientesArray.filter(c => !c.arquivado);
     
     ativos.forEach(c => {
-        csvContent += `${c.nome};${c.cpf};${c.nascimento};${c.telefone};${c.almocos || 0};${c.premiosResgatados || 0}\n`;
+        const dUltima = c.historico && c.historico.length > 0 ? c.historico[c.historico.length-1].split(' às ')[0] : 'Nunca';
+        const inativo = window.diasDesdeUltimaVisita(c) > 30 ? 'Inativo (+30d)' : 'Ativo';
+        
+        csvContent += `${c.nome};${c.cpf};${c.nascimento};${c.telefone};${c.almocos || 0};${c.premiosResgatados || 0};${inativo};${dUltima}\n`;
     });
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `TopHaus_Clientes_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `TopHaus_Clientes_Operacional_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
-    if(window.logAuditoria) window.logAuditoria('Exportação', 'Base de clientes exportada para Excel/CSV.');
+    if(window.logAuditoria) window.logAuditoria('Exportação', 'Base de clientes exportada para Excel/CSV (Layout Expandido).');
 };
 
 window.resetarSistema = () => { 
