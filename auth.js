@@ -205,6 +205,9 @@ window.criarUsuario = (e) => {
         // Salva o modelo híbrido (Cargo + Permissões Livres)
         window.firebaseSet(window.firebaseRef(window.db, `usuarios/${user}`), { cargo: cargo, permissoes: objPermissoes }).then(() => {
             window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
+            
+            if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
+            
             document.getElementById('novo-user').value = ''; 
             document.getElementById('novo-senha').value = '';
             
@@ -227,11 +230,28 @@ window.criarUsuario = (e) => {
 window.removerAcesso = (username) => {
     if(username === 'admin') return window.mostrarToast("Não é possível remover o administrador principal.", "erro");
     
-    if(confirm(`Deseja remover o acesso de "${username}"?\n\nEsta ação não poderá ser desfeita e a conta será desconectada imediatamente.`)) {
-        window.firebaseSet(window.firebaseRef(window.db, `usuarios/${username}`), null).then(() => {
-            window.mostrarToast("Acesso removido com sucesso.", "sucesso");
-            window.abrirGerenciadorUsuarios();
-        });
+    // Integração com a Confirmação em Duas Etapas (Segurança Aprovada)
+    if(window.confirmacaoDupla) {
+        window.confirmacaoDupla(
+            "Remover Acesso", 
+            `Deseja remover definitivamente o acesso de "${username}"?\nEsta conta será desconectada e apagada.`,
+            () => {
+                window.firebaseSet(window.firebaseRef(window.db, `usuarios/${username}`), null).then(() => {
+                    window.mostrarToast("Acesso removido com sucesso.", "sucesso");
+                    if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `O acesso do usuário '${username}' foi removido.`);
+                    window.abrirGerenciadorUsuarios();
+                });
+            }
+        );
+    } else {
+        // Fallback caso o módulo de clientes não esteja carregado
+        if(confirm(`Deseja remover o acesso de "${username}"?\n\nEsta ação não poderá ser desfeita.`)) {
+            window.firebaseSet(window.firebaseRef(window.db, `usuarios/${username}`), null).then(() => {
+                window.mostrarToast("Acesso removido com sucesso.", "sucesso");
+                if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `O acesso do usuário '${username}' foi removido.`);
+                window.abrirGerenciadorUsuarios();
+            });
+        }
     }
 };
 
@@ -245,6 +265,7 @@ window.alterarCargo = (username, cargoAtual) => {
         // Substitui a ramificação inteira resgatando as permissões padrão do novo cargo
         window.firebaseSet(window.firebaseRef(window.db, `usuarios/${username}`), { cargo: cargoFinal, permissoes: window.permissoesPadrao[cargoFinal] }).then(() => {
             window.mostrarToast("Perfil atualizado com sucesso.", "sucesso");
+            if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Perfil do usuário '${username}' alterado para '${cargoFinal}'.`);
             window.abrirGerenciadorUsuarios();
         });
     } else if (novoCargo) {
@@ -274,6 +295,8 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
     const btnAcessos = document.getElementById('btn-gerenciar-acessos');
     const btnAuditoria = document.getElementById('btn-auditoria');
     const btnLixeira = document.getElementById('btn-lixeira');
+    const btnMesclar = document.getElementById('btn-mesclar');
+    const painelMetricas = document.getElementById('painel-metricas-avancadas');
     
     // Leitura por atributos CSS/Query (Mapeamento invisível para botões sem ID)
     const botoesTotem = document.querySelectorAll('button[onclick="entrarModoTotemDaTelaLogin()"]');
@@ -286,9 +309,11 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
     if (btnZerar) permissoes.reset ? btnZerar.classList.remove('hidden') : btnZerar.classList.add('hidden');
     if (btnAcessos) permissoes.usuarios ? btnAcessos.classList.remove('hidden') : btnAcessos.classList.add('hidden');
     
-    // Se a interface tiver os botões novos de auditoria/lixeira, aplica a permissão administrativa
+    // Elementos adicionados nas novas atualizações de Produto
     if (btnAuditoria) permissoes.auditoria ? btnAuditoria.classList.remove('hidden') : btnAuditoria.classList.add('hidden');
-    if (btnLixeira) permissoes.clientes ? btnLixeira.classList.remove('hidden') : btnLixeira.classList.add('hidden'); // Exige permissão de clientes
+    if (btnLixeira) permissoes.clientes ? btnLixeira.classList.remove('hidden') : btnLixeira.classList.add('hidden');
+    if (btnMesclar) permissoes.clientes ? btnMesclar.classList.remove('hidden') : btnMesclar.classList.add('hidden');
+    if (painelMetricas) permissoes.dashboard ? painelMetricas.classList.remove('hidden') : painelMetricas.classList.add('hidden');
     
     if (btnMarketing) permissoes.marketing ? btnMarketing.classList.remove('hidden') : btnMarketing.classList.add('hidden');
     
