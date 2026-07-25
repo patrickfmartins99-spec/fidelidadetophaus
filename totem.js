@@ -14,6 +14,8 @@ window.entrarModoTotemDaTelaLogin = () => {
         document.documentElement.requestFullscreen().catch(()=>{});
     }
     
+    if(window.logAuditoria) window.logAuditoria('Totem', 'Modo Autoatendimento (Totem) iniciado.');
+    
     document.getElementById('tela-totem').classList.remove('hidden');
     window.totemVoltarInicio();
 };
@@ -32,9 +34,11 @@ window.verificarPinTotem = () => {
     
     // PIN Padrão de segurança administrativa (pode ser evoluído para o banco de dados depois)
     if(pin === '1234' || pin === 'admin') {
+        if(window.logAuditoria) window.logAuditoria('Segurança Totem', 'Saída autorizada do modo totem (PIN Correto).');
         if(window.fecharModal) window.fecharModal('modal-totem-saida');
         window.sairModoTotem();
     } else {
+        if(window.logAuditoria) window.logAuditoria('Segurança Totem', 'Tentativa de saída bloqueada (PIN Incorreto).');
         window.mostrarToast("PIN incorreto. Acesso negado.", "erro");
         document.getElementById('totem-pin-input').value = '';
         document.getElementById('totem-pin-input').focus();
@@ -58,17 +62,34 @@ window.sairModoTotem = () => {
     }
 };
 
+// Retenção de Sessão Inteligente e Prevenção de Abandono
 window.resetarTimerTotem = () => {
     clearTimeout(window.timerInatividade);
     if(document.getElementById('tela-totem').classList.contains('hidden')) return;
+    
+    // Se estiver na tela inicial, não precisa de timeout de inatividade
     if(!document.getElementById('totem-tela-busca').classList.contains('hidden')) return;
-    window.timerInatividade = setTimeout(() => window.totemVoltarInicio(), 45000);
+
+    // Retenção de sessão estendida para o cadastro (90s) em relação a telas normais (45s)
+    const emCadastro = !document.getElementById('totem-tela-cadastro').classList.contains('hidden');
+    const tempoInatividade = emCadastro ? 90000 : 45000;
+    
+    window.timerInatividade = setTimeout(() => {
+        if(window.logAuditoria) window.logAuditoria('Totem', 'Sessão abandonada e reiniciada automaticamente por inatividade.');
+        window.totemVoltarInicio();
+    }, tempoInatividade);
 };
 
 window.totemVoltarInicio = () => {
     clearTimeout(window.timeoutTotemMsg); 
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
+    
+    // Libera qualquer trava de processamento pendente em caso de abandono brusco
+    if (window.totemClienteTemp && window.operacoesAtivas) {
+        window.operacoesAtivas[window.totemClienteTemp.cpf] = false;
+    }
+    
     window.totemClienteTemp = null; 
     window.isProcessing = false;
     
@@ -213,6 +234,8 @@ window.totemSalvarCadastro = (e) => {
         window.totemClienteTemp = novoCliente; 
         window.isProcessing = false; 
         if(window.operacoesAtivas) window.operacoesAtivas[cpf] = false;
+        
+        if(window.logAuditoria) window.logAuditoria('Cadastro (Totem)', `Cliente ${novoCliente.nome} realizou o próprio cadastro via Totem.`);
         
         if(window.checarEAvisarAlmoco) window.checarEAvisarAlmoco(novoCliente);
         
