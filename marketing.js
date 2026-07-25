@@ -1,5 +1,5 @@
 // marketing.js
-// Módulo 5: Robô do WhatsApp, Automações e Disparos em Massa (Suporte a Campanhas Recorrentes)
+// Módulo 5: Robô do WhatsApp, Automações e Disparos em Massa (Suporte a Campanhas Recorrentes e Fila)[span_0](start_span)[span_0](end_span)
 
 // ==========================================================================
 // CORE DO ROBÔ DE MARKETING: ENVIAR PARA A FILA FIREBASE
@@ -13,7 +13,8 @@ window.enviarParaFilaRobo = (cpf, telefone, textoMensagem) => {
         cpf: cpf,
         telefone: telLimpo,
         texto: textoMensagem,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        status: 'pendente' // Novo status rastreável
     }).then(() => {
         console.log("Ordem despachada para o Robô Node.js");
     });
@@ -31,6 +32,115 @@ window.checarEAvisarAlmoco = (c) => {
         window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES+`/${c.cpf}/notificadoPremio`), true);
     }
 };
+
+// ==========================================================================
+// VISUALIZAÇÃO E CONTROLE DA FILA DE ENVIOS
+// ==========================================================================
+window.listenerFilaAtivo = false;
+window.ultimaFilaSnap = null;
+
+window.iniciarListenerFila = () => {
+    if(window.listenerFilaAtivo) return;
+    window.listenerFilaAtivo = true;
+    window.firebaseOnValue(window.firebaseRef(window.db, 'fila_mensagens'), (snap) => {
+        window.ultimaFilaSnap = snap;
+        const modal = document.getElementById('modal-marketing');
+        if(modal && !modal.classList.contains('hidden')) {
+            window.renderizarFilaEnvios(snap);
+        }
+    });
+};
+
+window.renderizarFilaEnvios = (snapshot) => {
+    const area = document.getElementById('area-fila-envio');
+    const btnLimpar = document.getElementById('btn-limpar-fila');
+    if(!area) return;
+
+    area.innerHTML = '';
+    if (!snapshot || !snapshot.exists()) {
+        area.innerHTML = '<p class="text-sm text-gray-500 text-center py-2">Nenhuma mensagem na fila no momento.</p>';
+        if(btnLimpar) btnLimpar.classList.add('hidden');
+        return;
+    }
+
+    if(btnLimpar) btnLimpar.classList.remove('hidden');
+    
+    const msgs = [];
+    snapshot.forEach(child => {
+        msgs.push({ id: child.key, ...child.val() });
+    });
+    
+    // Ordena as mais recentes primeiro
+    msgs.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    msgs.forEach(m => {
+        const status = m.status || 'pendente';
+        let statusHtml = '';
+        let bgClass = 'bg-gray-50 border-gray-200';
+        
+        if (status === 'pendente') {
+            statusHtml = '<span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded uppercase tracking-wider">⏳ Pendente</span>';
+        } else if (status === 'enviado' || status === 'sucesso') {
+            statusHtml = '<span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded uppercase tracking-wider">✅ Enviado</span>';
+            bgClass = 'bg-green-50/30 border-green-100';
+        } else if (status === 'erro' || status === 'falha') {
+            statusHtml = '<span class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded uppercase tracking-wider">❌ Falha</span>';
+            bgClass = 'bg-red-50 border-red-200';
+        } else if (status === 'cancelado') {
+            statusHtml = '<span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded uppercase tracking-wider">🚫 Cancelado</span>';
+        }
+
+        const dataStr = m.timestamp ? new Date(m.timestamp).toLocaleString('pt-BR') : '--';
+        
+        let botoes = '';
+        if(status === 'pendente' || status === 'erro' || status === 'falha') {
+            botoes += `<button onclick="cancelarMensagemFila('${m.id}')" class="text-red-400 hover:text-red-600 p-1.5 transition rounded hover:bg-red-50" title="Cancelar envio"><i data-lucide="x-circle" class="w-4 h-4"></i></button>`;
+        }
+        if(status === 'erro' || status === 'falha' || status === 'cancelado') {
+            botoes += `<button onclick="reenviarMensagemFila('${m.id}')" class="text-indigo-400 hover:text-indigo-600 p-1.5 transition rounded hover:bg-indigo-50 ml-1" title="Tentar Novamente"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>`;
+        }
+
+        area.innerHTML += `
+            <div class="p-3 mb-2 rounded-xl border ${bgClass} flex justify-between items-center text-sm shadow-sm transition">
+                <div class="flex-1 min-w-0 pr-4">
+                    <p class="font-bold text-gray-800">${window.formatarTel(m.telefone) || 'Sem número'} <span class="text-[10px] text-gray-400 font-normal ml-2">${dataStr}</span></p>
+                    <p class="text-xs text-gray-500 truncate mt-0.5" title="${window.escapeHTML(m.texto)}">${window.escapeHTML(m.texto)}</p>
+                </div>
+                <div class="flex flex-col items-end gap-1.5 shrink-0">
+                    ${statusHtml}
+                    <div class="flex">${botoes}</div>
+                </div>
+            </div>
+        `;
+    });
+
+    if(window.lucide) window.lucide.createIcons();
+};
+
+window.cancelarMensagemFila = (id) => {
+    window.firebaseSet(window.firebaseRef(window.db, `fila_mensagens/${id}/status`), 'cancelado');
+    if(window.logAuditoria) window.logAuditoria('Marketing', 'Envio de mensagem cancelado na fila.');
+};
+
+window.reenviarMensagemFila = (id) => {
+    window.firebaseSet(window.firebaseRef(window.db, `fila_mensagens/${id}/status`), 'pendente');
+    window.firebaseSet(window.firebaseRef(window.db, `fila_mensagens/${id}/timestamp`), Date.now());
+    if(window.logAuditoria) window.logAuditoria('Marketing', 'Mensagem reenviada para a fila de processamento.');
+};
+
+window.limparFilaCompleta = () => {
+    window.confirmacaoDupla(
+        "Limpar Fila de Envios", 
+        "Deseja apagar todo o histórico da fila de marketing? Mensagens com status pendente não serão entregues.",
+        () => {
+            window.firebaseSet(window.firebaseRef(window.db, 'fila_mensagens'), null).then(() => {
+                window.mostrarToast("Fila de envios limpa com sucesso.");
+                if(window.logAuditoria) window.logAuditoria('Marketing', 'O histórico da fila de envios foi completamente apagado.');
+            });
+        }
+    );
+};
+
 
 // ==========================================================================
 // INJEÇÃO VIRTUAL DA INTERFACE DE CAMPANHAS AVANÇADAS
@@ -117,7 +227,16 @@ window.abrirCentralMarketing = () => {
     document.getElementById('mkt-msg-premio').value = window.msgsMarketing.premio || '';
     document.getElementById('mkt-msg-inativo').value = window.msgsMarketing.inativo || '';
     
+    const btnLimpar = document.getElementById('btn-limpar-fila');
+    if(btnLimpar) btnLimpar.onclick = window.limparFilaCompleta;
+
     window.renderizarMensagensCustomizadas();
+    
+    // Inicia e renderiza os dados da Fila de Envios
+    window.iniciarListenerFila();
+    if(window.ultimaFilaSnap) {
+        window.renderizarFilaEnvios(window.ultimaFilaSnap);
+    }
     
     const modal = document.getElementById('modal-marketing'); 
     modal.classList.remove('hidden'); 
