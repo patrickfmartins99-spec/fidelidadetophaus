@@ -365,13 +365,14 @@ window.salvarEdicao = (e) => {
     if(btn) btn.disabled = true;
     if(span) span.innerText = 'Atualizando...';
     
+    const oldNome = c.nome;
     c.nome = document.getElementById('edit-nome').value; 
     c.telefone = tel; 
     c.nascimento = nasc.includes('/') ? `${nasc.split('/')[2]}-${nasc.split('/')[1]}-${nasc.split('/')[0]}` : nasc;
     
     window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => { 
         window.mostrarToast("Cliente atualizado com sucesso."); 
-        if(window.logAuditoria) window.logAuditoria('Edição', `Cadastro de ${c.nome} atualizado.`);
+        if(window.logAuditoria) window.logAuditoria('Edição', `Cadastro de ${oldNome} atualizado para ${c.nome}.`);
         
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar alterações';
@@ -572,4 +573,96 @@ window.restaurarCliente = (cpf) => {
     }).catch(() => {
         window.mostrarToast("Não foi possível salvar. Tente novamente.", "erro");
     });
+};
+
+// ==========================================================================
+// MESCLAGEM DE CADASTROS DUPLICADOS (NOVA FUNCIONALIDADE)
+// ==========================================================================
+window.abrirModalMesclagem = () => {
+    if(!window.permissoesLogado || !window.permissoesLogado.clientes) {
+        return window.mostrarToast("Seu perfil não tem acesso a esta ação.", "erro");
+    }
+    document.getElementById('mescla-cpf-origem').value = '';
+    document.getElementById('mescla-cpf-destino').value = '';
+    const modal = document.getElementById('modal-mesclagem');
+    modal.classList.remove('hidden');
+    if(window.prenderFocoModal) window.prenderFocoModal(modal);
+};
+
+window.executarMesclagem = () => {
+    const cpfOrigemRaw = document.getElementById('mescla-cpf-origem').value.replace(/\D/g, '');
+    const cpfDestinoRaw = document.getElementById('mescla-cpf-destino').value.replace(/\D/g, '');
+
+    if(!window.validarCPFReal(cpfOrigemRaw) || !window.validarCPFReal(cpfDestinoRaw)) {
+        return window.mostrarToast("Verifique os CPFs informados. Ambos devem ser válidos.", "erro");
+    }
+    if(cpfOrigemRaw === cpfDestinoRaw) {
+        return window.mostrarToast("Os CPFs de origem e destino não podem ser iguais.", "erro");
+    }
+
+    const cOrigem = window.clientesMap[cpfOrigemRaw];
+    const cDestino = window.clientesMap[cpfDestinoRaw];
+
+    if(!cOrigem || !cDestino) {
+        return window.mostrarToast("Um ou ambos os clientes não foram encontrados na base.", "erro");
+    }
+
+    window.confirmacaoDupla(
+        "Confirmar Mesclagem",
+        `Tem certeza que deseja transferir os dados de ${cOrigem.nome} para ${cDestino.nome}? O cadastro de origem será arquivado permanentemente.`,
+        () => {
+            const btn = document.getElementById('btn-mesclar-salvar');
+            const span = document.getElementById('btn-mesclar-salvar-text');
+            if(btn) btn.disabled = true;
+            if(span) span.innerText = 'Mesclando...';
+
+            // 1. Unificar saldos de almoços e prêmios
+            cDestino.almocos = (cDestino.almocos || 0) + (cOrigem.almocos || 0);
+            cDestino.premiosResgatados = (cDestino.premiosResgatados || 0) + (cOrigem.premiosResgatados || 0);
+
+            // 2. Unificar históricos de visita
+            if(cOrigem.historico) {
+                cDestino.historico = [...(cDestino.historico || []), ...cOrigem.historico];
+                if(window.limitarHistorico) cDestino.historico = window.limitarHistorico(cDestino.historico);
+            }
+            
+            // 3. Unificar histórico de resgates de prêmios
+            if(cOrigem.historicoResgates) {
+                cDestino.historicoResgates = [...(cDestino.historicoResgates || []), ...cOrigem.historicoResgates];
+            }
+            
+            // 4. Unificar histórico de resgates de aniversários
+            if(cOrigem.historicoAniversarios) {
+                cDestino.historicoAniversarios = [...(cDestino.historicoAniversarios || []), ...cOrigem.historicoAniversarios];
+            }
+
+            // 5. Atualizar Data de Última Visita para a mais recente
+            if (cOrigem.ultimaVisitaTimestamp && (!cDestino.ultimaVisitaTimestamp || cOrigem.ultimaVisitaTimestamp > cDestino.ultimaVisitaTimestamp)) {
+                cDestino.ultimaVisitaTimestamp = cOrigem.ultimaVisitaTimestamp;
+            }
+
+            // 6. Arquivar logicamente a origem para evitar perdas totais de rastreabilidade
+            cOrigem.arquivado = true;
+            cOrigem.dataArquivamento = Date.now();
+            cOrigem.motivoArquivamento = `Conta mesclada no CPF ${window.formatarCPF(cpfDestinoRaw)}`;
+
+            // Executa a transação simulada por chamadas sequenciais independentes
+            Promise.all([
+                window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cpfDestinoRaw), cDestino),
+                window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cpfOrigemRaw), cOrigem)
+            ]).then(() => {
+                window.mostrarToast("Cadastros mesclados com sucesso!");
+                if(window.logAuditoria) window.logAuditoria('Mesclagem de Contas', `Os dados do CPF ${window.formatarCPF(cpfOrigemRaw)} foram transferidos com sucesso para o CPF ${window.formatarCPF(cpfDestinoRaw)}.`);
+                
+                if(btn) btn.disabled = false;
+                if(span) span.innerText = 'Confirmar Mesclagem';
+                if(window.fecharModal) window.fecharModal('modal-mesclagem');
+                if(window.filtrarLista) window.filtrarLista(window.filtroAtual);
+            }).catch(() => {
+                window.mostrarToast("Erro ao processar mesclagem. Tente novamente.", "erro");
+                if(btn) btn.disabled = false;
+                if(span) span.innerText = 'Confirmar Mesclagem';
+            });
+        }
+    );
 };
