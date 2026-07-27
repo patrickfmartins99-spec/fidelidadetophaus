@@ -30,9 +30,9 @@ window.abrirModalSaidaTotem = () => {
 };
 
 window.verificarPinTotem = () => {
-    if(window.vkFechar) window.vkFechar();
     const pin = document.getElementById('totem-pin-input').value;
     
+    // PIN Padrão de segurança administrativa (pode ser evoluído para o banco de dados depois)
     if(pin === '1234' || pin === 'admin') {
         if(window.logAuditoria) window.logAuditoria('Segurança Totem', 'Saída autorizada do modo totem (PIN Correto).');
         if(window.fecharModal) window.fecharModal('modal-totem-saida');
@@ -46,8 +46,6 @@ window.verificarPinTotem = () => {
 };
 
 window.sairModoTotem = () => {
-    if(window.vkFechar) window.vkFechar();
-    
     if(document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen().catch(()=>{});
     }
@@ -69,8 +67,10 @@ window.resetarTimerTotem = () => {
     clearTimeout(window.timerInatividade);
     if(document.getElementById('tela-totem').classList.contains('hidden')) return;
     
+    // Se estiver na tela inicial, não precisa de timeout de inatividade
     if(!document.getElementById('totem-tela-busca').classList.contains('hidden')) return;
 
+    // Retenção de sessão estendida para o cadastro (90s) em relação a telas normais (45s)
     const emCadastro = !document.getElementById('totem-tela-cadastro').classList.contains('hidden');
     const tempoInatividade = emCadastro ? 90000 : 45000;
     
@@ -81,12 +81,11 @@ window.resetarTimerTotem = () => {
 };
 
 window.totemVoltarInicio = () => {
-    if(window.vkFechar) window.vkFechar();
-    
     clearTimeout(window.timeoutTotemMsg); 
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
     
+    // Libera qualquer trava de processamento pendente em caso de abandono brusco
     if (window.totemClienteTemp && window.operacoesAtivas) {
         window.operacoesAtivas[window.totemClienteTemp.cpf] = false;
     }
@@ -118,8 +117,6 @@ window.totemVoltarInicio = () => {
 // ==========================================================================
 window.totemProcessarCPF = () => {
     if(window.isProcessing) return;
-    if(window.vkFechar) window.vkFechar();
-    
     const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
     if(!window.validarCPFReal(cpfNum)) return window.totemMostrarMensagem('erro_cpf');
     
@@ -194,7 +191,6 @@ window.totemProcessarCPF = () => {
 window.totemSalvarCadastro = (e) => {
     e.preventDefault(); 
     if(window.isProcessing) return;
-    if(window.vkFechar) window.vkFechar();
     
     const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
     if(window.operacoesAtivas && window.operacoesAtivas[cpf]) return;
@@ -308,8 +304,10 @@ window.totemExecutarAcumulo = () => {
     });
 };
 
+// ==========================================================================
+// FUNÇÕES AUXILIARES DE MENSAGENS E TEMPORIZAÇÃO DO TOTEM
+// ==========================================================================
 window.totemMostrarMensagem = (tipo) => {
-    if(window.vkFechar) window.vkFechar();
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
     
@@ -365,12 +363,14 @@ window.totemMostrarMensagem = (tipo) => {
     
     if(window.lucide) window.lucide.createIcons(); 
     
+    // Configura a barra de progresso visual
     if(lb) {
         void lb.offsetWidth; 
         lb.style.animationDuration = `${tempo}ms`; 
         lb.classList.add('animate-shrink');
     }
     
+    // Configura o cronômetro numérico de tela
     let segundosRestantes = Math.floor(tempo / 1000);
     if(counterEl) counterEl.innerText = segundosRestantes;
     
@@ -385,257 +385,3 @@ window.totemMostrarMensagem = (tipo) => {
     clearTimeout(window.timeoutTotemMsg); 
     window.timeoutTotemMsg = setTimeout(() => window.totemVoltarInicio(), tempo);
 };
-
-// ==========================================================================
-// TECLADO VIRTUAL PROPRIETÁRIO (Virtual Keyboard - VK) - REFINADO
-// ==========================================================================
-window.vkAtivo = null;
-window.vkIsShift = false;
-window.vkBackspaceTimer = null;
-window.vkBackspaceInterval = null;
-
-window.vkInicializar = () => {
-    // Renderização Dinâmica do Layout QWERTY Alfabético (Compacto)
-    const row1 = ['q','w','e','r','t','y','u','i','o','p'];
-    const row2 = ['a','s','d','f','g','h','j','k','l','ç'];
-    const row3 = ['z','x','c','v','b','n','m'];
-
-    const buildRow = (keys, containerId) => {
-        const container = document.getElementById(containerId);
-        if(!container) return;
-        container.innerHTML = '';
-        keys.forEach(k => {
-            container.innerHTML += `<button type="button" class="vk-btn-alpha bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white w-8 sm:w-10 h-12 rounded-xl shadow-sm font-bold text-lg active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none flex items-center justify-center" data-vk-val="${k}">${k}</button>`;
-        });
-    };
-
-    buildRow(row1, 'vk-row-1');
-    buildRow(row2, 'vk-row-2');
-
-    const row3Container = document.getElementById('vk-row-3');
-    if(row3Container) {
-        row3Container.innerHTML = `<button type="button" class="vk-btn-action bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white w-10 sm:w-14 h-12 rounded-xl shadow-sm font-bold flex items-center justify-center active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-action="shift"><i data-lucide="arrow-up" class="w-4 h-4 pointer-events-none"></i></button>`;
-        row3.forEach(k => {
-            row3Container.innerHTML += `<button type="button" class="vk-btn-alpha bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white w-8 sm:w-10 h-12 rounded-xl shadow-sm font-bold text-lg active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none flex items-center justify-center" data-vk-val="${k}">${k}</button>`;
-        });
-        row3Container.innerHTML += `<button type="button" class="vk-btn-action bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-gray-300 w-10 sm:w-14 h-12 rounded-xl shadow-sm font-bold flex items-center justify-center active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-action="backspace"><i data-lucide="delete" class="w-5 h-5 pointer-events-none"></i></button>`;
-    }
-
-    if(window.lucide) window.lucide.createIcons();
-
-    // Listener Global de Foco para abrir o teclado automaticamente
-    document.addEventListener('focusin', (e) => {
-        if(e.target && e.target.hasAttribute('data-vk-type')) {
-            window.vkAbrir(e.target);
-        }
-    });
-
-    const vkEl = document.getElementById('virtual-keyboard');
-    if(!vkEl) return;
-
-    const handleBtnPress = (e) => {
-        e.preventDefault(); 
-        const btnVal = e.target.closest('[data-vk-val]');
-        const btnAction = e.target.closest('[data-vk-action]');
-
-        if(btnVal) {
-            window.vkInserir(btnVal.getAttribute('data-vk-val'));
-        } else if (btnAction) {
-            const action = btnAction.getAttribute('data-vk-action');
-            if(action === 'shift') window.vkToggleShift();
-            if(action === 'space') window.vkInserir(' ');
-            if(action === 'confirm') window.vkConfirmar();
-        }
-    };
-
-    vkEl.addEventListener('mousedown', (e) => {
-        if(e.target.closest('button') && !e.target.closest('[data-vk-action="backspace"]')) {
-            handleBtnPress(e);
-        } else if (!e.target.closest('button')) {
-            e.preventDefault();
-        }
-    });
-
-    vkEl.addEventListener('touchstart', (e) => {
-        if(e.target.closest('button') && !e.target.closest('[data-vk-action="backspace"]')) {
-            handleBtnPress(e);
-        } else if (!e.target.closest('button')) {
-            e.preventDefault();
-        }
-    }, {passive: false});
-
-    const setupBackspace = (btn) => {
-        let isHolding = false;
-        
-        const startDelete = (e) => {
-            e.preventDefault();
-            if(isHolding) return;
-            isHolding = true;
-            window.vkApagar();
-            window.vkBackspaceTimer = setTimeout(() => {
-                window.vkBackspaceInterval = setInterval(window.vkApagar, 100);
-            }, 400);
-        };
-        const stopDelete = (e) => {
-            if(e) e.preventDefault();
-            isHolding = false;
-            clearTimeout(window.vkBackspaceTimer);
-            clearInterval(window.vkBackspaceInterval);
-        };
-        
-        btn.addEventListener('touchstart', startDelete, {passive: false});
-        btn.addEventListener('mousedown', startDelete);
-        
-        btn.addEventListener('touchend', stopDelete);
-        btn.addEventListener('touchcancel', stopDelete);
-        btn.addEventListener('mouseup', stopDelete);
-        btn.addEventListener('mouseleave', stopDelete);
-    };
-
-    const bsButtons = vkEl.querySelectorAll('[data-vk-action="backspace"]');
-    bsButtons.forEach(setupBackspace);
-};
-
-window.vkAbrir = (input) => {
-    // Remove o foco visual de outros inputs e adiciona no ativo
-    document.querySelectorAll('.vk-field-focused').forEach(el => el.classList.remove('vk-field-focused'));
-    input.classList.add('vk-field-focused');
-
-    window.vkAtivo = input;
-    const type = input.getAttribute('data-vk-type') || 'text';
-    const kb = document.getElementById('virtual-keyboard');
-    const numLayout = document.getElementById('vk-layout-numeric');
-    const alphaLayout = document.getElementById('vk-layout-alpha');
-    const emailShortcuts = document.getElementById('vk-email-shortcuts');
-    const label = document.getElementById('vk-field-label');
-    const dynamicArea = document.getElementById('totem-dynamic-area');
-
-    if(label) label.innerText = input.placeholder || 'Preencha o campo';
-
-    numLayout.classList.add('hidden');
-    alphaLayout.classList.add('hidden');
-    if(emailShortcuts) emailShortcuts.classList.add('hidden');
-
-    if(type === 'numeric' || type === 'pin') {
-        numLayout.classList.remove('hidden');
-        numLayout.classList.add('grid');
-    } else {
-        alphaLayout.classList.remove('hidden');
-        alphaLayout.classList.add('flex');
-        if(type === 'email' && emailShortcuts) {
-            emailShortcuts.classList.remove('hidden');
-        }
-    }
-
-    // Faz o container principal do totem subir suavemente para não cobrir a interface
-    if(dynamicArea) dynamicArea.classList.add('vk-open-padding');
-
-    kb.classList.remove('translate-y-full');
-
-    setTimeout(() => {
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 200);
-};
-
-window.vkFechar = () => {
-    const kb = document.getElementById('virtual-keyboard');
-    const dynamicArea = document.getElementById('totem-dynamic-area');
-    
-    if(kb) kb.classList.add('translate-y-full');
-    if(dynamicArea) dynamicArea.classList.remove('vk-open-padding');
-
-    document.querySelectorAll('.vk-field-focused').forEach(el => el.classList.remove('vk-field-focused'));
-
-    if(window.vkAtivo) {
-        window.vkAtivo.blur();
-        window.vkAtivo = null;
-    }
-};
-
-window.vkConfirmar = () => {
-    const input = window.vkAtivo;
-    if(input && input.id === 'totem-cpf') {
-        window.totemProcessarCPF();
-    } else if (input && input.id === 'totem-pin-input') {
-        window.verificarPinTotem();
-    } else {
-        window.vkFechar();
-    }
-};
-
-window.vkInserir = (char) => {
-    if(!window.vkAtivo) return;
-    const input = window.vkAtivo;
-    
-    let start = input.selectionStart;
-    let end = input.selectionEnd;
-    let valBefore = input.value;
-
-    if (input.maxLength > 0 && valBefore.length >= input.maxLength && start === end) return;
-
-    let charToInsert = window.vkIsShift ? char.toUpperCase() : char.toLowerCase();
-    const finalChar = (char.length > 1 || !isNaN(char) || char === '@' || char === '_' || char === '.' || char === ',') ? char : charToInsert;
-    
-    input.value = valBefore.substring(0, start) + finalChar + valBefore.substring(end);
-    
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-
-    setTimeout(() => {
-        const valAfter = input.value;
-        if(input.getAttribute('data-vk-type') === 'numeric') {
-            input.setSelectionRange(valAfter.length, valAfter.length);
-        } else {
-            const newPos = start + finalChar.length;
-            input.setSelectionRange(newPos, newPos);
-        }
-    }, 10);
-};
-
-window.vkApagar = () => {
-    if(!window.vkAtivo) return;
-    const input = window.vkAtivo;
-    
-    let start = input.selectionStart;
-    let end = input.selectionEnd;
-    let val = input.value;
-
-    if (start === end && start > 0) {
-        input.value = val.substring(0, start - 1) + val.substring(end);
-        start--;
-    } else if (start !== end) {
-        input.value = val.substring(0, start) + val.substring(end);
-    } else {
-        return; 
-    }
-
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-
-    setTimeout(() => {
-        if(input.getAttribute('data-vk-type') === 'numeric') {
-            input.setSelectionRange(input.value.length, input.value.length);
-        } else {
-            input.setSelectionRange(start, start);
-        }
-    }, 10);
-};
-
-window.vkToggleShift = () => {
-    window.vkIsShift = !window.vkIsShift;
-    const keys = document.querySelectorAll('.vk-btn-alpha');
-    keys.forEach(k => {
-        const val = k.getAttribute('data-vk-val');
-        k.innerText = window.vkIsShift ? val.toUpperCase() : val.toLowerCase();
-    });
-    const shiftBtn = document.querySelector('[data-vk-action="shift"]');
-    if(shiftBtn) {
-        if(window.vkIsShift) {
-            shiftBtn.classList.replace('bg-gray-700', 'bg-indigo-600');
-        } else {
-            shiftBtn.classList.replace('bg-indigo-600', 'bg-gray-700');
-        }
-    }
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    window.vkInicializar();
-});
