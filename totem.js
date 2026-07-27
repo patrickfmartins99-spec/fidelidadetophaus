@@ -387,7 +387,7 @@ window.totemMostrarMensagem = (tipo) => {
 };
 
 // ==========================================================================
-// TECLADO VIRTUAL PROPRIETÁRIO (Virtual Keyboard - VK)
+// TECLADO VIRTUAL PROPRIETÁRIO (Virtual Keyboard - VK) - REFINADO
 // ==========================================================================
 window.vkAtivo = null;
 window.vkIsShift = false;
@@ -395,7 +395,7 @@ window.vkBackspaceTimer = null;
 window.vkBackspaceInterval = null;
 
 window.vkInicializar = () => {
-    // Renderização Dinâmica do Layout QWERTY Alfabético
+    // Renderização Dinâmica do Layout QWERTY Alfabético (Compacto)
     const row1 = ['q','w','e','r','t','y','u','i','o','p'];
     const row2 = ['a','s','d','f','g','h','j','k','l','ç'];
     const row3 = ['z','x','c','v','b','n','m'];
@@ -405,7 +405,7 @@ window.vkInicializar = () => {
         if(!container) return;
         container.innerHTML = '';
         keys.forEach(k => {
-            container.innerHTML += `<button type="button" class="vk-btn-alpha bg-gray-800 hover:bg-gray-700 text-white w-9 sm:w-12 h-14 rounded-xl shadow-md font-bold text-xl active:scale-95 transition-transform focus:outline-none" data-vk-val="${k}">${k}</button>`;
+            container.innerHTML += `<button type="button" class="vk-btn-alpha bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white w-8 sm:w-10 h-12 rounded-xl shadow-sm font-bold text-lg active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none flex items-center justify-center" data-vk-val="${k}">${k}</button>`;
         });
     };
 
@@ -414,11 +414,11 @@ window.vkInicializar = () => {
 
     const row3Container = document.getElementById('vk-row-3');
     if(row3Container) {
-        row3Container.innerHTML = `<button type="button" class="vk-btn-action bg-gray-700 hover:bg-gray-600 text-white w-12 sm:w-16 h-14 rounded-xl shadow-md font-bold flex items-center justify-center active:scale-95 transition-transform focus:outline-none" data-vk-action="shift"><i data-lucide="arrow-up" class="w-5 h-5 pointer-events-none"></i></button>`;
+        row3Container.innerHTML = `<button type="button" class="vk-btn-action bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white w-10 sm:w-14 h-12 rounded-xl shadow-sm font-bold flex items-center justify-center active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-action="shift"><i data-lucide="arrow-up" class="w-4 h-4 pointer-events-none"></i></button>`;
         row3.forEach(k => {
-            row3Container.innerHTML += `<button type="button" class="vk-btn-alpha bg-gray-800 hover:bg-gray-700 text-white w-9 sm:w-12 h-14 rounded-xl shadow-md font-bold text-xl active:scale-95 transition-transform focus:outline-none" data-vk-val="${k}">${k}</button>`;
+            row3Container.innerHTML += `<button type="button" class="vk-btn-alpha bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white w-8 sm:w-10 h-12 rounded-xl shadow-sm font-bold text-lg active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none flex items-center justify-center" data-vk-val="${k}">${k}</button>`;
         });
-        row3Container.innerHTML += `<button type="button" class="vk-btn-action bg-red-900/40 hover:bg-red-800 text-red-400 w-12 sm:w-16 h-14 rounded-xl shadow-md font-bold flex items-center justify-center active:scale-95 transition-transform focus:outline-none" data-vk-action="backspace"><i data-lucide="delete" class="w-5 h-5 pointer-events-none"></i></button>`;
+        row3Container.innerHTML += `<button type="button" class="vk-btn-action bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-gray-300 w-10 sm:w-14 h-12 rounded-xl shadow-sm font-bold flex items-center justify-center active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-action="backspace"><i data-lucide="delete" class="w-5 h-5 pointer-events-none"></i></button>`;
     }
 
     if(window.lucide) window.lucide.createIcons();
@@ -433,7 +433,6 @@ window.vkInicializar = () => {
     const vkEl = document.getElementById('virtual-keyboard');
     if(!vkEl) return;
 
-    // Delegador de Eventos Seguro: Mantém o foco no input sem acionar o teclado do Android
     const handleBtnPress = (e) => {
         e.preventDefault(); 
         const btnVal = e.target.closest('[data-vk-val]');
@@ -449,16 +448,14 @@ window.vkInicializar = () => {
         }
     };
 
-    // Previne blur em desktops (mouse)
     vkEl.addEventListener('mousedown', (e) => {
         if(e.target.closest('button') && !e.target.closest('[data-vk-action="backspace"]')) {
             handleBtnPress(e);
         } else if (!e.target.closest('button')) {
-            e.preventDefault(); // Clique em área morta não remove foco
+            e.preventDefault();
         }
     });
 
-    // Previne blur nativo em Tablets e captura cliques rápidos
     vkEl.addEventListener('touchstart', (e) => {
         if(e.target.closest('button') && !e.target.closest('[data-vk-action="backspace"]')) {
             handleBtnPress(e);
@@ -467,7 +464,6 @@ window.vkInicializar = () => {
         }
     }, {passive: false});
 
-    // Função Hold: Apagamento Contínuo (Backspace)
     const setupBackspace = (btn) => {
         let isHolding = false;
         
@@ -501,6 +497,10 @@ window.vkInicializar = () => {
 };
 
 window.vkAbrir = (input) => {
+    // Remove o foco visual de outros inputs e adiciona no ativo
+    document.querySelectorAll('.vk-field-focused').forEach(el => el.classList.remove('vk-field-focused'));
+    input.classList.add('vk-field-focused');
+
     window.vkAtivo = input;
     const type = input.getAttribute('data-vk-type') || 'text';
     const kb = document.getElementById('virtual-keyboard');
@@ -508,6 +508,7 @@ window.vkAbrir = (input) => {
     const alphaLayout = document.getElementById('vk-layout-alpha');
     const emailShortcuts = document.getElementById('vk-email-shortcuts');
     const label = document.getElementById('vk-field-label');
+    const dynamicArea = document.getElementById('totem-dynamic-area');
 
     if(label) label.innerText = input.placeholder || 'Preencha o campo';
 
@@ -515,7 +516,6 @@ window.vkAbrir = (input) => {
     alphaLayout.classList.add('hidden');
     if(emailShortcuts) emailShortcuts.classList.add('hidden');
 
-    // Troca de Modos
     if(type === 'numeric' || type === 'pin') {
         numLayout.classList.remove('hidden');
         numLayout.classList.add('grid');
@@ -527,6 +527,9 @@ window.vkAbrir = (input) => {
         }
     }
 
+    // Faz o container principal do totem subir suavemente para não cobrir a interface
+    if(dynamicArea) dynamicArea.classList.add('vk-open-padding');
+
     kb.classList.remove('translate-y-full');
 
     setTimeout(() => {
@@ -536,7 +539,13 @@ window.vkAbrir = (input) => {
 
 window.vkFechar = () => {
     const kb = document.getElementById('virtual-keyboard');
+    const dynamicArea = document.getElementById('totem-dynamic-area');
+    
     if(kb) kb.classList.add('translate-y-full');
+    if(dynamicArea) dynamicArea.classList.remove('vk-open-padding');
+
+    document.querySelectorAll('.vk-field-focused').forEach(el => el.classList.remove('vk-field-focused'));
+
     if(window.vkAtivo) {
         window.vkAtivo.blur();
         window.vkAtivo = null;
@@ -549,8 +558,9 @@ window.vkConfirmar = () => {
         window.totemProcessarCPF();
     } else if (input && input.id === 'totem-pin-input') {
         window.verificarPinTotem();
+    } else {
+        window.vkFechar();
     }
-    window.vkFechar();
 };
 
 window.vkInserir = (char) => {
@@ -568,10 +578,8 @@ window.vkInserir = (char) => {
     
     input.value = valBefore.substring(0, start) + finalChar + valBefore.substring(end);
     
-    // Dispara gatilho visual de eventos e rotinas de máscaras de core.js
     input.dispatchEvent(new Event('input', { bubbles: true }));
 
-    // Atualização de cursor pós-formatação
     setTimeout(() => {
         const valAfter = input.value;
         if(input.getAttribute('data-vk-type') === 'numeric') {
@@ -628,7 +636,6 @@ window.vkToggleShift = () => {
     }
 };
 
-// Executa a inicialização do Teclado ao montar a estrutura do DOM
 document.addEventListener('DOMContentLoaded', () => {
     window.vkInicializar();
 });
