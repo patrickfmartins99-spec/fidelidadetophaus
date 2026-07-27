@@ -615,7 +615,7 @@
             <div class="w-3/5 flex flex-col items-center justify-center p-12 relative overflow-y-auto" id="totem-dynamic-area">
                 
                 <div id="totem-tela-busca" class="w-full max-w-lg text-center transition-all">
-                    <h1 class="text-5xl font-black text-white mb-4">Toque para começar</h1>
+                    <h1 class="text-5xl font-black text-white mb-4">Seja bem-vindo(a)</h1>
                     <p class="text-gray-400 mb-10 text-2xl">Olá! Insira seu CPF para registrar seu almoço de hoje.</p>
                     <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-5xl py-6 rounded-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
                     <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-3xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
@@ -665,7 +665,7 @@
                 
                 <div id="totem-bottom-bar" class="hidden absolute bottom-12 left-1/2 -translate-x-1/2 w-3/4 flex flex-col items-center">
                     <p id="totem-texto-sessao" class="text-gray-400 text-lg mb-4">Sua sessão terminará em <span id="totem-timer-count" class="font-bold text-white">10</span> segundos.</p>
-                    <button onclick="totemVoltarInicio()" class="mb-6 px-10 py-3 bg-gray-800 text-white text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar / Voltar</button>
+                    <button onclick="totemVoltarInicio()" class="mb-6 px-10 py-3 bg-gray-800 text-white text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar atendimento</button>
                     <div class="w-full bg-gray-900 h-3 rounded-full overflow-hidden border border-gray-800">
                         <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
                     </div>
