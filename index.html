@@ -43,29 +43,6 @@
 
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ==========================================================================
-           TECLADO VIRTUAL E FOCOS DE INTERFACE
-           ========================================================================== */
-        .vk-noselect {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        /* Classe injetada no container do totem para empurrar o conteúdo pra cima */
-        .vk-open-padding {
-            padding-bottom: 45vh !important; 
-        }
-
-        /* Destaque profissional para o campo que está sendo digitado */
-        .vk-field-focused {
-            box-shadow: 0 0 0 6px rgba(156, 163, 175, 0.4) !important;
-            border-color: #9ca3af !important;
-            transform: scale(1.02);
-            transition: all 0.2s ease-out;
-            z-index: 10;
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
@@ -232,7 +209,7 @@
                     </div>
                 </div>
 
-                <!-- Painel Secundário de Métricas -->
+                <!-- Painel Secundário de Métricas (Novo) -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="painel-metricas-avancadas">
                     <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
                         <p class="text-[10px] font-bold text-slate-500 uppercase">Taxa de Resgate</p>
@@ -356,6 +333,7 @@
                         <textarea id="mkt-msg-inativo" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
 
+                    <!-- Fila de Envios (Novo) -->
                     <div class="pt-4 border-t border-gray-200 mt-4">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-indigo-600"></i> Fila de Envios e Status</h4>
@@ -527,6 +505,8 @@
             </div>
         </div>
 
+        <!-- Novos Modais de Funcionalidades e Segurança -->
+
         <div id="modal-alerta-generico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[300]">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-red-600 text-center">
                 <i data-lucide="alert-triangle" class="w-12 h-12 text-red-600 mx-auto mb-4"></i>
@@ -632,13 +612,12 @@
                 <p class="text-gray-500 text-sm mt-6 uppercase tracking-widest font-bold">Aponte a câmera do celular</p>
             </div>
 
-            <!-- Adicionada a transição suave para suportar a elevação ao abrir o teclado -->
-            <div class="w-3/5 flex flex-col items-center justify-center p-12 relative overflow-y-auto transition-all duration-300 ease-out" id="totem-dynamic-area">
+            <div class="w-3/5 flex flex-col items-center justify-center p-12 relative overflow-y-auto" id="totem-dynamic-area">
                 
                 <div id="totem-tela-busca" class="w-full max-w-lg text-center transition-all">
                     <h1 class="text-5xl font-black text-white mb-4">Toque para começar</h1>
                     <p class="text-gray-400 mb-10 text-2xl">Olá! Insira seu CPF para registrar seu almoço de hoje.</p>
-                    <input type="text" inputmode="none" data-vk-type="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-5xl py-6 rounded-2xl focus:outline-none font-mono mb-8 shadow-2xl transition-all placeholder-gray-400 cursor-text">
+                    <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-5xl py-6 rounded-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
                     <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-3xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
                         <span id="btn-totem-avancar-text">Avançar</span>
                     </button>
@@ -648,11 +627,11 @@
                     <h2 class="text-5xl font-black text-white mb-2">Primeira vez aqui?</h2>
                     <p class="text-gray-400 text-2xl mb-10">Preencha rapidamente para participar do clube.</p>
                     <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full space-y-6">
-                        <input type="text" inputmode="none" id="totem-cad-cpf" readonly class="w-full bg-gray-800 border-2 border-gray-700 text-gray-400 px-6 py-5 rounded-2xl font-mono text-2xl text-center cursor-not-allowed outline-none focus:outline-none">
-                        <input type="text" inputmode="none" data-vk-type="alpha" id="totem-cad-nome" required placeholder="Nome completo" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl text-center focus:outline-none placeholder-gray-400 shadow-xl cursor-text">
+                        <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-800 border-2 border-gray-700 text-gray-400 px-6 py-5 rounded-2xl font-mono text-2xl text-center cursor-not-allowed">
+                        <input type="text" id="totem-cad-nome" required placeholder="Nome completo" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
                         <div class="grid grid-cols-2 gap-6">
-                            <input type="text" inputmode="none" data-vk-type="numeric" id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-xl text-center focus:outline-none placeholder-gray-400 shadow-xl font-mono cursor-text">
-                            <input type="text" inputmode="none" data-vk-type="numeric" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-xl text-center focus:outline-none placeholder-gray-400 shadow-xl font-mono cursor-text">
+                            <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                            <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
                         </div>
                         <div class="flex gap-6 mt-8">
                             <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-2xl py-6 rounded-2xl shadow-xl active:scale-95 transition-transform">Voltar</button>
@@ -700,7 +679,7 @@
                 <i data-lucide="lock" class="w-10 h-10 text-gray-500 mx-auto mb-4"></i>
                 <h3 class="text-xl font-bold text-white mb-2">Acesso Restrito</h3>
                 <p class="text-sm text-gray-400 mb-6">Insira o PIN administrativo para sair do modo totem.</p>
-                <input type="password" inputmode="none" data-vk-type="numeric" id="totem-pin-input" placeholder="PIN" class="w-full px-4 py-4 bg-black border border-gray-700 rounded-xl focus:outline-none text-center text-2xl font-black tracking-widest text-white mb-6 cursor-text" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
+                <input type="password" inputmode="numeric" id="totem-pin-input" placeholder="PIN" class="w-full px-4 py-4 bg-black border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-white text-center text-2xl font-black tracking-widest text-white mb-6" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
                 <div class="flex gap-3">
                     <button onclick="fecharModal('modal-totem-saida')" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition">Cancelar</button>
                     <button onclick="window.verificarPinTotem()" class="flex-1 py-3 bg-white hover:bg-gray-200 text-black rounded-xl font-bold transition">Desbloquear</button>
@@ -708,73 +687,6 @@
             </div>
         </div>
 
-    </div>
-
-    <!-- ========================================================================== -->
-    <!-- TECLADO VIRTUAL PROPRIETÁRIO (MODO TOTEM) - REFINADO -->
-    <!-- ========================================================================== -->
-    <div id="virtual-keyboard" class="fixed bottom-0 left-0 w-full z-[9999] bg-gray-900 border-t border-gray-800 p-2 sm:p-3 transform translate-y-full transition-transform duration-300 ease-out shadow-[0_-20px_50px_rgba(0,0,0,0.5)] flex justify-center no-print vk-noselect">
-        <div class="w-full max-w-4xl relative">
-            
-            <div class="flex justify-between items-center mb-3 px-2">
-                <span id="vk-field-label" class="text-gray-400 text-sm font-bold uppercase tracking-widest"></span>
-                <button type="button" onclick="window.vkFechar && window.vkFechar()" class="text-gray-400 hover:text-white p-2 bg-gray-800 rounded-full active:scale-90 transition-all duration-150 ease-out focus:outline-none">
-                    <i data-lucide="chevron-down" class="w-5 h-5 pointer-events-none"></i>
-                </button>
-            </div>
-
-            <!-- LAYOUT NUMÉRICO COMPACTO -->
-            <div id="vk-layout-numeric" class="hidden grid grid-cols-3 gap-2 max-w-[320px] mx-auto">
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="1">1</button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="2">2</button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="3">3</button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="4">4</button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="5">5</button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="6">6</button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="7">7</button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="8">8</button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="9">9</button>
-                
-                <!-- Botão Apagar: Removido o vermelho agressivo, substituído por um tom neutro elegante -->
-                <button type="button" class="vk-btn-action bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-gray-300 h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-action="backspace">
-                    <i data-lucide="delete" class="w-8 h-8 pointer-events-none"></i>
-                </button>
-                <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white text-3xl font-bold h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-val="0">0</button>
-                
-                <!-- Botão Confirmar: Manteve o branco, mas ganhou feedback visual (scale) e foco sutil -->
-                <button type="button" class="vk-btn-action bg-white hover:bg-gray-100 active:bg-gray-300 text-black h-16 rounded-xl active:scale-[0.96] transition-all duration-150 ease-out shadow-sm focus:outline-none flex items-center justify-center" data-vk-action="confirm">
-                    <i data-lucide="check" class="w-8 h-8 pointer-events-none"></i>
-                </button>
-            </div>
-
-            <!-- LAYOUT ALFABÉTICO / E-MAIL -->
-            <div id="vk-layout-alpha" class="hidden flex flex-col gap-2">
-                
-                <div id="vk-email-shortcuts" class="hidden flex justify-center gap-2 mb-1">
-                    <button type="button" class="vk-btn-num bg-indigo-900/60 hover:bg-indigo-800 active:bg-indigo-700 text-indigo-300 px-5 h-10 rounded-xl text-sm font-bold shadow-sm active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-val="@">@</button>
-                    <button type="button" class="vk-btn-num bg-indigo-900/60 hover:bg-indigo-800 active:bg-indigo-700 text-indigo-300 px-5 h-10 rounded-xl text-sm font-bold shadow-sm active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-val=".com">.com</button>
-                    <button type="button" class="vk-btn-num bg-indigo-900/60 hover:bg-indigo-800 active:bg-indigo-700 text-indigo-300 px-5 h-10 rounded-xl text-sm font-bold shadow-sm active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-val=".com.br">.com.br</button>
-                    <button type="button" class="vk-btn-num bg-indigo-900/60 hover:bg-indigo-800 active:bg-indigo-700 text-indigo-300 px-5 h-10 rounded-xl text-sm font-bold shadow-sm active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-val="_">_</button>
-                </div>
-
-                <!-- As linhas do teclado alfabético serão injetadas via JS (com as novas classes de animação e tamanhos compactos) -->
-                <div class="flex justify-center gap-2" id="vk-row-1"></div>
-                <div class="flex justify-center gap-2" id="vk-row-2"></div>
-                <div class="flex justify-center gap-2" id="vk-row-3"></div>
-                
-                <div class="flex justify-center gap-2 mt-1">
-                    <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white w-12 sm:w-16 h-12 rounded-xl shadow-sm font-bold text-lg active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none flex items-center justify-center" data-vk-val=",">,</button>
-                    <button type="button" class="vk-btn-action bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white flex-grow max-w-md h-12 rounded-xl shadow-sm flex items-center justify-center active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-action="space">
-                        <span class="text-gray-400 text-xs font-bold uppercase tracking-widest pointer-events-none">Espaço</span>
-                    </button>
-                    <button type="button" class="vk-btn-num bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white w-12 sm:w-16 h-12 rounded-xl shadow-sm font-bold text-lg active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none flex items-center justify-center" data-vk-val=".">.</button>
-                    <button type="button" class="vk-btn-action bg-white hover:bg-gray-100 active:bg-gray-300 text-black px-6 sm:px-8 h-12 rounded-xl shadow-sm flex items-center justify-center active:scale-[0.96] transition-all duration-150 ease-out focus:outline-none" data-vk-action="confirm">
-                        <i data-lucide="check" class="w-6 h-6 pointer-events-none"></i>
-                    </button>
-                </div>
-            </div>
-
-        </div>
     </div>
 
     <div id="secao-impressao" class="print-area"></div>
@@ -787,4 +699,4 @@
     <script type="module" src="./totem.js"></script>
     <script type="module" src="./dashboard.js"></script>
 </body>
-</html>
+    </html>
