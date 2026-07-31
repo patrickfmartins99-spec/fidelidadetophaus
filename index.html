@@ -49,8 +49,27 @@
 
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- TELA DE SELEÇÃO DA UNIDADE (MULTIUNIDADE) -->
+    <div id="tela-selecao-unidade" class="hidden fixed inset-0 bg-slate-900 z-[999] flex flex-col items-center justify-center p-4 transition-all overflow-y-auto">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl text-center my-auto">
+            <img src="./logo.jpg" alt="Top Haus" class="h-20 w-auto mx-auto mb-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Selecione a Unidade</h2>
+            <p class="text-slate-500 mb-8 text-sm">Escolha a unidade onde este dispositivo irá operar. Essa configuração será salva.</p>
+            
+            <div class="flex flex-col gap-4">
+                <button onclick="selecionarUnidadeAtiva('navegantes')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-3">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i> Navegantes
+                </button>
+                <button onclick="selecionarUnidadeAtiva('picarras')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-3">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i> Balneário Piçarras
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
-        <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-hidden border border-gray-800">
+        <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-y-auto max-h-[90dvh] border border-gray-800">
             <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
             <span class="text-white font-light text-xl tracking-widest uppercase block mb-8">Fidelidade</span>
             
@@ -83,16 +102,22 @@
         </button>
     </div>
 
+    <!-- PAINEL PRINCIPAL -->
     <div id="app-dashboard" class="hidden no-print">
         
         <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
-            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-4">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4 flex-wrap justify-center">
                     <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain rounded">
-                    <span class="text-gray-400 font-light text-lg hidden sm:block">| Top Haus Fidelidade</span>
-                    <span id="nome-usuario-logado" class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full font-bold uppercase tracking-wider ml-2 shadow-inner"></span>
+                    <span class="text-gray-400 font-light text-lg hidden lg:block">| Top Haus Fidelidade</span>
+                    <div class="flex flex-col sm:flex-row items-center gap-2">
+                        <span id="nome-usuario-logado" class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-inner"></span>
+                        <span id="indicador-unidade" class="text-xs bg-indigo-900 border border-indigo-700 text-indigo-100 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-inner hidden flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i> <span id="texto-indicador-unidade">Unidade</span>
+                        </span>
+                    </div>
                 </div>
-                <div class="flex gap-3">
+                <div class="flex flex-wrap justify-center gap-3">
                     <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition">
                         <i data-lucide="calculator" class="w-4 h-4"></i> Caixa
                     </button>
@@ -102,7 +127,7 @@
                     <button onclick="entrarModoTotemDaTelaLogin()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-white shadow-md">
                         <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir totem</span>
                     </button>
-                    <div class="h-10 w-px bg-gray-700 mx-1"></div>
+                    <div class="hidden sm:block h-10 w-px bg-gray-700 mx-1"></div>
                     <button onclick="fazerLogout()" title="Sair do Sistema" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center justify-center">
                         <i data-lucide="power" class="w-5 h-5"></i>
                     </button>
@@ -178,6 +203,10 @@
                     <button id="btn-mesclar" onclick="abrirModalMesclagem()" class="hidden bg-purple-50 text-purple-600 hover:bg-purple-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
                         <i data-lucide="merge" class="w-4 h-4"></i> Mesclar
                     </button>
+                    <!-- Novo botão de Trocar Unidade -->
+                    <button id="btn-trocar-unidade" onclick="abrirTrocaUnidade()" class="hidden bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="map" class="w-4 h-4"></i> Alterar Unidade
+                    </button>
                     <button id="btn-ativar-simulacao" onclick="ativarSimulacao()" class="hidden bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
                         <i data-lucide="flask-conical" class="w-4 h-4"></i> Modo Simulação
                     </button>
@@ -188,7 +217,6 @@
 
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
-                <!-- Painel Primário de Métricas -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-500 uppercase">Todos os clientes</p>
@@ -209,7 +237,6 @@
                     </div>
                 </div>
 
-                <!-- Painel Secundário de Métricas (Novo) -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="painel-metricas-avancadas">
                     <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
                         <p class="text-[10px] font-bold text-slate-500 uppercase">Taxa de Resgate</p>
@@ -245,23 +272,23 @@
                         </div>
                     </div>
 
-                    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
                             <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">Painel de Clientes</h2>
                             <p class="text-xs text-slate-400 mt-0.5" id="filtro-atual-texto">Exibindo: Todos os clientes</p>
                         </div>
-                        <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+                        <div class="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
                             <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Buscar por nome, CPF ou telefone..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm text-center w-full sm:w-72">
                             <button onclick="abrirCentralMarketing()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
-                                <i data-lucide="megaphone" class="w-4 h-4"></i> Central de Marketing
+                                <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing
                             </button>
                             <button onclick="exportarExcel()" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
-                                <i data-lucide="download" class="w-4 h-4"></i> Exportar dados
+                                <i data-lucide="download" class="w-4 h-4"></i> Exportar
                             </button>
                         </div>
                     </div>
                     
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto min-h-[300px]">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-100">
@@ -280,7 +307,7 @@
             </section>
         </main>
 
-        <!-- Modais da Aplicação -->
+        <!-- MODAIS -->
         
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
@@ -301,7 +328,7 @@
         </div>
 
         <div id="modal-whatsapp" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-green-500">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-green-500 overflow-y-auto max-h-[90dvh]">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="message-circle" class="w-5 h-5 text-green-500"></i> Enviar mensagem</h3>
                     <button onclick="fecharModal('modal-whatsapp')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -312,7 +339,7 @@
         </div>
 
         <div id="modal-marketing" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto border-t-4 border-indigo-600">
+            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90dvh] overflow-y-auto border-t-4 border-indigo-600">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
@@ -333,7 +360,6 @@
                         <textarea id="mkt-msg-inativo" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
 
-                    <!-- Fila de Envios (Novo) -->
                     <div class="pt-4 border-t border-gray-200 mt-4">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-indigo-600"></i> Fila de Envios e Status</h4>
@@ -375,7 +401,7 @@
         </div>
 
         <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-gray-800"></i> Editar Cadastro</h3>
                     <button type="button" onclick="fecharModal('modal-editar')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -409,7 +435,7 @@
         </div>
 
         <div id="modal-usuarios" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-indigo-600">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-indigo-600 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Gestão de Acessos</h3>
                     <button type="button" onclick="fecharModal('modal-usuarios')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -443,23 +469,37 @@
             </div>
         </div>
 
+        <!-- NOVO MODAL CELEBRAÇÃO 10 ALMOÇOS -->
+        <div id="modal-celebracao-10" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-amber-400">
+                <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i data-lucide="award" class="w-10 h-10"></i>
+                </div>
+                <h3 class="text-2xl font-black text-black mb-2">Parabéns!</h3>
+                <p class="text-gray-600 mb-6 text-sm">O cliente completou <strong>10 almoços</strong>.<br><br>Na próxima visita dele, o sistema informará que o prêmio de R$ 50,00 de desconto está disponível para resgate.</p>
+                <button onclick="fecharModal('modal-celebracao-10')" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition shadow-md">
+                    Entendido
+                </button>
+            </div>
+        </div>
+
         <div id="modal-trava" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-black">
                 <div class="flex items-center justify-center gap-2 mb-2 text-black">
                     <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                     <h3 class="text-lg font-bold">Desconto Disponível!</h3>
                 </div>
-                <p class="text-gray-600 mb-6 text-sm text-center">Este cliente já possui 10 almoços acumulados. Você deseja <strong>Aplicar R$ 50 de desconto agora</strong> ou <strong>Guardar</strong> este benefício para o futuro?</p>
+                <p class="text-gray-600 mb-6 text-sm text-center">Este cliente já possui 10 almoços acumulados. Você deseja <strong>Aplicar R$ 50 de desconto agora</strong> ou <strong>Guardar</strong> este benefício para outra visita?</p>
                 <div class="flex flex-col gap-2">
                     <button id="btn-trava-resgatar" class="w-full px-5 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition"><i data-lucide="printer" class="w-4 h-4"></i> <span id="btn-trava-resgatar-text">Resgatar e imprimir cupom</span></button>
-                    <button id="btn-trava-acumular" class="w-full px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold disabled:opacity-50 transition"><span id="btn-trava-acumular-text">Guardar para a próxima visita</span></button>
+                    <button id="btn-trava-acumular" class="w-full px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold disabled:opacity-50 transition"><span id="btn-trava-acumular-text">Guardar para outra visita (+1 pago)</span></button>
                     <button onclick="fecharModal('modal-trava')" class="text-xs text-gray-400 mt-2 underline font-medium text-center block transition hover:text-gray-600">Cancelar operação</button>
                 </div>
             </div>
         </div>
 
         <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border-t-4 border-gray-800">
+            <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> Histórico de Resgates</h3>
                 <div id="lista-historico" class="max-h-80 overflow-y-auto space-y-3 mb-6"></div>
                 <button onclick="fecharModal('modal-historico')" class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold transition">Fechar</button>
@@ -467,7 +507,7 @@
         </div>
 
         <div id="modal-simulacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-orange-500">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-orange-500 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="flask-conical" class="w-5 h-5 text-orange-500"></i> Ajustes de Depuração</h3>
                     <button type="button" onclick="fecharModal('modal-simulacao')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -505,10 +545,8 @@
             </div>
         </div>
 
-        <!-- Novos Modais de Funcionalidades e Segurança -->
-
         <div id="modal-alerta-generico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[300]">
-            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-red-600 text-center">
+            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-red-600 text-center overflow-y-auto max-h-[90dvh]">
                 <i data-lucide="alert-triangle" class="w-12 h-12 text-red-600 mx-auto mb-4"></i>
                 <h3 id="alerta-generico-titulo" class="text-lg font-bold text-gray-900 mb-2">Atenção</h3>
                 <p id="alerta-generico-texto" class="text-sm text-gray-600 mb-6">Esta ação não poderá ser desfeita.</p>
@@ -520,7 +558,7 @@
         </div>
 
         <div id="modal-lixeira" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl border-t-4 border-gray-800">
+            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="archive" class="w-5 h-5 text-gray-800"></i> Clientes Arquivados</h3>
                     <button type="button" onclick="fecharModal('modal-lixeira')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -542,7 +580,7 @@
         </div>
 
         <div id="modal-auditoria" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-3xl w-full shadow-xl border-t-4 border-indigo-600">
+            <div class="bg-white rounded-2xl p-6 max-w-3xl w-full shadow-xl border-t-4 border-indigo-600 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="clipboard-list" class="w-5 h-5 text-indigo-600"></i> Log de Auditoria</h3>
                     <button type="button" onclick="fecharModal('modal-auditoria')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -564,7 +602,7 @@
         </div>
 
         <div id="modal-mesclagem" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-purple-600">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-purple-600 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="merge" class="w-5 h-5 text-purple-600"></i> Mesclar Cadastros</h3>
                     <button type="button" onclick="fecharModal('modal-mesclagem')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -589,84 +627,85 @@
 
     </div> 
     
-    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-hidden">
-        <div class="w-full flex h-[100dvh]">
+    <!-- TELA DO TOTEM -->
+    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-y-auto">
+        <div class="w-full flex flex-col md:flex-row min-h-[100dvh]">
             
-            <div class="w-2/5 bg-black border-r border-gray-800 flex flex-col items-center justify-center p-12 relative shadow-2xl z-10">
+            <div class="w-full md:w-2/5 bg-black border-r border-gray-800 flex flex-col items-center justify-center p-8 md:p-12 relative shadow-2xl z-10 min-h-[40dvh]">
                 
-                <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-40 w-auto object-contain mb-2 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.05)] cursor-pointer" title="Área Restrita">
+                <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-32 md:h-40 w-auto object-contain mb-2 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.05)] cursor-pointer" title="Área Restrita">
                 
-                <span class="text-white font-light text-3xl tracking-widest uppercase mb-12">Fidelidade</span>
+                <span class="text-white font-light text-2xl md:text-3xl tracking-widest uppercase mb-8 md:mb-12">Fidelidade</span>
 
-                <h3 class="text-3xl font-black text-amber-400 mb-6 tracking-wide uppercase flex items-center gap-3">
+                <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-6 tracking-wide uppercase flex items-center gap-3 text-center">
                     <i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!
                 </h3>
                 
                 <div class="bg-white p-4 rounded-3xl mb-6 shadow-[0_0_40px_rgba(255,255,255,0.15)]">
-                    <img src="./qrcode.png" alt="QR Code" class="w-48 h-48 object-contain rounded-xl">
+                    <img src="./qrcode.png" alt="QR Code" class="w-32 h-32 md:w-48 md:h-48 object-contain rounded-xl">
                 </div>
                 
-                <p class="text-gray-300 text-xl text-center leading-relaxed px-4">
+                <p class="text-gray-300 text-lg md:text-xl text-center leading-relaxed px-4">
                     Avalie nosso atendimento e ganhe um <strong class="text-white">bombom especial</strong>.
                 </p>
-                <p class="text-gray-500 text-sm mt-6 uppercase tracking-widest font-bold">Aponte a câmera do celular</p>
+                <p class="text-gray-500 text-sm mt-6 uppercase tracking-widest font-bold hidden md:block">Aponte a câmera do celular</p>
             </div>
 
-            <div class="w-3/5 flex flex-col items-center justify-center p-12 relative overflow-y-auto" id="totem-dynamic-area">
+            <div class="w-full md:w-3/5 flex flex-col items-center justify-center p-6 md:p-12 relative overflow-y-auto" id="totem-dynamic-area">
                 
                 <div id="totem-tela-busca" class="w-full max-w-lg text-center transition-all">
-                    <h1 class="text-5xl font-black text-white mb-4">Seja bem-vindo(a)</h1>
-                    <p class="text-gray-400 mb-10 text-2xl">Olá! Insira seu CPF para registrar seu almoço de hoje.</p>
-                    <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-5xl py-6 rounded-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
-                    <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-3xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
+                    <h1 class="text-4xl md:text-5xl font-black text-white mb-4">Seja bem-vindo(a)</h1>
+                    <p class="text-gray-400 mb-10 text-xl md:text-2xl">Olá! Insira seu CPF para registrar seu almoço de hoje.</p>
+                    <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-4xl md:text-5xl py-6 rounded-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
+                    <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl md:text-3xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
                         <span id="btn-totem-avancar-text">Avançar</span>
                     </button>
                 </div>
 
                 <div id="totem-tela-cadastro" class="hidden w-full max-w-2xl text-center transition-all">
-                    <h2 class="text-5xl font-black text-white mb-2">Primeira vez aqui?</h2>
-                    <p class="text-gray-400 text-2xl mb-10">Preencha rapidamente para participar do clube.</p>
-                    <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full space-y-6">
-                        <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-800 border-2 border-gray-700 text-gray-400 px-6 py-5 rounded-2xl font-mono text-2xl text-center cursor-not-allowed">
-                        <input type="text" id="totem-cad-nome" required placeholder="Nome completo" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-2xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
-                        <div class="grid grid-cols-2 gap-6">
-                            <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
-                            <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-5 rounded-2xl text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-2">Primeira vez aqui?</h2>
+                    <p class="text-gray-400 text-xl md:text-2xl mb-10">Preencha rapidamente para participar do clube.</p>
+                    <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full space-y-4 md:space-y-6">
+                        <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-800 border-2 border-gray-700 text-gray-400 px-6 py-4 md:py-5 rounded-2xl font-mono text-xl md:text-2xl text-center cursor-not-allowed">
+                        <input type="text" id="totem-cad-nome" required placeholder="Nome completo" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-xl md:text-2xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-lg md:text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                            <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-lg md:text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
                         </div>
-                        <div class="flex gap-6 mt-8">
-                            <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-2xl py-6 rounded-2xl shadow-xl active:scale-95 transition-transform">Voltar</button>
-                            <button type="submit" id="btn-totem-salvar" class="w-2/3 bg-white text-black font-black text-3xl py-6 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
+                        <div class="flex gap-4 md:gap-6 mt-6 md:mt-8">
+                            <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-xl md:text-2xl py-5 md:py-6 rounded-2xl shadow-xl active:scale-95 transition-transform">Voltar</button>
+                            <button type="submit" id="btn-totem-salvar" class="w-2/3 bg-white text-black font-black text-2xl md:text-3xl py-5 md:py-6 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
                         </div>
                     </form>
                 </div>
 
-                <div id="totem-tela-opcoes" class="hidden w-full max-w-lg text-center transition-all">
-                    <div class="w-32 h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i data-lucide="gift" class="w-16 h-16"></i>
+                <div id="totem-tela-opcoes" class="hidden w-full max-w-lg text-center transition-all pb-12">
+                    <div class="w-24 h-24 md:w-32 md:h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="gift" class="w-12 h-12 md:w-16 md:h-16"></i>
                     </div>
-                    <h2 class="text-5xl font-black text-white mb-4">Parabéns!</h2>
-                    <p class="text-gray-300 text-2xl mb-2">Você possui um benefício de</p>
-                    <strong class="text-amber-400 text-5xl font-black mb-10 block">R$ 50,00 de desconto</strong>
-                    <div class="flex flex-col gap-6">
-                        <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-3xl py-8 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50">
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-4">Parabéns!</h2>
+                    <p class="text-gray-300 text-xl md:text-2xl mb-2">Você possui um benefício de</p>
+                    <strong class="text-amber-400 text-4xl md:text-5xl font-black mb-10 block">R$ 50,00 de desconto</strong>
+                    <div class="flex flex-col gap-4 md:gap-6">
+                        <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-2xl md:text-3xl py-6 md:py-8 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50">
                             <span id="btn-totem-resgatar-text">Resgatar agora</span>
                         </button>
-                        <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-2xl py-8 rounded-2xl active:scale-95 transition-transform shadow-xl disabled:opacity-50">
-                            <span id="btn-totem-acumular-text">Guardar para a próxima visita</span>
+                        <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-xl md:text-2xl py-6 md:py-8 rounded-2xl active:scale-95 transition-transform shadow-xl disabled:opacity-50">
+                            <span id="btn-totem-acumular-text">Guardar para outra visita</span>
                         </button>
                     </div>
                 </div>
 
-                <div id="totem-tela-mensagem" class="hidden w-full max-w-xl text-center transition-all pb-12 pt-8">
-                    <div id="totem-icone-msg" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black"></div>
-                    <h2 id="totem-titulo-msg" class="text-5xl font-black text-white mb-6 leading-tight"></h2>
-                    <p id="totem-texto-msg" class="text-gray-300 text-3xl leading-relaxed"></p>
+                <div id="totem-tela-mensagem" class="hidden w-full max-w-xl text-center transition-all pb-24 pt-8">
+                    <div id="totem-icone-msg" class="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black"></div>
+                    <h2 id="totem-titulo-msg" class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight"></h2>
+                    <p id="totem-texto-msg" class="text-gray-300 text-2xl md:text-3xl leading-relaxed"></p>
                 </div>
                 
-                <div id="totem-bottom-bar" class="hidden absolute bottom-12 left-1/2 -translate-x-1/2 w-3/4 flex flex-col items-center">
-                    <p id="totem-texto-sessao" class="text-gray-400 text-lg mb-4">Sua sessão terminará em <span id="totem-timer-count" class="font-bold text-white">10</span> segundos.</p>
-                    <button onclick="totemVoltarInicio()" class="mb-6 px-10 py-3 bg-gray-800 text-white text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar atendimento</button>
-                    <div class="w-full bg-gray-900 h-3 rounded-full overflow-hidden border border-gray-800">
+                <div id="totem-bottom-bar" class="hidden absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 w-[90%] md:w-3/4 flex flex-col items-center">
+                    <p id="totem-texto-sessao" class="text-gray-400 text-base md:text-lg mb-4">Sua sessão terminará em <span id="totem-timer-count" class="font-bold text-white">10</span> segundos.</p>
+                    <button onclick="totemVoltarInicio()" class="mb-4 md:mb-6 px-8 md:px-10 py-3 bg-gray-800 text-white text-base md:text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar atendimento</button>
+                    <div class="w-full bg-gray-900 h-2 md:h-3 rounded-full overflow-hidden border border-gray-800">
                         <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
                     </div>
                 </div>
@@ -675,7 +714,7 @@
         </div>
 
         <div id="modal-totem-saida" tabindex="-1" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[300]">
-            <div class="bg-gray-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center border border-gray-800">
+            <div class="bg-gray-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center border border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <i data-lucide="lock" class="w-10 h-10 text-gray-500 mx-auto mb-4"></i>
                 <h3 class="text-xl font-bold text-white mb-2">Acesso Restrito</h3>
                 <p class="text-sm text-gray-400 mb-6">Insira o PIN administrativo para sair do modo totem.</p>
@@ -699,4 +738,4 @@
     <script type="module" src="./totem.js"></script>
     <script type="module" src="./dashboard.js"></script>
 </body>
-    </html>
+</html>
