@@ -16,23 +16,105 @@ window.permissoesPadrao = {
 };
 
 // ==========================================================================
+// GESTÃO DE MULTIUNIDADE E CAMADA CENTRAL DE CAMINHOS (NOVO)
+// ==========================================================================
+window.obterUnidade = () => localStorage.getItem('unidadeAtiva');
+
+window.selecionarUnidadeAtiva = (unidade) => {
+    localStorage.setItem('unidadeAtiva', unidade);
+    window.location.reload();
+};
+
+window.abrirTrocaUnidade = () => {
+    if(!window.permissoesLogado || !window.permissoesLogado.configuracoes) {
+        return window.mostrarToast("Seu perfil não tem permissão para alterar a unidade.", "erro");
+    }
+    if(confirm("ATENÇÃO: Deseja realmente alterar a unidade deste dispositivo?\n\nIsso fará logout automático e mudará o banco de dados ativo.")) {
+        localStorage.removeItem('unidadeAtiva');
+        window.fazerLogout();
+        window.location.reload();
+    }
+};
+
+window.verificarSelecaoUnidade = () => {
+    const uni = window.obterUnidade();
+    if(!uni) {
+        const tela = document.getElementById('tela-selecao-unidade');
+        if(tela) {
+            tela.classList.remove('hidden');
+            tela.classList.add('flex');
+        }
+        return false;
+    }
+    
+    // Atualiza a UI (selo de unidade)
+    const ind = document.getElementById('indicador-unidade');
+    const txt = document.getElementById('texto-indicador-unidade');
+    if(ind && txt) {
+        ind.classList.remove('hidden');
+        txt.innerText = uni === 'navegantes' ? 'Navegantes' : 'Piçarras';
+    }
+    return true;
+};
+
+// Camada única responsável por compor os caminhos do Firebase respeitando a unidade ativa
+window.obterCaminhoUnidade = (caminhoBase) => {
+    const uni = window.obterUnidade();
+    return `lojas/${uni}/${caminhoBase}`;
+};
+
+// ==========================================================================
+// GESTÃO DE SESSÃO COM EXPIRAÇÃO (NOVO)
+// ==========================================================================
+const TEMPO_SESSAO_HORAS = 12; // A sessão expira obrigatoriamente após 12 horas
+
+window.verificarExpiracaoSessao = () => {
+    const loginTime = localStorage.getItem('loginTimestamp');
+    if(!loginTime) return false;
+    
+    const tempoDecorrido = Date.now() - parseInt(loginTime);
+    const tempoMaximo = TEMPO_SESSAO_HORAS * 60 * 60 * 1000;
+    
+    return tempoDecorrido > tempoMaximo;
+};
+
+// Verifica ativamente a cada 1 minuto se a sessão estourou o tempo limite enquanto o sistema está aberto
+setInterval(() => {
+    if(window.usuarioLogado && window.verificarExpiracaoSessao()) {
+        if(window.mostrarToast) window.mostrarToast("Sua sessão expirou. Por favor, faça login novamente.", "erro");
+        window.fazerLogout();
+    }
+}, 60000);
+
+// ==========================================================================
 // OBSERVADOR DE SESSÃO (Disparado automaticamente ao entrar/sair)
 // ==========================================================================
 window.firebaseOnAuthStateChanged(window.auth, async (user) => {
+    // Interrompe o login se o dispositivo ainda não tem unidade definida
+    if(!window.verificarSelecaoUnidade()) {
+        if(user) window.firebaseSignOut(window.auth); 
+        return;
+    }
+
     if (user) {
+        // Valida se a sessão atual não está vencida
+        if(window.verificarExpiracaoSessao()) {
+            window.fazerLogout();
+            return;
+        }
+
         window.usuarioLogado = user;
         const username = user.email.split('@')[0];
         
-        // Busca o documento do utilizador
-        const snap = await window.firebaseGet(window.firebaseRef(window.db, `usuarios/${username}`));
+        // Busca o documento do utilizador respeitando a unidade ativa
+        const pathUsuarios = window.obterCaminhoUnidade(`usuarios/${username}`);
+        const snap = await window.firebaseGet(window.firebaseRef(window.db, pathUsuarios));
         
         if (snap.exists()) {
             const data = snap.val();
             window.cargoLogado = data.cargo;
-            // Fallback: Se o usuário é antigo e não tem o objeto 'permissoes', recebe o padrão do cargo
             window.permissoesLogado = data.permissoes || window.permissoesPadrao[window.cargoLogado] || window.permissoesPadrao['caixa'];
         } else {
-            // Fallback para admin mestre invisível no DB
             window.cargoLogado = (username === 'admin' ? 'admin' : 'caixa');
             window.permissoesLogado = window.permissoesPadrao[window.cargoLogado];
         }
@@ -43,21 +125,25 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
         
         if(window.logAuditoria) window.logAuditoria('Login', `Acesso ao sistema. Perfil: ${window.cargoLogado}`);
     } else {
-        // Reset global
+        // Reset global e limpeza de credenciais
         window.usuarioLogado = null; 
         window.cargoLogado = null;
         window.permissoesLogado = null;
+        localStorage.removeItem('loginTimestamp');
         
         document.getElementById('app-dashboard').classList.add('hidden');
         if (document.getElementById('tela-totem') && document.getElementById('tela-totem').classList.contains('hidden')) {
             document.getElementById('tela-login').classList.remove('hidden');
             document.getElementById('tela-login').classList.add('flex');
             
-            // Restaura estado visual do botão caso tenha travado no refresh
+            // Restaura estado visual e limpa os campos por segurança
             const btn = document.getElementById('btn-login');
             const span = document.getElementById('btn-login-text');
             if(btn) btn.disabled = false;
             if(span) span.innerText = 'Acessar sistema';
+            
+            const inputSenha = document.getElementById('login-senha');
+            if(inputSenha) inputSenha.value = '';
         }
     }
 });
@@ -67,6 +153,11 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
 // ==========================================================================
 window.fazerLogin = (e) => {
     e.preventDefault();
+
+    if(!window.obterUnidade()) {
+        return window.mostrarToast("Selecione uma unidade antes de acessar.", "erro");
+    }
+
     const btn = document.getElementById('btn-login'); 
     const span = document.getElementById('btn-login-text');
     
@@ -77,12 +168,14 @@ window.fazerLogin = (e) => {
     const user = document.getElementById('login-user').value.trim().toLowerCase();
     const pass = document.getElementById('login-senha').value;
     
-    // Mantém a persistência de segurança (apenas sessão atual) implementada anteriormente
     window.firebaseSetPersistence(window.auth, window.firebaseBrowserSessionPersistence)
         .then(() => {
+            // Registra a hora exata do login para a regra de expiração
+            localStorage.setItem('loginTimestamp', Date.now());
             return window.firebaseSignIn(window.auth, `${user}@tophaus.com.br`, pass);
         })
         .catch((error) => {
+            localStorage.removeItem('loginTimestamp');
             if(window.mostrarToast) window.mostrarToast("Usuário ou senha incorretos. Verifique e tente novamente.", "erro"); 
             if(btn) btn.disabled = false; 
             if(span) span.innerText = 'Acessar sistema';
@@ -91,7 +184,8 @@ window.fazerLogin = (e) => {
 };
 
 window.fazerLogout = () => { 
-    if(window.logAuditoria) window.logAuditoria('Logout', 'Saída do sistema'); 
+    if(window.logAuditoria && window.usuarioLogado) window.logAuditoria('Logout', 'Saída do sistema'); 
+    localStorage.removeItem('loginTimestamp');
     window.firebaseSignOut(window.auth); 
 };
 
@@ -99,23 +193,23 @@ window.fazerLogout = () => {
 // GESTÃO DE USUÁRIOS E ACESSOS (HÍBRIDO: CARGO + PERMISSÕES)
 // ==========================================================================
 window.abrirGerenciadorUsuarios = () => {
-    // Trava de permissão para gestão de usuários
     if(!window.permissoesLogado || !window.permissoesLogado.usuarios) {
         return window.mostrarToast("Seu perfil não tem acesso a esta ação.", "erro");
     }
     
-    window.injetarCheckboxesPermissoes(); // Chama injeção visual para não quebrar o HTML
+    window.injetarCheckboxesPermissoes(); 
     
     const lista = document.getElementById('lista-usuarios-cadastrados');
     if(!lista) return;
     
     lista.innerHTML = '<p class="text-center text-gray-500 py-4">Carregando usuários...</p>';
     
-    window.firebaseGet(window.firebaseRef(window.db, 'usuarios')).then(snap => {
+    const pathUsuarios = window.obterCaminhoUnidade('usuarios');
+    
+    window.firebaseGet(window.firebaseRef(window.db, pathUsuarios)).then(snap => {
         lista.innerHTML = '';
         if(snap.exists()) {
             Object.entries(snap.val()).forEach(([user, data]) => {
-                // Checa se o usuário tem permissões customizadas
                 const isCustom = data.permissoes ? '⭐ Custom' : 'Padrão';
                 
                 lista.innerHTML += `
@@ -140,7 +234,6 @@ window.abrirGerenciadorUsuarios = () => {
     if(window.prenderFocoModal) window.prenderFocoModal(modal);
 };
 
-// Injeta dinamicamente as checkboxes no form do index.html
 window.injetarCheckboxesPermissoes = () => {
     if(document.getElementById('container-permissoes')) return;
     
@@ -164,10 +257,8 @@ window.injetarCheckboxesPermissoes = () => {
     });
     container.innerHTML = html;
     
-    // Insere logo abaixo do select de cargo
     selectCargo.parentNode.insertBefore(container, selectCargo.nextSibling);
     
-    // Atualiza as caixas automaticamente se o cargo for trocado
     selectCargo.addEventListener('change', (e) => {
         const cargo = e.target.value;
         const padrao = window.permissoesPadrao[cargo] || window.permissoesPadrao['caixa'];
@@ -177,7 +268,6 @@ window.injetarCheckboxesPermissoes = () => {
         });
     });
     
-    // Preenche para o valor inicial
     selectCargo.dispatchEvent(new Event('change'));
 };
 
@@ -194,16 +284,17 @@ window.criarUsuario = (e) => {
     const cargo = document.getElementById('novo-cargo').value;
     const email = `${user}@tophaus.com.br`;
 
-    // Captura o estado atual das checkboxes de permissões
     const objPermissoes = {};
     ['dashboard', 'caixa', 'clientes', 'marketing', 'auditoria', 'simulacao', 'reset', 'usuarios', 'totem', 'configuracoes'].forEach(p => {
         const cb = document.getElementById(`perm-${p}`);
         objPermissoes[p] = cb ? cb.checked : false;
     });
 
+    const pathUsuarioEspecifico = window.obterCaminhoUnidade(`usuarios/${user}`);
+
+    // Nota: A criação authSecondary é global (por ser auth de sistema), mas salvamos no banco segregado
     window.firebaseCreateUser(window.authSecundario, email, pass).then(() => {
-        // Salva o modelo híbrido (Cargo + Permissões Livres)
-        window.firebaseSet(window.firebaseRef(window.db, `usuarios/${user}`), { cargo: cargo, permissoes: objPermissoes }).then(() => {
+        window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { cargo: cargo, permissoes: objPermissoes }).then(() => {
             window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
             
             if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
@@ -230,13 +321,14 @@ window.criarUsuario = (e) => {
 window.removerAcesso = (username) => {
     if(username === 'admin') return window.mostrarToast("Não é possível remover o administrador principal.", "erro");
     
-    // Integração com a Confirmação em Duas Etapas (Segurança Aprovada)
+    const pathUsuarioEspecifico = window.obterCaminhoUnidade(`usuarios/${username}`);
+
     if(window.confirmacaoDupla) {
         window.confirmacaoDupla(
             "Remover Acesso", 
-            `Deseja remover definitivamente o acesso de "${username}"?\nEsta conta será desconectada e apagada.`,
+            `Deseja remover definitivamente o acesso de "${username}"?\nEsta conta será apagada da unidade atual.`,
             () => {
-                window.firebaseSet(window.firebaseRef(window.db, `usuarios/${username}`), null).then(() => {
+                window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), null).then(() => {
                     window.mostrarToast("Acesso removido com sucesso.", "sucesso");
                     if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `O acesso do usuário '${username}' foi removido.`);
                     window.abrirGerenciadorUsuarios();
@@ -244,9 +336,8 @@ window.removerAcesso = (username) => {
             }
         );
     } else {
-        // Fallback caso o módulo de clientes não esteja carregado
         if(confirm(`Deseja remover o acesso de "${username}"?\n\nEsta ação não poderá ser desfeita.`)) {
-            window.firebaseSet(window.firebaseRef(window.db, `usuarios/${username}`), null).then(() => {
+            window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), null).then(() => {
                 window.mostrarToast("Acesso removido com sucesso.", "sucesso");
                 if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `O acesso do usuário '${username}' foi removido.`);
                 window.abrirGerenciadorUsuarios();
@@ -262,8 +353,9 @@ window.alterarCargo = (username, cargoAtual) => {
     
     if(novoCargo && ['caixa', 'gerente', 'admin'].includes(novoCargo.trim().toLowerCase())) {
         const cargoFinal = novoCargo.trim().toLowerCase();
-        // Substitui a ramificação inteira resgatando as permissões padrão do novo cargo
-        window.firebaseSet(window.firebaseRef(window.db, `usuarios/${username}`), { cargo: cargoFinal, permissoes: window.permissoesPadrao[cargoFinal] }).then(() => {
+        const pathUsuarioEspecifico = window.obterCaminhoUnidade(`usuarios/${username}`);
+        
+        window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { cargo: cargoFinal, permissoes: window.permissoesPadrao[cargoFinal] }).then(() => {
             window.mostrarToast("Perfil atualizado com sucesso.", "sucesso");
             if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Perfil do usuário '${username}' alterado para '${cargoFinal}'.`);
             window.abrirGerenciadorUsuarios();
@@ -274,20 +366,17 @@ window.alterarCargo = (username, cargoAtual) => {
 };
 
 // ==========================================================================
-// CONTROLO DE VISIBILIDADE DE INTERFACE POR PERMISSÃO INDIVIDUAL
+// CONTROLE DE VISIBILIDADE DE INTERFACE POR PERMISSÃO INDIVIDUAL
 // ==========================================================================
 window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
-    // Blindagem de segurança: Se 'permissoes' vier vazio de um carregamento antigo, forçamos os padrões
     if (!permissoes) permissoes = window.permissoesPadrao[cargo] || window.permissoesPadrao['caixa'];
 
     document.getElementById('tela-login').classList.add('hidden');
     document.getElementById('tela-login').classList.remove('flex');
     document.getElementById('app-dashboard').classList.remove('hidden');
     
-    // Deixa o nome mais amigável na interface
     document.getElementById('nome-usuario-logado').innerText = `(${cargo}) ${username}`;
 
-    // Leitura dos nós de interface principais
     const btnAdmin = document.getElementById('btn-aba-admin');
     const btnCaixa = document.getElementById('btn-aba-caixa');
     const btnSimulacao = document.getElementById('btn-ativar-simulacao');
@@ -296,23 +385,21 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
     const btnAuditoria = document.getElementById('btn-auditoria');
     const btnLixeira = document.getElementById('btn-lixeira');
     const btnMesclar = document.getElementById('btn-mesclar');
+    const btnTrocarUnidade = document.getElementById('btn-trocar-unidade');
     const painelMetricas = document.getElementById('painel-metricas-avancadas');
     
-    // Leitura por atributos CSS/Query (Mapeamento invisível para botões sem ID)
     const botoesTotem = document.querySelectorAll('button[onclick="entrarModoTotemDaTelaLogin()"]');
     const btnMarketing = document.querySelector('button[onclick="abrirCentralMarketing()"]');
 
-    // 1. Aplicação Granular de Permissões
     if (btnAdmin) permissoes.dashboard ? btnAdmin.classList.remove('hidden') : btnAdmin.classList.add('hidden');
     if (btnCaixa) permissoes.caixa ? btnCaixa.classList.remove('hidden') : btnCaixa.classList.add('hidden');
     if (btnSimulacao) permissoes.simulacao ? btnSimulacao.classList.remove('hidden') : btnSimulacao.classList.add('hidden');
     if (btnZerar) permissoes.reset ? btnZerar.classList.remove('hidden') : btnZerar.classList.add('hidden');
     if (btnAcessos) permissoes.usuarios ? btnAcessos.classList.remove('hidden') : btnAcessos.classList.add('hidden');
-    
-    // Elementos adicionados nas novas atualizações de Produto
     if (btnAuditoria) permissoes.auditoria ? btnAuditoria.classList.remove('hidden') : btnAuditoria.classList.add('hidden');
     if (btnLixeira) permissoes.clientes ? btnLixeira.classList.remove('hidden') : btnLixeira.classList.add('hidden');
     if (btnMesclar) permissoes.clientes ? btnMesclar.classList.remove('hidden') : btnMesclar.classList.add('hidden');
+    if (btnTrocarUnidade) permissoes.configuracoes ? btnTrocarUnidade.classList.remove('hidden') : btnTrocarUnidade.classList.add('hidden');
     if (painelMetricas) permissoes.dashboard ? painelMetricas.classList.remove('hidden') : painelMetricas.classList.add('hidden');
     
     if (btnMarketing) permissoes.marketing ? btnMarketing.classList.remove('hidden') : btnMarketing.classList.add('hidden');
@@ -321,13 +408,11 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
         permissoes.totem ? btn.classList.remove('hidden') : btn.classList.add('hidden');
     });
 
-    // 2. Encaminhamento Lógico de Abas (Direciona para a primeira área que o usuário tem acesso)
     if (permissoes.dashboard && window.alternarAba) {
         window.alternarAba('admin');
     } else if (permissoes.caixa && window.alternarAba) {
         window.alternarAba('caixa');
     } else {
-        // Caso a pessoa não tenha permissão de dashboard nem de caixa, o sistema não faz nada (tela limpa)
         window.mostrarToast("Seu perfil não tem acesso a esta ação. Fale com o administrador.", "erro");
     }
 };
