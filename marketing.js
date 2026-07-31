@@ -1,32 +1,34 @@
 // marketing.js
-// Módulo 5: Robô do WhatsApp, Automações e Disparos em Massa (Suporte a Campanhas Recorrentes e Fila)[span_0](start_span)[span_0](end_span)
+// Módulo 5: Robô do WhatsApp, Automações e Disparos em Massa (Suporte a Campanhas Recorrentes e Fila)[span_2](start_span)[span_2](end_span)
 
 // ==========================================================================
-// CORE DO ROBÔ DE MARKETING: ENVIAR PARA A FILA FIREBASE
+// CORE DO ROBÔ DE MARKETING: ENVIAR PARA A FILA FIREBASE (MULTIUNIDADE)
 // ==========================================================================
 window.enviarParaFilaRobo = (cpf, telefone, textoMensagem) => {
     if(!telefone || !textoMensagem) return;
     const telLimpo = telefone.toString().replace(/\D/g, '');
     if(telLimpo.length < 10) return; 
     
-    window.firebasePush(window.firebaseRef(window.db, 'fila_mensagens'), {
+    const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('fila_mensagens') : 'fila_mensagens';
+
+    window.firebasePush(window.firebaseRef(window.db, pathFila), {
         cpf: cpf,
         telefone: telLimpo,
         texto: textoMensagem,
         timestamp: Date.now(),
-        status: 'pendente' // Novo status rastreável
+        status: 'pendente'
     }).then(() => {
-        console.log("Ordem despachada para o Robô Node.js");
+        console.log("Ordem despachada para o Robô Node.js da unidade.");
     });
 };
 
 window.checarEAvisarAlmoco = (c) => {
     const faltam = 10 - (c.almocos || 0);
     if(faltam > 0 && faltam < 10) {
-        const msg = `Olá *${(c.nome||'').split(' ')[0]}*, seu almoço de hoje foi contabilizado no Top Haus! 🍽️\nVocê tem *${c.almocos} almoço(s)* acumulados.\nFaltam apenas *${faltam}* para você ganhar seus *R$ 50,00 de desconto*!`;
+        const msg = `Olá *${(c.nome||'').split(' ')[0]}*, seu almoço de hoje foi contabilizado no Top Haus! 🍽️\nVocê tem *${c.almocos} almoço(s)* acumulados.\nFaltam apenas *${faltam}* para você conquistar o seu *Desconto de R$ 50,00*!`;
         window.enviarParaFilaRobo(c.cpf, c.telefone, msg);
     } else if (c.almocos === 10) {
-        const txtPremio = window.msgsMarketing.premio || "Parabéns [Nome]! Você completou 10 almoços. No próximo você ganha R$ 50 de desconto!";
+        const txtPremio = window.msgsMarketing.premio || "Parabéns [Nome]! Você completou 10 almoços. Na sua próxima visita você poderá utilizar um desconto de R$ 50,00.";
         const msg = txtPremio.replace(/\[Nome\]/g, (c.nome||'').split(' ')[0]).replace(/\[Acumulados\]/g, c.almocos);
         window.enviarParaFilaRobo(c.cpf, c.telefone, msg);
         window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES+`/${c.cpf}/notificadoPremio`), true);
@@ -42,7 +44,10 @@ window.ultimaFilaSnap = null;
 window.iniciarListenerFila = () => {
     if(window.listenerFilaAtivo) return;
     window.listenerFilaAtivo = true;
-    window.firebaseOnValue(window.firebaseRef(window.db, 'fila_mensagens'), (snap) => {
+    
+    const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('fila_mensagens') : 'fila_mensagens';
+
+    window.firebaseOnValue(window.firebaseRef(window.db, pathFila), (snap) => {
         window.ultimaFilaSnap = snap;
         const modal = document.getElementById('modal-marketing');
         if(modal && !modal.classList.contains('hidden')) {
@@ -70,7 +75,6 @@ window.renderizarFilaEnvios = (snapshot) => {
         msgs.push({ id: child.key, ...child.val() });
     });
     
-    // Ordena as mais recentes primeiro
     msgs.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
 
     msgs.forEach(m => {
@@ -118,22 +122,27 @@ window.renderizarFilaEnvios = (snapshot) => {
 };
 
 window.cancelarMensagemFila = (id) => {
-    window.firebaseSet(window.firebaseRef(window.db, `fila_mensagens/${id}/status`), 'cancelado');
+    const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade(`fila_mensagens/${id}/status`) : `fila_mensagens/${id}/status`;
+    window.firebaseSet(window.firebaseRef(window.db, pathFila), 'cancelado');
     if(window.logAuditoria) window.logAuditoria('Marketing', 'Envio de mensagem cancelado na fila.');
 };
 
 window.reenviarMensagemFila = (id) => {
-    window.firebaseSet(window.firebaseRef(window.db, `fila_mensagens/${id}/status`), 'pendente');
-    window.firebaseSet(window.firebaseRef(window.db, `fila_mensagens/${id}/timestamp`), Date.now());
+    const pathStatus = window.obterCaminhoUnidade ? window.obterCaminhoUnidade(`fila_mensagens/${id}/status`) : `fila_mensagens/${id}/status`;
+    const pathTime = window.obterCaminhoUnidade ? window.obterCaminhoUnidade(`fila_mensagens/${id}/timestamp`) : `fila_mensagens/${id}/timestamp`;
+
+    window.firebaseSet(window.firebaseRef(window.db, pathStatus), 'pendente');
+    window.firebaseSet(window.firebaseRef(window.db, pathTime), Date.now());
     if(window.logAuditoria) window.logAuditoria('Marketing', 'Mensagem reenviada para a fila de processamento.');
 };
 
 window.limparFilaCompleta = () => {
     window.confirmacaoDupla(
         "Limpar Fila de Envios", 
-        "Deseja apagar todo o histórico da fila de marketing? Mensagens com status pendente não serão entregues.",
+        "Deseja apagar todo o histórico da fila de marketing desta unidade?",
         () => {
-            window.firebaseSet(window.firebaseRef(window.db, 'fila_mensagens'), null).then(() => {
+            const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('fila_mensagens') : 'fila_mensagens';
+            window.firebaseSet(window.firebaseRef(window.db, pathFila), null).then(() => {
                 window.mostrarToast("Fila de envios limpa com sucesso.");
                 if(window.logAuditoria) window.logAuditoria('Marketing', 'O histórico da fila de envios foi completamente apagado.');
             });
@@ -141,12 +150,11 @@ window.limparFilaCompleta = () => {
     );
 };
 
-
 // ==========================================================================
 // INJEÇÃO VIRTUAL DA INTERFACE DE CAMPANHAS AVANÇADAS
 // ==========================================================================
 window.injetarUICampanhas = () => {
-    if(document.getElementById('mkt-novo-tipo')) return; // Garante injeção única
+    if(document.getElementById('mkt-novo-tipo')) return;
     
     const wrapperAntigo = document.getElementById('mkt-agenda-data').parentNode;
     
@@ -161,13 +169,11 @@ window.injetarUICampanhas = () => {
             <input type="text" id="mkt-novo-titulo" placeholder="Título interno (Ex: Promoção Terça)" class="p-2 border border-indigo-200 rounded-lg text-sm w-2/3 outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         
-        <!-- PAINEL DE DISPARO ÚNICO -->
         <div id="painel-mkt-unica" class="flex gap-2">
             <input type="date" id="mkt-nova-data" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none text-center">
             <input type="time" id="mkt-novo-horario-unica" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none text-center" value="09:00">
         </div>
 
-        <!-- PAINEL DE DISPARO RECORRENTE -->
         <div id="painel-mkt-recorrente" class="hidden flex-col gap-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
             <div class="flex gap-2">
                 <select id="mkt-nova-freq" onchange="alternarFreqCampanha()" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none font-bold text-indigo-900">
@@ -200,7 +206,7 @@ window.injetarUICampanhas = () => {
         </div>
     `;
     
-    wrapperAntigo.style.display = 'none'; // Esconde os inputs legados sem quebrar o HTML nativo
+    wrapperAntigo.style.display = 'none';
     wrapperAntigo.parentNode.insertBefore(painel, wrapperAntigo);
 };
 
@@ -218,10 +224,10 @@ window.alternarFreqCampanha = () => {
 };
 
 // ==========================================================================
-// CENTRAL GERENCIAL DE MARKETING (MODAL GLOBAL)
+// CENTRAL GERENCIAL DE MARKETING
 // ==========================================================================
 window.abrirCentralMarketing = () => {
-    window.injetarUICampanhas(); // Garante que a UI rica esteja carregada
+    window.injetarUICampanhas();
     
     document.getElementById('mkt-msg-niver').value = window.msgsMarketing.aniversario || '';
     document.getElementById('mkt-msg-premio').value = window.msgsMarketing.premio || '';
@@ -232,7 +238,6 @@ window.abrirCentralMarketing = () => {
 
     window.renderizarMensagensCustomizadas();
     
-    // Inicia e renderiza os dados da Fila de Envios
     window.iniciarListenerFila();
     if(window.ultimaFilaSnap) {
         window.renderizarFilaEnvios(window.ultimaFilaSnap);
@@ -244,14 +249,12 @@ window.abrirCentralMarketing = () => {
 };
 
 window.renderizarMensagensCustomizadas = () => {
-    // 1. Renderizar Agendamentos e Recorrências
     const areaAg = document.getElementById('area-agendamentos'); 
     if(areaAg) {
         areaAg.innerHTML = '';
         const listaAg = Array.isArray(window.msgsMarketing.agendadas) ? window.msgsMarketing.agendadas : Object.values(window.msgsMarketing.agendadas || {});
         
         listaAg.forEach((m, idx) => {
-            // Retrocompatibilidade automática para campanhas criadas anteriormente
             const tipoC = m.tipo || 'unica'; 
             const statusC = m.status || 'ativa'; 
             
@@ -303,7 +306,6 @@ window.renderizarMensagensCustomizadas = () => {
         });
     }
 
-    // 2. Renderizar Mensagens Customizadas (Botões Individuais)
     const areaCs = document.getElementById('area-mensagens-custom'); 
     if(areaCs) {
         areaCs.innerHTML = '';
@@ -333,7 +335,6 @@ window.adicionarAgendamento = () => {
         
         if(!titulo || !texto) return window.mostrarToast("Preencha o título e o texto da campanha para continuar.", "erro");
         
-        // Estrutura Base Escalável
         novaCampanha = {
             titulo: titulo,
             texto: texto,
@@ -370,7 +371,6 @@ window.adicionarAgendamento = () => {
             }
         }
     } else {
-        // Fallback de retrocompatibilidade para o HTML original cego
         const data = document.getElementById('mkt-agenda-data').value;
         const titulo = document.getElementById('mkt-agenda-titulo').value;
         if(!data || !titulo || !texto) return window.mostrarToast("Preencha todos os campos para continuar.", "erro");
@@ -380,7 +380,6 @@ window.adicionarAgendamento = () => {
     if(!Array.isArray(window.msgsMarketing.agendadas)) window.msgsMarketing.agendadas = Object.values(window.msgsMarketing.agendadas||{}); 
     window.msgsMarketing.agendadas.push(novaCampanha);
     
-    // Limpeza de UI
     document.getElementById('mkt-agenda-texto').value = '';
     if (uiAtiva) {
         document.getElementById('mkt-novo-titulo').value = '';
@@ -393,7 +392,6 @@ window.adicionarAgendamento = () => {
     window.renderizarMensagensCustomizadas(); 
 };
 
-// Modificação de Status em Tempo Real
 window.alterarStatusCampanha = (idx, novoStatus) => {
     if(Array.isArray(window.msgsMarketing.agendadas) && window.msgsMarketing.agendadas[idx]) {
         window.msgsMarketing.agendadas[idx].status = novoStatus;
@@ -439,7 +437,7 @@ window.salvarCentralMarketing = () => {
     window.msgsMarketing.personalizadas = lista;
     
     window.firebaseSet(window.firebaseRef(window.db, window.PATH_MENSAGENS), window.msgsMarketing).then(() => { 
-        window.mostrarToast("Campanha agendada com sucesso."); 
+        window.mostrarToast("Central de marketing salva com sucesso."); 
         
         if(window.logAuditoria) window.logAuditoria('Marketing', 'As configurações da Central de Marketing foram atualizadas.');
         
@@ -453,9 +451,6 @@ window.salvarCentralMarketing = () => {
     });
 };
 
-// ==========================================================================
-// DISPARO INDIVIDUAL NA TABELA (MODAL WHATSAPP)
-// ==========================================================================
 window.abrirModalWhatsApp = (cpf) => {
     const cliente = window.clientesMap[cpf]; 
     if(!cliente) return;
