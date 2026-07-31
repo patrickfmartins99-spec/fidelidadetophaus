@@ -7,9 +7,15 @@
 window.isSimulationMode = localStorage.getItem('modoSimulacao') === 'true';
 
 window.getDbPath = (base) => {
-    if (base === 'clientes') return window.isSimulationMode ? 'clientes_simulacao' : 'clientes';
-    if (base === 'mensagens') return window.isSimulationMode ? 'config/mensagens_simulacao' : 'config/mensagens';
-    return base;
+    let pathFinal = base;
+    if (base === 'clientes') pathFinal = window.isSimulationMode ? 'clientes_simulacao' : 'clientes';
+    else if (base === 'mensagens') pathFinal = window.isSimulationMode ? 'config/mensagens_simulacao' : 'config/mensagens';
+    
+    // Integração obrigatória com a camada multiunidade do auth.js
+    if (window.obterCaminhoUnidade && window.obterUnidade()) {
+        return window.obterCaminhoUnidade(pathFinal);
+    }
+    return pathFinal;
 };
 
 window.PATH_CLIENTES = window.getDbPath('clientes');
@@ -44,6 +50,9 @@ window.totemClienteTemp = null;
 // ==========================================================================
 window.addEventListener('DOMContentLoaded', () => {
     if(window.lucide) window.lucide.createIcons();
+    
+    // Trava de segurança: Se o dispositivo não tem unidade, não inicia as conexões com o banco de dados
+    if (window.obterUnidade && !window.obterUnidade()) return;
     
     if(window.isSimulationMode) { 
         const banner = document.getElementById('banner-simulacao');
@@ -278,7 +287,6 @@ window.filtrarLista = (t, dI=null, dF=null) => {
             return dSum > 15 && dNot > 15;
         }); 
     } else if (t === 'inativos_30d') { 
-        // Novo filtro ativado pelo Card Avançado
         tf.innerText = 'Exibindo: Inativos (Visão Geral +30 dias)'; 
         l = ativos.filter(c => window.diasDesdeUltimaVisita(c) > 30 && window.diasDesdeUltimaVisita(c) !== 999); 
     }
@@ -317,7 +325,7 @@ window.renderizarTabela = (l) => {
     }
     
     l.forEach(c => {
-        const bHist = ((c.premiosResgatados||0) > 0 || (c.historicoAniversarios && c.historicoAniversarios.length > 0)) ? 
+        const bHist = ((c.premiosResgatados||0) > 0 || (c.historicoAniversarios && c.historicoAniversarios.length > 0) || (c.historicoConquistas && c.historicoConquistas.length > 0)) ? 
             `<button onclick="abrirHistorico('${c.cpf}')" class="text-gray-500 hover:text-black p-1.5 transition" title="Ver histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` : ``;
         const bEdit = `<button onclick="abrirEditar('${c.cpf}')" class="text-gray-500 hover:text-indigo-600 p-1.5 transition" title="Editar cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
         const bZap = `<button onclick="abrirModalWhatsApp('${c.cpf}')" class="text-green-600 hover:text-green-700 p-1.5 transition" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>`;
@@ -376,7 +384,7 @@ window.resetarSistema = () => {
 
     const msgAlerta = window.isSimulationMode 
         ? "Resetar SIMULAÇÃO? Digite APAGAR:" 
-        : "ALERTA CRÍTICO! Digite APAGAR para excluir TODA a base de clientes:";
+        : "ALERTA CRÍTICO! Digite APAGAR para excluir TODA a base de clientes da unidade atual:";
 
     if(prompt(msgAlerta) === "APAGAR") {
         window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES), null).then(() => {
