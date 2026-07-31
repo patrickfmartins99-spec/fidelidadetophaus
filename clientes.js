@@ -53,8 +53,8 @@ window.processarFluxoNormal = (c) => {
             bA.disabled = true; 
             bA.classList.add('opacity-50'); 
         } else { 
-            if(spanAcumular) spanAcumular.innerText = "Guardar para a próxima visita (+1 pago)";
-            else bA.innerText = "Guardar para a próxima visita (+1 pago)"; 
+            if(spanAcumular) spanAcumular.innerText = "Guardar para outra visita (+1 pago)";
+            else bA.innerText = "Guardar para outra visita (+1 pago)"; 
             bA.disabled = false; 
             bA.classList.remove('opacity-50'); 
             bA.onclick = () => { 
@@ -172,6 +172,13 @@ window.processarConfirmacao = (c) => {
     c.almocos = (c.almocos||0) + 1; 
     if(!c.historico) c.historico = []; 
     c.historico.push(new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})); 
+    
+    // NOVO: Registro Permanente e Separado da Data de Conquista
+    if (c.almocos > 0 && c.almocos % 10 === 0) {
+        if(!c.historicoConquistas) c.historicoConquistas = [];
+        c.historicoConquistas.push(new Date().toLocaleString('pt-BR'));
+    }
+
     c.ultimaVisitaTimestamp = Date.now(); 
     c.historico = window.limitarHistorico(c.historico);
     
@@ -185,8 +192,18 @@ window.processarConfirmacao = (c) => {
         const inp = document.getElementById('busca-cpf');
         if(inp) inp.value = ''; 
         
-        window.mostrarToast('Almoço contabilizado com sucesso!'); 
         if(window.logAuditoria) window.logAuditoria('Almoço', `+1 almoço registrado para ${c.nome}. Saldo: ${c.almocos}.`);
+        
+        // NOVO: Regra do 10º Almoço (Somente Celebração, sem resgate)
+        if (c.almocos % 10 === 0) {
+            const m = document.getElementById('modal-celebracao-10');
+            if(m) {
+                m.classList.remove('hidden');
+                if(window.prenderFocoModal) window.prenderFocoModal(m);
+            }
+        } else {
+            window.mostrarToast('Almoço contabilizado com sucesso!'); 
+        }
         
         if(window.checarEAvisarAlmoco) window.checarEAvisarAlmoco(c); 
     }).catch(() => {
@@ -394,13 +411,25 @@ window.abrirHistorico = (cpf) => {
     
     div.innerHTML = ''; 
     if(!c) return;
+
+    // NOVO: Exibição das Conquistas
+    if(c.historicoConquistas && c.historicoConquistas.length > 0) {
+        div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Conquistas (10 Almoços Alcançados)</h4>`;
+        c.historicoConquistas.forEach((r, i) => {
+            div.innerHTML += `
+                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex justify-between items-center mb-2">
+                    <div><p class="text-xs font-bold text-amber-800">Conquista #${i+1}</p><p class="text-xs text-amber-700">${r}</p></div>
+                    <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
+                </div>`;
+        });
+    }
     
     if(c.historicoResgates && c.historicoResgates.length > 0) { 
-        div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Prêmios de 10 Almoços</h4>`; 
+        div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Resgates de Prêmio Realizados</h4>`; 
         c.historicoResgates.forEach((r, i) => { 
             div.innerHTML += `
                 <div class="bg-gray-50 p-3 rounded-lg border flex justify-between items-center mb-2">
-                    <div><p class="text-xs font-bold">Resgate #${i+1}</p><p class="text-xs">${r.dataResgate}</p></div>
+                    <div><p class="text-xs font-bold text-gray-800">Resgate #${i+1}</p><p class="text-xs text-gray-600">${r.dataResgate}</p></div>
                     <button onclick="reimprimirCupomPorCpf('${c.cpf}', ${i})" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition hover:bg-gray-800">
                         <i data-lucide="printer" class="w-3.5 h-3.5 inline"></i> Reimprimir
                     </button>
@@ -411,14 +440,14 @@ window.abrirHistorico = (cpf) => {
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Aniversários</h4>`; 
         c.historicoAniversarios.forEach(r => { 
             div.innerHTML += `
-                <div class="bg-indigo-50 p-3 rounded-lg border flex justify-between items-center mb-2">
-                    <div><p class="text-xs font-bold">Aniv. ${r.ano}</p><p class="text-xs">${r.dataResgate}</p></div>
+                <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 flex justify-between items-center mb-2">
+                    <div><p class="text-xs font-bold text-indigo-900">Aniv. ${r.ano}</p><p class="text-xs text-indigo-700">${r.dataResgate}</p></div>
                 </div>`; 
         }); 
     }
     
     if(div.innerHTML === '') {
-        div.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Nenhum histórico de resgate encontrado.</p>';
+        div.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Nenhum histórico encontrado para este cliente.</p>';
     }
     
     const m = document.getElementById('modal-historico'); 
@@ -437,7 +466,7 @@ window.reimprimirCupomPorCpf = (c, i) => {
 };
 
 // ==========================================================================
-// SEGURANÇA E AUDITORIA (NOVAS FUNCIONALIDADES)
+// SEGURANÇA E AUDITORIA (MULTILIVRE)
 // ==========================================================================
 window.logAuditoria = (acao, detalhes) => {
     const user = window.usuarioLogado ? window.usuarioLogado.email.split('@')[0] : 'sistema';
@@ -448,7 +477,8 @@ window.logAuditoria = (acao, detalhes) => {
         acao: acao,
         detalhes: detalhes
     };
-    window.firebasePush(window.firebaseRef(window.db, 'auditoria'), log);
+    const pathAuditoria = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('auditoria') : 'auditoria';
+    window.firebasePush(window.firebaseRef(window.db, pathAuditoria), log);
 };
 
 window.abrirAuditoria = () => {
@@ -462,10 +492,12 @@ window.abrirAuditoria = () => {
     const modal = document.getElementById('modal-auditoria');
     modal.classList.remove('hidden');
     
-    window.firebaseGet(window.firebaseRef(window.db, 'auditoria')).then(snap => {
+    const pathAuditoria = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('auditoria') : 'auditoria';
+
+    window.firebaseGet(window.firebaseRef(window.db, pathAuditoria)).then(snap => {
         tb.innerHTML = '';
         if(snap.exists()) {
-            const logs = Object.values(snap.val()).sort((a,b) => b.timestamp - a.timestamp).slice(0, 50); // Últimos 50 eventos
+            const logs = Object.values(snap.val()).sort((a,b) => b.timestamp - a.timestamp).slice(0, 50);
             logs.forEach(l => {
                 tb.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
@@ -476,7 +508,7 @@ window.abrirAuditoria = () => {
                 `;
             });
         } else {
-            tb.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-gray-500">Nenhum registro de auditoria encontrado.</td></tr>';
+            tb.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-gray-500">Nenhum registro de auditoria encontrado na unidade ativa.</td></tr>';
         }
     });
 };
@@ -576,7 +608,7 @@ window.restaurarCliente = (cpf) => {
 };
 
 // ==========================================================================
-// MESCLAGEM DE CADASTROS DUPLICADOS (NOVA FUNCIONALIDADE)
+// MESCLAGEM DE CADASTROS DUPLICADOS
 // ==========================================================================
 window.abrirModalMesclagem = () => {
     if(!window.permissoesLogado || !window.permissoesLogado.clientes) {
@@ -604,7 +636,7 @@ window.executarMesclagem = () => {
     const cDestino = window.clientesMap[cpfDestinoRaw];
 
     if(!cOrigem || !cDestino) {
-        return window.mostrarToast("Um ou ambos os clientes não foram encontrados na base.", "erro");
+        return window.mostrarToast("Um ou ambos os clientes não foram encontrados na base ativa.", "erro");
     }
 
     window.confirmacaoDupla(
@@ -616,37 +648,31 @@ window.executarMesclagem = () => {
             if(btn) btn.disabled = true;
             if(span) span.innerText = 'Mesclando...';
 
-            // 1. Unificar saldos de almoços e prêmios
             cDestino.almocos = (cDestino.almocos || 0) + (cOrigem.almocos || 0);
             cDestino.premiosResgatados = (cDestino.premiosResgatados || 0) + (cOrigem.premiosResgatados || 0);
 
-            // 2. Unificar históricos de visita
             if(cOrigem.historico) {
                 cDestino.historico = [...(cDestino.historico || []), ...cOrigem.historico];
                 if(window.limitarHistorico) cDestino.historico = window.limitarHistorico(cDestino.historico);
             }
-            
-            // 3. Unificar histórico de resgates de prêmios
             if(cOrigem.historicoResgates) {
                 cDestino.historicoResgates = [...(cDestino.historicoResgates || []), ...cOrigem.historicoResgates];
             }
-            
-            // 4. Unificar histórico de resgates de aniversários
             if(cOrigem.historicoAniversarios) {
                 cDestino.historicoAniversarios = [...(cDestino.historicoAniversarios || []), ...cOrigem.historicoAniversarios];
             }
+            if(cOrigem.historicoConquistas) {
+                cDestino.historicoConquistas = [...(cDestino.historicoConquistas || []), ...cOrigem.historicoConquistas];
+            }
 
-            // 5. Atualizar Data de Última Visita para a mais recente
             if (cOrigem.ultimaVisitaTimestamp && (!cDestino.ultimaVisitaTimestamp || cOrigem.ultimaVisitaTimestamp > cDestino.ultimaVisitaTimestamp)) {
                 cDestino.ultimaVisitaTimestamp = cOrigem.ultimaVisitaTimestamp;
             }
 
-            // 6. Arquivar logicamente a origem para evitar perdas totais de rastreabilidade
             cOrigem.arquivado = true;
             cOrigem.dataArquivamento = Date.now();
             cOrigem.motivoArquivamento = `Conta mesclada no CPF ${window.formatarCPF(cpfDestinoRaw)}`;
 
-            // Executa a transação simulada por chamadas sequenciais independentes
             Promise.all([
                 window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cpfDestinoRaw), cDestino),
                 window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cpfOrigemRaw), cOrigem)
