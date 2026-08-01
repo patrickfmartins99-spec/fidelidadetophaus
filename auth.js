@@ -16,7 +16,7 @@ window.permissoesPadrao = {
 };
 
 // ==========================================================================
-// GESTÃO DE MULTIUNIDADE E CAMADA CENTRAL DE CAMINHOS (NOVO)
+// GESTÃO DE MULTIUNIDADE E CAMADA CENTRAL DE CAMINHOS
 // ==========================================================================
 window.obterUnidade = () => localStorage.getItem('unidadeAtiva');
 
@@ -64,7 +64,43 @@ window.obterCaminhoUnidade = (caminhoBase) => {
 };
 
 // ==========================================================================
-// GESTÃO DE SESSÃO COM EXPIRAÇÃO (NOVO)
+// MIGRAÇÃO SEGURA E TRANSPARENTE DE DADOS LEGADOS
+// ==========================================================================
+window.executarMigracaoNavegantes = async () => {
+    try {
+        // Verifica se a migração já foi feita checando um nó crucial da nova estrutura
+        const snapNavegantes = await window.firebaseGet(window.firebaseRef(window.db, 'lojas/navegantes/clientes'));
+        if(snapNavegantes.exists()) return; // Dados já migrados e íntegros
+        
+        console.log("Iniciando migração transparente de dados legados para a unidade Navegantes...");
+        
+        // Mapeamento exato dos nós raízes da versão anterior
+        const chavesMigracao = ['clientes', 'usuarios', 'config', 'fila_mensagens', 'auditoria', 'clientes_simulacao', 'historico'];
+        const promessas = chavesMigracao.map(chave => window.firebaseGet(window.firebaseRef(window.db, chave)));
+        
+        const resultados = await Promise.all(promessas);
+        const payload = {};
+        let encontrouDados = false;
+        
+        resultados.forEach((snap, idx) => {
+            if(snap.exists()) {
+                payload[chavesMigracao[idx]] = snap.val();
+                encontrouDados = true;
+            }
+        });
+        
+        if(encontrouDados) {
+            // Grava toda a estrutura antiga na nova ramificação da unidade Navegantes
+            await window.firebaseSet(window.firebaseRef(window.db, 'lojas/navegantes'), payload);
+            console.log("Migração concluída com sucesso! Os dados originais foram preservados na raiz por segurança.");
+        }
+    } catch (erro) {
+        console.error("Erro durante a migração automática de dados:", erro);
+    }
+};
+
+// ==========================================================================
+// GESTÃO DE SESSÃO COM EXPIRAÇÃO
 // ==========================================================================
 const TEMPO_SESSAO_HORAS = 12; // A sessão expira obrigatoriamente após 12 horas
 
@@ -90,10 +126,15 @@ setInterval(() => {
 // OBSERVADOR DE SESSÃO (Disparado automaticamente ao entrar/sair)
 // ==========================================================================
 window.firebaseOnAuthStateChanged(window.auth, async (user) => {
-    // Interrompe o login se o dispositivo ainda não tem unidade definida
+    // Interrompe o fluxo se o dispositivo ainda não tem unidade definida
     if(!window.verificarSelecaoUnidade()) {
         if(user) window.firebaseSignOut(window.auth); 
         return;
+    }
+
+    // Executa a migração transparente antes de qualquer processamento (vital para Totem sem login)
+    if(window.obterUnidade() === 'navegantes') {
+        await window.executarMigracaoNavegantes();
     }
 
     if (user) {
@@ -106,7 +147,7 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
         window.usuarioLogado = user;
         const username = user.email.split('@')[0];
         
-        // Busca o documento do utilizador respeitando a unidade ativa
+        // Busca o documento do utilizador respeitando a unidade ativa (já migrada, se aplicável)
         const pathUsuarios = window.obterCaminhoUnidade(`usuarios/${username}`);
         const snap = await window.firebaseGet(window.firebaseRef(window.db, pathUsuarios));
         
@@ -292,7 +333,6 @@ window.criarUsuario = (e) => {
 
     const pathUsuarioEspecifico = window.obterCaminhoUnidade(`usuarios/${user}`);
 
-    // Nota: A criação authSecondary é global (por ser auth de sistema), mas salvamos no banco segregado
     window.firebaseCreateUser(window.authSecundario, email, pass).then(() => {
         window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { cargo: cargo, permissoes: objPermissoes }).then(() => {
             window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
