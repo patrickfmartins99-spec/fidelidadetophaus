@@ -43,6 +43,107 @@
 
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ==========================================================================
+           MODO TOTEM - LAYOUT ADAPTATIVO & ESTADO DE DIGITAÇÃO (APP NATIVO)
+           ========================================================================== */
+        #tela-totem {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100dvh;
+            overflow: hidden !important; /* Bloqueia qualquer rolagem física */
+            touch-action: none; /* Previne efeito elástico em tablets */
+        }
+        
+        .totem-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Painéis Estruturais */
+        .totem-left-panel, .totem-right-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: max(2vh, 1rem) max(2vw, 1rem);
+        }
+        
+        .totem-right-panel {
+            flex: 1;
+            overflow: hidden; /* Garante que o conteúdo não vaze */
+        }
+
+        /* Escalonamento Proporcional (Estado Normal) */
+        .t-logo { height: min(15vh, 160px); width: auto; margin-bottom: min(2vh, 8px); transition: all 0.3s; }
+        .t-title-brand { font-size: min(3.5vh, 30px); margin-bottom: min(4vh, 48px); transition: all 0.3s; }
+        .t-subtitle-brand { font-size: min(3vh, 30px); margin-bottom: min(3vh, 24px); transition: all 0.3s; }
+        .t-qr-box { padding: min(2vh, 16px); margin-bottom: min(3vh, 24px); transition: all 0.3s; }
+        .t-qr-img { width: min(20vh, 192px); height: min(20vh, 192px); transition: all 0.3s; }
+        .t-desc-brand { font-size: min(2.5vh, 20px); transition: all 0.3s; }
+        .t-subdesc-brand { font-size: min(1.8vh, 14px); margin-top: min(3vh, 24px); transition: all 0.3s; }
+        .t-icon-star { width: min(4vh, 32px); height: min(4vh, 32px); }
+        
+        .t-view-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
+        .t-title-main { font-size: min(5vh, 48px); margin-bottom: min(2vh, 16px); transition: all 0.3s; line-height: 1.1; }
+        .t-subtitle-main { font-size: min(2.8vh, 24px); margin-bottom: min(5vh, 40px); transition: all 0.3s; }
+        .t-input-large { font-size: min(6vh, 48px); padding: min(3vh, 24px); margin-bottom: min(4vh, 32px); border-radius: 1rem; transition: all 0.3s; }
+        .t-btn-large { font-size: min(3.5vh, 30px); padding: min(3vh, 24px); border-radius: 1rem; transition: all 0.3s; }
+        
+        /* Formulário de Cadastro */
+        .t-form-spacing { display: flex; flex-direction: column; gap: min(3vh, 24px); margin-bottom: min(4vh, 32px); width: 100%; transition: all 0.3s; }
+        .t-input-cad { font-size: min(3vh, 24px); padding: min(2.5vh, 20px); border-radius: 1rem; transition: all 0.3s; }
+        .t-btn-cad { font-size: min(3vh, 24px); padding: min(3vh, 24px); border-radius: 1rem; transition: all 0.3s; }
+        
+        /* Opções e Mensagens */
+        .t-icon-xl { width: min(15vh, 128px); height: min(15vh, 128px); margin-bottom: min(3vh, 24px); transition: all 0.3s; }
+        .t-icon-svg { width: min(8vh, 64px); height: min(8vh, 64px); transition: all 0.3s; }
+        .t-highlight { font-size: min(6vh, 48px); margin-bottom: min(5vh, 40px); transition: all 0.3s; }
+        .t-msg-text { font-size: min(3.5vh, 30px); transition: all 0.3s; }
+
+        /* ==========================================================================
+           ESTADO DE DIGITAÇÃO (TECLADO ABERTO)
+           Disparado nativamente quando qualquer input recebe foco
+           ========================================================================== */
+        
+        .totem-wrapper:focus-within .totem-left-panel { padding: 1vh 2vw; justify-content: space-evenly; }
+        
+        /* Reduz o painel da marca drasticamente */
+        @media (max-width: 767px) {
+            .totem-wrapper:focus-within .totem-left-panel { flex: 0 0 12dvh; flex-direction: row; border-bottom: 1px solid #1f2937; border-right: none; }
+            .totem-wrapper:focus-within .t-logo { height: min(8vh, 60px); margin: 0; }
+            .totem-wrapper:focus-within .t-title-brand { font-size: min(3vh, 20px); margin: 0; }
+            .totem-wrapper:focus-within .t-subtitle-brand,
+            .totem-wrapper:focus-within .t-qr-box,
+            .totem-wrapper:focus-within .t-desc-brand,
+            .totem-wrapper:focus-within .t-subdesc-brand { display: none; }
+        }
+        @media (min-width: 768px) {
+            .totem-wrapper:focus-within .totem-left-panel { width: 25%; }
+            .totem-wrapper:focus-within .t-logo { height: min(10vh, 80px); margin-bottom: 1vh; }
+            .totem-wrapper:focus-within .t-title-brand { font-size: min(2vh, 18px); margin-bottom: 1vh; }
+            .totem-wrapper:focus-within .t-subtitle-brand { font-size: min(1.8vh, 16px); margin-bottom: 1vh; }
+            .totem-wrapper:focus-within .t-qr-box { padding: min(1vh, 8px); margin-bottom: 1vh; }
+            .totem-wrapper:focus-within .t-qr-img { width: min(12vh, 90px); height: min(12vh, 90px); }
+            .totem-wrapper:focus-within .t-desc-brand { font-size: min(1.5vh, 14px); }
+            .totem-wrapper:focus-within .t-subdesc-brand { display: none; }
+        }
+
+        /* Encolhe a interface de interação (Campos e Botões sobem e diminuem) */
+        .totem-wrapper:focus-within .totem-right-panel { padding: 1vh 2vw; justify-content: center; }
+        .totem-wrapper:focus-within .t-title-main { font-size: min(3.5vh, 28px); margin-bottom: 1vh; }
+        .totem-wrapper:focus-within .t-subtitle-main { font-size: min(2vh, 16px); margin-bottom: 2vh; }
+        
+        .totem-wrapper:focus-within .t-input-large { font-size: min(4vh, 32px); padding: min(1.5vh, 12px); margin-bottom: 2vh; }
+        .totem-wrapper:focus-within .t-btn-large { font-size: min(2.5vh, 20px); padding: min(1.5vh, 12px); }
+        
+        .totem-wrapper:focus-within .t-form-spacing { gap: 1vh; margin-bottom: 2vh; }
+        .totem-wrapper:focus-within .t-input-cad { font-size: min(2vh, 16px); padding: min(1.5vh, 12px); }
+        .totem-wrapper:focus-within .t-btn-cad { font-size: min(2vh, 16px); padding: min(1.5vh, 12px); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
@@ -307,7 +408,7 @@
             </section>
         </main>
 
-        <!-- MODAIS -->
+        <!-- MODAIS DO PAINEL -->
         
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
@@ -469,7 +570,6 @@
             </div>
         </div>
 
-        <!-- NOVO MODAL CELEBRAÇÃO 10 ALMOÇOS -->
         <div id="modal-celebracao-10" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-amber-400">
                 <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
@@ -627,84 +727,92 @@
 
     </div> 
     
-    <!-- TELA DO TOTEM -->
-    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-y-auto">
-        <div class="w-full flex flex-col md:flex-row min-h-[100dvh]">
+    <!-- MODO TOTEM: APLICATIVO NATIVO ADAPTATIVO -->
+    <div id="tela-totem" class="hidden font-sans">
+        <!-- Wrapper Adaptativo detecta o foco (:focus-within) e redistribui toda a tela instantaneamente -->
+        <div class="totem-wrapper">
             
-            <div class="w-full md:w-2/5 bg-black border-r border-gray-800 flex flex-col items-center justify-center p-8 md:p-12 relative shadow-2xl z-10 min-h-[40dvh]">
-                
-                <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-32 md:h-40 w-auto object-contain mb-2 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.05)] cursor-pointer" title="Área Restrita">
-                
-                <span class="text-white font-light text-2xl md:text-3xl tracking-widest uppercase mb-8 md:mb-12">Fidelidade</span>
+            <!-- Painel Esquerdo (Marca e Oferta) -->
+            <div class="totem-left-panel bg-black border-r border-gray-800 shadow-2xl z-10 shrink-0">
+                <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="t-logo object-contain rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.05)] cursor-pointer" title="Área Restrita">
+                <span class="t-title-brand font-light tracking-widest uppercase text-white">Fidelidade</span>
 
-                <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-6 tracking-wide uppercase flex items-center gap-3 text-center">
-                    <i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!
+                <h3 class="t-subtitle-brand font-black text-amber-400 tracking-wide uppercase flex items-center gap-3 text-center">
+                    <i data-lucide="star" class="t-icon-star fill-amber-400"></i> Avalie e Ganhe!
                 </h3>
                 
-                <div class="bg-white p-4 rounded-3xl mb-6 shadow-[0_0_40px_rgba(255,255,255,0.15)]">
-                    <img src="./qrcode.png" alt="QR Code" class="w-32 h-32 md:w-48 md:h-48 object-contain rounded-xl">
+                <div class="t-qr-box bg-white rounded-3xl shadow-[0_0_40px_rgba(255,255,255,0.15)]">
+                    <img src="./qrcode.png" alt="QR Code" class="t-qr-img object-contain rounded-xl">
                 </div>
                 
-                <p class="text-gray-300 text-lg md:text-xl text-center leading-relaxed px-4">
+                <p class="t-desc-brand text-gray-300 text-center leading-relaxed">
                     Avalie nosso atendimento e ganhe um <strong class="text-white">bombom especial</strong>.
                 </p>
-                <p class="text-gray-500 text-sm mt-6 uppercase tracking-widest font-bold hidden md:block">Aponte a câmera do celular</p>
+                <p class="t-subdesc-brand text-gray-500 uppercase tracking-widest font-bold">Aponte a câmera do celular</p>
             </div>
 
-            <div class="w-full md:w-3/5 flex flex-col items-center justify-center p-6 md:p-12 relative overflow-y-auto" id="totem-dynamic-area">
+            <!-- Painel Direito (Telas Dinâmicas e Interação) -->
+            <div id="totem-dynamic-area" class="totem-right-panel relative">
                 
-                <div id="totem-tela-busca" class="w-full max-w-lg text-center transition-all">
-                    <h1 class="text-4xl md:text-5xl font-black text-white mb-4">Seja bem-vindo(a)</h1>
-                    <p class="text-gray-400 mb-10 text-xl md:text-2xl">Olá! Insira seu CPF para registrar seu almoço de hoje.</p>
-                    <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-4xl md:text-5xl py-6 rounded-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
-                    <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl md:text-3xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
+                <!-- TELA 1: Busca -->
+                <div id="totem-tela-busca" class="t-view-container text-center">
+                    <h1 class="t-title-main font-black text-white">Seja bem-vindo(a)</h1>
+                    <p class="t-subtitle-main text-gray-400">Olá! Insira seu CPF para registrar seu almoço de hoje.</p>
+                    <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="t-input-large w-full bg-white text-black text-center font-mono shadow-2xl transition-all placeholder-gray-400 focus:outline-none focus:ring-8 focus:ring-gray-400">
+                    <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="t-btn-large w-full bg-white text-black font-black shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
                         <span id="btn-totem-avancar-text">Avançar</span>
                     </button>
                 </div>
 
-                <div id="totem-tela-cadastro" class="hidden w-full max-w-2xl text-center transition-all">
-                    <h2 class="text-4xl md:text-5xl font-black text-white mb-2">Primeira vez aqui?</h2>
-                    <p class="text-gray-400 text-xl md:text-2xl mb-10">Preencha rapidamente para participar do clube.</p>
-                    <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full space-y-4 md:space-y-6">
-                        <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-800 border-2 border-gray-700 text-gray-400 px-6 py-4 md:py-5 rounded-2xl font-mono text-xl md:text-2xl text-center cursor-not-allowed">
-                        <input type="text" id="totem-cad-nome" required placeholder="Nome completo" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-xl md:text-2xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                            <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-lg md:text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
-                            <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-lg md:text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                <!-- TELA 2: Cadastro -->
+                <div id="totem-tela-cadastro" class="hidden t-view-container text-center">
+                    <h2 class="t-title-main font-black text-white">Primeira vez aqui?</h2>
+                    <p class="t-subtitle-main text-gray-400">Preencha rapidamente para participar do clube.</p>
+                    <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full flex flex-col">
+                        <div class="t-form-spacing">
+                            <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="t-input-cad w-full bg-gray-800 border-2 border-gray-700 text-gray-400 font-mono text-center cursor-not-allowed">
+                            <input type="text" id="totem-cad-nome" required placeholder="Nome completo" class="t-input-cad w-full bg-white text-black text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
+                            <div class="flex gap-[inherit] w-full">
+                                <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="t-input-cad w-1/2 bg-white text-black text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                                <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="t-input-cad w-1/2 bg-white text-black text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                            </div>
                         </div>
-                        <div class="flex gap-4 md:gap-6 mt-6 md:mt-8">
-                            <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-xl md:text-2xl py-5 md:py-6 rounded-2xl shadow-xl active:scale-95 transition-transform">Voltar</button>
-                            <button type="submit" id="btn-totem-salvar" class="w-2/3 bg-white text-black font-black text-2xl md:text-3xl py-5 md:py-6 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
+                        <div class="flex gap-4 w-full">
+                            <button type="button" onclick="totemVoltarInicio()" class="t-btn-cad w-1/3 bg-gray-800 text-white font-bold shadow-xl active:scale-95 transition-transform">Voltar</button>
+                            <button type="submit" id="btn-totem-salvar" class="t-btn-cad w-2/3 bg-white text-black font-black shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
                         </div>
                     </form>
                 </div>
 
-                <div id="totem-tela-opcoes" class="hidden w-full max-w-lg text-center transition-all pb-12">
-                    <div class="w-24 h-24 md:w-32 md:h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i data-lucide="gift" class="w-12 h-12 md:w-16 md:h-16"></i>
+                <!-- TELA 3: Opções (Resgate/Acúmulo) -->
+                <div id="totem-tela-opcoes" class="hidden t-view-container text-center">
+                    <div class="t-icon-xl bg-white text-black rounded-full flex items-center justify-center mx-auto">
+                        <i data-lucide="gift" class="t-icon-svg"></i>
                     </div>
-                    <h2 class="text-4xl md:text-5xl font-black text-white mb-4">Parabéns!</h2>
-                    <p class="text-gray-300 text-xl md:text-2xl mb-2">Você possui um benefício de</p>
-                    <strong class="text-amber-400 text-4xl md:text-5xl font-black mb-10 block">R$ 50,00 de desconto</strong>
-                    <div class="flex flex-col gap-4 md:gap-6">
-                        <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-2xl md:text-3xl py-6 md:py-8 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50">
+                    <h2 class="t-title-main font-black text-white !mb-2">Parabéns!</h2>
+                    <p class="t-subtitle-main text-gray-300 !mb-2">Você possui um benefício de</p>
+                    <strong class="t-highlight text-amber-400 font-black block">R$ 50,00 de desconto</strong>
+                    <div class="flex flex-col gap-4 w-full">
+                        <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="t-btn-large w-full bg-white text-black font-black shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50">
                             <span id="btn-totem-resgatar-text">Resgatar agora</span>
                         </button>
-                        <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-xl md:text-2xl py-6 md:py-8 rounded-2xl active:scale-95 transition-transform shadow-xl disabled:opacity-50">
+                        <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="t-btn-large w-full bg-gray-800 border border-gray-600 text-white font-bold active:scale-95 transition-transform shadow-xl disabled:opacity-50">
                             <span id="btn-totem-acumular-text">Guardar para outra visita</span>
                         </button>
                     </div>
                 </div>
 
-                <div id="totem-tela-mensagem" class="hidden w-full max-w-xl text-center transition-all pb-24 pt-8">
-                    <div id="totem-icone-msg" class="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black"></div>
-                    <h2 id="totem-titulo-msg" class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight"></h2>
-                    <p id="totem-texto-msg" class="text-gray-300 text-2xl md:text-3xl leading-relaxed"></p>
+                <!-- TELA 4: Feedback / Mensagem Final -->
+                <div id="totem-tela-mensagem" class="hidden t-view-container text-center">
+                    <div id="totem-icone-msg" class="t-icon-xl rounded-full flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black"></div>
+                    <h2 id="totem-titulo-msg" class="t-title-main font-black text-white leading-tight"></h2>
+                    <p id="totem-texto-msg" class="t-msg-text text-gray-300 leading-relaxed"></p>
                 </div>
                 
-                <div id="totem-bottom-bar" class="hidden absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 w-[90%] md:w-3/4 flex flex-col items-center">
-                    <p id="totem-texto-sessao" class="text-gray-400 text-base md:text-lg mb-4">Sua sessão terminará em <span id="totem-timer-count" class="font-bold text-white">10</span> segundos.</p>
-                    <button onclick="totemVoltarInicio()" class="mb-4 md:mb-6 px-8 md:px-10 py-3 bg-gray-800 text-white text-base md:text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar atendimento</button>
+                <!-- Barra de Tempo (Aparece apenas na Tela 4, sem sobreposição de teclado) -->
+                <div id="totem-bottom-bar" class="hidden absolute bottom-6 w-[90%] max-w-xl flex flex-col items-center">
+                    <p id="totem-texto-sessao" class="text-[clamp(12px,2vh,18px)] text-gray-400 mb-3">Sua sessão terminará em <span id="totem-timer-count" class="font-bold text-white">10</span> segundos.</p>
+                    <button onclick="totemVoltarInicio()" class="mb-4 px-8 py-3 bg-gray-800 text-white text-[clamp(14px,2.5vh,20px)] font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar atendimento</button>
                     <div class="w-full bg-gray-900 h-2 md:h-3 rounded-full overflow-hidden border border-gray-800">
                         <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
                     </div>
@@ -713,6 +821,7 @@
             </div>
         </div>
 
+        <!-- MODAL ADMINISTRATIVO DE SAÍDA -->
         <div id="modal-totem-saida" tabindex="-1" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[300]">
             <div class="bg-gray-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center border border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <i data-lucide="lock" class="w-10 h-10 text-gray-500 mx-auto mb-4"></i>
