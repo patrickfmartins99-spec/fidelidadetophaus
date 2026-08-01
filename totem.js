@@ -32,7 +32,7 @@ window.abrirModalSaidaTotem = () => {
 window.verificarPinTotem = () => {
     const pin = document.getElementById('totem-pin-input').value;
     
-    // PIN Padrão de segurança administrativa (pode ser evoluído para o banco de dados depois)
+    // PIN Padrão de segurança administrativa
     if(pin === '1234' || pin === 'admin') {
         if(window.logAuditoria) window.logAuditoria('Segurança Totem', 'Saída autorizada do modo totem (PIN Correto).');
         if(window.fecharModal) window.fecharModal('modal-totem-saida');
@@ -67,7 +67,6 @@ window.resetarTimerTotem = () => {
     clearTimeout(window.timerInatividade);
     if(document.getElementById('tela-totem').classList.contains('hidden')) return;
     
-    // Se estiver na tela inicial, não precisa de timeout de inatividade
     if(!document.getElementById('totem-tela-busca').classList.contains('hidden')) return;
 
     // Retenção de sessão estendida para o cadastro (90s) em relação a telas normais (45s)
@@ -131,6 +130,8 @@ window.totemProcessarCPF = () => {
     if(span) span.innerText = 'Buscando...';
     
     document.getElementById('totem-cpf').disabled = true;
+    
+    // Fecha o teclado nativo do dispositivo
     if(document.activeElement) document.activeElement.blur(); 
     
     setTimeout(() => { 
@@ -163,6 +164,7 @@ window.totemProcessarCPF = () => {
     } else {
         window.totemClienteTemp = cliente;
         
+        // Verifica se JÁ possuía 10 almoços ANTES de registrar hoje (Próxima Visita = Habilita Resgate)
         if((cliente.almocos || 0) >= 10) {
             document.getElementById('totem-tela-busca').classList.add('hidden');
             document.getElementById('totem-tela-opcoes').classList.remove('hidden');
@@ -271,7 +273,7 @@ window.totemExecutarAcumulo = () => {
         window.isProcessing = false; 
         if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
         if(btn) btn.disabled = false; 
-        if(span) span.innerText = 'Guardar para a próxima visita';
+        if(span) span.innerText = 'Guardar para outra visita';
     }, 8000); 
 
     cliente.almocos = (cliente.almocos || 0) + 1;
@@ -280,18 +282,24 @@ window.totemExecutarAcumulo = () => {
     cliente.ultimaVisitaTimestamp = Date.now(); 
     if(window.limitarHistorico) cliente.historico = window.limitarHistorico(cliente.historico);
 
+    // Registro Permanente da Data de Conquista dos 10 Almoços via Totem
+    if (cliente.almocos > 0 && cliente.almocos % 10 === 0) {
+        if(!cliente.historicoConquistas) cliente.historicoConquistas = [];
+        cliente.historicoConquistas.push(new Date().toLocaleString('pt-BR'));
+    }
+
     window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cliente.cpf), cliente).then(() => {
         window.isProcessing = false; 
         if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
         if(btn) btn.disabled = false;
-        if(span) span.innerText = 'Guardar para a próxima visita';
+        if(span) span.innerText = 'Guardar para outra visita';
         
         const a = new Date().getFullYear();
         if(window.checarEAvisarAlmoco) window.checarEAvisarAlmoco(cliente);
         
         if (window.diasParaAniversario(cliente.nascimento) === 0 && cliente.aniversarioResgatadoAno !== a) {
             window.totemMostrarMensagem('aniversario_totem');
-        } else if(cliente.almocos === 10) {
+        } else if (cliente.almocos > 0 && cliente.almocos % 10 === 0) {
             window.totemMostrarMensagem('meta_atingida'); 
         } else {
             window.totemMostrarMensagem('sucesso_acumulo');
@@ -300,7 +308,7 @@ window.totemExecutarAcumulo = () => {
         window.isProcessing = false; 
         if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
         if(btn) btn.disabled = false; 
-        if(span) span.innerText = 'Guardar para a próxima visita';
+        if(span) span.innerText = 'Guardar para outra visita';
     });
 };
 
@@ -345,9 +353,10 @@ window.totemMostrarMensagem = (tipo) => {
         if(ti) ti.innerText = `Registrado com sucesso, ${nomeC}!`; 
         if(te) te.innerHTML = `Você possui agora <strong>${window.totemClienteTemp.almocos||1}</strong> almoço(s) acumulado(s).`; 
     } else if(tipo === 'meta_atingida') { 
+        // NOVO: Mensagem explícita informando que o prêmio ficará para a PRÓXIMA visita
         if(ic) ic.innerHTML = `<i data-lucide="star" class="w-12 h-12"></i>`; 
         if(ti) ti.innerText = `Parabéns, ${nomeC}!`; 
-        if(te) te.innerHTML = `Você completou 10 almoços.<br>No próximo almoço, o desconto de <strong>R$ 50,00</strong> é seu.`; 
+        if(te) te.innerHTML = `Você completou 10 almoços.<br>Na sua próxima visita, o desconto de <strong>R$ 50,00</strong> estará disponível para resgate.`; 
         tempo = 15000; 
     } else if(tipo === 'aniversario_totem') { 
         if(ic) ic.innerHTML = `<i data-lucide="cake" class="w-12 h-12"></i>`; 
@@ -363,14 +372,12 @@ window.totemMostrarMensagem = (tipo) => {
     
     if(window.lucide) window.lucide.createIcons(); 
     
-    // Configura a barra de progresso visual
     if(lb) {
         void lb.offsetWidth; 
         lb.style.animationDuration = `${tempo}ms`; 
         lb.classList.add('animate-shrink');
     }
     
-    // Configura o cronômetro numérico de tela
     let segundosRestantes = Math.floor(tempo / 1000);
     if(counterEl) counterEl.innerText = segundosRestantes;
     
