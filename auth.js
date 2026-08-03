@@ -351,6 +351,59 @@ window.criarUsuario = (e) => {
         return window.mostrarToast("Serviço de autenticação secundária indisponível.", "erro");
     }
 
+    console.log("DIAGNOSTICO: Antes de chamar firebaseCreateUser()");
+    window.mostrarToast("DIAGNOSTICO: Antes de chamar firebaseCreateUser()", "info");
+
+    window.firebaseCreateUser(window.authSecundario, email, pass)
+        .catch(err => {
+            if(err.code === 'auth/email-already-in-use') {
+                console.log("DIAGNOSTICO: E-mail já em uso no Auth, prosseguindo.");
+                return Promise.resolve();
+            }
+            throw { etapa: "firebaseCreateUser", error: err };
+        })
+        .then(() => {
+            console.log("DIAGNOSTICO: Depois que firebaseCreateUser() concluiu com sucesso");
+            window.mostrarToast("DIAGNOSTICO: firebaseCreateUser() com sucesso", "sucesso");
+
+            console.log("DIAGNOSTICO: Antes de chamar firebaseSet()");
+            window.mostrarToast("DIAGNOSTICO: Antes de chamar firebaseSet()", "info");
+
+            return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { 
+                cargo: cargo, 
+                permissoes: objPermissoes 
+            }).catch(err => {
+                throw { etapa: "firebaseSet", error: err };
+            });
+        })
+        .then(() => {
+            console.log("DIAGNOSTICO: Depois que firebaseSet() concluiu com sucesso");
+            window.mostrarToast("DIAGNOSTICO: firebaseSet() com sucesso", "sucesso");
+
+            window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
+            if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
+            
+            document.getElementById('novo-user').value = ''; 
+            document.getElementById('novo-senha').value = '';
+            
+            window.abrirGerenciadorUsuarios();
+        })
+        .catch(errWrapper => {
+            const etapa = errWrapper.etapa || "desconhecida";
+            const err = errWrapper.error || errWrapper;
+            const code = err.code || 'N/A';
+            const message = err.message || String(err);
+            const stack = err.stack || 'N/A';
+
+            console.error(`DIAGNOSTICO FALHA na etapa [${etapa}]`, { code, message, stack });
+            window.mostrarToast(`Erro em [${etapa}] | Code: ${code} | Msg: ${message}`, "erro");
+        })
+        .finally(() => {
+            if(btn) btn.disabled = false;
+            if(span) span.innerText = 'Salvar cadastro';
+        });
+};
+
     // Utiliza estritamente window.authSecundario sem alterar a sessão do administrador (window.auth)
     window.firebaseCreateUser(window.authSecundario, email, pass)
         .catch(err => {
