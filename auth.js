@@ -314,9 +314,16 @@ window.injetarCheckboxesPermissoes = () => {
 
 window.criarUsuario = (e) => {
     e.preventDefault();
+
+    // Trava de segurança extra
+    if (!window.permissoesLogado || (!window.permissoesLogado.usuarios && !window.permissoesLogado.admin)) {
+        return window.mostrarToast("Acesso negado.", "erro");
+    }
+
     const btn = document.getElementById('btn-usuarios-salvar');
     const span = document.getElementById('btn-usuarios-salvar-text');
     
+    // Bloqueia o botão e muda o texto
     if(btn) btn.disabled = true;
     if(span) span.innerText = 'Salvando...';
 
@@ -331,31 +338,50 @@ window.criarUsuario = (e) => {
         objPermissoes[p] = cb ? cb.checked : false;
     });
 
+    // Caminho da unidade atual (Multiunidade resolvida)
     const pathUsuarioEspecifico = window.obterCaminhoUnidade(`usuarios/${user}`);
 
-    window.firebaseCreateUser(window.authSecundario, email, pass).then(() => {
-        window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { cargo: cargo, permissoes: objPermissoes }).then(() => {
+    // Fluxo encadeado robusto
+    window.firebaseCreateUser(window.authSecundario, email, pass)
+        .catch(err => {
+            // Se o e-mail já existir na autenticação central (ex: foi removido apenas do banco),
+            // permite passar para frente e recriar o acesso no banco de dados da unidade atual.
+            if(err.code === 'auth/email-already-in-use') {
+                return Promise.resolve();
+            }
+            throw err; // Repassa qualquer outro erro para o catch principal
+        })
+        .then(() => {
+            // Retorna a promessa de escrita no banco de dados para ser tratada
+            return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { 
+                cargo: cargo, 
+                permissoes: objPermissoes 
+            });
+        })
+        .then(() => {
             window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
             
             if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
             
+            // Limpeza
             document.getElementById('novo-user').value = ''; 
             document.getElementById('novo-senha').value = '';
             
+            window.abrirGerenciadorUsuarios();
+        })
+        .catch(err => {
+            console.error("Erro na criação de usuário:", err);
+            if(err.code === 'auth/weak-password') {
+                window.mostrarToast("A senha deve ter no mínimo 6 caracteres.", "erro");
+            } else {
+                window.mostrarToast("Não foi possível concluir a ação. Tente novamente.", "erro");
+            }
+        })
+        .finally(() => {
+            // FINALIZAÇÃO GARANTIDA: Restaura a interface independentemente de sucesso ou erro
             if(btn) btn.disabled = false;
             if(span) span.innerText = 'Salvar cadastro';
-            
-            window.abrirGerenciadorUsuarios();
         });
-    }).catch(err => {
-        if(btn) btn.disabled = false;
-        if(span) span.innerText = 'Salvar cadastro';
-        
-        if(err.code === 'auth/email-already-in-use') return window.mostrarToast("Este usuário já existe. Tente outro nome.", "erro");
-        if(err.code === 'auth/weak-password') return window.mostrarToast("A senha deve ter no mínimo 6 caracteres.", "erro");
-        
-        window.mostrarToast("Não foi possível concluir a ação. Tente novamente.", "erro");
-    });
 };
 
 window.removerAcesso = (username) => {
