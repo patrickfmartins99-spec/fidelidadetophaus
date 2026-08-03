@@ -9,8 +9,8 @@ import {
     createUserWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged,
-    setPersistence,             // Nova importação obrigatória
-    browserSessionPersistence   // Nova importação obrigatória
+    setPersistence,             
+    browserSessionPersistence   
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -21,10 +21,14 @@ const firebaseConfig = {
     storageBucket: "fidelidadetophausnavega.firebasestorage.app"
 };
 
-// Inicialização das Instâncias
+// Inicialização das Instâncias Principais[span_0](start_span)[span_0](end_span)
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
+
+// Inicialização Correta do Segundo Firebase App utilizando a API Modular (v10.8.1)
+const secondaryApp = initializeApp(firebaseConfig, "SecondaryAppInstance");
+const authSecundario = getAuth(secondaryApp);
 
 // ==========================================================================
 // EXPOSIÇÃO GLOBAL (Para uso nos outros módulos sem quebrar a arquitetura)
@@ -32,8 +36,9 @@ const auth = getAuth(app);
 window.firebaseApp = app;
 window.db = db;
 window.auth = auth;
+window.authSecundario = authSecundario;
 
-// Expondo as funções do SDK do Firebase que são usadas pelo sistema
+// Expondo as funções do SDK do Firebase que são usadas pelo sistema[span_1](start_span)[span_1](end_span)
 window.firebaseRef = ref;
 window.firebaseSet = set;
 window.firebaseOnValue = onValue;
@@ -41,6 +46,7 @@ window.firebaseGet = get;
 window.firebasePush = push;
 window.firebaseRemove = remove;
 window.firebaseSignIn = signInWithEmailAndPassword;
+window.firebaseCreateUser = createUserWithEmailAndPassword;
 window.firebaseSignOut = signOut;
 window.firebaseOnAuthStateChanged = onAuthStateChanged;
 window.firebaseSetPersistence = setPersistence;
