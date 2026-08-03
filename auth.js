@@ -16,28 +16,6 @@ window.permissoesPadrao = {
 };
 
 // ==========================================================================
-// INICIALIZAÇÃO DO APP SECUNDÁRIO PARA CRIAÇÃO DE USUÁRIOS (Isolado da Sessão Admin)
-// ==========================================================================
-(() => {
-    try {
-        const fbRef = window.firebase || firebase;
-        if (fbRef && !window.authSecundario) {
-            const secondaryAppName = 'TopHausSecondaryAuthApp';
-            let secondaryApp;
-            try {
-                secondaryApp = fbRef.app(secondaryAppName);
-            } catch (e) {
-                const primaryApp = fbRef.app();
-                secondaryApp = fbRef.initializeApp(primaryApp.options, secondaryAppName);
-            }
-            window.authSecundario = secondaryApp.auth();
-        }
-    } catch (err) {
-        console.error("Erro ao inicializar o Firebase App secundário:", err);
-    }
-})();
-
-// ==========================================================================
 // GESTÃO DE MULTIUNIDADE E CAMADA CENTRAL DE CAMINHOS
 // ==========================================================================
 window.obterUnidade = () => localStorage.getItem('unidadeAtiva');
@@ -69,6 +47,7 @@ window.verificarSelecaoUnidade = () => {
         return false;
     }
     
+    // Atualiza a UI (selo de unidade)
     const ind = document.getElementById('indicador-unidade');
     const txt = document.getElementById('texto-indicador-unidade');
     if(ind && txt) {
@@ -78,6 +57,7 @@ window.verificarSelecaoUnidade = () => {
     return true;
 };
 
+// Camada única responsável por compor os caminhos do Firebase respeitando a unidade ativa
 window.obterCaminhoUnidade = (caminhoBase) => {
     const uni = window.obterUnidade();
     return `lojas/${uni}/${caminhoBase}`;
@@ -89,7 +69,7 @@ window.obterCaminhoUnidade = (caminhoBase) => {
 window.executarMigracaoNavegantes = async () => {
     try {
         const snapNavegantes = await window.firebaseGet(window.firebaseRef(window.db, 'lojas/navegantes/clientes'));
-        if(snapNavegantes.exists()) return;
+        if(snapNavegantes.exists()) return; // Dados já migrados e íntegros
         
         console.log("Iniciando migração transparente de dados legados para a unidade Navegantes...");
         
@@ -109,7 +89,7 @@ window.executarMigracaoNavegantes = async () => {
         
         if(encontrouDados) {
             await window.firebaseSet(window.firebaseRef(window.db, 'lojas/navegantes'), payload);
-            console.log("Migração concluída com sucesso!");
+            console.log("Migração concluída com sucesso! Os dados originais foram preservados na raiz por segurança.");
         }
     } catch (erro) {
         console.error("Erro durante a migração automática de dados:", erro);
@@ -119,7 +99,7 @@ window.executarMigracaoNavegantes = async () => {
 // ==========================================================================
 // GESTÃO DE SESSÃO COM EXPIRAÇÃO
 // ==========================================================================
-const TEMPO_SESSAO_HORAS = 12;
+const TEMPO_SESSAO_HORAS = 12; // A sessão expira obrigatoriamente após 12 horas
 
 window.verificarExpiracaoSessao = () => {
     const loginTime = localStorage.getItem('loginTimestamp');
@@ -131,6 +111,7 @@ window.verificarExpiracaoSessao = () => {
     return tempoDecorrido > tempoMaximo;
 };
 
+// Verifica ativamente a cada 1 minuto se a sessão estourou o tempo limite enquanto o sistema está aberto
 setInterval(() => {
     if(window.usuarioLogado && window.verificarExpiracaoSessao()) {
         if(window.mostrarToast) window.mostrarToast("Sua sessão expirou. Por favor, faça login novamente.", "erro");
@@ -139,7 +120,7 @@ setInterval(() => {
 }, 60000);
 
 // ==========================================================================
-// OBSERVADOR DE SESSÃO
+// OBSERVADOR DE SESSÃO (Disparado automaticamente ao entrar/sair)
 // ==========================================================================
 window.firebaseOnAuthStateChanged(window.auth, async (user) => {
     if(!window.verificarSelecaoUnidade()) {
@@ -200,7 +181,7 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
 });
 
 // ==========================================================================
-// FUNÇÕES DE LOGIN E LOGOUT
+// FUNÇÕES DISPARADAS PELO HTML (LOGIN E LOGOUT)
 // ==========================================================================
 window.fazerLogin = (e) => {
     e.preventDefault();
@@ -238,7 +219,7 @@ window.fazerLogout = () => {
 };
 
 // ==========================================================================
-// GESTÃO DE USUÁRIOS E ACESSOS
+// GESTÃO DE USUÁRIOS E ACESSOS (HÍBRIDO: CARGO + PERMISSÕES)
 // ==========================================================================
 window.abrirGerenciadorUsuarios = () => {
     if(!window.permissoesLogado || !window.permissoesLogado.usuarios) {
@@ -397,45 +378,6 @@ window.criarUsuario = (e) => {
 
             console.error(`DIAGNOSTICO FALHA na etapa [${etapa}]`, { code, message, stack });
             window.mostrarToast(`Erro em [${etapa}] | Code: ${code} | Msg: ${message}`, "erro");
-        })
-        .finally(() => {
-            if(btn) btn.disabled = false;
-            if(span) span.innerText = 'Salvar cadastro';
-        });
-};
-
-    // Utiliza estritamente window.authSecundario sem alterar a sessão do administrador (window.auth)
-    window.firebaseCreateUser(window.authSecundario, email, pass)
-        .catch(err => {
-            if(err.code === 'auth/email-already-in-use') {
-                return Promise.resolve();
-            }
-            throw err;
-        })
-        .then(() => {
-            return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { 
-                cargo: cargo, 
-                permissoes: objPermissoes 
-            });
-        })
-        .then(() => {
-            window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
-            if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
-            
-            document.getElementById('novo-user').value = ''; 
-            document.getElementById('novo-senha').value = '';
-            
-            window.abrirGerenciadorUsuarios();
-        })
-        .catch(err => {
-            console.error("Erro ao criar usuário:", err);
-            if(err.code === 'auth/weak-password') {
-                window.mostrarToast("A senha deve ter no mínimo 6 caracteres.", "erro");
-            } else if(err.code === 'auth/email-already-in-use') {
-                window.mostrarToast("Este usuário/e-mail já está em uso.", "erro");
-            } else {
-                window.mostrarToast("Não foi possível concluir a ação. Tente novamente.", "erro");
-            }
         })
         .finally(() => {
             if(btn) btn.disabled = false;
