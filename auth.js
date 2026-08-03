@@ -16,6 +16,28 @@ window.permissoesPadrao = {
 };
 
 // ==========================================================================
+// INICIALIZAÇÃO DO APP SECUNDÁRIO PARA CRIAÇÃO DE USUÁRIOS (Isolado da Sessão Admin)
+// ==========================================================================
+(() => {
+    try {
+        const fbRef = window.firebase || firebase;
+        if (fbRef && !window.authSecundario) {
+            const secondaryAppName = 'TopHausSecondaryAuthApp';
+            let secondaryApp;
+            try {
+                secondaryApp = fbRef.app(secondaryAppName);
+            } catch (e) {
+                const primaryApp = fbRef.app();
+                secondaryApp = fbRef.initializeApp(primaryApp.options, secondaryAppName);
+            }
+            window.authSecundario = secondaryApp.auth();
+        }
+    } catch (err) {
+        console.error("Erro ao inicializar o Firebase App secundário:", err);
+    }
+})();
+
+// ==========================================================================
 // GESTÃO DE MULTIUNIDADE E CAMADA CENTRAL DE CAMINHOS
 // ==========================================================================
 window.obterUnidade = () => localStorage.getItem('unidadeAtiva');
@@ -47,7 +69,6 @@ window.verificarSelecaoUnidade = () => {
         return false;
     }
     
-    // Atualiza a UI (selo de unidade)
     const ind = document.getElementById('indicador-unidade');
     const txt = document.getElementById('texto-indicador-unidade');
     if(ind && txt) {
@@ -57,7 +78,6 @@ window.verificarSelecaoUnidade = () => {
     return true;
 };
 
-// Camada única responsável por compor os caminhos do Firebase respeitando a unidade ativa
 window.obterCaminhoUnidade = (caminhoBase) => {
     const uni = window.obterUnidade();
     return `lojas/${uni}/${caminhoBase}`;
@@ -68,13 +88,11 @@ window.obterCaminhoUnidade = (caminhoBase) => {
 // ==========================================================================
 window.executarMigracaoNavegantes = async () => {
     try {
-        // Verifica se a migração já foi feita checando um nó crucial da nova estrutura
         const snapNavegantes = await window.firebaseGet(window.firebaseRef(window.db, 'lojas/navegantes/clientes'));
-        if(snapNavegantes.exists()) return; // Dados já migrados e íntegros
+        if(snapNavegantes.exists()) return;
         
         console.log("Iniciando migração transparente de dados legados para a unidade Navegantes...");
         
-        // Mapeamento exato dos nós raízes da versão anterior
         const chavesMigracao = ['clientes', 'usuarios', 'config', 'fila_mensagens', 'auditoria', 'clientes_simulacao', 'historico'];
         const promessas = chavesMigracao.map(chave => window.firebaseGet(window.firebaseRef(window.db, chave)));
         
@@ -90,9 +108,8 @@ window.executarMigracaoNavegantes = async () => {
         });
         
         if(encontrouDados) {
-            // Grava toda a estrutura antiga na nova ramificação da unidade Navegantes
             await window.firebaseSet(window.firebaseRef(window.db, 'lojas/navegantes'), payload);
-            console.log("Migração concluída com sucesso! Os dados originais foram preservados na raiz por segurança.");
+            console.log("Migração concluída com sucesso!");
         }
     } catch (erro) {
         console.error("Erro durante a migração automática de dados:", erro);
@@ -102,7 +119,7 @@ window.executarMigracaoNavegantes = async () => {
 // ==========================================================================
 // GESTÃO DE SESSÃO COM EXPIRAÇÃO
 // ==========================================================================
-const TEMPO_SESSAO_HORAS = 12; // A sessão expira obrigatoriamente após 12 horas
+const TEMPO_SESSAO_HORAS = 12;
 
 window.verificarExpiracaoSessao = () => {
     const loginTime = localStorage.getItem('loginTimestamp');
@@ -114,7 +131,6 @@ window.verificarExpiracaoSessao = () => {
     return tempoDecorrido > tempoMaximo;
 };
 
-// Verifica ativamente a cada 1 minuto se a sessão estourou o tempo limite enquanto o sistema está aberto
 setInterval(() => {
     if(window.usuarioLogado && window.verificarExpiracaoSessao()) {
         if(window.mostrarToast) window.mostrarToast("Sua sessão expirou. Por favor, faça login novamente.", "erro");
@@ -123,22 +139,19 @@ setInterval(() => {
 }, 60000);
 
 // ==========================================================================
-// OBSERVADOR DE SESSÃO (Disparado automaticamente ao entrar/sair)
+// OBSERVADOR DE SESSÃO
 // ==========================================================================
 window.firebaseOnAuthStateChanged(window.auth, async (user) => {
-    // Interrompe o fluxo se o dispositivo ainda não tem unidade definida
     if(!window.verificarSelecaoUnidade()) {
         if(user) window.firebaseSignOut(window.auth); 
         return;
     }
 
-    // Executa a migração transparente antes de qualquer processamento (vital para Totem sem login)
     if(window.obterUnidade() === 'navegantes') {
         await window.executarMigracaoNavegantes();
     }
 
     if (user) {
-        // Valida se a sessão atual não está vencida
         if(window.verificarExpiracaoSessao()) {
             window.fazerLogout();
             return;
@@ -147,7 +160,6 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
         window.usuarioLogado = user;
         const username = user.email.split('@')[0];
         
-        // Busca o documento do utilizador respeitando a unidade ativa (já migrada, se aplicável)
         const pathUsuarios = window.obterCaminhoUnidade(`usuarios/${username}`);
         const snap = await window.firebaseGet(window.firebaseRef(window.db, pathUsuarios));
         
@@ -166,7 +178,6 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
         
         if(window.logAuditoria) window.logAuditoria('Login', `Acesso ao sistema. Perfil: ${window.cargoLogado}`);
     } else {
-        // Reset global e limpeza de credenciais
         window.usuarioLogado = null; 
         window.cargoLogado = null;
         window.permissoesLogado = null;
@@ -177,7 +188,6 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
             document.getElementById('tela-login').classList.remove('hidden');
             document.getElementById('tela-login').classList.add('flex');
             
-            // Restaura estado visual e limpa os campos por segurança
             const btn = document.getElementById('btn-login');
             const span = document.getElementById('btn-login-text');
             if(btn) btn.disabled = false;
@@ -190,7 +200,7 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
 });
 
 // ==========================================================================
-// FUNÇÕES DISPARADAS PELO HTML (LOGIN E LOGOUT)
+// FUNÇÕES DE LOGIN E LOGOUT
 // ==========================================================================
 window.fazerLogin = (e) => {
     e.preventDefault();
@@ -204,23 +214,20 @@ window.fazerLogin = (e) => {
     
     if(btn) btn.disabled = true; 
     if(span) span.innerText = 'Entrando...';
-    else if(btn) btn.innerText = 'Entrando...';
     
     const user = document.getElementById('login-user').value.trim().toLowerCase();
     const pass = document.getElementById('login-senha').value;
     
     window.firebaseSetPersistence(window.auth, window.firebaseBrowserSessionPersistence)
         .then(() => {
-            // Registra a hora exata do login para a regra de expiração
             localStorage.setItem('loginTimestamp', Date.now());
             return window.firebaseSignIn(window.auth, `${user}@tophaus.com.br`, pass);
         })
-        .catch((error) => {
+        .catch(() => {
             localStorage.removeItem('loginTimestamp');
             if(window.mostrarToast) window.mostrarToast("Usuário ou senha incorretos. Verifique e tente novamente.", "erro"); 
             if(btn) btn.disabled = false; 
             if(span) span.innerText = 'Acessar sistema';
-            else if(btn) btn.innerText = 'Acessar sistema';
         });
 };
 
@@ -231,7 +238,7 @@ window.fazerLogout = () => {
 };
 
 // ==========================================================================
-// GESTÃO DE USUÁRIOS E ACESSOS (HÍBRIDO: CARGO + PERMISSÕES)
+// GESTÃO DE USUÁRIOS E ACESSOS
 // ==========================================================================
 window.abrirGerenciadorUsuarios = () => {
     if(!window.permissoesLogado || !window.permissoesLogado.usuarios) {
@@ -315,7 +322,6 @@ window.injetarCheckboxesPermissoes = () => {
 window.criarUsuario = (e) => {
     e.preventDefault();
 
-    // Trava de segurança extra
     if (!window.permissoesLogado || (!window.permissoesLogado.usuarios && !window.permissoesLogado.admin)) {
         return window.mostrarToast("Acesso negado.", "erro");
     }
@@ -323,7 +329,6 @@ window.criarUsuario = (e) => {
     const btn = document.getElementById('btn-usuarios-salvar');
     const span = document.getElementById('btn-usuarios-salvar-text');
     
-    // Bloqueia o botão e muda o texto
     if(btn) btn.disabled = true;
     if(span) span.innerText = 'Salvando...';
 
@@ -340,58 +345,49 @@ window.criarUsuario = (e) => {
 
     const pathUsuarioEspecifico = window.obterCaminhoUnidade(`usuarios/${user}`);
 
-    // Fallback Inteligente: Se o authSecundario não estiver disponível, usamos o auth principal.
-    // Isso evita o travamento "silencioso" que ocorria no código legado se a variável estivesse vazia.
-    const instanciaAuth = window.authSecundario || window.auth;
-
-    try {
-        window.firebaseCreateUser(instanciaAuth, email, pass)
-            .catch(err => {
-                // Intercepta e trata amigavelmente contas já existentes (ex: apagadas do painel mas vivas no Authentication)
-                if(err.code === 'auth/email-already-in-use') {
-                    console.warn("E-mail já existe na base de autenticação. Sobrescrevendo permissões na unidade ativa.");
-                    return Promise.resolve(); // Força a Promise a prosseguir para gravar na unidade sem quebrar
-                }
-                throw err; // Repassa outros erros normais
-            })
-            .then(() => {
-                // Sucesso na criação ou recuperação da conta, grava no banco de dados da unidade ativa
-                return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { 
-                    cargo: cargo, 
-                    permissoes: objPermissoes 
-                });
-            })
-            .then(() => {
-                window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
-                if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
-                
-                document.getElementById('novo-user').value = ''; 
-                document.getElementById('novo-senha').value = '';
-                
-                window.abrirGerenciadorUsuarios();
-            })
-            .catch(err => {
-                // Tratamento final de erros
-                console.error("Erro na criação de usuário:", err);
-                if(err.code === 'auth/weak-password') {
-                    window.mostrarToast("A senha deve ter no mínimo 6 caracteres.", "erro");
-                } else {
-                    window.mostrarToast("Não foi possível concluir a ação. Tente novamente.", "erro");
-                }
-            })
-            .finally(() => {
-                // GARANTIA ABSOLUTA DE RESTAURAÇÃO DO BOTÃO INDEPENDENTE DE FALHA OU SUCESSO
-                if(btn) btn.disabled = false;
-                if(span) span.innerText = 'Salvar cadastro';
-            });
-            
-    } catch (erroSincrono) {
-        // Blindagem contra quebras estruturais (como falha no carregamento dos scripts do Firebase)
-        console.error("Erro síncrono fatal ao criar usuário:", erroSincrono);
-        window.mostrarToast("Falha interna ao comunicar com a autenticação.", "erro");
+    if (!window.authSecundario) {
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar cadastro';
+        return window.mostrarToast("Serviço de autenticação secundária indisponível.", "erro");
     }
+
+    // Utiliza estritamente window.authSecundario sem alterar a sessão do administrador (window.auth)
+    window.firebaseCreateUser(window.authSecundario, email, pass)
+        .catch(err => {
+            if(err.code === 'auth/email-already-in-use') {
+                return Promise.resolve();
+            }
+            throw err;
+        })
+        .then(() => {
+            return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { 
+                cargo: cargo, 
+                permissoes: objPermissoes 
+            });
+        })
+        .then(() => {
+            window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
+            if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
+            
+            document.getElementById('novo-user').value = ''; 
+            document.getElementById('novo-senha').value = '';
+            
+            window.abrirGerenciadorUsuarios();
+        })
+        .catch(err => {
+            console.error("Erro ao criar usuário:", err);
+            if(err.code === 'auth/weak-password') {
+                window.mostrarToast("A senha deve ter no mínimo 6 caracteres.", "erro");
+            } else if(err.code === 'auth/email-already-in-use') {
+                window.mostrarToast("Este usuário/e-mail já está em uso.", "erro");
+            } else {
+                window.mostrarToast("Não foi possível concluir a ação. Tente novamente.", "erro");
+            }
+        })
+        .finally(() => {
+            if(btn) btn.disabled = false;
+            if(span) span.innerText = 'Salvar cadastro';
+        });
 };
 
 window.removerAcesso = (username) => {
