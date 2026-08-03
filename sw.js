@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v52'; // Incrementei a versão para forçar a atualização
+const CACHE_NAME = 'tophaus-fidelidade-v53'; // Incrementei a versão para forçar a atualização
 
 const urlsToCache = [
   './',
