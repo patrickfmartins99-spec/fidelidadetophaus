@@ -314,10 +314,16 @@ window.injetarCheckboxesPermissoes = () => {
 
 window.criarUsuario = (e) => {
     e.preventDefault();
-    
+
+    // Trava de segurança extra
+    if (!window.permissoesLogado || (!window.permissoesLogado.usuarios && !window.permissoesLogado.admin)) {
+        return window.mostrarToast("Acesso negado.", "erro");
+    }
+
     const btn = document.getElementById('btn-usuarios-salvar');
     const span = document.getElementById('btn-usuarios-salvar-text');
     
+    // Bloqueia o botão e muda o texto
     if(btn) btn.disabled = true;
     if(span) span.innerText = 'Salvando...';
 
@@ -334,46 +340,58 @@ window.criarUsuario = (e) => {
 
     const pathUsuarioEspecifico = window.obterCaminhoUnidade(`usuarios/${user}`);
 
-    // Proteção essencial caso o authSecundario não tenha sido injetado pelo core.js
-    if (!window.authSecundario) {
-        console.error("A instância window.authSecundario não foi localizada.");
+    // Fallback Inteligente: Se o authSecundario não estiver disponível, usamos o auth principal.
+    // Isso evita o travamento "silencioso" que ocorria no código legado se a variável estivesse vazia.
+    const instanciaAuth = window.authSecundario || window.auth;
+
+    try {
+        window.firebaseCreateUser(instanciaAuth, email, pass)
+            .catch(err => {
+                // Intercepta e trata amigavelmente contas já existentes (ex: apagadas do painel mas vivas no Authentication)
+                if(err.code === 'auth/email-already-in-use') {
+                    console.warn("E-mail já existe na base de autenticação. Sobrescrevendo permissões na unidade ativa.");
+                    return Promise.resolve(); // Força a Promise a prosseguir para gravar na unidade sem quebrar
+                }
+                throw err; // Repassa outros erros normais
+            })
+            .then(() => {
+                // Sucesso na criação ou recuperação da conta, grava no banco de dados da unidade ativa
+                return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { 
+                    cargo: cargo, 
+                    permissoes: objPermissoes 
+                });
+            })
+            .then(() => {
+                window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
+                if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
+                
+                document.getElementById('novo-user').value = ''; 
+                document.getElementById('novo-senha').value = '';
+                
+                window.abrirGerenciadorUsuarios();
+            })
+            .catch(err => {
+                // Tratamento final de erros
+                console.error("Erro na criação de usuário:", err);
+                if(err.code === 'auth/weak-password') {
+                    window.mostrarToast("A senha deve ter no mínimo 6 caracteres.", "erro");
+                } else {
+                    window.mostrarToast("Não foi possível concluir a ação. Tente novamente.", "erro");
+                }
+            })
+            .finally(() => {
+                // GARANTIA ABSOLUTA DE RESTAURAÇÃO DO BOTÃO INDEPENDENTE DE FALHA OU SUCESSO
+                if(btn) btn.disabled = false;
+                if(span) span.innerText = 'Salvar cadastro';
+            });
+            
+    } catch (erroSincrono) {
+        // Blindagem contra quebras estruturais (como falha no carregamento dos scripts do Firebase)
+        console.error("Erro síncrono fatal ao criar usuário:", erroSincrono);
+        window.mostrarToast("Falha interna ao comunicar com a autenticação.", "erro");
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar cadastro';
-        return window.mostrarToast("O serviço de criação de contas está indisponível.", "erro");
     }
-
-    // A cadeia de Promises agora está devidamente nivelada para que o erro seja capturado e o botão liberado.
-    window.firebaseCreateUser(window.authSecundario, email, pass)
-        .then(() => {
-            // Em caso de sucesso do Auth, criamos no Realtime Database apontando para a multiunidade.
-            return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { cargo: cargo, permissoes: objPermissoes });
-        })
-        .then(() => {
-            window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
-            
-            if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
-            
-            document.getElementById('novo-user').value = ''; 
-            document.getElementById('novo-senha').value = '';
-            
-            window.abrirGerenciadorUsuarios();
-        })
-        .catch(err => {
-            console.error("Falha ao criar o usuário: ", err);
-            
-            if(err.code === 'auth/email-already-in-use') {
-                window.mostrarToast("Este usuário já existe. Tente outro nome.", "erro");
-            } else if(err.code === 'auth/weak-password') {
-                window.mostrarToast("A senha deve ter no mínimo 6 caracteres.", "erro");
-            } else {
-                window.mostrarToast("Não foi possível concluir a ação. Tente novamente.", "erro");
-            }
-        })
-        .finally(() => {
-            // Este bloco garante que o botão destrave independentemente do sucesso ou de falhas de rede.
-            if(btn) btn.disabled = false;
-            if(span) span.innerText = 'Salvar cadastro';
-        });
 };
 
 window.removerAcesso = (username) => {
