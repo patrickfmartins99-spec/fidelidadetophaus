@@ -10,7 +10,16 @@
     
     <style>
         /* ==========================================================================
-           ESTILOS GERAIS E IMPRESSÃO
+           RESET E GERAIS
+           ========================================================================== */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        /* ==========================================================================
+           PRINT
            ========================================================================== */
         @media screen { 
             .print-area { display: none !important; } 
@@ -25,14 +34,9 @@
             strong { font-weight: 900 !important; }
         }
 
-        /* Remove setas dos inputs numéricos */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-
-        /* Animação da barra de tempo do Totem */
+        /* ==========================================================================
+           ANIMAÇÕES
+           ========================================================================== */
         @keyframes shrinkBar { 
             from { width: 100%; } 
             to { width: 0%; } 
@@ -41,8 +45,159 @@
             animation: shrinkBar linear forwards; 
         }
 
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .animate-fade-in { 
+            animation: fadeIn 0.5s ease-out forwards; 
+        }
+
+        /* Animações Isoladas do Totem (Dead Code) */
+        @keyframes totem-fade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes totem-slide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes totem-scale { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes totem-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes totem-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        /* ==========================================================================
+           TOKENS
+           ========================================================================== */
+        :root {
+            /* Cores */
+            --totem-bg: #000000;
+            --totem-surface: #111827;
+            --totem-surface-alt: #1F2937;
+            --totem-primary: #ffffff;
+            --totem-primary-hover: #f3f4f6;
+            --totem-text: #ffffff;
+            --totem-text-muted: #9ca3af;
+            --totem-success: #10b981;
+            --totem-warning: #fbbf24;
+            --totem-danger: #ef4444;
+
+            /* Bordas e Sombras */
+            --totem-radius-sm: 0.5rem;
+            --totem-radius-md: 1rem;
+            --totem-radius-lg: 1.5rem;
+            --totem-radius-xl: 2rem;
+            --totem-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --totem-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --totem-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --totem-shadow-glow: 0 0 40px rgba(255, 255, 255, 0.15);
+
+            /* Tipografia */
+            --totem-text-display: clamp(2.5rem, 5vw, 4rem);
+            --totem-text-headline: clamp(2rem, 4vw, 3rem);
+            --totem-text-title: clamp(1.5rem, 3vw, 2.5rem);
+            --totem-text-body: clamp(1rem, 2vw, 1.25rem);
+            --totem-text-caption: clamp(0.875rem, 1.5vw, 1rem);
+            --totem-text-button: clamp(1.25rem, 2.5vw, 1.75rem);
+
+            /* Espaçamento */
+            --totem-space-1: 0.25rem;
+            --totem-space-2: 0.5rem;
+            --totem-space-3: 1rem;
+            --totem-space-4: 1.5rem;
+            --totem-space-5: 2rem;
+            --totem-space-6: 3rem;
+            --totem-space-7: 4rem;
+            --totem-space-8: 6rem;
+
+            /* Z-Index */
+            --totem-z-base: 10;
+            --totem-z-content: 20;
+            --totem-z-footer: 30;
+            --totem-z-overlay: 100;
+            --totem-z-modal: 200;
+            --totem-z-toast: 300;
+            --totem-z-loading: 400;
+
+            /* Transições */
+            --totem-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --totem-transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --totem-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ==========================================================================
+           FOUNDATION
+           ========================================================================== */
+        #tela-totem {
+            /* Infraestrutura pronta para herdar tokens na Fase 2 */
+        }
+
+        /* ==========================================================================
+           COMPONENTES
+           ========================================================================== */
+        /* Botões */
+        #tela-totem .totem-btn { padding: var(--totem-space-4) var(--totem-space-6); border-radius: var(--totem-radius-lg); font-size: var(--totem-text-button); font-weight: 900; }
+        #tela-totem .totem-btn-primary { background-color: var(--totem-primary); color: var(--totem-bg); }
+        #tela-totem .totem-btn-secondary { background-color: var(--totem-surface-alt); color: var(--totem-text); }
+        #tela-totem .totem-btn-outline { border: 2px solid var(--totem-surface-alt); color: var(--totem-text); background: transparent; }
+        
+        /* Estrutura Base */
+        #tela-totem .totem-card { padding: var(--totem-space-5); border-radius: var(--totem-radius-xl); }
+        #tela-totem .totem-panel { padding: var(--totem-space-6); }
+        #tela-totem .totem-section { margin-bottom: var(--totem-space-6); }
+        #tela-totem .totem-title { font-size: var(--totem-text-title); font-weight: 900; }
+        #tela-totem .totem-subtitle { font-size: var(--totem-text-body); }
+        #tela-totem .totem-input { padding: var(--totem-space-4); border-radius: var(--totem-radius-lg); font-size: var(--totem-text-headline); text-align: center; }
+        #tela-totem .totem-message { font-size: var(--totem-text-body); text-align: center; }
+        
+        /* Layout */
+        #tela-totem .totem-actions { display: flex; gap: var(--totem-space-4); }
+        #tela-totem .totem-stack { display: flex; flex-direction: column; gap: var(--totem-space-3); }
+        #tela-totem .totem-grid { display: grid; gap: var(--totem-space-4); }
+
+        /* Infraestrutura Próximas Fases */
+        #tela-totem .totem-shell { z-index: var(--totem-z-base); }
+        #tela-totem .totem-header { z-index: var(--totem-z-base); }
+        #tela-totem .totem-content { z-index: var(--totem-z-content); }
+        #tela-totem .totem-footer { z-index: var(--totem-z-footer); }
+        #tela-totem .totem-overlay { z-index: var(--totem-z-overlay); }
+        #tela-totem .totem-keyboard { /* Placeholder infraestrutura teclado */ }
+        #tela-totem .totem-idle-screen { /* Placeholder infraestrutura ociosidade */ }
+
+        /* ==========================================================================
+           UTILITÁRIOS
+           ========================================================================== */
+        #tela-totem .totem-flex-center { display: flex; align-items: center; justify-content: center; }
+        #tela-totem .totem-flex-column { display: flex; flex-direction: column; }
+        #tela-totem .totem-grow { flex-grow: 1; }
+        #tela-totem .totem-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
+        #tela-totem .totem-no-select { user-select: none; -webkit-user-select: none; }
+        #tela-totem .totem-touch-target { min-height: 48px; min-width: 48px; display: inline-flex; align-items: center; justify-content: center; }
+        
+        /* Transições Utilitárias */
+        #tela-totem .totem-transition { transition: all var(--totem-transition-normal); }
+        #tela-totem .totem-transition-fast { transition: all var(--totem-transition-fast); }
+        #tela-totem .totem-transition-slow { transition: all var(--totem-transition-slow); }
+
+        /* ==========================================================================
+           RESPONSIVIDADE
+           ========================================================================== */
+        #tela-totem .totem-viewport {
+            min-height: 100dvh;
+            min-height: -webkit-fill-available;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            touch-action: pan-y;
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+            width: 100%;
+        }
+
+        /* ==========================================================================
+           ACESSIBILIDADE
+           ========================================================================== */
+        #tela-totem .totem-focus-ring:focus-visible {
+            outline: 3px solid var(--totem-warning);
+            outline-offset: 4px;
+            border-radius: var(--totem-radius-sm);
+        }
+        #tela-totem .totem-high-contrast {
+            --totem-text-muted: #e5e7eb;
+            --totem-surface-alt: #374151;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
