@@ -6,7 +6,7 @@
     <title>Top Haus Fidelidade</title>
     <link rel="manifest" href="manifest.json">
 
-    <!-- TAILWIND – mantido APENAS para utilitários de layout (flex, grid, gap, padding, margin) -->
+    <!-- TAILWIND – mantido APENAS para utilitários de layout -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- ============================================================
@@ -15,7 +15,7 @@
     <style>
         /* --- Tokens --- */
         :root {
-            --color-bg: #f8fafc;
+            --color-bg: #000000;
             --color-surface: #ffffff;
             --color-surface-alt: #f1f5f9;
             --color-primary: #0f172a;
@@ -134,11 +134,11 @@
         .badge-warning { background: var(--color-warning); color: var(--color-primary); }
         .badge-muted { background: var(--color-surface-alt); color: var(--color-text-muted); }
 
-        /* --- Modais unificados --- */
+        /* --- Modais --- */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
@@ -175,15 +175,23 @@
         /* ============================================================
            ESCOPO: #app-dashboard
            ============================================================ */
+        #app-dashboard {
+            /* fundo preto para o dashboard */
+            background: var(--color-bg);
+            min-height: 100dvh;
+        }
+
+        /* --- Header (compacto) --- */
         #app-dashboard header {
             background: var(--color-primary);
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1rem;
         }
         #app-dashboard header .text-muted { color: rgba(255,255,255,0.5); }
         #app-dashboard header .badge-user { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
         #app-dashboard header .badge-unidade { background: #1e293b; border: 1px solid #475569; color: #94a3b8; }
 
+        /* --- Abas (botões do header) --- */
         #app-dashboard .aba-btn {
             transition: all var(--transition-fast);
         }
@@ -200,23 +208,44 @@
             color: white;
         }
 
-        #app-dashboard .btn-totem { background: var(--color-accent); color: white; }
+        /* --- Botões Totem e Logout (alinhados) --- */
+        #app-dashboard .btn-totem {
+            background: var(--color-accent);
+            color: white;
+            min-height: 40px;
+            padding: 0.25rem 1rem;
+            font-size: 0.875rem;
+        }
         #app-dashboard .btn-totem:hover { background: #4338ca; }
-        #app-dashboard .btn-logout { background: var(--color-danger); color: white; }
+        #app-dashboard .btn-logout {
+            background: var(--color-danger);
+            color: white;
+            min-height: 40px;
+            padding: 0.25rem 1rem;
+            font-size: 0.875rem;
+        }
         #app-dashboard .btn-logout:hover { background: var(--color-red); }
 
+        /* --- Painel de Gestão (duas colunas em mobile) --- */
+        #app-dashboard #painel-gestao {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
         #app-dashboard #painel-gestao .btn-gestao {
             background: var(--color-surface-alt);
             color: var(--color-text);
-            padding: 0.25rem 1rem;
+            padding: 0.25rem 0.75rem;
             border-radius: var(--radius-full);
             font-weight: 700;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.3rem;
             transition: all var(--transition-fast);
-            min-height: 36px;
+            min-height: 32px;
+            flex: 1 0 calc(50% - 0.5rem);
+            justify-content: center;
         }
         #app-dashboard #painel-gestao .btn-gestao:hover { background: var(--color-border); }
         #app-dashboard #painel-gestao .btn-mesclar { background: #f3e8ff; color: var(--color-purple); }
@@ -228,18 +257,24 @@
         #app-dashboard #painel-gestao .btn-reset { background: #fee2e2; color: var(--color-danger); }
         #app-dashboard #painel-gestao .btn-reset:hover { background: #fecaca; }
 
+        /* --- Métricas (cards mais compactos) --- */
+        #app-dashboard .metric-card {
+            padding: 0.75rem 1rem;
+        }
         #app-dashboard .metric-card .value {
-            font-size: 1.875rem;
+            font-size: 1.5rem;
             font-weight: 900;
             color: var(--color-primary);
         }
         #app-dashboard .metric-card .label {
             color: var(--color-text-muted);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
 
+        /* --- Tabela --- */
         #app-dashboard #tabela-clientes thead {
             background: var(--color-surface-alt);
             color: var(--color-text-muted);
@@ -252,14 +287,14 @@
             background: var(--color-surface-alt);
         }
 
-        /* --- Drawer mobile --- */
+        /* --- Drawer mobile (compacto) --- */
         #menu-toggle { display: none; }
         .menu-label {
             display: none;
             font-size: 1.5rem;
             color: white;
             cursor: pointer;
-            padding: 0.25rem 0.5rem;
+            padding: 0.2rem 0.5rem;
             border-radius: var(--radius-sm);
             transition: background var(--transition-fast);
         }
@@ -270,15 +305,18 @@
                 display: none;
                 flex-direction: column;
                 width: 100%;
-                padding: 1rem;
+                padding: 0.75rem;
                 background: var(--color-surface);
                 border-bottom: 1px solid var(--color-border);
-                gap: 0.5rem;
+                gap: 0.25rem;
             }
             .app-nav .aba-btn {
                 justify-content: center;
                 width: 100%;
                 color: var(--color-text);
+                font-size: 0.875rem;
+                padding: 0.4rem 0.75rem;
+                min-height: 36px;
             }
             .app-nav .aba-btn.active {
                 background: var(--color-primary);
@@ -291,49 +329,78 @@
 
         /* --- Responsividade geral --- */
         @media (max-width: 640px) {
-            #app-dashboard header .header-actions .aba-btn {
+            /* Header mais compacto */
+            #app-dashboard header .max-w-7xl {
+                gap: 0.25rem;
+            }
+            #app-dashboard header .flex.items-center.gap-3 {
+                gap: 0.25rem;
+            }
+            #app-dashboard header .h-10.w-auto { height: 32px; }
+            #app-dashboard header .text-lg { font-size: 0.875rem; }
+            #app-dashboard header .badge-user,
+            #app-dashboard header .badge-unidade {
+                font-size: 0.6rem;
+                padding: 0.1rem 0.5rem;
+            }
+            #app-dashboard header .menu-label { font-size: 1.25rem; }
+
+            /* Header actions: botões Totem e Logout lado a lado */
+            #app-dashboard header .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+            #app-dashboard header .header-actions .btn-totem,
+            #app-dashboard header .header-actions .btn-logout {
+                min-height: 32px;
+                padding: 0.15rem 0.6rem;
                 font-size: 0.75rem;
-                padding: 0.25rem 0.75rem;
-                min-height: 36px;
             }
             #app-dashboard header .header-actions .btn-totem span { display: none; }
-            #app-dashboard header .header-actions .btn-logout {
-                padding: 0.25rem 0.5rem;
-                min-height: 36px;
-                min-width: 36px;
-            }
-            #app-dashboard .metricas-grid { grid-template-columns: 1fr !important; }
-            #app-dashboard .metric-card { padding: 1rem; }
-            #app-dashboard .metric-card .value { font-size: 1.5rem; }
 
-            #app-dashboard #painel-gestao { flex-wrap: wrap; }
+            /* Painel de gestão em duas colunas */
             #app-dashboard #painel-gestao .btn-gestao {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.75rem;
-                min-height: 32px;
+                flex: 1 0 calc(50% - 0.25rem);
+                font-size: 0.7rem;
+                padding: 0.15rem 0.5rem;
+                min-height: 28px;
             }
 
+            /* Métricas em grid única, cards compactos */
+            #app-dashboard .metricas-grid {
+                grid-template-columns: 1fr !important;
+            }
+            #app-dashboard .metric-card {
+                padding: 0.5rem 0.75rem;
+            }
+            #app-dashboard .metric-card .value {
+                font-size: 1.25rem;
+            }
+
+            /* Tabela empilhada */
             #app-dashboard #tabela-clientes thead { display: none; }
             #app-dashboard #tabela-clientes tbody tr {
                 display: block;
-                margin-bottom: 1rem;
+                margin-bottom: 0.75rem;
                 border: 1px solid var(--color-border);
                 border-radius: var(--radius-md);
-                padding: 0.75rem;
+                padding: 0.5rem;
                 background: var(--color-surface);
             }
             #app-dashboard #tabela-clientes tbody td {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 0.5rem 0;
+                padding: 0.25rem 0;
                 border: none;
-                gap: 0.5rem;
+                gap: 0.25rem;
+                font-size: 0.8rem;
             }
             #app-dashboard #tabela-clientes tbody td::before {
                 font-weight: 700;
                 color: var(--color-text-muted);
-                font-size: 0.75rem;
+                font-size: 0.65rem;
                 text-transform: uppercase;
             }
             #app-dashboard #tabela-clientes tbody td:nth-child(1)::before { content: "Nome"; }
@@ -345,11 +412,21 @@
         }
 
         /* ============================================================
-           ESCOPO: #tela-login
+           ESCOPO: #tela-login – fundo preto com contraste
            ============================================================ */
-        #tela-login .bg-black { background: var(--color-primary); }
-        #tela-login .bg-gray-900 { background: rgba(255,255,255,0.05); }
-        #tela-login .bg-white { background: var(--color-surface); }
+        #tela-login {
+            background: #000000;
+        }
+        #tela-login .bg-black {
+            background: #000000;
+        }
+        #tela-login .bg-gray-900 {
+            background: #111827;
+            border-color: #1f2937;
+        }
+        #tela-login .bg-white {
+            background: var(--color-surface);
+        }
 
         /* ============================================================
            TOAST
@@ -523,7 +600,7 @@
     <div id="toast-container"></div>
 
     <!-- TELA DE SELEÇÃO DA UNIDADE (MULTIUNIDADE) -->
-    <div id="tela-selecao-unidade" class="hidden fixed inset-0 bg-slate-900 z-[999] flex flex-col items-center justify-center p-4 transition-all overflow-y-auto">
+    <div id="tela-selecao-unidade" class="hidden fixed inset-0 bg-black z-[999] flex flex-col items-center justify-center p-4 transition-all overflow-y-auto">
         <div class="card max-w-md mx-auto text-center my-auto" style="padding: 2rem;">
             <img src="./logo.jpg" alt="Top Haus" class="h-20 w-auto mx-auto mb-6 rounded-xl shadow-sm">
             <h2 class="text-2xl font-black text-slate-800 mb-2">Selecione a Unidade</h2>
@@ -541,26 +618,27 @@
 
     <!-- TELA DE LOGIN -->
     <div id="tela-login" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
-        <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-y-auto max-h-[90dvh] border border-gray-800">
-            <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
-            <span class="text-white font-light text-xl tracking-widest uppercase block mb-8">Fidelidade</span>
-            <h2 class="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Acesso ao Sistema</h2>
+        <div class="bg-black p-8 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.05)] text-center relative overflow-y-auto max-h-[90dvh] border border-gray-800">
+            <img src="./logo.jpg" alt="Top Haus" class="h-24 w-auto mx-auto mb-2 rounded-xl shadow-sm">
+            <span class="text-white font-light text-xl tracking-widest uppercase block mb-6">Fidelidade</span>
+            <h2 class="text-sm font-bold text-gray-400 mb-6 uppercase tracking-widest">Acesso ao Sistema</h2>
             <form id="form-login" onsubmit="fazerLogin(event)" class="space-y-4 relative z-10">
-                <input type="text" id="login-user" required placeholder="Usuário" class="input" style="background:#1a1a2e; color:white; border-color:#2d2d44;">
-                <input type="password" id="login-senha" required placeholder="Senha" class="input" style="background:#1a1a2e; color:white; border-color:#2d2d44;">
+                <input type="text" id="login-user" required placeholder="Usuário" class="input" style="background:#111827; color:white; border-color:#1f2937;">
+                <input type="password" id="login-senha" required placeholder="Senha" class="input" style="background:#111827; color:white; border-color:#1f2937;">
                 <button type="submit" id="btn-login" class="btn btn-white btn-block" style="font-weight:900;">
                     <span id="btn-login-text">Acessar sistema</span>
                 </button>
             </form>
-            <div class="mt-8 pt-8 border-t border-gray-800 relative z-10">
+            <div class="mt-6 pt-6 border-t border-gray-800 relative z-10">
                 <p class="text-xs text-gray-500 mb-3 font-bold uppercase">Autoatendimento</p>
-                <button onclick="entrarModoTotemDaTelaLogin()" type="button" class="btn btn-block" style="background:#1a1a2e; color:white; border:1px solid #2d2d44;">
+                <button onclick="entrarModoTotemDaTelaLogin()" type="button" class="btn btn-block" style="background:#111827; color:white; border:1px solid #1f2937;">
                     <i data-lucide="tablet" class="w-5 h-5"></i> <span id="btn-totem-shortcut-text">Abrir totem</span>
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- BANNER SIMULAÇÃO -->
     <div id="banner-simulacao" class="hidden bg-orange-600 text-white font-bold py-2 px-6 shadow-md z-[99999] fixed top-0 left-0 w-full flex flex-col sm:flex-row justify-center items-center gap-3">
         <div class="flex items-center gap-2">
             <i data-lucide="flask-conical" class="w-5 h-5"></i>
@@ -572,41 +650,42 @@
     <!-- PAINEL PRINCIPAL -->
     <div id="app-dashboard" class="hidden no-print">
         
-        <!-- Header com drawer mobile -->
-        <header class="bg-black text-white shadow-md py-3 px-4 md:px-6 mb-6">
-            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3 flex-wrap">
-                    <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain rounded">
-                    <span class="text-muted font-light text-lg hidden lg:block">| Top Haus Fidelidade</span>
-                    <div class="flex flex-col sm:flex-row items-center gap-2">
-                        <span id="nome-usuario-logado" class="badge badge-user"></span>
-                        <span id="indicador-unidade" class="badge badge-unidade hidden flex items-center gap-1">
+        <!-- Header compacto com drawer -->
+        <header class="bg-black text-white shadow-md py-2 px-4 md:px-6 mb-4">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-1 md:gap-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <img src="./logo.jpg" alt="Top Haus" class="h-8 md:h-10 w-auto object-contain rounded">
+                    <span class="text-muted font-light text-sm hidden lg:block">| Top Haus Fidelidade</span>
+                    <div class="flex flex-wrap items-center gap-1 md:gap-2">
+                        <span id="nome-usuario-logado" class="badge badge-user text-xs"></span>
+                        <span id="indicador-unidade" class="badge badge-unidade hidden flex items-center gap-1 text-xs">
                             <i data-lucide="map-pin" class="w-3 h-3"></i> <span id="texto-indicador-unidade">Unidade</span>
                         </span>
                     </div>
                 </div>
 
-                <!-- Checkbox para drawer (mobile) -->
+                <!-- Checkbox para drawer mobile -->
                 <input type="checkbox" id="menu-toggle" class="hidden">
                 <label for="menu-toggle" class="menu-label md:hidden" aria-label="Abrir menu">
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </label>
 
                 <!-- Navegação (drawer em mobile) -->
-                <nav class="app-nav flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition">
+                <nav class="app-nav flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-3 py-1 rounded-lg font-bold flex items-center gap-1 transition text-sm">
                         <i data-lucide="calculator" class="w-4 h-4"></i> Caixa
                     </button>
-                    <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition hidden">
+                    <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-3 py-1 rounded-lg font-bold flex items-center gap-1 transition text-sm hidden">
                         <i data-lucide="shield" class="w-4 h-4"></i> Painel Gerencial
                     </button>
-                    <button onclick="entrarModoTotemDaTelaLogin()" class="btn btn-totem">
-                        <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir totem</span>
-                    </button>
-                    <div class="hidden sm:block h-10 w-px bg-gray-700 mx-1"></div>
-                    <button onclick="fazerLogout()" title="Sair do Sistema" class="btn btn-logout p-2">
-                        <i data-lucide="power" class="w-5 h-5"></i>
-                    </button>
+                    <div class="flex items-center gap-1 md:gap-2">
+                        <button onclick="entrarModoTotemDaTelaLogin()" class="btn btn-totem">
+                            <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir totem</span>
+                        </button>
+                        <button onclick="fazerLogout()" title="Sair do Sistema" class="btn btn-logout">
+                            <i data-lucide="power" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </nav>
             </div>
         </header>
@@ -614,15 +693,15 @@
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
             <!-- ABA CAIXA -->
-            <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-1 card flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center gap-2 mb-4 text-slate-900">
+                        <div class="flex items-center gap-2 mb-3 text-slate-900">
                             <i data-lucide="check-square" class="w-6 h-6"></i>
                             <h2 class="text-xl font-bold">Buscar Cliente</h2>
                         </div>
-                        <p class="text-sm text-slate-500 mb-4 text-center">Insira o CPF do cliente para iniciar o atendimento.</p>
-                        <div class="mb-4">
+                        <p class="text-sm text-slate-500 mb-3 text-center">Insira o CPF do cliente para iniciar o atendimento.</p>
+                        <div class="mb-3">
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF</label>
                             <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="input">
                         </div>
@@ -633,7 +712,7 @@
                 </div>
 
                 <div class="lg:col-span-2 card">
-                    <div class="flex items-center gap-2 mb-4 text-slate-900">
+                    <div class="flex items-center gap-2 mb-3 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
                         <h2 class="text-xl font-bold">Cadastrar Cliente</h2>
                     </div>
@@ -664,10 +743,11 @@
             </section>
 
             <!-- ABA ADMIN -->
-            <section id="aba-admin" class="hidden space-y-6">
-                <!-- Painel de gestão -->
-                <div id="painel-gestao" class="card card-sm flex flex-wrap items-center gap-3">
-                    <span class="text-sm font-black text-gray-800 uppercase flex items-center gap-2 pr-4 border-r border-gray-200">
+            <section id="aba-admin" class="hidden space-y-4">
+                
+                <!-- Painel de Gestão (duas colunas no mobile) -->
+                <div id="painel-gestao" class="card card-sm flex flex-wrap items-center gap-2">
+                    <span class="text-sm font-black text-gray-800 uppercase flex items-center gap-2 pr-3 border-r border-gray-200">
                         <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i> Gestão
                     </span>
                     <button id="btn-gerenciar-acessos" onclick="abrirGerenciadorUsuarios()" class="btn-gestao hidden"><i data-lucide="users" class="w-4 h-4"></i> Acessos</button>
@@ -681,7 +761,7 @@
 
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
-                <!-- Métricas principais -->
+                <!-- Métricas principais (cards compactos) -->
                 <div class="metricas-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="metric-card card cursor-pointer hover:border-black transition text-center">
                         <p class="label">Todos os clientes</p>
@@ -705,26 +785,26 @@
                 <div id="painel-metricas-avancadas" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div class="card card-sm text-center">
                         <p class="text-xs font-bold text-slate-500 uppercase">Taxa de Resgate</p>
-                        <p id="card-taxa-resgate" class="text-lg font-black text-indigo-600">--</p>
+                        <p id="card-taxa-resgate" class="text-base font-black text-indigo-600">--</p>
                     </div>
                     <div class="card card-sm text-center">
                         <p class="text-xs font-bold text-slate-500 uppercase">Retenção (30d)</p>
-                        <p id="card-retencao" class="text-lg font-black text-green-600">--</p>
+                        <p id="card-retencao" class="text-base font-black text-green-600">--</p>
                     </div>
                     <div class="card card-sm text-center">
                         <p class="text-xs font-bold text-slate-500 uppercase">Reativados</p>
-                        <p id="card-reativacao" class="text-lg font-black text-blue-600">--</p>
+                        <p id="card-reativacao" class="text-base font-black text-blue-600">--</p>
                     </div>
                     <div class="card card-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="filtrarLista('inativos_30d')">
                         <p class="text-xs font-bold text-slate-500 uppercase">Inativos (+30d)</p>
-                        <p id="card-inativos-total" class="text-lg font-black text-red-600">--</p>
+                        <p id="card-inativos-total" class="text-base font-black text-red-600">--</p>
                     </div>
                 </div>
 
                 <!-- Sub-filtros aniversário -->
                 <div id="sub-filtros-niver" class="hidden">
                     <div class="card card-sm card-flat" style="background: var(--color-surface-alt);">
-                        <div class="flex flex-wrap items-center justify-center gap-3">
+                        <div class="flex flex-wrap items-center justify-center gap-2">
                             <span class="text-xs font-bold text-gray-600 uppercase"><i data-lucide="filter" class="w-4 h-4 inline"></i> Filtro de aniversários:</span>
                             <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')" class="btn btn-primary btn-sm">Mês atual</button>
                             <span class="text-sm font-semibold text-gray-400">OU PERÍODO:</span>
@@ -740,7 +820,7 @@
 
                 <!-- Painel de clientes -->
                 <div class="card overflow-hidden" style="padding:0;">
-                    <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div class="p-4 md:p-6 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
                         <div>
                             <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">Painel de Clientes</h2>
                             <p class="text-xs text-slate-400 mt-0.5" id="filtro-atual-texto">Exibindo: Todos os clientes</p>
@@ -764,7 +844,6 @@
                                 </tr>
                             </thead>
                             <tbody id="tabela-clientes-body" class="divide-y divide-slate-150 text-sm">
-                                <!-- O JavaScript popula este tbody -->
                             </tbody>
                         </table>
                     </div>
@@ -772,8 +851,11 @@
             </section>
         </main>
 
+        <!-- MODAIS (mesmos da versão anterior, apenas com classes ajustadas) -->
+        <!-- (mantido igual ao anterior para não alongar, mas com as novas classes de modal) -->
+        
         <!-- ============================================================
-        MODAIS – unificados com classes modal-box e variantes
+        MODAIS – mantidos os mesmos IDs e estrutura, apenas com classes
         ============================================================ -->
         
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden modal-overlay">
