@@ -5,12 +5,750 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <title>Top Haus Fidelidade</title>
     <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
+
+    <!-- ============================================================
+    CSS MODERNO – SEM TAILWIND, COM TOKENS E SELETORES ROBUSTOS
+    ============================================================ -->
+    <style>
+        /* --- Design Tokens --- */
+        :root {
+            --color-bg: #f8fafc;
+            --color-surface: #ffffff;
+            --color-surface-alt: #f1f5f9;
+            --color-primary: #0f172a;
+            --color-primary-hover: #1e293b;
+            --color-text: #0f172a;
+            --color-text-muted: #64748b;
+            --color-border: #e2e8f0;
+            --color-accent: #4f46e5;
+            --color-success: #10b981;
+            --color-danger: #ef4444;
+            --color-warning: #f59e0b;
+
+            --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --text-xs: clamp(0.65rem, 0.8vw, 0.75rem);
+            --text-sm: clamp(0.75rem, 0.9vw, 0.875rem);
+            --text-base: clamp(0.875rem, 1vw, 1rem);
+            --text-lg: clamp(1rem, 1.2vw, 1.125rem);
+            --text-xl: clamp(1.125rem, 1.5vw, 1.25rem);
+            --text-2xl: clamp(1.25rem, 2vw, 1.5rem);
+            --text-3xl: clamp(1.5rem, 2.5vw, 1.875rem);
+            --text-4xl: clamp(1.875rem, 3vw, 2.25rem);
+
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.5rem;
+            --space-6: 2rem;
+            --space-8: 3rem;
+
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            --radius-full: 9999px;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+
+            --transition-fast: 150ms ease;
+            --transition-base: 250ms ease;
+        }
+
+        /* --- Reset e base --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100dvh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        input, button, textarea, select { font: inherit; color: inherit; }
+        button { cursor: pointer; border: none; background: none; }
+        img { max-width: 100%; height: auto; display: block; }
+
+        /* --- Utilitários (mantidos para JS) --- */
+        .hidden { display: none !important; }
+        .active { /* usado para abas */ }
+        .no-print { /* usado para impressão */ }
+        .print-area { display: none; }
+
+        /* --- Estilos gerais para botões e inputs --- */
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        input::placeholder {
+            color: #94a3b8;
+        }
+        input:focus {
+            outline: none;
+        }
+
+        /* ============================================================
+           HEADER (usando ID #main-header)
+           ============================================================ */
+        #main-header {
+            background: var(--color-primary);
+            color: white;
+            padding: var(--space-4) var(--space-5);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+        }
+        #main-header .header-brand {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+        }
+        #main-header .header-brand img {
+            height: 40px;
+            width: auto;
+            border-radius: var(--radius-md);
+        }
+        #main-header .header-brand .separator {
+            color: rgba(255,255,255,0.5);
+            font-size: var(--text-lg);
+            font-weight: 300;
+            display: none;
+        }
+        @media (min-width: 1024px) {
+            #main-header .header-brand .separator { display: inline; }
+        }
+        #main-header .header-user {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        #main-header .header-user #nome-usuario-logado {
+            background: rgba(255,255,255,0.1);
+            padding: 0.2rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255,255,255,0.8);
+        }
+        #main-header .header-user #indicador-unidade {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            padding: 0.2rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: none;
+        }
+        #main-header .header-user #indicador-unidade:not(.hidden) {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        #main-header .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        #main-header .header-actions .aba-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: var(--text-sm);
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 44px;
+        }
+        #main-header .header-actions .aba-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        #main-header .header-actions .aba-btn.active {
+            background: white;
+            color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        #main-header .header-actions .btn-totem {
+            background: var(--color-accent);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background var(--transition-fast);
+            min-height: 44px;
+        }
+        #main-header .header-actions .btn-totem:hover {
+            background: #4338ca;
+        }
+        #main-header .header-actions .btn-logout {
+            background: var(--color-danger);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-lg);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition-fast);
+            min-height: 44px;
+            min-width: 44px;
+        }
+        #main-header .header-actions .btn-logout:hover {
+            background: #dc2626;
+        }
+        #main-header .header-actions .divider {
+            display: none;
+        }
+        @media (min-width: 640px) {
+            #main-header .header-actions .divider {
+                display: block;
+                width: 1px;
+                height: 2rem;
+                background: rgba(255,255,255,0.1);
+                margin: 0 0.25rem;
+            }
+        }
+
+        /* ============================================================
+           MAIN CONTENT (#main-content)
+           ============================================================ */
+        #main-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: var(--space-5);
+        }
+
+        /* --- Aba CAIXA --- */
+        #aba-caixa {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: var(--space-5);
+        }
+        @media (max-width: 768px) {
+            #aba-caixa {
+                grid-template-columns: 1fr;
+            }
+        }
+        #aba-caixa .card-busca,
+        #aba-caixa .card-cadastro {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+            padding: var(--space-5);
+            display: flex;
+            flex-direction: column;
+        }
+        #aba-caixa .card-busca .card-header,
+        #aba-caixa .card-cadastro .card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+        #aba-caixa .card-busca .card-header h2,
+        #aba-caixa .card-cadastro .card-header h2 {
+            font-size: var(--text-xl);
+            font-weight: 700;
+        }
+        #aba-caixa .card-busca .desc {
+            color: var(--color-text-muted);
+            font-size: var(--text-sm);
+            text-align: center;
+            margin-bottom: var(--space-4);
+        }
+        #aba-caixa .card-busca input,
+        #aba-caixa .card-cadastro input {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            background: var(--color-surface-alt);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: var(--text-base);
+            text-align: center;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            min-height: 48px;
+        }
+        #aba-caixa .card-busca input:focus,
+        #aba-caixa .card-cadastro input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(15,23,42,0.1);
+        }
+        #aba-caixa .btn-buscar {
+            background: var(--color-primary);
+            color: white;
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            transition: background var(--transition-fast);
+            min-height: 48px;
+            width: 100%;
+        }
+        #aba-caixa .btn-buscar:hover {
+            background: var(--color-primary-hover);
+        }
+        #form-cadastro {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+        #form-cadastro .full-width {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+        }
+        @media (max-width: 640px) {
+            #form-cadastro {
+                grid-template-columns: 1fr;
+            }
+            #form-cadastro .full-width {
+                justify-content: stretch;
+            }
+        }
+        #form-cadastro label {
+            display: block;
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-1);
+            text-align: center;
+        }
+        #btn-caixa-salvar {
+            background: var(--color-primary);
+            color: white;
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: background var(--transition-fast);
+            min-height: 48px;
+        }
+        #btn-caixa-salvar:hover {
+            background: var(--color-primary-hover);
+        }
+
+        /* --- Aba ADMIN --- */
+        #aba-admin {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+
+        /* Painel de gestão */
+        #painel-gestao {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            border: 1px solid var(--color-border);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        #painel-gestao .gestao-titulo {
+            font-size: var(--text-sm);
+            font-weight: 900;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding-right: var(--space-4);
+            border-right: 1px solid var(--color-border);
+        }
+        #painel-gestao button {
+            background: var(--color-surface-alt);
+            color: var(--color-text);
+            padding: 0.25rem 1rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: var(--text-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all var(--transition-fast);
+            min-height: 36px;
+        }
+        #painel-gestao button:hover {
+            background: var(--color-border);
+        }
+        #painel-gestao .btn-mesclar {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+        #painel-gestao .btn-mesclar:hover {
+            background: #e9d5ff;
+        }
+        #painel-gestao .btn-unidade {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        #painel-gestao .btn-unidade:hover {
+            background: #e0e7ff;
+        }
+        #painel-gestao .btn-simulacao {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+        #painel-gestao .btn-simulacao:hover {
+            background: #fed7aa;
+        }
+        #painel-gestao .btn-reset {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        #painel-gestao .btn-reset:hover {
+            background: #fecaca;
+        }
+
+        /* Métricas */
+        .metricas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--space-4);
+        }
+        .metricas-grid .metric-card {
+            background: var(--color-surface);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+            text-align: center;
+            cursor: pointer;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .metricas-grid .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .metricas-grid .metric-card .label {
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+        }
+        .metricas-grid .metric-card .value {
+            font-size: var(--text-3xl);
+            font-weight: 900;
+            color: var(--color-primary);
+            margin-top: var(--space-1);
+        }
+
+        /* Métricas avançadas */
+        #painel-metricas-avancadas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--space-3);
+        }
+        #painel-metricas-avancadas > div {
+            background: var(--color-surface);
+            padding: var(--space-3);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            text-align: center;
+        }
+        #painel-metricas-avancadas .label {
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+        }
+        #painel-metricas-avancadas .value {
+            font-size: var(--text-xl);
+            font-weight: 900;
+        }
+        .text-accent { color: var(--color-accent); }
+        .text-success { color: var(--color-success); }
+        .text-blue { color: #2563eb; }
+        .text-danger { color: var(--color-danger); }
+
+        /* Sub-filtros aniversário */
+        #sub-filtros-niver .filtro-box {
+            background: var(--color-surface-alt);
+            padding: var(--space-3);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+            border: 1px solid var(--color-border);
+        }
+        #sub-filtros-niver .filtro-box button {
+            background: var(--color-primary);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: var(--text-xs);
+            transition: background var(--transition-fast);
+        }
+        #sub-filtros-niver .filtro-box button:hover {
+            background: var(--color-primary-hover);
+        }
+        #sub-filtros-niver .filtro-box input[type="date"] {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            background: white;
+            min-height: 36px;
+        }
+        #sub-filtros-niver .filtro-box .btn-periodo {
+            background: white;
+            border: 1px solid var(--color-border);
+            padding: 0.25rem 1rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: var(--text-xs);
+            transition: all var(--transition-fast);
+        }
+        #sub-filtros-niver .filtro-box .btn-periodo:hover {
+            border-color: var(--color-primary);
+        }
+
+        /* Painel de clientes – tabela */
+        #painel-clientes {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+        }
+        #painel-clientes .painel-header {
+            padding: var(--space-5);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+        }
+        #painel-clientes .painel-header h2 {
+            font-size: var(--text-xl);
+            font-weight: 700;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        #painel-clientes .painel-header .sub {
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+        }
+        #painel-clientes .painel-header .acoes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+        }
+        #painel-clientes .painel-header .acoes input {
+            padding: var(--space-2) var(--space-4);
+            background: var(--color-surface-alt);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            text-align: center;
+            min-height: 44px;
+            width: 100%;
+            max-width: 280px;
+        }
+        #painel-clientes .painel-header .acoes input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(15,23,42,0.1);
+        }
+        #painel-clientes .painel-header .acoes .btn-marketing {
+            background: var(--color-accent);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background var(--transition-fast);
+            min-height: 44px;
+        }
+        #painel-clientes .painel-header .acoes .btn-marketing:hover {
+            background: #4338ca;
+        }
+        #painel-clientes .painel-header .acoes .btn-export {
+            background: var(--color-primary);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background var(--transition-fast);
+            min-height: 44px;
+        }
+        #painel-clientes .painel-header .acoes .btn-export:hover {
+            background: var(--color-primary-hover);
+        }
+
+        /* Tabela */
+        #tabela-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        #tabela-clientes {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--text-sm);
+        }
+        #tabela-clientes thead {
+            background: var(--color-surface-alt);
+            color: var(--color-text-muted);
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--color-border);
+        }
+        #tabela-clientes thead th {
+            padding: var(--space-3) var(--space-4);
+            text-align: center;
+        }
+        #tabela-clientes tbody td {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--color-border);
+            text-align: center;
+            vertical-align: middle;
+        }
+        #tabela-clientes tbody tr:hover {
+            background: var(--color-surface-alt);
+        }
+
+        /* Responsividade da tabela (empilhamento em mobile) */
+        @media (max-width: 640px) {
+            #tabela-clientes thead {
+                display: none;
+            }
+            #tabela-clientes tbody tr {
+                display: block;
+                margin-bottom: var(--space-4);
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-md);
+                padding: var(--space-3);
+                background: var(--color-surface);
+            }
+            #tabela-clientes tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: var(--space-2) 0;
+                border: none;
+                gap: var(--space-2);
+            }
+            /* Usamos nth-child para colocar os rótulos fixos */
+            #tabela-clientes tbody td:nth-child(1)::before { content: "Nome"; font-weight: 700; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; }
+            #tabela-clientes tbody td:nth-child(2)::before { content: "CPF / WhatsApp"; font-weight: 700; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; }
+            #tabela-clientes tbody td:nth-child(3)::before { content: "Acumulados"; font-weight: 700; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; }
+            #tabela-clientes tbody td:nth-child(4)::before { content: "Resgates"; font-weight: 700; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; }
+            #tabela-clientes tbody td:nth-child(5)::before { content: "Ações"; font-weight: 700; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; }
+            #tabela-clientes tbody td:last-child {
+                border-bottom: none;
+            }
+        }
+
+        /* ============================================================
+           MODAIS
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+            z-index: 50;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+        .modal-box {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90dvh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            margin: auto;
+        }
+        .modal-box.narrow { max-width: 420px; }
+        .modal-box.wide { max-width: 768px; }
+        .modal-box.xwide { max-width: 896px; }
+
+        /* Bordas superiores temáticas (mantidas as classes originais) */
+        .border-t-8.border-black { border-top: 8px solid var(--color-primary); }
+        .border-t-4.border-green-500 { border-top: 4px solid var(--color-success); }
+        .border-t-4.border-indigo-600 { border-top: 4px solid var(--color-accent); }
+        .border-t-4.border-gray-800 { border-top: 4px solid var(--color-primary); }
+        .border-t-4.border-red-600 { border-top: 4px solid var(--color-danger); }
+        .border-t-8.border-amber-400 { border-top: 8px solid var(--color-warning); }
+        .border-t-4.border-orange-500 { border-top: 4px solid #f97316; }
+        .border-t-4.border-purple-600 { border-top: 4px solid #7c3aed; }
+
+        /* ============================================================
+           TOTEM (intocado)
+           ============================================================ */
+        /* O CSS do totem está no bloco abaixo, não mexemos */
+
+        /* ============================================================
+           TOAST
+           ============================================================ */
+        #toast-container {
+            position: fixed;
+            top: var(--space-4);
+            right: var(--space-4);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           IMPRESSÃO
+           ============================================================ */
+        @media print {
+            .no-print { display: none !important; }
+            .print-area { display: block !important; }
+        }
+    </style>
+
+    <!-- Estilos originais do Totem (mantidos intactos) -->
     <style>
         /* ==========================================================================
-           RESET E GERAIS
+           RESET E GERAIS (Totem)
            ========================================================================== */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -18,9 +756,6 @@
             margin: 0; 
         }
 
-        /* ==========================================================================
-           PRINT
-           ========================================================================== */
         @media screen { 
             .print-area { display: none !important; } 
         }
@@ -34,9 +769,6 @@
             strong { font-weight: 900 !important; }
         }
 
-        /* ==========================================================================
-           ANIMAÇÕES
-           ========================================================================== */
         @keyframes shrinkBar { 
             from { width: 100%; } 
             to { width: 0%; } 
@@ -53,18 +785,13 @@
             animation: fadeIn 0.5s ease-out forwards; 
         }
 
-        /* Animações Isoladas do Totem (Dead Code) */
         @keyframes totem-fade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes totem-slide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes totem-scale { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes totem-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes totem-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-        /* ==========================================================================
-           TOKENS
-           ========================================================================== */
         :root {
-            /* Cores */
             --totem-bg: #000000;
             --totem-surface: #111827;
             --totem-surface-alt: #1F2937;
@@ -75,8 +802,6 @@
             --totem-success: #10b981;
             --totem-warning: #fbbf24;
             --totem-danger: #ef4444;
-
-            /* Bordas e Sombras */
             --totem-radius-sm: 0.5rem;
             --totem-radius-md: 1rem;
             --totem-radius-lg: 1.5rem;
@@ -85,16 +810,12 @@
             --totem-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --totem-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --totem-shadow-glow: 0 0 40px rgba(255, 255, 255, 0.15);
-
-            /* Tipografia */
             --totem-text-display: clamp(2.5rem, 5vw, 4rem);
             --totem-text-headline: clamp(2rem, 4vw, 3rem);
             --totem-text-title: clamp(1.5rem, 3vw, 2.5rem);
             --totem-text-body: clamp(1rem, 2vw, 1.25rem);
             --totem-text-caption: clamp(0.875rem, 1.5vw, 1rem);
             --totem-text-button: clamp(1.25rem, 2.5vw, 1.75rem);
-
-            /* Espaçamento */
             --totem-space-1: 0.25rem;
             --totem-space-2: 0.5rem;
             --totem-space-3: 1rem;
@@ -103,8 +824,6 @@
             --totem-space-6: 3rem;
             --totem-space-7: 4rem;
             --totem-space-8: 6rem;
-
-            /* Z-Index */
             --totem-z-base: 10;
             --totem-z-content: 20;
             --totem-z-footer: 30;
@@ -112,30 +831,16 @@
             --totem-z-modal: 200;
             --totem-z-toast: 300;
             --totem-z-loading: 400;
-
-            /* Transições */
             --totem-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
             --totem-transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
             --totem-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ==========================================================================
-           FOUNDATION
-           ========================================================================== */
-        #tela-totem {
-            /* Infraestrutura pronta para herdar tokens na Fase 2 */
-        }
-
-        /* ==========================================================================
-           COMPONENTES
-           ========================================================================== */
-        /* Botões */
+        #tela-totem { /* infraestrutura */ }
         #tela-totem .totem-btn { padding: var(--totem-space-4) var(--totem-space-6); border-radius: var(--totem-radius-lg); font-size: var(--totem-text-button); font-weight: 900; }
         #tela-totem .totem-btn-primary { background-color: var(--totem-primary); color: var(--totem-bg); }
         #tela-totem .totem-btn-secondary { background-color: var(--totem-surface-alt); color: var(--totem-text); }
         #tela-totem .totem-btn-outline { border: 2px solid var(--totem-surface-alt); color: var(--totem-text); background: transparent; }
-        
-        /* Estrutura Base */
         #tela-totem .totem-card { padding: var(--totem-space-5); border-radius: var(--totem-radius-xl); }
         #tela-totem .totem-panel { padding: var(--totem-space-6); }
         #tela-totem .totem-section { margin-bottom: var(--totem-space-6); }
@@ -143,39 +848,25 @@
         #tela-totem .totem-subtitle { font-size: var(--totem-text-body); }
         #tela-totem .totem-input { padding: var(--totem-space-4); border-radius: var(--totem-radius-lg); font-size: var(--totem-text-headline); text-align: center; }
         #tela-totem .totem-message { font-size: var(--totem-text-body); text-align: center; }
-        
-        /* Layout */
         #tela-totem .totem-actions { display: flex; gap: var(--totem-space-4); }
         #tela-totem .totem-stack { display: flex; flex-direction: column; gap: var(--totem-space-3); }
         #tela-totem .totem-grid { display: grid; gap: var(--totem-space-4); }
-
-        /* Infraestrutura Próximas Fases */
         #tela-totem .totem-shell { z-index: var(--totem-z-base); }
         #tela-totem .totem-header { z-index: var(--totem-z-base); }
         #tela-totem .totem-content { z-index: var(--totem-z-content); }
         #tela-totem .totem-footer { z-index: var(--totem-z-footer); }
         #tela-totem .totem-overlay { z-index: var(--totem-z-overlay); }
-        #tela-totem .totem-keyboard { /* Placeholder infraestrutura teclado */ }
-        #tela-totem .totem-idle-screen { /* Placeholder infraestrutura ociosidade */ }
-
-        /* ==========================================================================
-           UTILITÁRIOS
-           ========================================================================== */
+        #tela-totem .totem-keyboard { /* placeholder */ }
+        #tela-totem .totem-idle-screen { /* placeholder */ }
         #tela-totem .totem-flex-center { display: flex; align-items: center; justify-content: center; }
         #tela-totem .totem-flex-column { display: flex; flex-direction: column; }
         #tela-totem .totem-grow { flex-grow: 1; }
         #tela-totem .totem-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
         #tela-totem .totem-no-select { user-select: none; -webkit-user-select: none; }
         #tela-totem .totem-touch-target { min-height: 48px; min-width: 48px; display: inline-flex; align-items: center; justify-content: center; }
-        
-        /* Transições Utilitárias */
         #tela-totem .totem-transition { transition: all var(--totem-transition-normal); }
         #tela-totem .totem-transition-fast { transition: all var(--totem-transition-fast); }
         #tela-totem .totem-transition-slow { transition: all var(--totem-transition-slow); }
-
-        /* ==========================================================================
-           RESPONSIVIDADE
-           ========================================================================== */
         #tela-totem .totem-viewport {
             min-height: 100dvh;
             min-height: -webkit-fill-available;
@@ -185,10 +876,6 @@
             -webkit-tap-highlight-color: transparent;
             width: 100%;
         }
-
-        /* ==========================================================================
-           ACESSIBILIDADE
-           ========================================================================== */
         #tela-totem .totem-focus-ring:focus-visible {
             outline: 3px solid var(--totem-warning);
             outline-offset: 4px;
@@ -199,10 +886,12 @@
             --totem-surface-alt: #374151;
         }
     </style>
-</head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
 
-    <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div id="toast-container"></div>
 
     <!-- TELA DE SELEÇÃO DA UNIDADE (MULTIUNIDADE) -->
     <div id="tela-selecao-unidade" class="hidden fixed inset-0 bg-slate-900 z-[999] flex flex-col items-center justify-center p-4 transition-all overflow-y-auto">
@@ -210,7 +899,6 @@
             <img src="./logo.jpg" alt="Top Haus" class="h-20 w-auto mx-auto mb-6 rounded-xl shadow-sm">
             <h2 class="text-2xl font-black text-slate-800 mb-2">Selecione a Unidade</h2>
             <p class="text-slate-500 mb-8 text-sm">Escolha a unidade onde este dispositivo irá operar. Essa configuração será salva.</p>
-            
             <div class="flex flex-col gap-4">
                 <button onclick="selecionarUnidadeAtiva('navegantes')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-3">
                     <i data-lucide="map-pin" class="w-5 h-5"></i> Navegantes
@@ -227,9 +915,7 @@
         <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-y-auto max-h-[90dvh] border border-gray-800">
             <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
             <span class="text-white font-light text-xl tracking-widest uppercase block mb-8">Fidelidade</span>
-            
             <h2 class="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Acesso ao Sistema</h2>
-            
             <form id="form-login" onsubmit="fazerLogin(event)" class="space-y-4 relative z-10">
                 <input type="text" id="login-user" required placeholder="Usuário" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
                 <input type="password" id="login-senha" required placeholder="Senha" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
@@ -237,7 +923,6 @@
                     <span id="btn-login-text">Acessar sistema</span>
                 </button>
             </form>
-
             <div class="mt-8 pt-8 border-t border-gray-800 relative z-10">
                 <p class="text-xs text-gray-500 mb-3 font-bold uppercase">Autoatendimento</p>
                 <button onclick="entrarModoTotemDaTelaLogin()" type="button" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition border border-gray-700">
@@ -260,80 +945,79 @@
     <!-- PAINEL PRINCIPAL -->
     <div id="app-dashboard" class="hidden no-print">
         
-        <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-4 flex-wrap justify-center">
-                    <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain rounded">
-                    <span class="text-gray-400 font-light text-lg hidden lg:block">| Top Haus Fidelidade</span>
-                    <div class="flex flex-col sm:flex-row items-center gap-2">
-                        <span id="nome-usuario-logado" class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-inner"></span>
-                        <span id="indicador-unidade" class="text-xs bg-indigo-900 border border-indigo-700 text-indigo-100 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-inner hidden flex items-center gap-1">
-                            <i data-lucide="map-pin" class="w-3 h-3"></i> <span id="texto-indicador-unidade">Unidade</span>
-                        </span>
-                    </div>
+        <header id="main-header">
+            <div class="header-brand">
+                <img src="./logo.jpg" alt="Top Haus">
+                <span class="separator">| Top Haus Fidelidade</span>
+                <div class="header-user">
+                    <span id="nome-usuario-logado"></span>
+                    <span id="indicador-unidade" class="hidden">
+                        <i data-lucide="map-pin" class="w-3 h-3"></i> <span id="texto-indicador-unidade">Unidade</span>
+                    </span>
                 </div>
-                <div class="flex flex-wrap justify-center gap-3">
-                    <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition">
-                        <i data-lucide="calculator" class="w-4 h-4"></i> Caixa
-                    </button>
-                    <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition hidden">
-                        <i data-lucide="shield" class="w-4 h-4"></i> Painel Gerencial
-                    </button>
-                    <button onclick="entrarModoTotemDaTelaLogin()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-white shadow-md">
-                        <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir totem</span>
-                    </button>
-                    <div class="hidden sm:block h-10 w-px bg-gray-700 mx-1"></div>
-                    <button onclick="fazerLogout()" title="Sair do Sistema" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center justify-center">
-                        <i data-lucide="power" class="w-5 h-5"></i>
-                    </button>
-                </div>
+            </div>
+            <div class="header-actions">
+                <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active">
+                    <i data-lucide="calculator" class="w-4 h-4"></i> Caixa
+                </button>
+                <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn hidden">
+                    <i data-lucide="shield" class="w-4 h-4"></i> Painel Gerencial
+                </button>
+                <button onclick="entrarModoTotemDaTelaLogin()" class="btn-totem">
+                    <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir totem</span>
+                </button>
+                <span class="divider"></span>
+                <button onclick="fazerLogout()" title="Sair do Sistema" class="btn-logout">
+                    <i data-lucide="power" class="w-5 h-5"></i>
+                </button>
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 pb-12">
+        <main id="main-content">
             
-            <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+            <!-- ABA CAIXA -->
+            <section id="aba-caixa">
+                <div class="card-busca">
                     <div>
-                        <div class="flex items-center gap-2 mb-4 text-slate-900">
+                        <div class="card-header">
                             <i data-lucide="check-square" class="w-6 h-6"></i>
-                            <h2 class="text-xl font-bold">Buscar Cliente</h2>
+                            <h2>Buscar Cliente</h2>
                         </div>
-                        <p class="text-sm text-slate-500 mb-4 text-center">Insira o CPF do cliente para iniciar o atendimento.</p>
-                        <div class="mb-4">
+                        <p class="desc">Insira o CPF do cliente para iniciar o atendimento.</p>
+                        <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF</label>
-                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg text-center">
+                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()">
                         </div>
                     </div>
-                    <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
+                    <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="btn-buscar">
                         <i data-lucide="search" class="w-5 h-5"></i> <span id="btn-caixa-buscar-text">Buscar cliente (Enter)</span>
                     </button>
                 </div>
 
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="flex items-center gap-2 mb-4 text-slate-900">
+                <div class="card-cadastro">
+                    <div class="card-header">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
-                        <h2 class="text-xl font-bold">Cadastrar Cliente</h2>
+                        <h2>Cadastrar Cliente</h2>
                     </div>
-                    <form id="form-cadastro" onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <form id="form-cadastro" onsubmit="cadastrarCliente(event)">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF (Obrigatório)</label>
-                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
+                            <label>CPF (Obrigatório)</label>
+                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Nome completo</label>
-                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-center">
+                            <label>Nome completo</label>
+                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Data de nascimento</label>
-                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
+                            <label>Data de nascimento</label>
+                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">WhatsApp</label>
-                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-center">
+                            <label>WhatsApp</label>
+                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)">
                         </div>
-                        <div class="sm:col-span-2 mt-2 flex justify-end">
-                            <button type="submit" id="btn-caixa-salvar" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-8 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
+                        <div class="full-width">
+                            <button type="submit" id="btn-caixa-salvar">
                                 <i data-lucide="save" class="w-5 h-5"></i> <span id="btn-caixa-salvar-text">Salvar cadastro</span>
                             </button>
                         </div>
@@ -341,131 +1025,120 @@
                 </div>
             </section>
 
-            <section id="aba-admin" class="hidden space-y-6">
-                <div class="flex flex-wrap gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="text-sm font-black text-gray-800 uppercase flex items-center gap-2 pr-4 border-r border-gray-200">
-                        <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i> Gestão
-                    </div>
-                    <button id="btn-gerenciar-acessos" onclick="abrirGerenciadorUsuarios()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="users" class="w-4 h-4"></i> Acessos
-                    </button>
-                    <button id="btn-auditoria" onclick="abrirAuditoria()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Auditoria
-                    </button>
-                    <button id="btn-lixeira" onclick="abrirLixeira()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="archive" class="w-4 h-4"></i> Arquivados
-                    </button>
-                    <button id="btn-mesclar" onclick="abrirModalMesclagem()" class="hidden bg-purple-50 text-purple-600 hover:bg-purple-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="merge" class="w-4 h-4"></i> Mesclar
-                    </button>
-                    <!-- Novo botão de Trocar Unidade -->
-                    <button id="btn-trocar-unidade" onclick="abrirTrocaUnidade()" class="hidden bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="map" class="w-4 h-4"></i> Alterar Unidade
-                    </button>
-                    <button id="btn-ativar-simulacao" onclick="ativarSimulacao()" class="hidden bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="flask-conical" class="w-4 h-4"></i> Modo Simulação
-                    </button>
-                    <button id="btn-zerar-banco" onclick="resetarSistema()" class="hidden bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> Resetar sistema
-                    </button>
+            <!-- ABA ADMIN -->
+            <section id="aba-admin" class="hidden">
+                
+                <!-- Painel de gestão -->
+                <div id="painel-gestao">
+                    <span class="gestao-titulo"><i data-lucide="settings-2" class="w-5 h-5"></i> Gestão</span>
+                    <button id="btn-gerenciar-acessos" onclick="abrirGerenciadorUsuarios()" class="hidden"><i data-lucide="users" class="w-4 h-4"></i> Acessos</button>
+                    <button id="btn-auditoria" onclick="abrirAuditoria()" class="hidden"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Auditoria</button>
+                    <button id="btn-lixeira" onclick="abrirLixeira()" class="hidden"><i data-lucide="archive" class="w-4 h-4"></i> Arquivados</button>
+                    <button id="btn-mesclar" onclick="abrirModalMesclagem()" class="btn-mesclar hidden"><i data-lucide="merge" class="w-4 h-4"></i> Mesclar</button>
+                    <button id="btn-trocar-unidade" onclick="abrirTrocaUnidade()" class="btn-unidade hidden"><i data-lucide="map" class="w-4 h-4"></i> Alterar Unidade</button>
+                    <button id="btn-ativar-simulacao" onclick="ativarSimulacao()" class="btn-simulacao hidden"><i data-lucide="flask-conical" class="w-4 h-4"></i> Modo Simulação</button>
+                    <button id="btn-zerar-banco" onclick="resetarSistema()" class="btn-reset hidden"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Resetar sistema</button>
                 </div>
 
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
-                        <p class="text-xs font-bold text-gray-500 uppercase">Todos os clientes</p>
-                        <p id="card-total" class="text-2xl font-black text-black">0</p>
+                <!-- Métricas principais -->
+                <div class="metricas-grid">
+                    <div onclick="filtrarLista('todos')" class="metric-card">
+                        <p class="label">Todos os clientes</p>
+                        <p id="card-total" class="value">0</p>
                     </div>
-                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden text-center">
-                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-gray-800"></i> Prêmios a resgatar</p>
-                        <p id="card-premios" class="text-2xl font-black text-black">0</p>
+                    <div onclick="filtrarLista('premios')" class="metric-card">
+                        <p class="label"><i data-lucide="gift" class="w-4 h-4 inline"></i> Prêmios a resgatar</p>
+                        <p id="card-premios" class="value">0</p>
                     </div>
-                    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
-                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-gray-800"></i> Clientes VIP</p>
-                        <p id="card-vips" class="text-2xl font-black text-black">0</p>
+                    <div onclick="filtrarLista('vips')" class="metric-card">
+                        <p class="label"><i data-lucide="medal" class="w-4 h-4 inline"></i> Clientes VIP</p>
+                        <p id="card-vips" class="value">0</p>
                     </div>
-                    <div onclick="filtrarLista('niver_mes')" class="bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden text-center">
-                        <div class="absolute top-0 right-0 w-2 h-full bg-black"></div>
-                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Aniversariantes</p>
-                        <p id="card-niver-central" class="text-2xl font-black text-black">0</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="painel-metricas-avancadas">
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Taxa de Resgate</p>
-                        <p id="card-taxa-resgate" class="text-lg font-black text-indigo-600">--</p>
-                    </div>
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Retenção (30d)</p>
-                        <p id="card-retencao" class="text-lg font-black text-green-600">--</p>
-                    </div>
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Reativados</p>
-                        <p id="card-reativacao" class="text-lg font-black text-blue-600">--</p>
-                    </div>
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="filtrarLista('inativos_30d')">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Inativos (+30d)</p>
-                        <p id="card-inativos-total" class="text-lg font-black text-red-600">--</p>
+                    <div onclick="filtrarLista('niver_mes')" class="metric-card" style="border-color: var(--color-primary);">
+                        <p class="label"><i data-lucide="cake" class="w-4 h-4 inline"></i> Aniversariantes</p>
+                        <p id="card-niver-central" class="value">0</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    
-                    <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
-                        <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center justify-center border border-gray-200">
-                            <span class="text-xs font-bold text-gray-600 uppercase"><i data-lucide="filter" class="w-4 h-4 inline"></i> Filtro de aniversários:</span>
-                            <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')" class="px-4 py-2 bg-black text-white rounded-lg text-xs font-bold transition shadow-sm">Mês atual</button>
-                            <span class="text-sm font-semibold text-gray-400">OU PERÍODO:</span>
-                            <div class="flex items-center gap-2">
-                                <input type="date" id="filtro-data-inicio" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black text-center">
-                                <span class="text-gray-400 text-sm">até</span>
-                                <input type="date" id="filtro-data-fim" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black text-center">
-                                <button onclick="filtrarPorPeriodo()" class="px-4 py-2 bg-white border border-gray-300 hover:border-black text-black rounded-lg text-xs font-bold transition shadow-sm">Filtrar</button>
-                            </div>
+                <!-- Métricas avançadas -->
+                <div id="painel-metricas-avancadas">
+                    <div>
+                        <p class="label">Taxa de Resgate</p>
+                        <p id="card-taxa-resgate" class="value text-accent">--</p>
+                    </div>
+                    <div>
+                        <p class="label">Retenção (30d)</p>
+                        <p id="card-retencao" class="value text-success">--</p>
+                    </div>
+                    <div>
+                        <p class="label">Reativados</p>
+                        <p id="card-reativacao" class="value text-blue">--</p>
+                    </div>
+                    <div onclick="filtrarLista('inativos_30d')" style="cursor:pointer;">
+                        <p class="label">Inativos (+30d)</p>
+                        <p id="card-inativos-total" class="value text-danger">--</p>
+                    </div>
+                </div>
+
+                <!-- Sub-filtros aniversário -->
+                <div id="sub-filtros-niver" class="hidden">
+                    <div class="filtro-box">
+                        <span class="text-xs font-bold text-gray-600 uppercase"><i data-lucide="filter" class="w-4 h-4 inline"></i> Filtro de aniversários:</span>
+                        <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')">Mês atual</button>
+                        <span class="text-sm font-semibold text-gray-400">OU PERÍODO:</span>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="filtro-data-inicio">
+                            <span class="text-gray-400 text-sm">até</span>
+                            <input type="date" id="filtro-data-fim">
+                            <button onclick="filtrarPorPeriodo()" class="btn-periodo">Filtrar</button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <!-- Painel de clientes -->
+                <div id="painel-clientes">
+                    <div class="painel-header">
                         <div>
-                            <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">Painel de Clientes</h2>
-                            <p class="text-xs text-slate-400 mt-0.5" id="filtro-atual-texto">Exibindo: Todos os clientes</p>
+                            <h2>Painel de Clientes</h2>
+                            <p class="sub" id="filtro-atual-texto">Exibindo: Todos os clientes</p>
                         </div>
-                        <div class="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
-                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Buscar por nome, CPF ou telefone..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm text-center w-full sm:w-72">
-                            <button onclick="abrirCentralMarketing()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
+                        <div class="acoes">
+                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Buscar por nome, CPF ou telefone...">
+                            <button onclick="abrirCentralMarketing()" class="btn-marketing">
                                 <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing
                             </button>
-                            <button onclick="exportarExcel()" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
+                            <button onclick="exportarExcel()" class="btn-export">
                                 <i data-lucide="download" class="w-4 h-4"></i> Exportar
                             </button>
                         </div>
                     </div>
                     
-                    <div class="overflow-x-auto min-h-[300px]">
-                        <table class="w-full text-left border-collapse">
+                    <div id="tabela-wrapper">
+                        <table id="tabela-clientes">
                             <thead>
-                                <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-100">
-                                    <th class="py-3 px-6 text-center">Nome</th>
-                                    <th class="py-3 px-6 text-center">CPF / WhatsApp</th>
-                                    <th class="py-3 px-6 text-center">Acumulados</th>
-                                    <th class="py-3 px-6 text-center">Resgates</th>
-                                    <th class="py-3 px-6 text-right">Ações</th>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>CPF / WhatsApp</th>
+                                    <th>Acumulados</th>
+                                    <th>Resgates</th>
+                                    <th style="text-align: right;">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-clientes" class="divide-y divide-slate-150 text-sm">
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- MODAIS -->
+        <!-- ============================================================
+        MODAIS (estrutura 100% original, apenas com classes de estilo ajustadas)
+        ============================================================ -->
         
-        <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
-            <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
+        <div id="modal-alerta-aniversario" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box narrow" style="border-top: 8px solid var(--color-primary); text-align: center;">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                     <i data-lucide="cake" class="w-10 h-10"></i>
                 </div>
@@ -482,8 +1155,8 @@
             </div>
         </div>
 
-        <div id="modal-whatsapp" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-green-500 overflow-y-auto max-h-[90dvh]">
+        <div id="modal-whatsapp" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box" style="border-top: 4px solid var(--color-success);">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="message-circle" class="w-5 h-5 text-green-500"></i> Enviar mensagem</h3>
                     <button onclick="fecharModal('modal-whatsapp')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -493,8 +1166,8 @@
             </div>
         </div>
 
-        <div id="modal-marketing" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90dvh] overflow-y-auto border-t-4 border-indigo-600">
+        <div id="modal-marketing" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box wide" style="border-top: 4px solid var(--color-accent);">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
@@ -555,10 +1228,10 @@
             </div>
         </div>
 
-        <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
+        <div id="modal-editar" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box" style="border-top: 4px solid var(--color-primary);">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-gray-800"></i> Editar Cadastro</h3>
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5"></i> Editar Cadastro</h3>
                     <button type="button" onclick="fecharModal('modal-editar')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <form id="form-editar" onsubmit="salvarEdicao(event)" class="space-y-4">
@@ -589,13 +1262,12 @@
             </div>
         </div>
 
-        <div id="modal-usuarios" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-indigo-600 overflow-y-auto max-h-[90dvh]">
+        <div id="modal-usuarios" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box" style="border-top: 4px solid var(--color-accent);">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Gestão de Acessos</h3>
                     <button type="button" onclick="fecharModal('modal-usuarios')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                
                 <form onsubmit="criarUsuario(event)" class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6 space-y-3">
                     <h4 class="text-sm font-black text-indigo-900 uppercase tracking-widest text-center mb-2">Adicionar novo acesso</h4>
                     <input type="text" id="novo-user" required placeholder="Nome de usuário (Ex: caixa2)" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-indigo-500 text-sm font-bold text-center">
@@ -607,14 +1279,13 @@
                     </select>
                     <button type="submit" id="btn-usuarios-salvar" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 transition shadow-sm text-sm"><span id="btn-usuarios-salvar-text">Salvar cadastro</span></button>
                 </form>
-
                 <h4 class="text-sm font-black text-gray-800 uppercase mb-2 border-b border-gray-100 pb-1">Usuários ativos</h4>
                 <div id="lista-usuarios-cadastrados" class="space-y-2 max-h-48 overflow-y-auto text-sm pr-1"></div>
             </div>
         </div>
 
-        <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+        <div id="modal-confirmacao" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box narrow">
                 <h3 class="text-lg font-bold text-gray-800 mb-2 text-center">Contabilizar Refeição</h3>
                 <p class="text-gray-600 mb-6 text-center" id="texto-confirmacao">Deseja registrar +1 almoço?</p>
                 <div class="flex justify-end gap-3">
@@ -624,22 +1295,19 @@
             </div>
         </div>
 
-        <!-- NOVO MODAL CELEBRAÇÃO 10 ALMOÇOS -->
-        <div id="modal-celebracao-10" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-amber-400">
+        <div id="modal-celebracao-10" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box narrow" style="border-top: 8px solid var(--color-warning); text-align: center;">
                 <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                     <i data-lucide="award" class="w-10 h-10"></i>
                 </div>
                 <h3 class="text-2xl font-black text-black mb-2">Parabéns!</h3>
                 <p class="text-gray-600 mb-6 text-sm">O cliente completou <strong>10 almoços</strong>.<br><br>Na próxima visita dele, o sistema informará que o prêmio de R$ 50,00 de desconto está disponível para resgate.</p>
-                <button onclick="fecharModal('modal-celebracao-10')" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition shadow-md">
-                    Entendido
-                </button>
+                <button onclick="fecharModal('modal-celebracao-10')" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition shadow-md">Entendido</button>
             </div>
         </div>
 
-        <div id="modal-trava" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-black">
+        <div id="modal-trava" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box narrow" style="border-top: 4px solid var(--color-primary);">
                 <div class="flex items-center justify-center gap-2 mb-2 text-black">
                     <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                     <h3 class="text-lg font-bold">Desconto Disponível!</h3>
@@ -653,22 +1321,21 @@
             </div>
         </div>
 
-        <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
+        <div id="modal-historico" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box" style="border-top: 4px solid var(--color-primary);">
                 <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> Histórico de Resgates</h3>
                 <div id="lista-historico" class="max-h-80 overflow-y-auto space-y-3 mb-6"></div>
                 <button onclick="fecharModal('modal-historico')" class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold transition">Fechar</button>
             </div>
         </div>
 
-        <div id="modal-simulacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-orange-500 overflow-y-auto max-h-[90dvh]">
+        <div id="modal-simulacao" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box" style="border-top: 4px solid #f97316;">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="flask-conical" class="w-5 h-5 text-orange-500"></i> Ajustes de Depuração</h3>
                     <button type="button" onclick="fecharModal('modal-simulacao')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 border-b border-gray-100 pb-2 text-center">Cliente: <strong id="sim-cliente-nome" class="text-black text-base"></strong></p>
-                
                 <div class="space-y-4">
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex justify-between items-center">
                         <div>
@@ -680,7 +1347,6 @@
                             <button onclick="salvarSimulacaoAlmocos()" class="bg-black hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Salvar</button>
                         </div>
                     </div>
-
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
                         <p class="text-sm font-bold text-gray-800 mb-1">Simulação de data festiva</p>
                         <p class="text-xs text-gray-500 mb-3">Altera a data de nascimento para hoje e zera histórico de resgate no ano atual.</p>
@@ -688,7 +1354,6 @@
                             <i data-lucide="cake" class="w-4 h-4"></i> Fazer aniversário hoje
                         </button>
                     </div>
-
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
                         <p class="text-sm font-bold text-gray-800 mb-1">Manipulação de última visita</p>
                         <p class="text-xs text-gray-500 mb-3">Retrocede a última visita em 16 dias para testar alertas da regra de inatividade.</p>
@@ -700,8 +1365,8 @@
             </div>
         </div>
 
-        <div id="modal-alerta-generico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[300]">
-            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-red-600 text-center overflow-y-auto max-h-[90dvh]">
+        <div id="modal-alerta-generico" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box narrow" style="border-top: 4px solid var(--color-danger); text-align: center;">
                 <i data-lucide="alert-triangle" class="w-12 h-12 text-red-600 mx-auto mb-4"></i>
                 <h3 id="alerta-generico-titulo" class="text-lg font-bold text-gray-900 mb-2">Atenção</h3>
                 <p id="alerta-generico-texto" class="text-sm text-gray-600 mb-6">Esta ação não poderá ser desfeita.</p>
@@ -712,10 +1377,10 @@
             </div>
         </div>
 
-        <div id="modal-lixeira" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
+        <div id="modal-lixeira" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box wide" style="border-top: 4px solid var(--color-primary);">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="archive" class="w-5 h-5 text-gray-800"></i> Clientes Arquivados</h3>
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="archive" class="w-5 h-5"></i> Clientes Arquivados</h3>
                     <button type="button" onclick="fecharModal('modal-lixeira')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <div class="overflow-y-auto max-h-96">
@@ -727,15 +1392,14 @@
                                 <th class="py-2 px-4 text-right">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-lixeira" class="divide-y divide-gray-100 text-sm">
-                        </tbody>
+                        <tbody id="tabela-lixeira" class="divide-y divide-gray-100 text-sm"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div id="modal-auditoria" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-3xl w-full shadow-xl border-t-4 border-indigo-600 overflow-y-auto max-h-[90dvh]">
+        <div id="modal-auditoria" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box xwide" style="border-top: 4px solid var(--color-accent);">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="clipboard-list" class="w-5 h-5 text-indigo-600"></i> Log de Auditoria</h3>
                     <button type="button" onclick="fecharModal('modal-auditoria')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -749,15 +1413,14 @@
                                 <th class="py-2 px-4">Detalhes</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-auditoria" class="divide-y divide-gray-100 text-sm">
-                        </tbody>
+                        <tbody id="tabela-auditoria" class="divide-y divide-gray-100 text-sm"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div id="modal-mesclagem" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-purple-600 overflow-y-auto max-h-[90dvh]">
+        <div id="modal-mesclagem" tabindex="-1" class="hidden modal-overlay">
+            <div class="modal-box" style="border-top: 4px solid #7c3aed;">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="merge" class="w-5 h-5 text-purple-600"></i> Mesclar Cadastros</h3>
                     <button type="button" onclick="fecharModal('modal-mesclagem')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -782,32 +1445,24 @@
 
     </div> 
     
-    <!-- TELA DO TOTEM -->
+    <!-- TELA DO TOTEM (intocada) -->
     <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-y-auto">
         <div class="w-full flex flex-col md:flex-row min-h-[100dvh]">
-            
             <div class="w-full md:w-2/5 bg-black border-r border-gray-800 flex flex-col items-center justify-center p-8 md:p-12 relative shadow-2xl z-10 min-h-[40dvh]">
-                
                 <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-32 md:h-40 w-auto object-contain mb-2 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.05)] cursor-pointer" title="Área Restrita">
-                
                 <span class="text-white font-light text-2xl md:text-3xl tracking-widest uppercase mb-8 md:mb-12">Fidelidade</span>
-
                 <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-6 tracking-wide uppercase flex items-center gap-3 text-center">
                     <i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!
                 </h3>
-                
                 <div class="bg-white p-4 rounded-3xl mb-6 shadow-[0_0_40px_rgba(255,255,255,0.15)]">
                     <img src="./qrcode.png" alt="QR Code" class="w-32 h-32 md:w-48 md:h-48 object-contain rounded-xl">
                 </div>
-                
                 <p class="text-gray-300 text-lg md:text-xl text-center leading-relaxed px-4">
                     Avalie nosso atendimento e ganhe um <strong class="text-white">bombom especial</strong>.
                 </p>
                 <p class="text-gray-500 text-sm mt-6 uppercase tracking-widest font-bold hidden md:block">Aponte a câmera do celular</p>
             </div>
-
             <div class="w-full md:w-3/5 flex flex-col items-center justify-center p-6 md:p-12 relative overflow-y-auto" id="totem-dynamic-area">
-                
                 <div id="totem-tela-busca" class="w-full max-w-lg text-center transition-all">
                     <h1 class="text-4xl md:text-5xl font-black text-white mb-4">Seja bem-vindo(a)</h1>
                     <p class="text-gray-400 mb-10 text-xl md:text-2xl">Olá! Insira seu CPF para registrar seu almoço de hoje.</p>
@@ -816,7 +1471,6 @@
                         <span id="btn-totem-avancar-text">Avançar</span>
                     </button>
                 </div>
-
                 <div id="totem-tela-cadastro" class="hidden w-full max-w-2xl text-center transition-all">
                     <h2 class="text-4xl md:text-5xl font-black text-white mb-2">Primeira vez aqui?</h2>
                     <p class="text-gray-400 text-xl md:text-2xl mb-10">Preencha rapidamente para participar do clube.</p>
@@ -833,7 +1487,6 @@
                         </div>
                     </form>
                 </div>
-
                 <div id="totem-tela-opcoes" class="hidden w-full max-w-lg text-center transition-all pb-12">
                     <div class="w-24 h-24 md:w-32 md:h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
                         <i data-lucide="gift" class="w-12 h-12 md:w-16 md:h-16"></i>
@@ -850,13 +1503,11 @@
                         </button>
                     </div>
                 </div>
-
                 <div id="totem-tela-mensagem" class="hidden w-full max-w-xl text-center transition-all pb-24 pt-8">
                     <div id="totem-icone-msg" class="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black"></div>
                     <h2 id="totem-titulo-msg" class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight"></h2>
                     <p id="totem-texto-msg" class="text-gray-300 text-2xl md:text-3xl leading-relaxed"></p>
                 </div>
-                
                 <div id="totem-bottom-bar" class="hidden absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 w-[90%] md:w-3/4 flex flex-col items-center">
                     <p id="totem-texto-sessao" class="text-gray-400 text-base md:text-lg mb-4">Sua sessão terminará em <span id="totem-timer-count" class="font-bold text-white">10</span> segundos.</p>
                     <button onclick="totemVoltarInicio()" class="mb-4 md:mb-6 px-8 md:px-10 py-3 bg-gray-800 text-white text-base md:text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar atendimento</button>
@@ -864,10 +1515,8 @@
                         <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
                     </div>
                 </div>
-
             </div>
         </div>
-
         <div id="modal-totem-saida" tabindex="-1" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[300]">
             <div class="bg-gray-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center border border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <i data-lucide="lock" class="w-10 h-10 text-gray-500 mx-auto mb-4"></i>
@@ -880,7 +1529,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div id="secao-impressao" class="print-area"></div>
