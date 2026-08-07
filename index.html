@@ -130,7 +130,7 @@
         .badge-muted { background: var(--color-surface-alt); color: var(--color-text-muted); }
 
         #app-dashboard { background: var(--color-bg); min-height: 100dvh; }
-        #app-dashboard header { background: var(--color-primary); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.5rem 1rem; }
+        #app-dashboard header { background: #000000; border-bottom: none; padding: 0.5rem 1rem; }
         #app-dashboard header .text-muted { color: rgba(255,255,255,0.5); }
         #app-dashboard header .badge-user { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
         #app-dashboard header .badge-unidade { background: #1e293b; border: 1px solid #475569; color: #94a3b8; }
@@ -275,7 +275,7 @@
     <!-- PAINEL PRINCIPAL -->
     <div id="app-dashboard" class="hidden no-print">
         
-        <header class="bg-black text-white shadow-md py-2 px-4 md:px-6 mb-4">
+        <header class="text-white shadow-md mb-4">
             <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-1 md:gap-3">
                 <div class="flex items-center gap-2 flex-wrap">
                     <img src="./logo.jpg" alt="Top Haus" class="h-8 md:h-10 w-auto object-contain rounded">
@@ -761,25 +761,25 @@
     <!-- ==========================================================================
          NOVA TELA DO TOTEM (REDESENHADA EM RETRATO / VERTICAL)
          ========================================================================== -->
-    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-hidden flex-col items-center">
+    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-y-auto flex-col items-center">
         
         <!-- Header Fixo Topo -->
-        <div class="w-full max-w-4xl flex flex-col items-center justify-center pt-8 md:pt-16 pb-8 shrink-0 relative z-20">
-            <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-24 md:h-32 lg:h-40 w-auto object-contain rounded-[2rem] shadow-[0_0_40px_rgba(255,255,255,0.1)] cursor-pointer mb-6" title="Área Restrita">
+        <div class="w-full max-w-4xl flex flex-col items-center justify-center pt-4 md:pt-8 pb-4 shrink-0 relative z-20">
+            <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-24 md:h-32 lg:h-40 w-auto object-contain rounded-[2rem] cursor-pointer mb-6" title="Área Restrita">
             <span class="text-white font-light text-xl md:text-2xl tracking-widest uppercase opacity-70">Fidelidade</span>
         </div>
 
         <!-- Área Dinâmica Central -->
-        <div id="totem-dynamic-area" class="flex-1 w-full flex flex-col items-center justify-start md:justify-center p-6 md:p-12 relative z-10 transition-all duration-300">
+        <div id="totem-dynamic-area" class="flex-1 w-full flex flex-col items-center justify-center p-6 md:p-12 relative z-10 transition-all duration-300">
             
             <!-- TELA 1: BUSCA -->
             <div id="totem-tela-busca" class="w-full flex flex-col items-center text-center transition-all animate-fade-in">
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6">Bem-vindo(a) à Top Haus! 👋</h1>
                 <p class="text-gray-400 mb-12 text-xl md:text-2xl lg:text-3xl max-w-xl leading-relaxed">Digite seu CPF para registrar o almoço de hoje e acompanhar seus benefícios.</p>
                 
-                <input type="tel" inputmode="none" autocomplete="off" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full max-w-lg bg-white/10 border-2 border-white/20 text-white text-center text-4xl md:text-5xl py-6 rounded-[2rem] focus:outline-none focus:border-amber-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-500">
+                <input type="tel" inputmode="none" autocomplete="off" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') { window.vkb && window.vkb.hide(); totemProcessarCPF(); }" class="w-full max-w-lg bg-white/10 border-2 border-white/20 text-white text-center text-4xl md:text-5xl py-6 rounded-[2rem] focus:outline-none focus:border-amber-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-500">
                 
-                <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full max-w-lg bg-white text-black font-black text-2xl md:text-3xl py-6 rounded-[2rem] shadow-[0_0_40px_rgba(255,255,255,0.2)] active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-3">
+                <button id="btn-totem-avancar" onclick="window.vkb && window.vkb.hide(); totemProcessarCPF()" class="w-full max-w-lg bg-white text-black font-black text-2xl md:text-3xl py-6 rounded-[2rem] shadow-[0_0_40px_rgba(255,255,255,0.2)] active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-3">
                     <span id="btn-totem-avancar-text">Avançar</span>
                     <i data-lucide="arrow-right" class="w-8 h-8"></i>
                 </button>
@@ -790,7 +790,7 @@
                 <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-amber-400 mb-4">Que bom ter você aqui! 💛</h2>
                 <p class="text-gray-300 text-xl md:text-2xl mb-10 max-w-2xl leading-relaxed">Ainda não encontramos seu cadastro. Leva menos de 1 minuto para participar do Clube de Fidelidade.</p>
                 
-                <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full max-w-2xl space-y-6">
+                <form id="totem-form" onsubmit="window.vkb && window.vkb.hide(); totemSalvarCadastro(event)" class="w-full max-w-2xl space-y-6">
                     <input type="tel" inputmode="none" id="totem-cad-cpf" readonly class="w-full bg-white/5 border border-white/10 text-gray-500 px-6 py-5 rounded-[2rem] font-mono text-2xl text-center cursor-not-allowed">
                     <input type="text" inputmode="none" autocomplete="off" id="totem-cad-nome" required placeholder="Nome completo" oninput="formatarNomeInlines(this)" class="w-full bg-white text-black px-6 py-5 rounded-[2rem] text-2xl text-center focus:outline-none focus:ring-[6px] focus:ring-amber-400/50 placeholder-gray-400 shadow-xl transition-all">
                     
@@ -825,17 +825,17 @@
             </div>
 
             <!-- TELA 4: MENSAGEM FINAL (E AVALIAÇÃO) -->
-            <div id="totem-tela-mensagem" class="hidden w-full flex flex-col items-center text-center transition-all animate-fade-in pb-32">
-                <div id="totem-icone-msg" class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(255,255,255,0.2)] bg-white text-black"></div>
-                <h2 id="totem-titulo-msg" class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight"></h2>
-                <p id="totem-texto-msg" class="text-gray-300 text-2xl md:text-3xl leading-relaxed max-w-3xl mb-12"></p>
+            <div id="totem-tela-mensagem" class="hidden w-full flex flex-col items-center text-center transition-all animate-fade-in pb-48">
+                <div id="totem-icone-msg" class="w-20 h-20 md:w-28 md:h-28 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_40px_rgba(255,255,255,0.2)] bg-white text-black"></div>
+                <h2 id="totem-titulo-msg" class="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-tight"></h2>
+                <p id="totem-texto-msg" class="text-gray-300 text-xl md:text-2xl leading-relaxed max-w-3xl mb-6"></p>
                 
                 <!-- BLOCO QR CODE AVALIAÇÃO (Aparece no final do fluxo) -->
-                <div id="totem-bloco-avaliacao" class="w-full max-w-2xl bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex-col items-center mt-4">
-                    <h3 class="text-3xl md:text-4xl font-black text-amber-400 mb-4">Obrigado pela sua visita! 💛</h3>
-                    <p class="text-gray-300 text-xl md:text-2xl mb-8 leading-relaxed">Gostou da experiência? Aponte a câmera para o QR Code e deixe sua avaliação. Sua opinião nos ajuda a melhorar todos os dias.</p>
-                    <div class="bg-white p-6 rounded-[2rem] shadow-[0_0_40px_rgba(255,255,255,0.1)] inline-block">
-                        <img src="./qrcode.png" alt="QR Code Avaliação" class="w-48 h-48 md:w-56 md:h-56 object-contain rounded-xl">
+                <div id="totem-bloco-avaliacao" class="w-full max-w-2xl bg-white/5 border border-white/10 rounded-[2.5rem] p-6 flex-col items-center mt-10">
+                    <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-2">Obrigado pela sua visita! 💛</h3>
+                    <p class="text-gray-300 text-lg md:text-xl mb-4 leading-relaxed">Gostou da experiência? Aponte a câmera para o QR Code e deixe sua avaliação. Sua opinião nos ajuda a melhorar todos os dias.</p>
+                    <div class="bg-white p-4 rounded-[1.5rem] shadow-[0_0_40px_rgba(255,255,255,0.1)] inline-block">
+                        <img src="./qrcode.png" alt="QR Code Avaliação" class="w-40 h-40 md:w-48 md:h-48 object-contain rounded-xl">
                     </div>
                 </div>
             </div>
@@ -853,13 +853,8 @@
         <!-- ==========================================================================
              TECLADO VIRTUAL DO TOTEM
              ========================================================================== -->
-        <div id="virtual-keyboard" class="fixed bottom-0 left-0 w-full bg-[#0B1120] border-t border-slate-700/50 shadow-[0_-20px_60px_rgba(0,0,0,0.8)] z-[999] transition-transform duration-300 transform translate-y-full flex flex-col pb-[env(safe-area-inset-bottom)] rounded-t-[2rem]">
-            <div class="w-full flex justify-end items-center px-6 py-4 border-b border-slate-800">
-                <p class="text-slate-400 font-medium text-sm flex-1 ml-2 uppercase tracking-widest hidden sm:block">Teclado de Autoatendimento</p>
-                <button onclick="window.vkb.hide()" class="text-black font-black px-8 py-3 rounded-2xl bg-amber-400 active:bg-amber-500 active:scale-95 transition-all text-xl shadow-lg flex items-center gap-2">OK / Fechar <i data-lucide="chevron-down"></i></button>
-            </div>
-            
-            <div id="vkb-container-inner" class="p-4 md:p-6 w-full flex justify-center">
+        <div id="virtual-keyboard" class="fixed bottom-0 left-0 w-full bg-black border-t border-[#232323] shadow-[0_-20px_60px_rgba(0,0,0,0.9)] z-[999] transition-transform duration-150 ease-out transform translate-y-full flex flex-col pb-[env(safe-area-inset-bottom)] rounded-t-[2rem]">
+            <div id="vkb-container-inner" class="p-4 md:p-6 w-full flex justify-center mt-4">
                 <!-- Gerado por JS para economizar dezenas de linhas de HTML -->
             </div>
         </div>
@@ -907,16 +902,17 @@
             
             // Layout Numérico
             const numHTML = `
-                <div id="vkb-numeric" class="hidden w-full max-w-sm flex flex-col gap-3">
-                    <div class="grid grid-cols-3 gap-3">
-                        ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="vkb-key text-4xl font-bold text-white bg-white/10 active:bg-white/30 active:scale-95 rounded-[1.5rem] py-6 transition-all" onclick="window.vkb.press('${n}')">${n}</button>`).join('')}
+                <div id="vkb-numeric" class="hidden w-full max-w-sm flex flex-col gap-2">
+                    <div class="grid grid-cols-3 gap-2">
+                        ${[1,2,3,4,5,6,7,8,9].map(n => `<button type="button" class="vkb-key text-3xl md:text-4xl font-normal text-white bg-[#232323] active:bg-[#303030] rounded-xl py-4 transition-colors border border-[#303030]" onclick="window.vkb.press('${n}')">${n}</button>`).join('')}
                     </div>
-                    <div class="grid grid-cols-3 gap-3">
-                        <button class="vkb-key text-2xl font-bold text-slate-400 bg-white/5 active:bg-white/20 active:scale-95 rounded-[1.5rem] py-6 transition-all" onclick="window.vkb.clear()">LIMPAR</button>
-                        <button class="vkb-key text-4xl font-bold text-white bg-white/10 active:bg-white/30 active:scale-95 rounded-[1.5rem] py-6 transition-all" onclick="window.vkb.press('0')">0</button>
-                        <button class="vkb-key flex items-center justify-center text-red-400 bg-white/10 active:bg-red-500/30 active:scale-95 rounded-[1.5rem] py-6 transition-all" onclick="window.vkb.press('BACKSPACE')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 4-14 0c-1.1 0-2.3.8-2.9 1.7L.4 12l3.7 6.3c.6.9 1.8 1.7 2.9 1.7l14 0c1.1 0 2-.9 2-2L23 6c0-1.1-.9-2-2-2z"/><path d="m16 9-6 6"/><path d="m10 9 6 6"/></svg>
-                        </button>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" class="vkb-key text-lg md:text-xl font-medium text-white bg-[#333333] active:bg-[#444444] rounded-xl py-4 transition-colors border border-[#444444]" onclick="window.vkb.clear()">Limpar</button>
+                        <button type="button" class="vkb-key text-3xl md:text-4xl font-normal text-white bg-[#232323] active:bg-[#303030] rounded-xl py-4 transition-colors border border-[#303030]" onclick="window.vkb.press('0')">0</button>
+                        <button type="button" class="vkb-key text-lg md:text-xl font-medium text-white bg-[#333333] active:bg-[#444444] rounded-xl py-4 transition-colors border border-[#444444]" onclick="window.vkb.press('BACKSPACE')">Apagar</button>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2 mt-1">
+                        <button type="button" class="vkb-key w-full text-xl font-semibold text-black bg-gray-300 active:bg-gray-400 rounded-xl py-4 transition-colors" onclick="window.vkb.confirm()">Confirmar</button>
                     </div>
                 </div>
             `;
@@ -928,22 +924,22 @@
                 ['Z','X','C','V','B','N','M']
             ];
             
-            let alphaHTML = `<div id="vkb-alpha" class="hidden w-full max-w-4xl flex flex-col gap-3">`;
+            let alphaHTML = `<div id="vkb-alpha" class="hidden w-full max-w-4xl flex flex-col gap-2">`;
             rows.forEach((row, i) => {
-                let padding = i === 1 ? 'px-4 md:px-12' : (i === 2 ? 'px-12 md:px-24' : '');
-                alphaHTML += `<div class="flex justify-center gap-2 md:gap-3 ${padding}">`;
+                let padding = i === 1 ? 'px-4 md:px-10' : (i === 2 ? 'px-10 md:px-20' : '');
+                alphaHTML += `<div class="flex justify-center gap-1.5 md:gap-2 ${padding}">`;
                 row.forEach(char => {
-                    alphaHTML += `<button class="vkb-key flex-1 text-2xl md:text-3xl font-bold text-white bg-white/10 active:bg-white/30 active:scale-95 rounded-2xl md:rounded-[1.5rem] py-5 transition-all shadow-sm" onclick="window.vkb.press('${char}')">${char}</button>`;
+                    alphaHTML += `<button type="button" class="vkb-key flex-1 text-2xl md:text-3xl font-normal text-white bg-[#232323] active:bg-[#303030] rounded-lg md:rounded-xl py-4 transition-colors border border-[#303030]" onclick="window.vkb.press('${char}')">${char}</button>`;
                 });
                 alphaHTML += `</div>`;
             });
             alphaHTML += `
-                <div class="flex justify-center gap-2 md:gap-3 mt-1">
-                    <button class="vkb-key flex items-center justify-center text-red-400 bg-white/10 active:bg-red-500/30 active:scale-95 rounded-2xl md:rounded-[1.5rem] py-5 px-6 md:px-10 transition-all shadow-sm" onclick="window.vkb.press('BACKSPACE')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 4-14 0c-1.1 0-2.3.8-2.9 1.7L.4 12l3.7 6.3c.6.9 1.8 1.7 2.9 1.7l14 0c1.1 0 2-.9 2-2L23 6c0-1.1-.9-2-2-2z"/><path d="m16 9-6 6"/><path d="m10 9 6 6"/></svg>
+                <div class="flex justify-center gap-1.5 md:gap-2 mt-1">
+                    <button type="button" class="vkb-key flex items-center justify-center text-white bg-[#333333] active:bg-[#444444] rounded-lg md:rounded-xl py-4 px-4 md:px-8 transition-colors font-medium border border-[#444444]" onclick="window.vkb.press('BACKSPACE')">
+                        Apagar
                     </button>
-                    <button class="vkb-key flex-[3] text-2xl md:text-3xl font-bold text-white bg-white/10 active:bg-white/30 active:scale-95 rounded-2xl md:rounded-[1.5rem] py-5 transition-all shadow-sm" onclick="window.vkb.press('SPACE')">ESPAÇO</button>
-                    <button class="vkb-key flex-[1.5] text-xl md:text-2xl font-bold text-slate-900 bg-amber-400 active:bg-amber-500 active:scale-95 rounded-2xl md:rounded-[1.5rem] py-5 transition-all shadow-sm" onclick="window.vkb.hide()">OK</button>
+                    <button type="button" class="vkb-key flex-[3] text-xl md:text-2xl font-normal text-white bg-[#232323] active:bg-[#303030] rounded-lg md:rounded-xl py-4 transition-colors border border-[#303030]" onclick="window.vkb.press('SPACE')">Espaço</button>
+                    <button type="button" class="vkb-key flex-[1.5] text-xl md:text-2xl font-semibold text-black bg-gray-300 active:bg-gray-400 rounded-lg md:rounded-xl py-4 transition-colors" onclick="window.vkb.confirm()">Confirmar</button>
                 </div>
             </div>`;
 
@@ -966,11 +962,9 @@
                     if (input.id === 'totem-cad-nome') {
                         document.getElementById('vkb-numeric').classList.add('hidden');
                         document.getElementById('vkb-alpha').classList.remove('hidden');
-                        document.getElementById('totem-dynamic-area').style.paddingBottom = '360px';
                     } else {
                         document.getElementById('vkb-alpha').classList.add('hidden');
                         document.getElementById('vkb-numeric').classList.remove('hidden');
-                        document.getElementById('totem-dynamic-area').style.paddingBottom = '420px';
                     }
                     
                     setTimeout(() => {
@@ -980,7 +974,6 @@
                 hide() {
                     this.activeInput = null;
                     document.getElementById('virtual-keyboard').classList.add('translate-y-full');
-                    document.getElementById('totem-dynamic-area').style.paddingBottom = '0';
                 },
                 clear() {
                     if (!this.activeInput) return;
@@ -1003,6 +996,13 @@
                     
                     this.activeInput.value = val;
                     this.activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                },
+                confirm() {
+                    if (this.activeInput) {
+                        this.activeInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+                        this.activeInput.blur();
+                    }
+                    this.hide();
                 }
             };
             
@@ -1020,6 +1020,7 @@
             if(!originalTotemMostrarMensagem) return; // Segurança
 
             window.totemMostrarMensagem = (tipo) => {
+                if (window.vkb) window.vkb.hide();
                 clearTimeout(window.timerInatividade);
                 clearInterval(window.intervaloContagemTotem);
                 
@@ -1037,7 +1038,7 @@
                 
                 if(lb) lb.classList.remove('animate-shrink'); 
                 
-                let tempo = 15000; // Tempo padrão aumentado para permitir leitura e scan do QR
+                let tempo = 25000; // Tempo padrão aumentado para permitir leitura e scan do QR
                 const nomeC = window.totemClienteTemp && window.totemClienteTemp.nome ? window.escapeHTML(window.totemClienteTemp.nome.split(' ')[0]) : '';
                 const cliente = window.totemClienteTemp;
 
@@ -1128,4 +1129,4 @@
         }, 1500); // Aguarda carregamento total do módulo principal antes de sobrescrever
     </script>
 </body>
-                    </html>
+</html>
