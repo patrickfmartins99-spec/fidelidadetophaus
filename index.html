@@ -7,22 +7,10 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-
+    
     <style>
         /* ==========================================================================
-           RESET E GERAIS
-           ========================================================================== */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-
-        /* Padronização de botões para não fazer highlight no toque mobile */
-        * { -webkit-tap-highlight-color: transparent; }
-
-        /* ==========================================================================
-           PRINT
+           ESTILOS GERAIS E IMPRESSÃO
            ========================================================================== */
         @media screen { 
             .print-area { display: none !important; } 
@@ -37,9 +25,14 @@
             strong { font-weight: 900 !important; }
         }
 
-        /* ==========================================================================
-           ANIMAÇÕES
-           ========================================================================== */
+        /* Remove setas dos inputs numéricos */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        /* Animação da barra de tempo do Totem */
         @keyframes shrinkBar { 
             from { width: 100%; } 
             to { width: 0%; } 
@@ -48,171 +41,8 @@
             animation: shrinkBar linear forwards; 
         }
 
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(15px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        .animate-fade-in { 
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-        }
-
-        /* ==========================================================================
-           TOKENS (Design System)
-           ========================================================================== */
-        :root {
-            --color-bg: #f8fafc;
-            --color-surface: #ffffff;
-            --color-surface-alt: #f1f5f9;
-            --color-primary: #0f172a;
-            --color-primary-hover: #1e293b;
-            --color-text: #0f172a;
-            --color-text-muted: #64748b;
-            --color-border: #e2e8f0;
-            --color-accent: #4f46e5;
-            --color-success: #10b981;
-            --color-danger: #ef4444;
-            --color-warning: #f59e0b;
-            --color-orange: #f97316;
-            --color-purple: #7c3aed;
-            --color-blue: #2563eb;
-            --color-red: #dc2626;
-
-            --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            --radius-sm: 0.375rem;
-            --radius-md: 0.75rem;
-            --radius-lg: 1rem;
-            --radius-xl: 1.5rem;
-            --radius-full: 9999px;
-
-            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
-
-            --transition-fast: 150ms ease;
-            --transition-base: 250ms ease;
-        }
-
-        /* ==========================================================================
-           COMPONENTES ADMIN (Preservados do original)
-           ========================================================================== */
-        .card { background: var(--color-surface); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--color-border); padding: 1.5rem; transition: box-shadow var(--transition-base); }
-        .card:hover { box-shadow: var(--shadow-md); }
-        .card-sm { padding: 0.75rem; }
-        .card-flat { box-shadow: none; border-color: var(--color-border); }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 48px; padding: 0.5rem 1.25rem; border-radius: var(--radius-lg); font-weight: 700; transition: all var(--transition-fast); cursor: pointer; border: none; }
-        .btn:hover:not(:disabled) { transform: scale(1.02); }
-        .btn:active:not(:disabled) { transform: scale(0.97); }
-        .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-        .btn-primary { background: var(--color-primary); color: white; }
-        .btn-primary:hover { background: var(--color-primary-hover); }
-        .btn-accent { background: var(--color-accent); color: white; }
-        .btn-accent:hover { background: #4338ca; }
-        .btn-danger { background: var(--color-danger); color: white; }
-        .btn-danger:hover { background: var(--color-red); }
-        .btn-success { background: var(--color-success); color: white; }
-        .btn-white { background: white; color: var(--color-primary); }
-        .btn-white:hover { background: var(--color-surface-alt); }
-        .btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); }
-        .btn-outline:hover { background: var(--color-surface-alt); }
-        .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.75rem; min-height: 32px; }
-        .btn-block { width: 100%; }
-        .input { width: 100%; padding: 0.75rem 1rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 1rem; text-align: center; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); min-height: 48px; }
-        .input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(15,23,42,0.1); outline: none; }
-        .input::placeholder { color: #94a3b8; }
-        .input-sm { padding: 0.25rem 0.5rem; min-height: 36px; font-size: 0.875rem; }
-        .badge { display: inline-block; padding: 0.2rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-        .badge-primary { background: var(--color-primary); color: white; }
-        .badge-accent { background: var(--color-accent); color: white; }
-        .badge-success { background: var(--color-success); color: white; }
-        .badge-danger { background: var(--color-danger); color: white; }
-        .badge-warning { background: var(--color-warning); color: var(--color-primary); }
-        .badge-muted { background: var(--color-surface-alt); color: var(--color-text-muted); }
-
-        #app-dashboard { background: var(--color-bg); min-height: 100dvh; }
-        #app-dashboard header { background: #000000; border-bottom: none; padding: 0.5rem 1rem; }
-        #app-dashboard header .text-muted { color: rgba(255,255,255,0.5); }
-        #app-dashboard header .badge-user { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
-        #app-dashboard header .badge-unidade { background: #1e293b; border: 1px solid #475569; color: #94a3b8; }
-        #app-dashboard .aba-btn { transition: all var(--transition-fast); }
-        #app-dashboard .aba-btn.active { background: white; color: var(--color-primary); box-shadow: var(--shadow-sm); }
-        #app-dashboard .aba-btn:not(.active) { color: rgba(255,255,255,0.7); }
-        #app-dashboard .aba-btn:not(.active):hover { background: rgba(255,255,255,0.1); color: white; }
-        #app-dashboard .btn-totem { background: var(--color-accent); color: white; min-height: 40px; padding: 0.25rem 1rem; font-size: 0.875rem; }
-        #app-dashboard .btn-totem:hover { background: #4338ca; }
-        #app-dashboard .btn-logout { background: var(--color-danger); color: white; min-height: 40px; padding: 0.25rem 1rem; font-size: 0.875rem; }
-        #app-dashboard .btn-logout:hover { background: var(--color-red); }
-        #app-dashboard #painel-gestao { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        #app-dashboard #painel-gestao .btn-gestao { background: var(--color-surface-alt); color: var(--color-text); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem; transition: all var(--transition-fast); min-height: 32px; flex: 1 0 calc(50% - 0.5rem); justify-content: center; }
-        #app-dashboard #painel-gestao .btn-gestao:hover { background: var(--color-border); }
-        #app-dashboard #painel-gestao .btn-mesclar { background: #f3e8ff; color: var(--color-purple); }
-        #app-dashboard #painel-gestao .btn-mesclar:hover { background: #e9d5ff; }
-        #app-dashboard #painel-gestao .btn-unidade { background: #eef2ff; color: var(--color-accent); }
-        #app-dashboard #painel-gestao .btn-unidade:hover { background: #e0e7ff; }
-        #app-dashboard #painel-gestao .btn-simulacao { background: #ffedd5; color: var(--color-orange); }
-        #app-dashboard #painel-gestao .btn-simulacao:hover { background: #fed7aa; }
-        #app-dashboard #painel-gestao .btn-reset { background: #fee2e2; color: var(--color-danger); }
-        #app-dashboard #painel-gestao .btn-reset:hover { background: #fecaca; }
-        #app-dashboard .metric-card { padding: 0.75rem 1rem; }
-        #app-dashboard .metric-card .value { font-size: 1.5rem; font-weight: 900; color: var(--color-primary); }
-        #app-dashboard .metric-card .label { color: var(--color-text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
-        #app-dashboard #tabela-clientes thead { background: var(--color-surface-alt); color: var(--color-text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--color-border); }
-        #app-dashboard #tabela-clientes tbody tr:hover { background: var(--color-surface-alt); }
-        #menu-toggle { display: none; }
-        .menu-label { display: none; font-size: 1.5rem; color: white; cursor: pointer; padding: 0.2rem 0.5rem; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
-        .menu-label:hover { background: rgba(255,255,255,0.1); }
-
-        @media (max-width: 640px) {
-            .menu-label { display: inline-block; }
-            .app-nav { display: none; flex-direction: column; width: 100%; padding: 0.75rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); gap: 0.25rem; }
-            .app-nav .aba-btn { justify-content: center; width: 100%; color: var(--color-text); font-size: 0.875rem; padding: 0.4rem 0.75rem; min-height: 36px; }
-            .app-nav .aba-btn.active { background: var(--color-primary); color: white; }
-            #menu-toggle:checked ~ .app-nav { display: flex; }
-            #app-dashboard header .max-w-7xl { gap: 0.25rem; }
-            #app-dashboard header .flex.items-center.gap-3 { gap: 0.25rem; }
-            #app-dashboard header .h-10.w-auto { height: 32px; }
-            #app-dashboard header .text-lg { font-size: 0.875rem; }
-            #app-dashboard header .badge-user, #app-dashboard header .badge-unidade { font-size: 0.6rem; padding: 0.1rem 0.5rem; }
-            #app-dashboard header .menu-label { font-size: 1.25rem; }
-            #app-dashboard header .header-actions { display: flex; align-items: center; gap: 0.25rem; }
-            #app-dashboard header .header-actions .btn-totem, #app-dashboard header .header-actions .btn-logout { min-height: 32px; padding: 0.15rem 0.6rem; font-size: 0.75rem; }
-            #app-dashboard header .header-actions .btn-totem span { display: none; }
-            #app-dashboard #painel-gestao .btn-gestao { flex: 1 0 calc(50% - 0.25rem); font-size: 0.7rem; padding: 0.15rem 0.5rem; min-height: 28px; }
-            #app-dashboard .metricas-grid { grid-template-columns: 1fr !important; }
-            #app-dashboard .metric-card { padding: 0.5rem 0.75rem; }
-            #app-dashboard .metric-card .value { font-size: 1.25rem; }
-            #app-dashboard #tabela-clientes thead { display: none; }
-            #app-dashboard #tabela-clientes tbody tr { display: block; margin-bottom: 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.5rem; background: var(--color-surface); }
-            #app-dashboard #tabela-clientes tbody td { display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; border: none; gap: 0.25rem; font-size: 0.8rem; }
-            #app-dashboard #tabela-clientes tbody td::before { font-weight: 700; color: var(--color-text-muted); font-size: 0.65rem; text-transform: uppercase; }
-            #app-dashboard #tabela-clientes tbody td:nth-child(1)::before { content: "Nome"; }
-            #app-dashboard #tabela-clientes tbody td:nth-child(2)::before { content: "CPF / WhatsApp"; }
-            #app-dashboard #tabela-clientes tbody td:nth-child(3)::before { content: "Acumulados"; }
-            #app-dashboard #tabela-clientes tbody td:nth-child(4)::before { content: "Resgates"; }
-            #app-dashboard #tabela-clientes tbody td:nth-child(5)::before { content: "Ações"; }
-            #app-dashboard #tabela-clientes tbody td:last-child { border-bottom: none; }
-        }
-
-        #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
-
-        /* ==========================================================================
-           REGRAS EXCLUSIVAS DO TECLADO VIRTUAL DO TOTEM
-           ========================================================================== */
-        .vkb-key {
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        
-        /* Ajuste fino de responsividade para tablets muito curtos */
-        @media (max-height: 800px) {
-            #tela-totem .shrink-0 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-            #tela-totem .shrink-0 img { height: 4.5rem !important; margin-bottom: 0.5rem !important; }
-            #tela-totem h1, #tela-totem h2 { font-size: 2rem !important; margin-bottom: 0.5rem !important; }
-            #tela-totem p { font-size: 1.1rem !important; margin-bottom: 1rem !important; }
-            #tela-totem input { font-size: 1.5rem !important; padding: 1rem !important; min-height: unset !important; }
-            #tela-totem button { padding: 1rem !important; font-size: 1.25rem !important; }
-        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
@@ -237,7 +67,7 @@
         </div>
     </div>
 
-    <!-- TELA DE LOGIN (ORIGINAL – SEM ALTERAÇÕES) -->
+    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
         <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-y-auto max-h-[90dvh] border border-gray-800">
             <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
@@ -275,87 +105,80 @@
     <!-- PAINEL PRINCIPAL -->
     <div id="app-dashboard" class="hidden no-print">
         
-        <header class="text-white shadow-md mb-4">
-            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-1 md:gap-3">
-                <div class="flex items-center gap-2 flex-wrap">
-                    <img src="./logo.jpg" alt="Top Haus" class="h-8 md:h-10 w-auto object-contain rounded">
-                    <span class="text-muted font-light text-sm hidden lg:block">| Top Haus Fidelidade</span>
-                    <div class="flex flex-wrap items-center gap-1 md:gap-2">
-                        <span id="nome-usuario-logado" class="badge badge-user text-xs"></span>
-                        <span id="indicador-unidade" class="badge badge-unidade hidden flex items-center gap-1 text-xs">
+        <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4 flex-wrap justify-center">
+                    <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain rounded">
+                    <span class="text-gray-400 font-light text-lg hidden lg:block">| Top Haus Fidelidade</span>
+                    <div class="flex flex-col sm:flex-row items-center gap-2">
+                        <span id="nome-usuario-logado" class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-inner"></span>
+                        <span id="indicador-unidade" class="text-xs bg-indigo-900 border border-indigo-700 text-indigo-100 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-inner hidden flex items-center gap-1">
                             <i data-lucide="map-pin" class="w-3 h-3"></i> <span id="texto-indicador-unidade">Unidade</span>
                         </span>
                     </div>
                 </div>
-
-                <input type="checkbox" id="menu-toggle" class="hidden">
-                <label for="menu-toggle" class="menu-label md:hidden" aria-label="Abrir menu">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </label>
-
-                <nav class="app-nav flex flex-wrap items-center gap-2 w-full md:w-auto">
-                    <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-3 py-1 rounded-lg font-bold flex items-center gap-1 transition text-sm">
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition">
                         <i data-lucide="calculator" class="w-4 h-4"></i> Caixa
                     </button>
-                    <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-3 py-1 rounded-lg font-bold flex items-center gap-1 transition text-sm hidden">
+                    <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition hidden">
                         <i data-lucide="shield" class="w-4 h-4"></i> Painel Gerencial
                     </button>
-                    <div class="flex items-center gap-1 md:gap-2">
-                        <button onclick="entrarModoTotemDaTelaLogin()" class="btn btn-totem">
-                            <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir totem</span>
-                        </button>
-                        <button onclick="fazerLogout()" title="Sair do Sistema" class="btn btn-logout">
-                            <i data-lucide="power" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </nav>
+                    <button onclick="entrarModoTotemDaTelaLogin()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-white shadow-md">
+                        <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir totem</span>
+                    </button>
+                    <div class="hidden sm:block h-10 w-px bg-gray-700 mx-1"></div>
+                    <button onclick="fazerLogout()" title="Sair do Sistema" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center justify-center">
+                        <i data-lucide="power" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
         <main class="max-w-7xl mx-auto px-4 pb-12">
             
-            <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1 card flex flex-col justify-between">
+            <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center gap-2 mb-3 text-slate-900">
+                        <div class="flex items-center gap-2 mb-4 text-slate-900">
                             <i data-lucide="check-square" class="w-6 h-6"></i>
                             <h2 class="text-xl font-bold">Buscar Cliente</h2>
                         </div>
-                        <p class="text-sm text-slate-500 mb-3 text-center">Insira o CPF do cliente para iniciar o atendimento.</p>
-                        <div class="mb-3">
+                        <p class="text-sm text-slate-500 mb-4 text-center">Insira o CPF do cliente para iniciar o atendimento.</p>
+                        <div class="mb-4">
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF</label>
-                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="input">
+                            <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg text-center">
                         </div>
                     </div>
-                    <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="btn btn-primary btn-block">
+                    <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
                         <i data-lucide="search" class="w-5 h-5"></i> <span id="btn-caixa-buscar-text">Buscar cliente (Enter)</span>
                     </button>
                 </div>
 
-                <div class="lg:col-span-2 card">
-                    <div class="flex items-center gap-2 mb-3 text-slate-900">
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
                         <h2 class="text-xl font-bold">Cadastrar Cliente</h2>
                     </div>
                     <form id="form-cadastro" onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF (Obrigatório)</label>
-                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="input">
+                            <input type="tel" inputmode="numeric" id="cad-cpf" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Nome completo</label>
-                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" oninput="formatarNomeInlines(this)" class="input">
+                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-center">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Data de nascimento</label>
-                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)" class="input">
+                            <input type="tel" inputmode="numeric" id="cad-nascimento" required placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-center">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">WhatsApp</label>
-                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="input">
+                            <input type="tel" inputmode="numeric" id="cad-telefone" required placeholder="(00) 90000-0000" maxlength="15" oninput="mascaraTelefone(this)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-center">
                         </div>
                         <div class="sm:col-span-2 mt-2 flex justify-end">
-                            <button type="submit" id="btn-caixa-salvar" class="btn btn-primary w-full sm:w-auto">
+                            <button type="submit" id="btn-caixa-salvar" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-8 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
                                 <i data-lucide="save" class="w-5 h-5"></i> <span id="btn-caixa-salvar-text">Salvar cadastro</span>
                             </button>
                         </div>
@@ -363,92 +186,110 @@
                 </div>
             </section>
 
-            <section id="aba-admin" class="hidden space-y-4">
-                
-                <div id="painel-gestao" class="card card-sm flex flex-wrap items-center gap-2">
-                    <span class="text-sm font-black text-gray-800 uppercase flex items-center gap-2 pr-3 border-r border-gray-200">
+            <section id="aba-admin" class="hidden space-y-6">
+                <div class="flex flex-wrap gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="text-sm font-black text-gray-800 uppercase flex items-center gap-2 pr-4 border-r border-gray-200">
                         <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i> Gestão
-                    </span>
-                    <button id="btn-gerenciar-acessos" onclick="abrirGerenciadorUsuarios()" class="btn-gestao hidden"><i data-lucide="users" class="w-4 h-4"></i> Acessos</button>
-                    <button id="btn-auditoria" onclick="abrirAuditoria()" class="btn-gestao hidden"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Auditoria</button>
-                    <button id="btn-lixeira" onclick="abrirLixeira()" class="btn-gestao hidden"><i data-lucide="archive" class="w-4 h-4"></i> Arquivados</button>
-                    <button id="btn-mesclar" onclick="abrirModalMesclagem()" class="btn-gestao btn-mesclar hidden"><i data-lucide="merge" class="w-4 h-4"></i> Mesclar</button>
-                    <button id="btn-trocar-unidade" onclick="abrirTrocaUnidade()" class="btn-gestao btn-unidade hidden"><i data-lucide="map" class="w-4 h-4"></i> Alterar Unidade</button>
-                    <button id="btn-ativar-simulacao" onclick="ativarSimulacao()" class="btn-gestao btn-simulacao hidden"><i data-lucide="flask-conical" class="w-4 h-4"></i> Modo Simulação</button>
-                    <button id="btn-zerar-banco" onclick="resetarSistema()" class="btn-gestao btn-reset hidden"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Resetar sistema</button>
+                    </div>
+                    <button id="btn-gerenciar-acessos" onclick="abrirGerenciadorUsuarios()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="users" class="w-4 h-4"></i> Acessos
+                    </button>
+                    <button id="btn-auditoria" onclick="abrirAuditoria()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Auditoria
+                    </button>
+                    <button id="btn-lixeira" onclick="abrirLixeira()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="archive" class="w-4 h-4"></i> Arquivados
+                    </button>
+                    <button id="btn-mesclar" onclick="abrirModalMesclagem()" class="hidden bg-purple-50 text-purple-600 hover:bg-purple-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="merge" class="w-4 h-4"></i> Mesclar
+                    </button>
+                    <!-- Novo botão de Trocar Unidade -->
+                    <button id="btn-trocar-unidade" onclick="abrirTrocaUnidade()" class="hidden bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="map" class="w-4 h-4"></i> Alterar Unidade
+                    </button>
+                    <button id="btn-ativar-simulacao" onclick="ativarSimulacao()" class="hidden bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="flask-conical" class="w-4 h-4"></i> Modo Simulação
+                    </button>
+                    <button id="btn-zerar-banco" onclick="resetarSistema()" class="hidden bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> Resetar sistema
+                    </button>
                 </div>
 
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
-                <div class="metricas-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div onclick="filtrarLista('todos')" class="metric-card card cursor-pointer hover:border-black transition text-center">
-                        <p class="label">Todos os clientes</p>
-                        <p id="card-total" class="value">0</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
+                        <p class="text-xs font-bold text-gray-500 uppercase">Todos os clientes</p>
+                        <p id="card-total" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('premios')" class="metric-card card cursor-pointer hover:border-black transition text-center">
-                        <p class="label"><i data-lucide="gift" class="w-4 h-4 inline"></i> Prêmios a resgatar</p>
-                        <p id="card-premios" class="value">0</p>
+                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden text-center">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-gray-800"></i> Prêmios a resgatar</p>
+                        <p id="card-premios" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('vips')" class="metric-card card cursor-pointer hover:border-black transition text-center">
-                        <p class="label"><i data-lucide="medal" class="w-4 h-4 inline"></i> Clientes VIP</p>
-                        <p id="card-vips" class="value">0</p>
+                    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-gray-800"></i> Clientes VIP</p>
+                        <p id="card-vips" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('niver_mes')" class="metric-card card cursor-pointer hover:border-black transition text-center" style="border-color: var(--color-primary);">
-                        <p class="label"><i data-lucide="cake" class="w-4 h-4 inline"></i> Aniversariantes</p>
-                        <p id="card-niver-central" class="value">0</p>
-                    </div>
-                </div>
-
-                <div id="painel-metricas-avancadas" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div class="card card-sm text-center">
-                        <p class="text-xs font-bold text-slate-500 uppercase">Taxa de Resgate</p>
-                        <p id="card-taxa-resgate" class="text-base font-black text-indigo-600">--</p>
-                    </div>
-                    <div class="card card-sm text-center">
-                        <p class="text-xs font-bold text-slate-500 uppercase">Retenção (30d)</p>
-                        <p id="card-retencao" class="text-base font-black text-green-600">--</p>
-                    </div>
-                    <div class="card card-sm text-center">
-                        <p class="text-xs font-bold text-slate-500 uppercase">Reativados</p>
-                        <p id="card-reativacao" class="text-base font-black text-blue-600">--</p>
-                    </div>
-                    <div class="card card-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="filtrarLista('inativos_30d')">
-                        <p class="text-xs font-bold text-slate-500 uppercase">Inativos (+30d)</p>
-                        <p id="card-inativos-total" class="text-base font-black text-red-600">--</p>
+                    <div onclick="filtrarLista('niver_mes')" class="bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden text-center">
+                        <div class="absolute top-0 right-0 w-2 h-full bg-black"></div>
+                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Aniversariantes</p>
+                        <p id="card-niver-central" class="text-2xl font-black text-black">0</p>
                     </div>
                 </div>
 
-                <div id="sub-filtros-niver" class="hidden">
-                    <div class="card card-sm card-flat" style="background: var(--color-surface-alt);">
-                        <div class="flex flex-wrap items-center justify-center gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="painel-metricas-avancadas">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Taxa de Resgate</p>
+                        <p id="card-taxa-resgate" class="text-lg font-black text-indigo-600">--</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Retenção (30d)</p>
+                        <p id="card-retencao" class="text-lg font-black text-green-600">--</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Reativados</p>
+                        <p id="card-reativacao" class="text-lg font-black text-blue-600">--</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="filtrarLista('inativos_30d')">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Inativos (+30d)</p>
+                        <p id="card-inativos-total" class="text-lg font-black text-red-600">--</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    
+                    <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
+                        <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center justify-center border border-gray-200">
                             <span class="text-xs font-bold text-gray-600 uppercase"><i data-lucide="filter" class="w-4 h-4 inline"></i> Filtro de aniversários:</span>
-                            <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')" class="btn btn-primary btn-sm">Mês atual</button>
+                            <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')" class="px-4 py-2 bg-black text-white rounded-lg text-xs font-bold transition shadow-sm">Mês atual</button>
                             <span class="text-sm font-semibold text-gray-400">OU PERÍODO:</span>
                             <div class="flex items-center gap-2">
-                                <input type="date" id="filtro-data-inicio" class="input input-sm" style="width:auto; min-width:120px;">
+                                <input type="date" id="filtro-data-inicio" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black text-center">
                                 <span class="text-gray-400 text-sm">até</span>
-                                <input type="date" id="filtro-data-fim" class="input input-sm" style="width:auto; min-width:120px;">
-                                <button onclick="filtrarPorPeriodo()" class="btn btn-outline btn-sm">Filtrar</button>
+                                <input type="date" id="filtro-data-fim" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black text-center">
+                                <button onclick="filtrarPorPeriodo()" class="px-4 py-2 bg-white border border-gray-300 hover:border-black text-black rounded-lg text-xs font-bold transition shadow-sm">Filtrar</button>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="card overflow-hidden" style="padding:0;">
-                    <div class="p-4 md:p-6 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
+                    <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
                             <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">Painel de Clientes</h2>
                             <p class="text-xs text-slate-400 mt-0.5" id="filtro-atual-texto">Exibindo: Todos os clientes</p>
                         </div>
                         <div class="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
-                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Buscar por nome, CPF ou telefone..." class="input" style="max-width:280px; width:100%;">
-                            <button onclick="abrirCentralMarketing()" class="btn btn-accent"><i data-lucide="megaphone" class="w-4 h-4"></i> Marketing</button>
-                            <button onclick="exportarExcel()" class="btn btn-primary"><i data-lucide="download" class="w-4 h-4"></i> Exportar</button>
+                            <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Buscar por nome, CPF ou telefone..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm text-center w-full sm:w-72">
+                            <button onclick="abrirCentralMarketing()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
+                                <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing
+                            </button>
+                            <button onclick="exportarExcel()" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
+                                <i data-lucide="download" class="w-4 h-4"></i> Exportar
+                            </button>
                         </div>
                     </div>
                     
                     <div class="overflow-x-auto min-h-[300px]">
-                        <table class="w-full text-left border-collapse" id="tabela-clientes">
+                        <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-100">
                                     <th class="py-3 px-6 text-center">Nome</th>
@@ -458,8 +299,7 @@
                                     <th class="py-3 px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-clientes-body" class="divide-y divide-slate-150 text-sm">
-                                <!-- O JavaScript popula este tbody -->
+                            <tbody id="tabela-clientes" class="divide-y divide-slate-150 text-sm">
                             </tbody>
                         </table>
                     </div>
@@ -467,17 +307,22 @@
             </section>
         </main>
 
-        <!-- ============================================================
-        MODAIS DO PAINEL ADMIN E CAIXA (MANTIDOS INTACTOS)
-        ============================================================ -->
+        <!-- MODAIS -->
+        
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
-                <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce"><i data-lucide="cake" class="w-10 h-10"></i></div>
+                <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i data-lucide="cake" class="w-10 h-10"></i>
+                </div>
                 <h3 class="text-2xl font-black text-black mb-2">Tem Aniversariante!</h3>
                 <p class="text-gray-600 mb-6" id="texto-alerta-aniversario"></p>
                 <div class="flex flex-col gap-3">
-                    <button onclick="confirmarCortesiaAniversario()" id="btn-alerta-aniversario-confirmar" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md"><i data-lucide="check-circle" class="w-5 h-5"></i> <span id="btn-alerta-aniversario-confirmar-text">Confirmar resgate</span></button>
-                    <button onclick="continuarPosAniversario()" class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">Pular e continuar</button>
+                    <button onclick="confirmarCortesiaAniversario()" id="btn-alerta-aniversario-confirmar" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> <span id="btn-alerta-aniversario-confirmar-text">Confirmar resgate</span>
+                    </button>
+                    <button onclick="continuarPosAniversario()" class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">
+                        Pular e continuar
+                    </button>
                 </div>
             </div>
         </div>
@@ -500,6 +345,7 @@
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg text-center"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços.</p>
+
                 <div class="space-y-6">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem de aniversário</label>
@@ -513,6 +359,7 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem de inatividade</label>
                         <textarea id="mkt-msg-inativo" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
+
                     <div class="pt-4 border-t border-gray-200 mt-4">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-indigo-600"></i> Fila de Envios e Status</h4>
@@ -522,6 +369,7 @@
                             <p class="text-sm text-gray-500 text-center py-2">Nenhuma mensagem na fila no momento.</p>
                         </div>
                     </div>
+
                     <div class="pt-4 border-t border-gray-200 bg-indigo-50 p-4 rounded-xl mt-4">
                         <div class="flex items-center gap-2 mb-3 text-indigo-900 justify-center">
                             <i data-lucide="calendar-clock" class="w-5 h-5"></i>
@@ -535,6 +383,7 @@
                         <button onclick="adicionarAgendamento()" class="w-full bg-indigo-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-indigo-700 transition text-sm mb-4">+ Agendar campanha</button>
                         <div id="area-agendamentos" class="space-y-3"></div>
                     </div>
+                    
                     <div class="pt-4 border-t border-gray-200">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800">Ações manuais (Envio individual)</h4>
@@ -543,6 +392,7 @@
                         <div id="area-mensagens-custom" class="space-y-4"></div>
                     </div>
                 </div>
+
                 <div class="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-4">
                     <button onclick="fecharModal('modal-marketing')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold">Cancelar</button>
                     <button id="btn-marketing-salvar" onclick="salvarCentralMarketing()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i> <span id="btn-marketing-salvar-text">Salvar alterações</span></button>
@@ -564,7 +414,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Nome completo</label>
-                        <input type="text" id="edit-nome" required oninput="formatarNomeInlines(this)" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 text-center">
+                        <input type="text" id="edit-nome" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 text-center">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -590,6 +440,7 @@
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Gestão de Acessos</h3>
                     <button type="button" onclick="fecharModal('modal-usuarios')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
+                
                 <form onsubmit="criarUsuario(event)" class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6 space-y-3">
                     <h4 class="text-sm font-black text-indigo-900 uppercase tracking-widest text-center mb-2">Adicionar novo acesso</h4>
                     <input type="text" id="novo-user" required placeholder="Nome de usuário (Ex: caixa2)" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-indigo-500 text-sm font-bold text-center">
@@ -601,6 +452,7 @@
                     </select>
                     <button type="submit" id="btn-usuarios-salvar" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 transition shadow-sm text-sm"><span id="btn-usuarios-salvar-text">Salvar cadastro</span></button>
                 </form>
+
                 <h4 class="text-sm font-black text-gray-800 uppercase mb-2 border-b border-gray-100 pb-1">Usuários ativos</h4>
                 <div id="lista-usuarios-cadastrados" class="space-y-2 max-h-48 overflow-y-auto text-sm pr-1"></div>
             </div>
@@ -617,18 +469,26 @@
             </div>
         </div>
 
+        <!-- NOVO MODAL CELEBRAÇÃO 10 ALMOÇOS -->
         <div id="modal-celebracao-10" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-amber-400">
-                <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce"><i data-lucide="award" class="w-10 h-10"></i></div>
+                <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i data-lucide="award" class="w-10 h-10"></i>
+                </div>
                 <h3 class="text-2xl font-black text-black mb-2">Parabéns!</h3>
                 <p class="text-gray-600 mb-6 text-sm">O cliente completou <strong>10 almoços</strong>.<br><br>Na próxima visita dele, o sistema informará que o prêmio de R$ 50,00 de desconto está disponível para resgate.</p>
-                <button onclick="fecharModal('modal-celebracao-10')" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition shadow-md">Entendido</button>
+                <button onclick="fecharModal('modal-celebracao-10')" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition shadow-md">
+                    Entendido
+                </button>
             </div>
         </div>
 
         <div id="modal-trava" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-black">
-                <div class="flex items-center justify-center gap-2 mb-2 text-black"><i data-lucide="alert-triangle" class="w-6 h-6"></i><h3 class="text-lg font-bold">Desconto Disponível!</h3></div>
+                <div class="flex items-center justify-center gap-2 mb-2 text-black">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                    <h3 class="text-lg font-bold">Desconto Disponível!</h3>
+                </div>
                 <p class="text-gray-600 mb-6 text-sm text-center">Este cliente já possui 10 almoços acumulados. Você deseja <strong>Aplicar R$ 50 de desconto agora</strong> ou <strong>Guardar</strong> este benefício para outra visita?</p>
                 <div class="flex flex-col gap-2">
                     <button id="btn-trava-resgatar" class="w-full px-5 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition"><i data-lucide="printer" class="w-4 h-4"></i> <span id="btn-trava-resgatar-text">Resgatar e imprimir cupom</span></button>
@@ -653,6 +513,7 @@
                     <button type="button" onclick="fecharModal('modal-simulacao')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 border-b border-gray-100 pb-2 text-center">Cliente: <strong id="sim-cliente-nome" class="text-black text-base"></strong></p>
+                
                 <div class="space-y-4">
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex justify-between items-center">
                         <div>
@@ -664,15 +525,21 @@
                             <button onclick="salvarSimulacaoAlmocos()" class="bg-black hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Salvar</button>
                         </div>
                     </div>
+
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
                         <p class="text-sm font-bold text-gray-800 mb-1">Simulação de data festiva</p>
                         <p class="text-xs text-gray-500 mb-3">Altera a data de nascimento para hoje e zera histórico de resgate no ano atual.</p>
-                        <button onclick="simularAniversarioHoje()" class="w-full bg-red-100 text-red-600 hover:bg-red-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2"><i data-lucide="cake" class="w-4 h-4"></i> Fazer aniversário hoje</button>
+                        <button onclick="simularAniversarioHoje()" class="w-full bg-red-100 text-red-600 hover:bg-red-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2">
+                            <i data-lucide="cake" class="w-4 h-4"></i> Fazer aniversário hoje
+                        </button>
                     </div>
+
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
                         <p class="text-sm font-bold text-gray-800 mb-1">Manipulação de última visita</p>
                         <p class="text-xs text-gray-500 mb-3">Retrocede a última visita em 16 dias para testar alertas da regra de inatividade.</p>
-                        <button onclick="simularInatividade()" class="w-full bg-blue-100 text-blue-600 hover:bg-blue-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2"><i data-lucide="calendar-clock" class="w-4 h-4"></i> Simular ausência (16 dias)</button>
+                        <button onclick="simularInatividade()" class="w-full bg-blue-100 text-blue-600 hover:bg-blue-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2">
+                            <i data-lucide="calendar-clock" class="w-4 h-4"></i> Simular ausência (16 dias)
+                        </button>
                     </div>
                 </div>
             </div>
@@ -705,7 +572,8 @@
                                 <th class="py-2 px-4 text-right">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-lixeira" class="divide-y divide-gray-100 text-sm"></tbody>
+                        <tbody id="tabela-lixeira" class="divide-y divide-gray-100 text-sm">
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -726,7 +594,8 @@
                                 <th class="py-2 px-4">Detalhes</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-auditoria" class="divide-y divide-gray-100 text-sm"></tbody>
+                        <tbody id="tabela-auditoria" class="divide-y divide-gray-100 text-sm">
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -758,117 +627,101 @@
 
     </div> 
     
-    <!-- ==========================================================================
-         NOVA TELA DO TOTEM (REDESENHADA EM RETRATO / VERTICAL)
-         ========================================================================== -->
-    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-y-auto flex-col items-center">
-        
-        <!-- Header Fixo Topo -->
-        <div class="w-full max-w-4xl flex flex-col items-center justify-center pt-4 md:pt-8 pb-4 shrink-0 relative z-20">
-            <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-24 md:h-32 lg:h-40 w-auto object-contain rounded-[2rem] cursor-pointer mb-6" title="Área Restrita">
-            <span class="text-white font-light text-xl md:text-2xl tracking-widest uppercase opacity-70">Fidelidade</span>
-        </div>
-
-        <!-- Área Dinâmica Central -->
-        <div id="totem-dynamic-area" class="flex-1 w-full flex flex-col items-center justify-center p-6 md:p-12 relative z-10 transition-all duration-300">
+    <!-- TELA DO TOTEM -->
+    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-y-auto">
+        <div class="w-full flex flex-col md:flex-row min-h-[100dvh]">
             
-            <!-- TELA 1: BUSCA -->
-            <div id="totem-tela-busca" class="w-full flex flex-col items-center text-center transition-all animate-fade-in">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6">Bem-vindo(a) à Top Haus! 👋</h1>
-                <p class="text-gray-400 mb-12 text-xl md:text-2xl lg:text-3xl max-w-xl leading-relaxed">Digite seu CPF para registrar o almoço de hoje e acompanhar seus benefícios.</p>
+            <div class="w-full md:w-2/5 bg-black border-r border-gray-800 flex flex-col items-center justify-center p-8 md:p-12 relative shadow-2xl z-10 min-h-[40dvh]">
                 
-                <input type="tel" inputmode="none" autocomplete="off" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') { window.vkb && window.vkb.hide(); totemProcessarCPF(); }" class="w-full max-w-lg bg-white/10 border-2 border-white/20 text-white text-center text-4xl md:text-5xl py-6 rounded-[2rem] focus:outline-none focus:border-amber-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-500">
+                <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-32 md:h-40 w-auto object-contain mb-2 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.05)] cursor-pointer" title="Área Restrita">
                 
-                <button id="btn-totem-avancar" onclick="window.vkb && window.vkb.hide(); totemProcessarCPF()" class="w-full max-w-lg bg-white text-black font-black text-2xl md:text-3xl py-6 rounded-[2rem] shadow-[0_0_40px_rgba(255,255,255,0.2)] active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-3">
-                    <span id="btn-totem-avancar-text">Avançar</span>
-                    <i data-lucide="arrow-right" class="w-8 h-8"></i>
-                </button>
-            </div>
+                <span class="text-white font-light text-2xl md:text-3xl tracking-widest uppercase mb-8 md:mb-12">Fidelidade</span>
 
-            <!-- TELA 2: CADASTRO -->
-            <div id="totem-tela-cadastro" class="hidden w-full flex flex-col items-center text-center transition-all animate-fade-in">
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-amber-400 mb-4">Que bom ter você aqui! 💛</h2>
-                <p class="text-gray-300 text-xl md:text-2xl mb-10 max-w-2xl leading-relaxed">Ainda não encontramos seu cadastro. Leva menos de 1 minuto para participar do Clube de Fidelidade.</p>
+                <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-6 tracking-wide uppercase flex items-center gap-3 text-center">
+                    <i data-lucide="star" class="w-8 h-8 fill-amber-400"></i> Avalie e Ganhe!
+                </h3>
                 
-                <form id="totem-form" onsubmit="window.vkb && window.vkb.hide(); totemSalvarCadastro(event)" class="w-full max-w-2xl space-y-6">
-                    <input type="tel" inputmode="none" id="totem-cad-cpf" readonly class="w-full bg-white/5 border border-white/10 text-gray-500 px-6 py-5 rounded-[2rem] font-mono text-2xl text-center cursor-not-allowed">
-                    <input type="text" inputmode="none" autocomplete="off" id="totem-cad-nome" required placeholder="Nome completo" oninput="formatarNomeInlines(this)" class="w-full bg-white text-black px-6 py-5 rounded-[2rem] text-2xl text-center focus:outline-none focus:ring-[6px] focus:ring-amber-400/50 placeholder-gray-400 shadow-xl transition-all">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <input type="tel" inputmode="none" autocomplete="off" id="totem-cad-nasc" required placeholder="Data de Nasc. (DD/MM/AAAA)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-5 rounded-[2rem] text-xl text-center focus:outline-none focus:ring-[6px] focus:ring-amber-400/50 placeholder-gray-400 shadow-xl font-mono transition-all">
-                        <input type="tel" inputmode="none" autocomplete="off" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-5 rounded-[2rem] text-xl text-center focus:outline-none focus:ring-[6px] focus:ring-amber-400/50 placeholder-gray-400 shadow-xl font-mono transition-all">
-                    </div>
-                    
-                    <div class="flex flex-col-reverse md:flex-row gap-6 mt-10">
-                        <button type="button" onclick="totemVoltarInicio()" class="w-full md:w-1/3 bg-transparent border-4 border-white/20 text-white font-bold text-2xl py-6 rounded-[2rem] shadow-xl active:scale-95 transition-all hover:bg-white/10">Voltar</button>
-                        <button type="submit" id="btn-totem-salvar" class="w-full md:w-2/3 bg-amber-400 text-black font-black text-2xl py-6 rounded-[2rem] shadow-[0_0_40px_rgba(251,191,36,0.3)] active:scale-95 transition-transform disabled:opacity-50"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- TELA 3: OPÇÕES DE PRÊMIO -->
-            <div id="totem-tela-opcoes" class="hidden w-full flex flex-col items-center text-center transition-all animate-fade-in pb-12">
-                <div class="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-amber-300 to-amber-500 text-black rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_60px_rgba(251,191,36,0.4)]">
-                    <i data-lucide="gift" class="w-16 h-16 md:w-20 md:h-20"></i>
+                <div class="bg-white p-4 rounded-3xl mb-6 shadow-[0_0_40px_rgba(255,255,255,0.15)]">
+                    <img src="./qrcode.png" alt="QR Code" class="w-32 h-32 md:w-48 md:h-48 object-contain rounded-xl">
                 </div>
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6">Seu desconto está disponível! 🎁</h2>
-                <p class="text-gray-300 text-2xl md:text-3xl mb-12 leading-relaxed max-w-2xl">Você tem um benefício de <strong class="text-amber-400 text-3xl md:text-4xl font-black block mt-2">R$ 50,00</strong> esperando por você. O que deseja fazer hoje?</p>
                 
-                <div class="flex flex-col w-full max-w-lg gap-6">
-                    <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-amber-400 text-black font-black text-2xl md:text-3xl py-6 md:py-8 rounded-[2rem] shadow-[0_0_40px_rgba(251,191,36,0.3)] active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-4">
-                        🟡 Usar desconto
-                    </button>
-                    <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-transparent border-4 border-white/20 text-white font-bold text-xl md:text-2xl py-6 md:py-8 rounded-[2rem] active:scale-95 transition-all hover:bg-white/10 disabled:opacity-50 flex items-center justify-center gap-4">
-                        ⚫ Guardar para outra visita
+                <p class="text-gray-300 text-lg md:text-xl text-center leading-relaxed px-4">
+                    Avalie nosso atendimento e ganhe um <strong class="text-white">bombom especial</strong>.
+                </p>
+                <p class="text-gray-500 text-sm mt-6 uppercase tracking-widest font-bold hidden md:block">Aponte a câmera do celular</p>
+            </div>
+
+            <div class="w-full md:w-3/5 flex flex-col items-center justify-center p-6 md:p-12 relative overflow-y-auto" id="totem-dynamic-area">
+                
+                <div id="totem-tela-busca" class="w-full max-w-lg text-center transition-all">
+                    <h1 class="text-4xl md:text-5xl font-black text-white mb-4">Seja bem-vindo(a)</h1>
+                    <p class="text-gray-400 mb-10 text-xl md:text-2xl">Olá! Insira seu CPF para registrar seu almoço de hoje.</p>
+                    <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full bg-white text-black text-center text-4xl md:text-5xl py-6 rounded-2xl focus:outline-none focus:ring-8 focus:ring-gray-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-400">
+                    <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full bg-white text-black font-black text-2xl md:text-3xl py-6 rounded-2xl shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-transform disabled:opacity-50">
+                        <span id="btn-totem-avancar-text">Avançar</span>
                     </button>
                 </div>
-            </div>
 
-            <!-- TELA 4: MENSAGEM FINAL (E AVALIAÇÃO) -->
-            <div id="totem-tela-mensagem" class="hidden w-full flex flex-col items-center text-center transition-all animate-fade-in pb-48">
-                <div id="totem-icone-msg" class="w-20 h-20 md:w-28 md:h-28 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_40px_rgba(255,255,255,0.2)] bg-white text-black"></div>
-                <h2 id="totem-titulo-msg" class="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-tight"></h2>
-                <p id="totem-texto-msg" class="text-gray-300 text-xl md:text-2xl leading-relaxed max-w-3xl mb-6"></p>
-                
-                <!-- BLOCO QR CODE AVALIAÇÃO (Aparece no final do fluxo) -->
-                <div id="totem-bloco-avaliacao" class="w-full max-w-2xl bg-white/5 border border-white/10 rounded-[2.5rem] p-6 flex-col items-center mt-10">
-                    <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-2">Obrigado pela sua visita! 💛</h3>
-                    <p class="text-gray-300 text-lg md:text-xl mb-4 leading-relaxed">Gostou da experiência? Aponte a câmera para o QR Code e deixe sua avaliação. Sua opinião nos ajuda a melhorar todos os dias.</p>
-                    <div class="bg-white p-4 rounded-[1.5rem] shadow-[0_0_40px_rgba(255,255,255,0.1)] inline-block">
-                        <img src="./qrcode.png" alt="QR Code Avaliação" class="w-40 h-40 md:w-48 md:h-48 object-contain rounded-xl">
+                <div id="totem-tela-cadastro" class="hidden w-full max-w-2xl text-center transition-all">
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-2">Primeira vez aqui?</h2>
+                    <p class="text-gray-400 text-xl md:text-2xl mb-10">Preencha rapidamente para participar do clube.</p>
+                    <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full space-y-4 md:space-y-6">
+                        <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="w-full bg-gray-800 border-2 border-gray-700 text-gray-400 px-6 py-4 md:py-5 rounded-2xl font-mono text-xl md:text-2xl text-center cursor-not-allowed">
+                        <input type="text" id="totem-cad-nome" required placeholder="Nome completo" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-xl md:text-2xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-lg md:text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                            <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-4 md:py-5 rounded-2xl text-lg md:text-xl text-center focus:outline-none focus:ring-8 focus:ring-gray-400 placeholder-gray-400 shadow-xl font-mono">
+                        </div>
+                        <div class="flex gap-4 md:gap-6 mt-6 md:mt-8">
+                            <button type="button" onclick="totemVoltarInicio()" class="w-1/3 bg-gray-800 text-white font-bold text-xl md:text-2xl py-5 md:py-6 rounded-2xl shadow-xl active:scale-95 transition-transform">Voltar</button>
+                            <button type="submit" id="btn-totem-salvar" class="w-2/3 bg-white text-black font-black text-2xl md:text-3xl py-5 md:py-6 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="totem-tela-opcoes" class="hidden w-full max-w-lg text-center transition-all pb-12">
+                    <div class="w-24 h-24 md:w-32 md:h-32 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="gift" class="w-12 h-12 md:w-16 md:h-16"></i>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-4">Parabéns!</h2>
+                    <p class="text-gray-300 text-xl md:text-2xl mb-2">Você possui um benefício de</p>
+                    <strong class="text-amber-400 text-4xl md:text-5xl font-black mb-10 block">R$ 50,00 de desconto</strong>
+                    <div class="flex flex-col gap-4 md:gap-6">
+                        <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-white text-black font-black text-2xl md:text-3xl py-6 md:py-8 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95 transition-transform disabled:opacity-50">
+                            <span id="btn-totem-resgatar-text">Resgatar agora</span>
+                        </button>
+                        <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-gray-800 border border-gray-600 text-white font-bold text-xl md:text-2xl py-6 md:py-8 rounded-2xl active:scale-95 transition-transform shadow-xl disabled:opacity-50">
+                            <span id="btn-totem-acumular-text">Guardar para outra visita</span>
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- BARRA INFERIOR / TIMER -->
-            <div id="totem-bottom-bar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-3xl flex flex-col items-center z-50">
-                <p id="totem-texto-sessao" class="text-gray-300 text-lg md:text-xl mb-4 bg-black/80 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 shadow-xl">Atendimento finalizado. Esta tela voltará ao início em <span id="totem-timer-count" class="font-bold text-white text-2xl mx-1">10</span> s.</p>
-                <div class="w-full bg-white/10 h-3 rounded-full overflow-hidden border border-white/5 shadow-inner">
-                    <div id="totem-loading-bar" class="bg-amber-400 h-full w-full"></div>
+                <div id="totem-tela-mensagem" class="hidden w-full max-w-xl text-center transition-all pb-24 pt-8">
+                    <div id="totem-icone-msg" class="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.3)] bg-white text-black"></div>
+                    <h2 id="totem-titulo-msg" class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight"></h2>
+                    <p id="totem-texto-msg" class="text-gray-300 text-2xl md:text-3xl leading-relaxed"></p>
                 </div>
-            </div>
+                
+                <div id="totem-bottom-bar" class="hidden absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 w-[90%] md:w-3/4 flex flex-col items-center">
+                    <p id="totem-texto-sessao" class="text-gray-400 text-base md:text-lg mb-4">Sua sessão terminará em <span id="totem-timer-count" class="font-bold text-white">10</span> segundos.</p>
+                    <button onclick="totemVoltarInicio()" class="mb-4 md:mb-6 px-8 md:px-10 py-3 bg-gray-800 text-white text-base md:text-lg font-bold rounded-2xl border border-gray-600 transition-all shadow-xl hover:bg-gray-700">Finalizar atendimento</button>
+                    <div class="w-full bg-gray-900 h-2 md:h-3 rounded-full overflow-hidden border border-gray-800">
+                        <div id="totem-loading-bar" class="bg-white h-full w-full"></div>
+                    </div>
+                </div>
 
-        </div>
-        
-        <!-- ==========================================================================
-             TECLADO VIRTUAL DO TOTEM
-             ========================================================================== -->
-        <div id="virtual-keyboard" class="fixed bottom-0 left-0 w-full bg-black border-t border-[#232323] shadow-[0_-20px_60px_rgba(0,0,0,0.9)] z-[999] transition-transform duration-150 ease-out transform translate-y-full flex flex-col pb-[env(safe-area-inset-bottom)] rounded-t-[2rem]">
-            <div id="vkb-container-inner" class="p-4 md:p-6 w-full flex justify-center mt-4">
-                <!-- Gerado por JS para economizar dezenas de linhas de HTML -->
             </div>
         </div>
-        
-        <!-- Modal Saída Totem (Mantido e re-estilizado) -->
-        <div id="modal-totem-saida" tabindex="-1" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[1000]">
-            <div class="bg-gray-900 rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center border border-gray-800 overflow-y-auto max-h-[90dvh]">
-                <i data-lucide="lock" class="w-12 h-12 text-gray-500 mx-auto mb-4"></i>
-                <h3 class="text-2xl font-bold text-white mb-2">Acesso Restrito</h3>
-                <p class="text-base text-gray-400 mb-8">Insira o PIN administrativo para sair do modo totem.</p>
-                <input type="password" inputmode="numeric" id="totem-pin-input" placeholder="PIN" class="w-full px-6 py-5 bg-black border border-gray-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-white/20 text-center text-3xl font-black tracking-widest text-white mb-8 transition-all" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
-                <div class="flex flex-col gap-4">
-                    <button onclick="window.verificarPinTotem()" class="w-full py-4 bg-white hover:bg-gray-200 text-black rounded-2xl font-black text-xl transition-all shadow-lg">Desbloquear</button>
-                    <button onclick="fecharModal('modal-totem-saida')" class="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white rounded-2xl font-bold text-xl transition-all">Cancelar</button>
+
+        <div id="modal-totem-saida" tabindex="-1" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[300]">
+            <div class="bg-gray-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center border border-gray-800 overflow-y-auto max-h-[90dvh]">
+                <i data-lucide="lock" class="w-10 h-10 text-gray-500 mx-auto mb-4"></i>
+                <h3 class="text-xl font-bold text-white mb-2">Acesso Restrito</h3>
+                <p class="text-sm text-gray-400 mb-6">Insira o PIN administrativo para sair do modo totem.</p>
+                <input type="password" inputmode="numeric" id="totem-pin-input" placeholder="PIN" class="w-full px-4 py-4 bg-black border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-white text-center text-2xl font-black tracking-widest text-white mb-6" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
+                <div class="flex gap-3">
+                    <button onclick="fecharModal('modal-totem-saida')" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition">Cancelar</button>
+                    <button onclick="window.verificarPinTotem()" class="flex-1 py-3 bg-white hover:bg-gray-200 text-black rounded-xl font-bold transition">Desbloquear</button>
                 </div>
             </div>
         </div>
@@ -884,249 +737,5 @@
     <script type="module" src="./marketing.js"></script>
     <script type="module" src="./totem.js"></script>
     <script type="module" src="./dashboard.js"></script>
-
-    <!-- ==========================================================================
-         SCRIPTS INLINES EXCLUSIVOS PARA O TOTEM (Mantendo os .js intactos)
-         ========================================================================== -->
-    <script>
-        // 1. Padronização automática de escrita (CamelCase)
-        window.formatarNomeInlines = function(el) {
-            let text = el.value;
-            text = text.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
-            el.value = text;
-        };
-
-        // 2. Lógica e Instanciação do Teclado Virtual
-        document.addEventListener("DOMContentLoaded", () => {
-            const kbContainer = document.getElementById('vkb-container-inner');
-            
-            // Layout Numérico
-            const numHTML = `
-                <div id="vkb-numeric" class="hidden w-full max-w-sm flex flex-col gap-2">
-                    <div class="grid grid-cols-3 gap-2">
-                        ${[1,2,3,4,5,6,7,8,9].map(n => `<button type="button" class="vkb-key text-3xl md:text-4xl font-normal text-white bg-[#232323] active:bg-[#303030] rounded-xl py-4 transition-colors border border-[#303030]" onclick="window.vkb.press('${n}')">${n}</button>`).join('')}
-                    </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" class="vkb-key text-lg md:text-xl font-medium text-white bg-[#333333] active:bg-[#444444] rounded-xl py-4 transition-colors border border-[#444444]" onclick="window.vkb.clear()">Limpar</button>
-                        <button type="button" class="vkb-key text-3xl md:text-4xl font-normal text-white bg-[#232323] active:bg-[#303030] rounded-xl py-4 transition-colors border border-[#303030]" onclick="window.vkb.press('0')">0</button>
-                        <button type="button" class="vkb-key text-lg md:text-xl font-medium text-white bg-[#333333] active:bg-[#444444] rounded-xl py-4 transition-colors border border-[#444444]" onclick="window.vkb.press('BACKSPACE')">Apagar</button>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2 mt-1">
-                        <button type="button" class="vkb-key w-full text-xl font-semibold text-black bg-gray-300 active:bg-gray-400 rounded-xl py-4 transition-colors" onclick="window.vkb.confirm()">Confirmar</button>
-                    </div>
-                </div>
-            `;
-            
-            // Layout Alfanumérico
-            const rows = [
-                ['Q','W','E','R','T','Y','U','I','O','P'],
-                ['A','S','D','F','G','H','J','K','L'],
-                ['Z','X','C','V','B','N','M']
-            ];
-            
-            let alphaHTML = `<div id="vkb-alpha" class="hidden w-full max-w-4xl flex flex-col gap-2">`;
-            rows.forEach((row, i) => {
-                let padding = i === 1 ? 'px-4 md:px-10' : (i === 2 ? 'px-10 md:px-20' : '');
-                alphaHTML += `<div class="flex justify-center gap-1.5 md:gap-2 ${padding}">`;
-                row.forEach(char => {
-                    alphaHTML += `<button type="button" class="vkb-key flex-1 text-2xl md:text-3xl font-normal text-white bg-[#232323] active:bg-[#303030] rounded-lg md:rounded-xl py-4 transition-colors border border-[#303030]" onclick="window.vkb.press('${char}')">${char}</button>`;
-                });
-                alphaHTML += `</div>`;
-            });
-            alphaHTML += `
-                <div class="flex justify-center gap-1.5 md:gap-2 mt-1">
-                    <button type="button" class="vkb-key flex items-center justify-center text-white bg-[#333333] active:bg-[#444444] rounded-lg md:rounded-xl py-4 px-4 md:px-8 transition-colors font-medium border border-[#444444]" onclick="window.vkb.press('BACKSPACE')">
-                        Apagar
-                    </button>
-                    <button type="button" class="vkb-key flex-[3] text-xl md:text-2xl font-normal text-white bg-[#232323] active:bg-[#303030] rounded-lg md:rounded-xl py-4 transition-colors border border-[#303030]" onclick="window.vkb.press('SPACE')">Espaço</button>
-                    <button type="button" class="vkb-key flex-[1.5] text-xl md:text-2xl font-semibold text-black bg-gray-300 active:bg-gray-400 rounded-lg md:rounded-xl py-4 transition-colors" onclick="window.vkb.confirm()">Confirmar</button>
-                </div>
-            </div>`;
-
-            kbContainer.innerHTML = numHTML + alphaHTML;
-
-            window.vkb = {
-                activeInput: null,
-                init() {
-                    const inputs = document.querySelectorAll('#tela-totem input[inputmode="none"]');
-                    inputs.forEach(input => {
-                        input.addEventListener('focus', (e) => this.show(e.target));
-                        input.addEventListener('touchstart', (e) => { e.preventDefault(); this.show(e.target); });
-                    });
-                },
-                show(input) {
-                    this.activeInput = input;
-                    const kb = document.getElementById('virtual-keyboard');
-                    kb.classList.remove('translate-y-full');
-                    
-                    if (input.id === 'totem-cad-nome') {
-                        document.getElementById('vkb-numeric').classList.add('hidden');
-                        document.getElementById('vkb-alpha').classList.remove('hidden');
-                    } else {
-                        document.getElementById('vkb-alpha').classList.add('hidden');
-                        document.getElementById('vkb-numeric').classList.remove('hidden');
-                    }
-                    
-                    setTimeout(() => {
-                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                },
-                hide() {
-                    this.activeInput = null;
-                    document.getElementById('virtual-keyboard').classList.add('translate-y-full');
-                },
-                clear() {
-                    if (!this.activeInput) return;
-                    this.activeInput.value = '';
-                    this.activeInput.dispatchEvent(new Event('input', { bubbles: true }));
-                },
-                press(key) {
-                    if (!this.activeInput) return;
-                    let val = this.activeInput.value;
-                    
-                    if (key === 'BACKSPACE') {
-                        val = val.slice(0, -1);
-                    } else if (key === 'SPACE') {
-                        val += ' ';
-                    } else {
-                        // Respeita limite máximo
-                        if(this.activeInput.maxLength && this.activeInput.maxLength > 0 && val.length >= this.activeInput.maxLength) return;
-                        val += key;
-                    }
-                    
-                    this.activeInput.value = val;
-                    this.activeInput.dispatchEvent(new Event('input', { bubbles: true }));
-                },
-                confirm() {
-                    if (this.activeInput) {
-                        this.activeInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-                        this.activeInput.blur();
-                    }
-                    this.hide();
-                }
-            };
-            
-            // Inicializa eventos do teclado apenas quando tudo estiver pronto
-            setTimeout(() => window.vkb.init(), 1000);
-        });
-    </script>
-
-    <script type="module">
-        // 3. Sobrescrita de Fluxo e Mensagens do Totem (Sobrescrevendo a função exportada/anexada globalmente pelo totem.js)
-        // Isso nos permite alterar os textos, o fluxo final e inserir a Avaliação (QR Code) sem tocar no totem.js.
-        
-        setTimeout(() => {
-            const originalTotemMostrarMensagem = window.totemMostrarMensagem;
-            if(!originalTotemMostrarMensagem) return; // Segurança
-
-            window.totemMostrarMensagem = (tipo) => {
-                if (window.vkb) window.vkb.hide();
-                clearTimeout(window.timerInatividade);
-                clearInterval(window.intervaloContagemTotem);
-                
-                ['totem-tela-busca', 'totem-tela-cadastro', 'totem-tela-opcoes'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if(el) el.classList.add('hidden');
-                });
-                
-                const ic = document.getElementById('totem-icone-msg');
-                const ti = document.getElementById('totem-titulo-msg');
-                const te = document.getElementById('totem-texto-msg');
-                const lb = document.getElementById('totem-loading-bar');
-                const counterEl = document.getElementById('totem-timer-count');
-                const qrBloco = document.getElementById('totem-bloco-avaliacao');
-                
-                if(lb) lb.classList.remove('animate-shrink'); 
-                
-                let tempo = 25000; // Tempo padrão aumentado para permitir leitura e scan do QR
-                const nomeC = window.totemClienteTemp && window.totemClienteTemp.nome ? window.escapeHTML(window.totemClienteTemp.nome.split(' ')[0]) : '';
-                const cliente = window.totemClienteTemp;
-
-                // QR Code visível por padrão nas telas de sucesso
-                if(qrBloco) {
-                    qrBloco.classList.remove('hidden');
-                    qrBloco.classList.add('flex');
-                }
-
-                // Aplicação das novas cópias estritas solicitadas
-                if(tipo === 'erro_cpf') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="x" class="w-16 h-16 text-red-500"></i>`; 
-                    if(ti) ti.innerText = "CPF não encontrado."; 
-                    if(te) te.innerText = "Confira os números digitados e tente novamente."; 
-                    if(qrBloco) { qrBloco.classList.add('hidden'); qrBloco.classList.remove('flex'); }
-                    tempo = 6000; 
-                } else if(tipo === 'ja_registrado') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="check-check" class="w-16 h-16 text-green-500"></i>`; 
-                    if(ti) ti.innerText = `Tudo certo, ${nomeC}!`; 
-                    if(te) te.innerText = "Seu almoço de hoje já foi contabilizado com sucesso."; 
-                } else if(tipo === 'aviso_caixa') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="check-circle" class="w-16 h-16 text-green-500"></i>`; 
-                    if(ti) ti.innerText = "Desconto solicitado! ✅"; 
-                    if(te) te.innerHTML = `Informe ao caixa que você escolheu utilizar seu benefício.<br><br>Obrigado pela sua visita e até a próxima! 💛`;
-                } else if(tipo === 'cadastro_sucesso') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="party-popper" class="w-16 h-16 text-amber-400"></i>`; 
-                    if(ti) ti.innerText = `Cadastro realizado! 🎉`; 
-                    if(te) te.innerHTML = `Seu primeiro almoço já foi registrado.<br><br>A partir de agora, cada visita aproxima você do seu desconto de R$ 50,00.`; 
-                } else if(tipo === 'sucesso_acumulo') { 
-                    // Regra para distinguir "Almoço registrado" comum vs "Benefício guardado"
-                    if (cliente && cliente.almocos > 10 && (cliente.almocos % 10 === 1)) {
-                        // Usuário acabou de clicar em "Guardar" no 10º almoço (agora tem 11)
-                        if(ic) ic.innerHTML = `<i data-lucide="heart" class="w-16 h-16 text-amber-400"></i>`; 
-                        if(ti) ti.innerText = `Benefício guardado! 💛`; 
-                        if(te) te.innerHTML = `Seu desconto continuará disponível para quando você quiser usar.<br><br>Obrigado pela sua visita. Até a próxima! 👋`;
-                    } else {
-                        // Almoço comum
-                        if(ic) ic.innerHTML = `<i data-lucide="utensils" class="w-16 h-16 text-amber-400"></i>`; 
-                        if(ti) ti.innerText = `Almoço registrado! 🍽️`; 
-                        let qtd = cliente ? cliente.almocos : 1;
-                        let faltam = 10 - (qtd % 10);
-                        if (faltam === 10) faltam = 0; // se acabou de registrar o 10, cairia no meta_atingida.
-                        if(te) te.innerHTML = `Obrigado por escolher a Top Haus mais uma vez, ${nomeC}.<br><br>Você já acumulou <strong>${qtd}</strong> almoço(s).<br>Faltam apenas <strong>${faltam}</strong> para conquistar seu desconto de R$ 50,00.`;
-                    }
-                } else if(tipo === 'meta_atingida') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="award" class="w-16 h-16 text-amber-400"></i>`; 
-                    if(ti) ti.innerText = `Parabéns, ${nomeC}! 🎉`; 
-                    if(te) te.innerHTML = `Você acaba de conquistar seu benefício de R$ 50,00.<br><br>Na sua próxima visita, o desconto estará disponível para ser utilizado ou, se preferir, poderá continuar guardado.`; 
-                } else if(tipo === 'aniversario_totem') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="cake" class="w-16 h-16 text-amber-400"></i>`; 
-                    if(ti) ti.innerText = `Feliz aniversário! 🎂`; 
-                    if(te) te.innerHTML = `Toda a equipe da Top Haus deseja um dia muito especial para você.<br><br>Consulte o caixa para receber seu benefício de aniversário.`; 
-                }
-
-                const tMsg = document.getElementById('totem-tela-mensagem');
-                const tBot = document.getElementById('totem-bottom-bar');
-                if(tMsg) tMsg.classList.remove('hidden'); 
-                if(tBot) {
-                    tBot.classList.remove('hidden');
-                    tBot.classList.add('flex');
-                }
-                
-                if(window.lucide) window.lucide.createIcons(); 
-                
-                if(lb) {
-                    void lb.offsetWidth; 
-                    lb.style.animationDuration = `${tempo}ms`; 
-                    lb.classList.add('animate-shrink');
-                }
-                
-                let segundosRestantes = Math.floor(tempo / 1000);
-                if(counterEl) counterEl.innerText = segundosRestantes;
-                
-                window.intervaloContagemTotem = setInterval(() => {
-                    segundosRestantes--;
-                    if(counterEl) counterEl.innerText = Math.max(0, segundosRestantes);
-                    if(segundosRestantes <= 0) {
-                        clearInterval(window.intervaloContagemTotem);
-                    }
-                }, 1000);
-                
-                clearTimeout(window.timeoutTotemMsg); 
-                window.timeoutTotemMsg = setTimeout(() => {
-                    if (window.vkb) window.vkb.hide();
-                    window.totemVoltarInicio();
-                }, tempo);
-            };
-        }, 1500); // Aguarda carregamento total do módulo principal antes de sobrescrever
-    </script>
 </body>
 </html>
