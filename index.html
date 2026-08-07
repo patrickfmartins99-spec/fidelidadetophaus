@@ -18,9 +18,6 @@
             margin: 0; 
         }
 
-        /* Padronização de botões para não fazer highlight no toque mobile */
-        * { -webkit-tap-highlight-color: transparent; }
-
         /* ==========================================================================
            PRINT
            ========================================================================== */
@@ -49,12 +46,18 @@
         }
 
         @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(15px); } 
+            from { opacity: 0; transform: translateY(10px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
         .animate-fade-in { 
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+            animation: fadeIn 0.5s ease-out forwards; 
         }
+
+        @keyframes totem-fade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes totem-slide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes totem-scale { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes totem-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes totem-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
         /* ==========================================================================
            TOKENS (Design System)
@@ -91,19 +94,84 @@
 
             --transition-fast: 150ms ease;
             --transition-base: 250ms ease;
+
+            /* Tokens do Totem (mantidos) */
+            --totem-bg: #000000;
+            --totem-surface: #111827;
+            --totem-surface-alt: #1F2937;
+            --totem-primary: #ffffff;
+            --totem-primary-hover: #f3f4f6;
+            --totem-text: #ffffff;
+            --totem-text-muted: #9ca3af;
+            --totem-success: #10b981;
+            --totem-warning: #fbbf24;
+            --totem-danger: #ef4444;
+            --totem-radius-sm: 0.5rem;
+            --totem-radius-md: 1rem;
+            --totem-radius-lg: 1.5rem;
+            --totem-radius-xl: 2rem;
+            --totem-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --totem-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --totem-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --totem-shadow-glow: 0 0 40px rgba(255, 255, 255, 0.15);
+            --totem-text-display: clamp(2.5rem, 5vw, 4rem);
+            --totem-text-headline: clamp(2rem, 4vw, 3rem);
+            --totem-text-title: clamp(1.5rem, 3vw, 2.5rem);
+            --totem-text-body: clamp(1rem, 2vw, 1.25rem);
+            --totem-text-caption: clamp(0.875rem, 1.5vw, 1rem);
+            --totem-text-button: clamp(1.25rem, 2.5vw, 1.75rem);
+            --totem-space-1: 0.25rem;
+            --totem-space-2: 0.5rem;
+            --totem-space-3: 1rem;
+            --totem-space-4: 1.5rem;
+            --totem-space-5: 2rem;
+            --totem-space-6: 3rem;
+            --totem-space-7: 4rem;
+            --totem-space-8: 6rem;
+            --totem-z-base: 10;
+            --totem-z-content: 20;
+            --totem-z-footer: 30;
+            --totem-z-overlay: 100;
+            --totem-z-modal: 200;
+            --totem-z-toast: 300;
+            --totem-z-loading: 400;
+            --totem-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --totem-transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --totem-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* ==========================================================================
-           COMPONENTES ADMIN (Preservados do original)
+           COMPONENTES (estilos próprios, aplicados via classes)
            ========================================================================== */
-        .card { background: var(--color-surface); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--color-border); padding: 1.5rem; transition: box-shadow var(--transition-base); }
+        .card {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+            padding: 1.5rem;
+            transition: box-shadow var(--transition-base);
+        }
         .card:hover { box-shadow: var(--shadow-md); }
         .card-sm { padding: 0.75rem; }
         .card-flat { box-shadow: none; border-color: var(--color-border); }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 48px; padding: 0.5rem 1.25rem; border-radius: var(--radius-lg); font-weight: 700; transition: all var(--transition-fast); cursor: pointer; border: none; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 48px;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            border: none;
+        }
         .btn:hover:not(:disabled) { transform: scale(1.02); }
         .btn:active:not(:disabled) { transform: scale(0.97); }
         .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
         .btn-primary { background: var(--color-primary); color: white; }
         .btn-primary:hover { background: var(--color-primary-hover); }
         .btn-accent { background: var(--color-accent); color: white; }
@@ -117,11 +185,35 @@
         .btn-outline:hover { background: var(--color-surface-alt); }
         .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.75rem; min-height: 32px; }
         .btn-block { width: 100%; }
-        .input { width: 100%; padding: 0.75rem 1rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 1rem; text-align: center; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); min-height: 48px; }
-        .input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(15,23,42,0.1); outline: none; }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--color-surface-alt);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            text-align: center;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            min-height: 48px;
+        }
+        .input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(15,23,42,0.1);
+            outline: none;
+        }
         .input::placeholder { color: #94a3b8; }
         .input-sm { padding: 0.25rem 0.5rem; min-height: 36px; font-size: 0.875rem; }
-        .badge { display: inline-block; padding: 0.2rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
         .badge-primary { background: var(--color-primary); color: white; }
         .badge-accent { background: var(--color-accent); color: white; }
         .badge-success { background: var(--color-success); color: white; }
@@ -129,21 +221,80 @@
         .badge-warning { background: var(--color-warning); color: var(--color-primary); }
         .badge-muted { background: var(--color-surface-alt); color: var(--color-text-muted); }
 
-        #app-dashboard { background: var(--color-bg); min-height: 100dvh; }
-        #app-dashboard header { background: var(--color-primary); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.5rem 1rem; }
+        /* ==========================================================================
+           ESCOPO: #app-dashboard
+           ========================================================================== */
+        #app-dashboard {
+            background: var(--color-bg);
+            min-height: 100dvh;
+        }
+
+        /* --- Header (preto, compacto) --- */
+        #app-dashboard header {
+            background: var(--color-primary);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0.5rem 1rem;
+        }
         #app-dashboard header .text-muted { color: rgba(255,255,255,0.5); }
         #app-dashboard header .badge-user { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
         #app-dashboard header .badge-unidade { background: #1e293b; border: 1px solid #475569; color: #94a3b8; }
-        #app-dashboard .aba-btn { transition: all var(--transition-fast); }
-        #app-dashboard .aba-btn.active { background: white; color: var(--color-primary); box-shadow: var(--shadow-sm); }
-        #app-dashboard .aba-btn:not(.active) { color: rgba(255,255,255,0.7); }
-        #app-dashboard .aba-btn:not(.active):hover { background: rgba(255,255,255,0.1); color: white; }
-        #app-dashboard .btn-totem { background: var(--color-accent); color: white; min-height: 40px; padding: 0.25rem 1rem; font-size: 0.875rem; }
+
+        /* --- Abas --- */
+        #app-dashboard .aba-btn {
+            transition: all var(--transition-fast);
+        }
+        #app-dashboard .aba-btn.active {
+            background: white;
+            color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        #app-dashboard .aba-btn:not(.active) {
+            color: rgba(255,255,255,0.7);
+        }
+        #app-dashboard .aba-btn:not(.active):hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        /* --- Botões Totem/Logout --- */
+        #app-dashboard .btn-totem {
+            background: var(--color-accent);
+            color: white;
+            min-height: 40px;
+            padding: 0.25rem 1rem;
+            font-size: 0.875rem;
+        }
         #app-dashboard .btn-totem:hover { background: #4338ca; }
-        #app-dashboard .btn-logout { background: var(--color-danger); color: white; min-height: 40px; padding: 0.25rem 1rem; font-size: 0.875rem; }
+        #app-dashboard .btn-logout {
+            background: var(--color-danger);
+            color: white;
+            min-height: 40px;
+            padding: 0.25rem 1rem;
+            font-size: 0.875rem;
+        }
         #app-dashboard .btn-logout:hover { background: var(--color-red); }
-        #app-dashboard #painel-gestao { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        #app-dashboard #painel-gestao .btn-gestao { background: var(--color-surface-alt); color: var(--color-text); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem; transition: all var(--transition-fast); min-height: 32px; flex: 1 0 calc(50% - 0.5rem); justify-content: center; }
+
+        /* --- Painel de Gestão (duas colunas em mobile) --- */
+        #app-dashboard #painel-gestao {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        #app-dashboard #painel-gestao .btn-gestao {
+            background: var(--color-surface-alt);
+            color: var(--color-text);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all var(--transition-fast);
+            min-height: 32px;
+            flex: 1 0 calc(50% - 0.5rem);
+            justify-content: center;
+        }
         #app-dashboard #painel-gestao .btn-gestao:hover { background: var(--color-border); }
         #app-dashboard #painel-gestao .btn-mesclar { background: #f3e8ff; color: var(--color-purple); }
         #app-dashboard #painel-gestao .btn-mesclar:hover { background: #e9d5ff; }
@@ -153,38 +304,130 @@
         #app-dashboard #painel-gestao .btn-simulacao:hover { background: #fed7aa; }
         #app-dashboard #painel-gestao .btn-reset { background: #fee2e2; color: var(--color-danger); }
         #app-dashboard #painel-gestao .btn-reset:hover { background: #fecaca; }
-        #app-dashboard .metric-card { padding: 0.75rem 1rem; }
-        #app-dashboard .metric-card .value { font-size: 1.5rem; font-weight: 900; color: var(--color-primary); }
-        #app-dashboard .metric-card .label { color: var(--color-text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
-        #app-dashboard #tabela-clientes thead { background: var(--color-surface-alt); color: var(--color-text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--color-border); }
-        #app-dashboard #tabela-clientes tbody tr:hover { background: var(--color-surface-alt); }
-        #menu-toggle { display: none; }
-        .menu-label { display: none; font-size: 1.5rem; color: white; cursor: pointer; padding: 0.2rem 0.5rem; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
-        .menu-label:hover { background: rgba(255,255,255,0.1); }
 
+        /* --- Métricas (cards compactos) --- */
+        #app-dashboard .metric-card {
+            padding: 0.75rem 1rem;
+        }
+        #app-dashboard .metric-card .value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--color-primary);
+        }
+        #app-dashboard .metric-card .label {
+            color: var(--color-text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        /* --- Tabela --- */
+        #app-dashboard #tabela-clientes thead {
+            background: var(--color-surface-alt);
+            color: var(--color-text-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--color-border);
+        }
+        #app-dashboard #tabela-clientes tbody tr:hover {
+            background: var(--color-surface-alt);
+        }
+
+        /* --- Drawer mobile (checkbox) --- */
+        #menu-toggle { display: none; }
+        .menu-label {
+            display: none;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            transition: background var(--transition-fast);
+        }
+        .menu-label:hover { background: rgba(255,255,255,0.1); }
         @media (max-width: 640px) {
             .menu-label { display: inline-block; }
-            .app-nav { display: none; flex-direction: column; width: 100%; padding: 0.75rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); gap: 0.25rem; }
-            .app-nav .aba-btn { justify-content: center; width: 100%; color: var(--color-text); font-size: 0.875rem; padding: 0.4rem 0.75rem; min-height: 36px; }
-            .app-nav .aba-btn.active { background: var(--color-primary); color: white; }
-            #menu-toggle:checked ~ .app-nav { display: flex; }
+            .app-nav {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                padding: 0.75rem;
+                background: var(--color-surface);
+                border-bottom: 1px solid var(--color-border);
+                gap: 0.25rem;
+            }
+            .app-nav .aba-btn {
+                justify-content: center;
+                width: 100%;
+                color: var(--color-text);
+                font-size: 0.875rem;
+                padding: 0.4rem 0.75rem;
+                min-height: 36px;
+            }
+            .app-nav .aba-btn.active {
+                background: var(--color-primary);
+                color: white;
+            }
+            #menu-toggle:checked ~ .app-nav {
+                display: flex;
+            }
+        }
+
+        /* --- Responsividade geral --- */
+        @media (max-width: 640px) {
             #app-dashboard header .max-w-7xl { gap: 0.25rem; }
             #app-dashboard header .flex.items-center.gap-3 { gap: 0.25rem; }
             #app-dashboard header .h-10.w-auto { height: 32px; }
             #app-dashboard header .text-lg { font-size: 0.875rem; }
-            #app-dashboard header .badge-user, #app-dashboard header .badge-unidade { font-size: 0.6rem; padding: 0.1rem 0.5rem; }
+            #app-dashboard header .badge-user,
+            #app-dashboard header .badge-unidade {
+                font-size: 0.6rem;
+                padding: 0.1rem 0.5rem;
+            }
             #app-dashboard header .menu-label { font-size: 1.25rem; }
             #app-dashboard header .header-actions { display: flex; align-items: center; gap: 0.25rem; }
-            #app-dashboard header .header-actions .btn-totem, #app-dashboard header .header-actions .btn-logout { min-height: 32px; padding: 0.15rem 0.6rem; font-size: 0.75rem; }
+            #app-dashboard header .header-actions .btn-totem,
+            #app-dashboard header .header-actions .btn-logout {
+                min-height: 32px;
+                padding: 0.15rem 0.6rem;
+                font-size: 0.75rem;
+            }
             #app-dashboard header .header-actions .btn-totem span { display: none; }
-            #app-dashboard #painel-gestao .btn-gestao { flex: 1 0 calc(50% - 0.25rem); font-size: 0.7rem; padding: 0.15rem 0.5rem; min-height: 28px; }
+            #app-dashboard #painel-gestao .btn-gestao {
+                flex: 1 0 calc(50% - 0.25rem);
+                font-size: 0.7rem;
+                padding: 0.15rem 0.5rem;
+                min-height: 28px;
+            }
             #app-dashboard .metricas-grid { grid-template-columns: 1fr !important; }
             #app-dashboard .metric-card { padding: 0.5rem 0.75rem; }
             #app-dashboard .metric-card .value { font-size: 1.25rem; }
             #app-dashboard #tabela-clientes thead { display: none; }
-            #app-dashboard #tabela-clientes tbody tr { display: block; margin-bottom: 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.5rem; background: var(--color-surface); }
-            #app-dashboard #tabela-clientes tbody td { display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; border: none; gap: 0.25rem; font-size: 0.8rem; }
-            #app-dashboard #tabela-clientes tbody td::before { font-weight: 700; color: var(--color-text-muted); font-size: 0.65rem; text-transform: uppercase; }
+            #app-dashboard #tabela-clientes tbody tr {
+                display: block;
+                margin-bottom: 0.75rem;
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-md);
+                padding: 0.5rem;
+                background: var(--color-surface);
+            }
+            #app-dashboard #tabela-clientes tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.25rem 0;
+                border: none;
+                gap: 0.25rem;
+                font-size: 0.8rem;
+            }
+            #app-dashboard #tabela-clientes tbody td::before {
+                font-weight: 700;
+                color: var(--color-text-muted);
+                font-size: 0.65rem;
+                text-transform: uppercase;
+            }
             #app-dashboard #tabela-clientes tbody td:nth-child(1)::before { content: "Nome"; }
             #app-dashboard #tabela-clientes tbody td:nth-child(2)::before { content: "CPF / WhatsApp"; }
             #app-dashboard #tabela-clientes tbody td:nth-child(3)::before { content: "Acumulados"; }
@@ -193,25 +436,442 @@
             #app-dashboard #tabela-clientes tbody td:last-child { border-bottom: none; }
         }
 
-        #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+        /* ==========================================================================
+           TOTEM – NOVO LAYOUT VERTICAL
+           ========================================================================== */
+        #tela-totem {
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            width: 100%;
+            overflow: hidden;
+            font-family: var(--font-family);
+        }
+
+        /* Área superior com logo e título */
+        #totem-header {
+            flex-shrink: 0;
+            padding: 0.75rem 1rem 0.5rem;
+            text-align: center;
+            background: #000;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        #totem-header img {
+            height: clamp(3rem, 6vh, 4.5rem);
+            width: auto;
+            object-fit: contain;
+            border-radius: 1rem;
+            box-shadow: 0 0 30px rgba(255,255,255,0.05);
+            cursor: pointer;
+        }
+        #totem-header h1 {
+            color: #fff;
+            font-weight: 300;
+            font-size: clamp(1rem, 2vh, 1.5rem);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-top: 0.1rem;
+        }
+
+        /* Área de conteúdo (scrollável) */
+        #totem-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.5rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.75rem;
+        }
+
+        /* Cada tela ocupa todo o espaço disponível */
+        #totem-content > div {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            flex-shrink: 0;
+        }
+
+        /* Tela de busca */
+        #totem-tela-busca .welcome-icon {
+            font-size: clamp(2rem, 5vh, 3rem);
+            margin-bottom: 0.25rem;
+        }
+        #totem-tela-busca h2 {
+            color: #fff;
+            font-weight: 900;
+            font-size: clamp(1.8rem, 4vh, 2.8rem);
+            margin-bottom: 0.25rem;
+        }
+        #totem-tela-busca p {
+            color: #9ca3af;
+            font-size: clamp(0.95rem, 2vh, 1.3rem);
+            margin-bottom: 1.5rem;
+        }
+        #totem-cpf {
+            width: 100%;
+            background: #fff;
+            color: #000;
+            text-align: center;
+            font-size: clamp(2rem, 5vh, 3rem);
+            padding: 0.75rem 0.5rem;
+            border-radius: 1.5rem;
+            border: none;
+            outline: none;
+            font-family: monospace;
+            box-shadow: 0 0 30px rgba(255,255,255,0.2);
+            transition: box-shadow 0.2s;
+        }
+        #totem-cpf:focus {
+            box-shadow: 0 0 40px rgba(255,255,255,0.4);
+        }
+        #btn-totem-avancar {
+            width: 100%;
+            background: #fff;
+            color: #000;
+            font-weight: 900;
+            font-size: clamp(1.2rem, 3vh, 1.8rem);
+            padding: 0.9rem 0.5rem;
+            border-radius: 1.5rem;
+            border: none;
+            box-shadow: 0 0 30px rgba(255,255,255,0.25);
+            transition: transform 0.15s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        #btn-totem-avancar:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+        #btn-totem-avancar:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Tela de cadastro */
+        #totem-tela-cadastro h2 {
+            color: #fff;
+            font-weight: 900;
+            font-size: clamp(1.8rem, 4vh, 2.6rem);
+            margin-bottom: 0.1rem;
+        }
+        #totem-tela-cadastro p {
+            color: #9ca3af;
+            font-size: clamp(0.95rem, 2vh, 1.2rem);
+            margin-bottom: 1rem;
+        }
+        #totem-form .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        #totem-form input {
+            width: 100%;
+            background: #fff;
+            color: #000;
+            text-align: center;
+            font-size: clamp(1rem, 2.5vh, 1.4rem);
+            padding: 0.6rem 0.5rem;
+            border-radius: 1.25rem;
+            border: none;
+            outline: none;
+            box-shadow: 0 0 15px rgba(255,255,255,0.08);
+            transition: box-shadow 0.2s;
+        }
+        #totem-form input:focus {
+            box-shadow: 0 0 25px rgba(255,255,255,0.2);
+        }
+        #totem-form .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        #totem-form .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        #totem-form .action-buttons button {
+            flex: 1;
+            padding: 0.7rem 0.5rem;
+            border-radius: 1.25rem;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.5vh, 1.4rem);
+            border: none;
+            transition: transform 0.15s, opacity 0.2s;
+            cursor: pointer;
+        }
+        #totem-form .action-buttons button:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+        #totem-form .action-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #totem-form .btn-voltar {
+            background: #1f2937;
+            color: #fff;
+            border: 1px solid #374151;
+        }
+        #totem-form .btn-salvar {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 25px rgba(255,255,255,0.2);
+        }
+
+        /* Tela de opções (prêmio disponível) */
+        #totem-tela-opcoes .gift-icon {
+            width: clamp(4rem, 10vh, 6rem);
+            height: clamp(4rem, 10vh, 6rem);
+            background: #fff;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-size: clamp(2rem, 5vh, 3rem);
+        }
+        #totem-tela-opcoes h2 {
+            color: #fff;
+            font-weight: 900;
+            font-size: clamp(1.8rem, 4vh, 2.6rem);
+            margin-bottom: 0.1rem;
+        }
+        #totem-tela-opcoes .sub {
+            color: #9ca3af;
+            font-size: clamp(0.95rem, 2vh, 1.2rem);
+        }
+        #totem-tela-opcoes .valor {
+            color: #fbbf24;
+            font-weight: 900;
+            font-size: clamp(2.2rem, 5vh, 3.2rem);
+            display: block;
+            margin: 0.25rem 0 0.75rem;
+        }
+        #totem-tela-opcoes .btn-opcao {
+            width: 100%;
+            padding: 0.9rem 0.5rem;
+            border-radius: 1.25rem;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.5vh, 1.4rem);
+            border: none;
+            transition: transform 0.15s, opacity 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        #totem-tela-opcoes .btn-opcao:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+        #totem-tela-opcoes .btn-opcao:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #totem-tela-opcoes .btn-resgatar {
+            background: #fbbf24;
+            color: #000;
+            box-shadow: 0 0 30px rgba(251,191,36,0.3);
+        }
+        #totem-tela-opcoes .btn-guardar {
+            background: #1f2937;
+            color: #fff;
+            border: 1px solid #374151;
+        }
+
+        /* Tela de mensagem */
+        #totem-tela-mensagem {
+            text-align: center;
+            padding-bottom: 1rem;
+        }
+        #totem-tela-mensagem .msg-icon {
+            width: clamp(4rem, 10vh, 6rem);
+            height: clamp(4rem, 10vh, 6rem);
+            background: #fff;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-size: clamp(2rem, 5vh, 3rem);
+        }
+        #totem-tela-mensagem h2 {
+            color: #fff;
+            font-weight: 900;
+            font-size: clamp(1.6rem, 4vh, 2.4rem);
+            margin-bottom: 0.25rem;
+        }
+        #totem-tela-mensagem .msg-body {
+            color: #d1d5db;
+            font-size: clamp(1rem, 2.2vh, 1.3rem);
+            line-height: 1.5;
+        }
+        #totem-tela-mensagem .msg-body strong {
+            color: #fbbf24;
+        }
+        #totem-tela-mensagem .qr-area {
+            margin: 0.75rem auto 0.25rem;
+            background: #fff;
+            padding: 0.5rem;
+            border-radius: 1.5rem;
+            display: inline-block;
+            box-shadow: 0 0 30px rgba(255,255,255,0.1);
+        }
+        #totem-tela-mensagem .qr-area img {
+            width: clamp(5rem, 12vh, 8rem);
+            height: auto;
+            display: block;
+        }
+        #totem-tela-mensagem .avaliacao-texto {
+            color: #9ca3af;
+            font-size: clamp(0.85rem, 1.8vh, 1.1rem);
+            margin-top: 0.25rem;
+        }
+
+        /* Bottom bar (timer e botão finalizar) */
+        #totem-bottom-bar {
+            flex-shrink: 0;
+            padding: 0.5rem 1.5rem 0.75rem;
+            background: #000;
+            border-top: 1px solid #1a1a1a;
+            text-align: center;
+        }
+        #totem-bottom-bar p {
+            color: #6b7280;
+            font-size: clamp(0.75rem, 1.5vh, 0.95rem);
+            margin-bottom: 0.25rem;
+        }
+        #totem-bottom-bar p span {
+            color: #fff;
+            font-weight: 700;
+        }
+        #totem-bottom-bar .btn-finalizar {
+            background: #1f2937;
+            color: #fff;
+            border: 1px solid #374151;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 1.8vh, 1rem);
+            transition: background 0.2s;
+            cursor: pointer;
+            margin-bottom: 0.25rem;
+        }
+        #totem-bottom-bar .btn-finalizar:active {
+            background: #374151;
+        }
+        #totem-bottom-bar .progress-bar {
+            width: 100%;
+            height: 0.3rem;
+            background: #1f2937;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        #totem-bottom-bar .progress-bar .bar {
+            height: 100%;
+            background: #fff;
+            width: 100%;
+            border-radius: 999px;
+            animation: shrinkBar linear forwards;
+        }
 
         /* ==========================================================================
-           REGRAS EXCLUSIVAS DO TECLADO VIRTUAL DO TOTEM
+           TECLADO VIRTUAL
            ========================================================================== */
-        .vkb-key {
+        #totem-teclado {
+            flex-shrink: 0;
+            background: #0a0a0a;
+            border-top: 1px solid #1a1a1a;
+            padding: 0.5rem 0.5rem 0.75rem;
+            display: none; /* controlado por JS */
+            transition: display 0.2s;
+        }
+        #totem-teclado.visivel {
+            display: block;
+        }
+        #totem-teclado .linha {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+        #totem-teclado .linha:last-child {
+            margin-bottom: 0;
+        }
+        #totem-teclado .tecla {
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: clamp(1.2rem, 2.8vh, 1.8rem);
+            font-weight: 500;
+            padding: 0.6rem 0;
+            min-width: 2.8rem;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.1s, transform 0.1s;
+            box-shadow: 0 2px 0 #0a0a0a;
             touch-action: manipulation;
             user-select: none;
-            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        
-        /* Ajuste fino de responsividade para tablets muito curtos */
-        @media (max-height: 800px) {
-            #tela-totem .shrink-0 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-            #tela-totem .shrink-0 img { height: 4.5rem !important; margin-bottom: 0.5rem !important; }
-            #tela-totem h1, #tela-totem h2 { font-size: 2rem !important; margin-bottom: 0.5rem !important; }
-            #tela-totem p { font-size: 1.1rem !important; margin-bottom: 1rem !important; }
-            #tela-totem input { font-size: 1.5rem !important; padding: 1rem !important; min-height: unset !important; }
-            #tela-totem button { padding: 1rem !important; font-size: 1.25rem !important; }
+        #totem-teclado .tecla:active {
+            background: #2a2a2a;
+            transform: scale(0.94);
+        }
+        #totem-teclado .tecla.larga {
+            flex: 2;
+        }
+        #totem-teclado .tecla.espaco {
+            flex: 4;
+        }
+        #totem-teclado .tecla.backspace {
+            background: #2d1f1f;
+            color: #ef4444;
+        }
+        #totem-teclado .tecla.backspace:active {
+            background: #3d2f2f;
+        }
+        #totem-teclado .tecla.limpar {
+            background: #2d2d2d;
+            color: #fbbf24;
+        }
+        #totem-teclado .tecla.limpar:active {
+            background: #3d3d3d;
+        }
+        #totem-teclado .tecla.modo {
+            background: #1a2a3a;
+            color: #60a5fa;
+        }
+        #totem-teclado .tecla.modo:active {
+            background: #2a3a4a;
+        }
+
+        /* ==========================================================================
+           TOAST
+           ========================================================================== */
+        #toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           IMPRESSÃO
+           ========================================================================== */
+        @media print {
+            .no-print { display: none !important; }
+            .print-area { display: block !important; }
         }
     </style>
 </head>
@@ -344,7 +1004,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Nome completo</label>
-                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" oninput="formatarNomeInlines(this)" class="input">
+                            <input type="text" id="cad-nome" required placeholder="Ex: Patrick Martins" class="input">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">Data de nascimento</label>
@@ -458,7 +1118,7 @@
                                     <th class="py-3 px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-clientes-body" class="divide-y divide-slate-150 text-sm">
+                            <tbody id="tabela-clientes" class="divide-y divide-slate-150 text-sm">
                                 <!-- O JavaScript popula este tbody -->
                             </tbody>
                         </table>
@@ -468,16 +1128,23 @@
         </main>
 
         <!-- ============================================================
-        MODAIS DO PAINEL ADMIN E CAIXA (MANTIDOS INTACTOS)
+        MODAIS – COMPLETOS (TODOS OS MODAIS DO ORIGINAL)
         ============================================================ -->
+        
         <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
-                <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce"><i data-lucide="cake" class="w-10 h-10"></i></div>
+                <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i data-lucide="cake" class="w-10 h-10"></i>
+                </div>
                 <h3 class="text-2xl font-black text-black mb-2">Tem Aniversariante!</h3>
                 <p class="text-gray-600 mb-6" id="texto-alerta-aniversario"></p>
                 <div class="flex flex-col gap-3">
-                    <button onclick="confirmarCortesiaAniversario()" id="btn-alerta-aniversario-confirmar" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md"><i data-lucide="check-circle" class="w-5 h-5"></i> <span id="btn-alerta-aniversario-confirmar-text">Confirmar resgate</span></button>
-                    <button onclick="continuarPosAniversario()" class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">Pular e continuar</button>
+                    <button onclick="confirmarCortesiaAniversario()" id="btn-alerta-aniversario-confirmar" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition transform hover:scale-105 shadow-md">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> <span id="btn-alerta-aniversario-confirmar-text">Confirmar resgate</span>
+                    </button>
+                    <button onclick="continuarPosAniversario()" class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">
+                        Pular e continuar
+                    </button>
                 </div>
             </div>
         </div>
@@ -500,6 +1167,7 @@
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg text-center"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços.</p>
+
                 <div class="space-y-6">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem de aniversário</label>
@@ -513,6 +1181,7 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem de inatividade</label>
                         <textarea id="mkt-msg-inativo" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
                     </div>
+
                     <div class="pt-4 border-t border-gray-200 mt-4">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-indigo-600"></i> Fila de Envios e Status</h4>
@@ -522,6 +1191,7 @@
                             <p class="text-sm text-gray-500 text-center py-2">Nenhuma mensagem na fila no momento.</p>
                         </div>
                     </div>
+
                     <div class="pt-4 border-t border-gray-200 bg-indigo-50 p-4 rounded-xl mt-4">
                         <div class="flex items-center gap-2 mb-3 text-indigo-900 justify-center">
                             <i data-lucide="calendar-clock" class="w-5 h-5"></i>
@@ -535,6 +1205,7 @@
                         <button onclick="adicionarAgendamento()" class="w-full bg-indigo-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-indigo-700 transition text-sm mb-4">+ Agendar campanha</button>
                         <div id="area-agendamentos" class="space-y-3"></div>
                     </div>
+                    
                     <div class="pt-4 border-t border-gray-200">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800">Ações manuais (Envio individual)</h4>
@@ -543,6 +1214,7 @@
                         <div id="area-mensagens-custom" class="space-y-4"></div>
                     </div>
                 </div>
+
                 <div class="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-4">
                     <button onclick="fecharModal('modal-marketing')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold">Cancelar</button>
                     <button id="btn-marketing-salvar" onclick="salvarCentralMarketing()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i> <span id="btn-marketing-salvar-text">Salvar alterações</span></button>
@@ -564,7 +1236,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Nome completo</label>
-                        <input type="text" id="edit-nome" required oninput="formatarNomeInlines(this)" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 text-center">
+                        <input type="text" id="edit-nome" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 text-center">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -590,6 +1262,7 @@
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Gestão de Acessos</h3>
                     <button type="button" onclick="fecharModal('modal-usuarios')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
+                
                 <form onsubmit="criarUsuario(event)" class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6 space-y-3">
                     <h4 class="text-sm font-black text-indigo-900 uppercase tracking-widest text-center mb-2">Adicionar novo acesso</h4>
                     <input type="text" id="novo-user" required placeholder="Nome de usuário (Ex: caixa2)" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-indigo-500 text-sm font-bold text-center">
@@ -601,6 +1274,7 @@
                     </select>
                     <button type="submit" id="btn-usuarios-salvar" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 transition shadow-sm text-sm"><span id="btn-usuarios-salvar-text">Salvar cadastro</span></button>
                 </form>
+
                 <h4 class="text-sm font-black text-gray-800 uppercase mb-2 border-b border-gray-100 pb-1">Usuários ativos</h4>
                 <div id="lista-usuarios-cadastrados" class="space-y-2 max-h-48 overflow-y-auto text-sm pr-1"></div>
             </div>
@@ -619,16 +1293,23 @@
 
         <div id="modal-celebracao-10" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-amber-400">
-                <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce"><i data-lucide="award" class="w-10 h-10"></i></div>
+                <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i data-lucide="award" class="w-10 h-10"></i>
+                </div>
                 <h3 class="text-2xl font-black text-black mb-2">Parabéns!</h3>
                 <p class="text-gray-600 mb-6 text-sm">O cliente completou <strong>10 almoços</strong>.<br><br>Na próxima visita dele, o sistema informará que o prêmio de R$ 50,00 de desconto está disponível para resgate.</p>
-                <button onclick="fecharModal('modal-celebracao-10')" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition shadow-md">Entendido</button>
+                <button onclick="fecharModal('modal-celebracao-10')" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition shadow-md">
+                    Entendido
+                </button>
             </div>
         </div>
 
         <div id="modal-trava" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-black">
-                <div class="flex items-center justify-center gap-2 mb-2 text-black"><i data-lucide="alert-triangle" class="w-6 h-6"></i><h3 class="text-lg font-bold">Desconto Disponível!</h3></div>
+                <div class="flex items-center justify-center gap-2 mb-2 text-black">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                    <h3 class="text-lg font-bold">Desconto Disponível!</h3>
+                </div>
                 <p class="text-gray-600 mb-6 text-sm text-center">Este cliente já possui 10 almoços acumulados. Você deseja <strong>Aplicar R$ 50 de desconto agora</strong> ou <strong>Guardar</strong> este benefício para outra visita?</p>
                 <div class="flex flex-col gap-2">
                     <button id="btn-trava-resgatar" class="w-full px-5 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition"><i data-lucide="printer" class="w-4 h-4"></i> <span id="btn-trava-resgatar-text">Resgatar e imprimir cupom</span></button>
@@ -653,6 +1334,7 @@
                     <button type="button" onclick="fecharModal('modal-simulacao')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 border-b border-gray-100 pb-2 text-center">Cliente: <strong id="sim-cliente-nome" class="text-black text-base"></strong></p>
+                
                 <div class="space-y-4">
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex justify-between items-center">
                         <div>
@@ -664,15 +1346,21 @@
                             <button onclick="salvarSimulacaoAlmocos()" class="bg-black hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Salvar</button>
                         </div>
                     </div>
+
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
                         <p class="text-sm font-bold text-gray-800 mb-1">Simulação de data festiva</p>
                         <p class="text-xs text-gray-500 mb-3">Altera a data de nascimento para hoje e zera histórico de resgate no ano atual.</p>
-                        <button onclick="simularAniversarioHoje()" class="w-full bg-red-100 text-red-600 hover:bg-red-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2"><i data-lucide="cake" class="w-4 h-4"></i> Fazer aniversário hoje</button>
+                        <button onclick="simularAniversarioHoje()" class="w-full bg-red-100 text-red-600 hover:bg-red-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2">
+                            <i data-lucide="cake" class="w-4 h-4"></i> Fazer aniversário hoje
+                        </button>
                     </div>
+
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
                         <p class="text-sm font-bold text-gray-800 mb-1">Manipulação de última visita</p>
                         <p class="text-xs text-gray-500 mb-3">Retrocede a última visita em 16 dias para testar alertas da regra de inatividade.</p>
-                        <button onclick="simularInatividade()" class="w-full bg-blue-100 text-blue-600 hover:bg-blue-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2"><i data-lucide="calendar-clock" class="w-4 h-4"></i> Simular ausência (16 dias)</button>
+                        <button onclick="simularInatividade()" class="w-full bg-blue-100 text-blue-600 hover:bg-blue-200 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2">
+                            <i data-lucide="calendar-clock" class="w-4 h-4"></i> Simular ausência (16 dias)
+                        </button>
                     </div>
                 </div>
             </div>
@@ -705,7 +1393,8 @@
                                 <th class="py-2 px-4 text-right">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-lixeira" class="divide-y divide-gray-100 text-sm"></tbody>
+                        <tbody id="tabela-lixeira" class="divide-y divide-gray-100 text-sm">
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -726,7 +1415,8 @@
                                 <th class="py-2 px-4">Detalhes</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-auditoria" class="divide-y divide-gray-100 text-sm"></tbody>
+                        <tbody id="tabela-auditoria" class="divide-y divide-gray-100 text-sm">
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -758,122 +1448,104 @@
 
     </div> 
     
-    <!-- ==========================================================================
-         NOVA TELA DO TOTEM (REDESENHADA EM RETRATO / VERTICAL)
-         ========================================================================== -->
-    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans overflow-hidden flex-col items-center">
-        
-        <!-- Header Fixo Topo -->
-        <div class="w-full max-w-4xl flex flex-col items-center justify-center pt-8 md:pt-16 pb-8 shrink-0 relative z-20">
-            <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="h-24 md:h-32 lg:h-40 w-auto object-contain rounded-[2rem] shadow-[0_0_40px_rgba(255,255,255,0.1)] cursor-pointer mb-6" title="Área Restrita">
-            <span class="text-white font-light text-xl md:text-2xl tracking-widest uppercase opacity-70">Fidelidade</span>
+    <!-- ============================================================
+    TELA DO TOTEM – REDESENHADA (MODO RETRATO)
+    ============================================================ -->
+    <div id="tela-totem" class="hidden fixed inset-0 bg-black z-[250] font-sans">
+
+        <!-- Cabeçalho com logo e título -->
+        <div id="totem-header">
+            <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="cursor-pointer" title="Área Restrita">
+            <h1>Fidelidade</h1>
         </div>
 
-        <!-- Área Dinâmica Central -->
-        <div id="totem-dynamic-area" class="flex-1 w-full flex flex-col items-center justify-start md:justify-center p-6 md:p-12 relative z-10 transition-all duration-300">
-            
-            <!-- TELA 1: BUSCA -->
-            <div id="totem-tela-busca" class="w-full flex flex-col items-center text-center transition-all animate-fade-in">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6">Bem-vindo(a) à Top Haus! 👋</h1>
-                <p class="text-gray-400 mb-12 text-xl md:text-2xl lg:text-3xl max-w-xl leading-relaxed">Digite seu CPF para registrar o almoço de hoje e acompanhar seus benefícios.</p>
-                
-                <input type="tel" inputmode="none" autocomplete="off" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="w-full max-w-lg bg-white/10 border-2 border-white/20 text-white text-center text-4xl md:text-5xl py-6 rounded-[2rem] focus:outline-none focus:border-amber-400 font-mono mb-8 shadow-2xl transition-all placeholder-gray-500">
-                
-                <button id="btn-totem-avancar" onclick="totemProcessarCPF()" class="w-full max-w-lg bg-white text-black font-black text-2xl md:text-3xl py-6 rounded-[2rem] shadow-[0_0_40px_rgba(255,255,255,0.2)] active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-3">
+        <!-- Área de conteúdo dinâmico -->
+        <div id="totem-content">
+
+            <!-- TELA DE BUSCA (CPF) -->
+            <div id="totem-tela-busca" class="text-center">
+                <div class="welcome-icon">👋</div>
+                <h2>Bem-vindo(a) à Top Haus!</h2>
+                <p>Digite seu CPF para registrar o almoço de hoje e acompanhar seus benefícios.</p>
+                <input type="tel" inputmode="numeric" id="totem-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') totemProcessarCPF()" class="mb-4">
+                <button id="btn-totem-avancar" onclick="totemProcessarCPF()">
                     <span id="btn-totem-avancar-text">Avançar</span>
-                    <i data-lucide="arrow-right" class="w-8 h-8"></i>
                 </button>
             </div>
 
-            <!-- TELA 2: CADASTRO -->
-            <div id="totem-tela-cadastro" class="hidden w-full flex flex-col items-center text-center transition-all animate-fade-in">
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-amber-400 mb-4">Que bom ter você aqui! 💛</h2>
-                <p class="text-gray-300 text-xl md:text-2xl mb-10 max-w-2xl leading-relaxed">Ainda não encontramos seu cadastro. Leva menos de 1 minuto para participar do Clube de Fidelidade.</p>
-                
-                <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="w-full max-w-2xl space-y-6">
-                    <input type="tel" inputmode="none" id="totem-cad-cpf" readonly class="w-full bg-white/5 border border-white/10 text-gray-500 px-6 py-5 rounded-[2rem] font-mono text-2xl text-center cursor-not-allowed">
-                    <input type="text" inputmode="none" autocomplete="off" id="totem-cad-nome" required placeholder="Nome completo" oninput="formatarNomeInlines(this)" class="w-full bg-white text-black px-6 py-5 rounded-[2rem] text-2xl text-center focus:outline-none focus:ring-[6px] focus:ring-amber-400/50 placeholder-gray-400 shadow-xl transition-all">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <input type="tel" inputmode="none" autocomplete="off" id="totem-cad-nasc" required placeholder="Data de Nasc. (DD/MM/AAAA)" maxlength="10" oninput="mascaraData(this)" class="w-full bg-white text-black px-6 py-5 rounded-[2rem] text-xl text-center focus:outline-none focus:ring-[6px] focus:ring-amber-400/50 placeholder-gray-400 shadow-xl font-mono transition-all">
-                        <input type="tel" inputmode="none" autocomplete="off" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)" class="w-full bg-white text-black px-6 py-5 rounded-[2rem] text-xl text-center focus:outline-none focus:ring-[6px] focus:ring-amber-400/50 placeholder-gray-400 shadow-xl font-mono transition-all">
+            <!-- TELA DE CADASTRO -->
+            <div id="totem-tela-cadastro" class="hidden text-center">
+                <h2>Que bom ter você aqui! 💛</h2>
+                <p>Ainda não encontramos seu cadastro.<br>Leva menos de 1 minuto para participar do Clube de Fidelidade.</p>
+                <form id="totem-form" onsubmit="totemSalvarCadastro(event)">
+                    <input type="tel" inputmode="numeric" id="totem-cad-cpf" readonly class="bg-gray-800 text-gray-400 cursor-not-allowed">
+                    <input type="text" id="totem-cad-nome" required placeholder="Nome completo" class="capitalize">
+                    <div class="row-2">
+                        <input type="tel" inputmode="numeric" id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" oninput="mascaraData(this)">
+                        <input type="tel" inputmode="numeric" id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" oninput="mascaraTelefone(this)">
                     </div>
-                    
-                    <div class="flex flex-col-reverse md:flex-row gap-6 mt-10">
-                        <button type="button" onclick="totemVoltarInicio()" class="w-full md:w-1/3 bg-transparent border-4 border-white/20 text-white font-bold text-2xl py-6 rounded-[2rem] shadow-xl active:scale-95 transition-all hover:bg-white/10">Voltar</button>
-                        <button type="submit" id="btn-totem-salvar" class="w-full md:w-2/3 bg-amber-400 text-black font-black text-2xl py-6 rounded-[2rem] shadow-[0_0_40px_rgba(251,191,36,0.3)] active:scale-95 transition-transform disabled:opacity-50"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
+                    <div class="action-buttons">
+                        <button type="button" class="btn-voltar" onclick="totemVoltarInicio()">Voltar</button>
+                        <button type="submit" id="btn-totem-salvar" class="btn-salvar">
+                            <span id="btn-totem-salvar-text">Salvar cadastro</span>
+                        </button>
                     </div>
                 </form>
             </div>
 
-            <!-- TELA 3: OPÇÕES DE PRÊMIO -->
-            <div id="totem-tela-opcoes" class="hidden w-full flex flex-col items-center text-center transition-all animate-fade-in pb-12">
-                <div class="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-amber-300 to-amber-500 text-black rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_60px_rgba(251,191,36,0.4)]">
-                    <i data-lucide="gift" class="w-16 h-16 md:w-20 md:h-20"></i>
-                </div>
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6">Seu desconto está disponível! 🎁</h2>
-                <p class="text-gray-300 text-2xl md:text-3xl mb-12 leading-relaxed max-w-2xl">Você tem um benefício de <strong class="text-amber-400 text-3xl md:text-4xl font-black block mt-2">R$ 50,00</strong> esperando por você. O que deseja fazer hoje?</p>
-                
-                <div class="flex flex-col w-full max-w-lg gap-6">
-                    <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="w-full bg-amber-400 text-black font-black text-2xl md:text-3xl py-6 md:py-8 rounded-[2rem] shadow-[0_0_40px_rgba(251,191,36,0.3)] active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center gap-4">
-                        🟡 Usar desconto
-                    </button>
-                    <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="w-full bg-transparent border-4 border-white/20 text-white font-bold text-xl md:text-2xl py-6 md:py-8 rounded-[2rem] active:scale-95 transition-all hover:bg-white/10 disabled:opacity-50 flex items-center justify-center gap-4">
-                        ⚫ Guardar para outra visita
-                    </button>
-                </div>
+            <!-- TELA DE OPÇÕES (PRÊMIO DISPONÍVEL) -->
+            <div id="totem-tela-opcoes" class="hidden text-center">
+                <div class="gift-icon">🎁</div>
+                <h2>Seu desconto está disponível!</h2>
+                <p class="sub">Você tem um benefício de</p>
+                <span class="valor">R$ 50,00</span>
+                <p class="sub" style="margin-bottom:0.75rem;">O que deseja fazer hoje?</p>
+                <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="btn-opcao btn-resgatar">
+                    <span id="btn-totem-resgatar-text">🟡 Usar desconto</span>
+                </button>
+                <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="btn-opcao btn-guardar">
+                    <span id="btn-totem-acumular-text">⚫ Guardar para outra visita</span>
+                </button>
             </div>
 
-            <!-- TELA 4: MENSAGEM FINAL (E AVALIAÇÃO) -->
-            <div id="totem-tela-mensagem" class="hidden w-full flex flex-col items-center text-center transition-all animate-fade-in pb-32">
-                <div id="totem-icone-msg" class="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(255,255,255,0.2)] bg-white text-black"></div>
-                <h2 id="totem-titulo-msg" class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight"></h2>
-                <p id="totem-texto-msg" class="text-gray-300 text-2xl md:text-3xl leading-relaxed max-w-3xl mb-12"></p>
-                
-                <!-- BLOCO QR CODE AVALIAÇÃO (Aparece no final do fluxo) -->
-                <div id="totem-bloco-avaliacao" class="w-full max-w-2xl bg-white/5 border border-white/10 rounded-[2.5rem] p-8 flex-col items-center mt-4">
-                    <h3 class="text-3xl md:text-4xl font-black text-amber-400 mb-4">Obrigado pela sua visita! 💛</h3>
-                    <p class="text-gray-300 text-xl md:text-2xl mb-8 leading-relaxed">Gostou da experiência? Aponte a câmera para o QR Code e deixe sua avaliação. Sua opinião nos ajuda a melhorar todos os dias.</p>
-                    <div class="bg-white p-6 rounded-[2rem] shadow-[0_0_40px_rgba(255,255,255,0.1)] inline-block">
-                        <img src="./qrcode.png" alt="QR Code Avaliação" class="w-48 h-48 md:w-56 md:h-56 object-contain rounded-xl">
-                    </div>
+            <!-- TELA DE MENSAGEM + AVALIAÇÃO -->
+            <div id="totem-tela-mensagem" class="hidden text-center">
+                <div id="totem-icone-msg" class="msg-icon"></div>
+                <h2 id="totem-titulo-msg"></h2>
+                <div id="totem-texto-msg" class="msg-body"></div>
+                <!-- QR Code e chamada para avaliação (sempre presente na mensagem final) -->
+                <div class="qr-area">
+                    <img src="./qrcode.png" alt="QR Code para avaliação">
                 </div>
-            </div>
-
-            <!-- BARRA INFERIOR / TIMER -->
-            <div id="totem-bottom-bar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-3xl flex flex-col items-center z-50">
-                <p id="totem-texto-sessao" class="text-gray-300 text-lg md:text-xl mb-4 bg-black/80 px-6 py-3 rounded-full backdrop-blur-md border border-white/10 shadow-xl">Atendimento finalizado. Esta tela voltará ao início em <span id="totem-timer-count" class="font-bold text-white text-2xl mx-1">10</span> s.</p>
-                <div class="w-full bg-white/10 h-3 rounded-full overflow-hidden border border-white/5 shadow-inner">
-                    <div id="totem-loading-bar" class="bg-amber-400 h-full w-full"></div>
-                </div>
+                <p class="avaliacao-texto">📱 Aponte a câmera para o QR Code e deixe sua avaliação.</p>
             </div>
 
         </div>
-        
-        <!-- ==========================================================================
-             TECLADO VIRTUAL DO TOTEM
-             ========================================================================== -->
-        <div id="virtual-keyboard" class="fixed bottom-0 left-0 w-full bg-[#0B1120] border-t border-slate-700/50 shadow-[0_-20px_60px_rgba(0,0,0,0.8)] z-[999] transition-transform duration-300 transform translate-y-full flex flex-col pb-[env(safe-area-inset-bottom)] rounded-t-[2rem]">
-            <div class="w-full flex justify-end items-center px-6 py-4 border-b border-slate-800">
-                <p class="text-slate-400 font-medium text-sm flex-1 ml-2 uppercase tracking-widest hidden sm:block">Teclado de Autoatendimento</p>
-                <button onclick="window.vkb.hide()" class="text-black font-black px-8 py-3 rounded-2xl bg-amber-400 active:bg-amber-500 active:scale-95 transition-all text-xl shadow-lg flex items-center gap-2">OK / Fechar <i data-lucide="chevron-down"></i></button>
-            </div>
-            
-            <div id="vkb-container-inner" class="p-4 md:p-6 w-full flex justify-center">
-                <!-- Gerado por JS para economizar dezenas de linhas de HTML -->
+
+        <!-- RODAPÉ COM TIMER E BOTÃO FINALIZAR -->
+        <div id="totem-bottom-bar" class="hidden">
+            <p>Sua sessão terminará em <span id="totem-timer-count">10</span> segundos.</p>
+            <button onclick="totemVoltarInicio()" class="btn-finalizar">Finalizar atendimento</button>
+            <div class="progress-bar">
+                <div id="totem-loading-bar" class="bar"></div>
             </div>
         </div>
-        
-        <!-- Modal Saída Totem (Mantido e re-estilizado) -->
-        <div id="modal-totem-saida" tabindex="-1" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[1000]">
-            <div class="bg-gray-900 rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center border border-gray-800 overflow-y-auto max-h-[90dvh]">
-                <i data-lucide="lock" class="w-12 h-12 text-gray-500 mx-auto mb-4"></i>
-                <h3 class="text-2xl font-bold text-white mb-2">Acesso Restrito</h3>
-                <p class="text-base text-gray-400 mb-8">Insira o PIN administrativo para sair do modo totem.</p>
-                <input type="password" inputmode="numeric" id="totem-pin-input" placeholder="PIN" class="w-full px-6 py-5 bg-black border border-gray-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-white/20 text-center text-3xl font-black tracking-widest text-white mb-8 transition-all" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
-                <div class="flex flex-col gap-4">
-                    <button onclick="window.verificarPinTotem()" class="w-full py-4 bg-white hover:bg-gray-200 text-black rounded-2xl font-black text-xl transition-all shadow-lg">Desbloquear</button>
-                    <button onclick="fecharModal('modal-totem-saida')" class="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white rounded-2xl font-bold text-xl transition-all">Cancelar</button>
+
+        <!-- TECLADO VIRTUAL -->
+        <div id="totem-teclado" class="visivel">
+            <!-- As linhas serão geradas via JavaScript, mas deixamos a estrutura base -->
+        </div>
+
+        <!-- MODAL DE SAÍDA (PIN) -->
+        <div id="modal-totem-saida" tabindex="-1" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[300]">
+            <div class="bg-gray-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center border border-gray-800 overflow-y-auto max-h-[90dvh]">
+                <i data-lucide="lock" class="w-10 h-10 text-gray-500 mx-auto mb-4"></i>
+                <h3 class="text-xl font-bold text-white mb-2">Acesso Restrito</h3>
+                <p class="text-sm text-gray-400 mb-6">Insira o PIN administrativo para sair do modo totem.</p>
+                <input type="password" inputmode="numeric" id="totem-pin-input" placeholder="PIN" class="w-full px-4 py-4 bg-black border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-white text-center text-2xl font-black tracking-widest text-white mb-6" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
+                <div class="flex gap-3">
+                    <button onclick="fecharModal('modal-totem-saida')" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition">Cancelar</button>
+                    <button onclick="window.verificarPinTotem()" class="flex-1 py-3 bg-white hover:bg-gray-200 text-black rounded-xl font-bold transition">Desbloquear</button>
                 </div>
             </div>
         </div>
@@ -882,6 +1554,313 @@
 
     <div id="secao-impressao" class="print-area"></div>
 
+    <script>
+        // ======================================================================
+        // FORMATAÇÃO AUTOMÁTICA DE NOMES (TOTEM, CADASTRO ADMIN, EDIÇÃO)
+        // ======================================================================
+        function formatarNome(texto) {
+            return texto.toLowerCase()
+                       .split(' ')
+                       .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
+                       .join(' ');
+        }
+
+        function aplicarFormatacaoNome(event) {
+            const input = event.target;
+            const cursorPos = input.selectionStart;
+            const valor = input.value;
+            const formatado = formatarNome(valor);
+            if (valor !== formatado) {
+                input.value = formatado;
+                // Reposiciona o cursor no final, pois a formatação pode alterar o tamanho
+                input.setSelectionRange(formatado.length, formatado.length);
+            }
+        }
+
+        // Aplica a formatação em todos os campos de nome do sistema
+        document.addEventListener('DOMContentLoaded', function() {
+            const camposNome = [
+                'totem-cad-nome',
+                'cad-nome',
+                'edit-nome'
+            ];
+            camposNome.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', aplicarFormatacaoNome);
+                }
+            });
+        });
+
+        // ======================================================================
+        // TECLADO VIRTUAL
+        // ======================================================================
+        (function() {
+            const teclado = document.getElementById('totem-teclado');
+            if (!teclado) return;
+
+            const linhasNumericas = [
+                ['1','2','3','4','5','6','7','8','9','0'],
+                ['backspace','limpar']
+            ];
+            const linhasAlfabeticas = [
+                ['Q','W','E','R','T','Y','U','I','O','P'],
+                ['A','S','D','F','G','H','J','K','L'],
+                ['Z','X','C','V','B','N','M','backspace'],
+                ['espaco','limpar']
+            ];
+
+            let modo = 'numerico'; // 'numerico' ou 'alfabetico'
+            let campoAtivo = null;
+
+            function renderizarTeclado() {
+                const linhas = modo === 'numerico' ? linhasNumericas : linhasAlfabeticas;
+                teclado.innerHTML = '';
+                linhas.forEach(linha => {
+                    const div = document.createElement('div');
+                    div.className = 'linha';
+                    linha.forEach(rotulo => {
+                        const btn = document.createElement('button');
+                        btn.className = 'tecla';
+                        if (rotulo === 'backspace') {
+                            btn.classList.add('backspace', 'larga');
+                            btn.innerHTML = '⌫';
+                        } else if (rotulo === 'limpar') {
+                            btn.classList.add('limpar', 'larga');
+                            btn.textContent = 'Limpar';
+                        } else if (rotulo === 'espaco') {
+                            btn.classList.add('espaco');
+                            btn.textContent = 'Espaço';
+                        } else {
+                            btn.textContent = rotulo;
+                        }
+                        btn.dataset.valor = rotulo;
+                        btn.addEventListener('click', () => lidarTecla(rotulo));
+                        div.appendChild(btn);
+                    });
+                    teclado.appendChild(div);
+                });
+                // Adiciona botão de alternância (se for numérico, mostra "ABC"; se alfabético, mostra "123")
+                const divModo = document.createElement('div');
+                divModo.className = 'linha';
+                const btnModo = document.createElement('button');
+                btnModo.className = 'tecla modo larga';
+                btnModo.textContent = modo === 'numerico' ? 'ABC' : '123';
+                btnModo.addEventListener('click', () => {
+                    modo = modo === 'numerico' ? 'alfabetico' : 'numerico';
+                    renderizarTeclado();
+                });
+                divModo.appendChild(btnModo);
+                teclado.appendChild(divModo);
+            }
+
+            function lidarTecla(valor) {
+                if (!campoAtivo) return;
+                const input = campoAtivo;
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+                let novoValor;
+                if (valor === 'backspace') {
+                    if (start === end && start > 0) {
+                        novoValor = input.value.slice(0, start - 1) + input.value.slice(start);
+                        input.setSelectionRange(start - 1, start - 1);
+                    } else if (start < end) {
+                        novoValor = input.value.slice(0, start) + input.value.slice(end);
+                        input.setSelectionRange(start, start);
+                    } else {
+                        return;
+                    }
+                } else if (valor === 'limpar') {
+                    novoValor = '';
+                    input.setSelectionRange(0, 0);
+                } else if (valor === 'espaco') {
+                    novoValor = input.value.slice(0, start) + ' ' + input.value.slice(end);
+                    input.setSelectionRange(start + 1, start + 1);
+                } else {
+                    novoValor = input.value.slice(0, start) + valor + input.value.slice(end);
+                    input.setSelectionRange(start + 1, start + 1);
+                }
+                input.value = novoValor;
+                // Dispara evento 'input' para que máscaras e validações sejam acionadas
+                const ev = new Event('input', { bubbles: true });
+                input.dispatchEvent(ev);
+                input.focus();
+            }
+
+            // Escuta foco nos campos que devem ativar o teclado
+            const camposComTeclado = ['totem-cpf', 'totem-cad-nome', 'totem-cad-nasc', 'totem-cad-tel'];
+            // também para os campos de cadastro admin e edição, mas o pedido é só para o totem? O requisito diz: "Essa regra vale para: Totem, Cadastro administrativo, Edição de clientes." Mas o teclado virtual é apenas para o totem. Portanto, mantemos apenas nos campos do totem.
+            // Porém, os campos de cadastro admin e edição podem usar o teclado nativo, pois não há necessidade de teclado virtual no painel admin.
+
+            document.addEventListener('focusin', function(e) {
+                const target = e.target;
+                if (camposComTeclado.includes(target.id)) {
+                    campoAtivo = target;
+                    // Determina modo: se for CPF, numérico; senão, alfabético
+                    if (target.id === 'totem-cpf') {
+                        modo = 'numerico';
+                    } else {
+                        modo = 'alfabetico';
+                    }
+                    renderizarTeclado();
+                    teclado.classList.add('visivel');
+                } else {
+                    // Se o foco não for em campo do totem, oculta o teclado
+                    if (teclado.classList.contains('visivel')) {
+                        // Mas não oculta se o foco for no próprio teclado ou modal
+                        if (!teclado.contains(target) && !target.closest('#modal-totem-saida')) {
+                            teclado.classList.remove('visivel');
+                            campoAtivo = null;
+                        }
+                    }
+                }
+            });
+
+            // Oculta teclado ao clicar fora
+            document.addEventListener('click', function(e) {
+                const target = e.target;
+                if (teclado.classList.contains('visivel') && 
+                    !teclado.contains(target) && 
+                    !target.closest('#totem-content') && 
+                    !target.closest('#totem-header') && 
+                    !target.closest('#totem-bottom-bar') &&
+                    !target.closest('#modal-totem-saida')) {
+                    teclado.classList.remove('visivel');
+                    campoAtivo = null;
+                }
+            });
+
+            // Inicializa o teclado (oculto)
+            teclado.classList.remove('visivel');
+            renderizarTeclado();
+        })();
+
+        // ======================================================================
+        // AJUSTE DAS MENSAGENS DO TOTEM (substituição dos textos)
+        // ======================================================================
+        // A função totemMostrarMensagem original (em totem.js) define os textos.
+        // Para não alterar o JS, sobrescrevemos a função? Mas não podemos.
+        // Em vez disso, vamos modificar o conteúdo da mensagem após a exibição, ou
+        // usar um MutationObserver para substituir os textos quando a tela de mensagem aparecer.
+        // Mas é mais seguro sobrescrever a função no escopo window? O totem.js já define
+        // window.totemMostrarMensagem. Podemos redefini-la, mantendo a lógica de exibição,
+        // mas com os novos textos. Isso é permitido, pois estamos apenas substituindo o conteúdo
+        // das mensagens, não a lógica de negócio.
+        // Vamos guardar a função original e então criar uma nova que chama a original com os novos textos.
+        // Mas o totem.js carrega depois, então precisamos esperar.
+        // Vamos fazer isso no evento DOMContentLoaded, após o carregamento dos módulos.
+        // Como o totem.js é carregado como módulo, podemos interceptar a função.
+        // Simplesmente reatribuímos window.totemMostrarMensagem após o carregamento.
+        // Vamos fazer isso aqui.
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aguarda o carregamento do totem.js (que define a função)
+            // Usamos um pequeno intervalo para garantir que o módulo já foi executado.
+            setTimeout(() => {
+                const originalMostrarMensagem = window.totemMostrarMensagem;
+                if (originalMostrarMensagem) {
+                    window.totemMostrarMensagem = function(tipo) {
+                        // Antes de chamar a original, podemos modificar os elementos
+                        // Mas é mais fácil chamar a original e depois ajustar o DOM.
+                        // Porém, a original já define os innerText/innerHTML.
+                        // Vamos chamar a original e, em seguida, sobrescrever os textos conforme necessário.
+                        // Isso pode causar dupla renderização, mas é aceitável.
+                        originalMostrarMensagem(tipo);
+
+                        // Agora, após a exibição, sobrescrevemos os textos com base no tipo.
+                        const titulo = document.getElementById('totem-titulo-msg');
+                        const texto = document.getElementById('totem-texto-msg');
+                        const icone = document.getElementById('totem-icone-msg');
+                        if (!titulo || !texto) return;
+
+                        // Mapeamento dos novos textos
+                        const novosTextos = {
+                            'erro_cpf': {
+                                titulo: 'CPF não encontrado.',
+                                texto: 'Confira os números digitados e tente novamente.',
+                                icone: '❌'
+                            },
+                            'ja_registrado': {
+                                titulo: 'Almoço registrado! 🍽️',
+                                texto: `Obrigado por escolher a Top Haus mais uma vez, ${window.totemClienteTemp?.nome?.split(' ')[0] || ''}.<br>Você já acumulou ${window.totemClienteTemp?.almocos || 0} almoço(s).<br>Faltam apenas ${Math.max(0, 10 - (window.totemClienteTemp?.almocos || 0))} para conquistar seu desconto de R$ 50,00.`,
+                                icone: '🍽️'
+                            },
+                            'aviso_caixa': {
+                                titulo: 'Desconto solicitado! ✅',
+                                texto: 'Informe ao caixa que você escolheu utilizar seu benefício.<br>Obrigado pela sua visita e até a próxima! 💛',
+                                icone: '✅'
+                            },
+                            'sucesso_acumulo': {
+                                titulo: 'Almoço registrado! 🍽️',
+                                texto: `Obrigado por escolher a Top Haus mais uma vez, ${window.totemClienteTemp?.nome?.split(' ')[0] || ''}.<br>Você já acumulou ${window.totemClienteTemp?.almocos || 0} almoço(s).<br>Faltam apenas ${Math.max(0, 10 - (window.totemClienteTemp?.almocos || 0))} para conquistar seu desconto de R$ 50,00.`,
+                                icone: '🍽️'
+                            },
+                            'cadastro_sucesso': {
+                                titulo: 'Cadastro realizado! 🎉',
+                                texto: 'Seu primeiro almoço já foi registrado.<br>A partir de agora, cada visita aproxima você do seu desconto de R$ 50,00.',
+                                icone: '🎉'
+                            },
+                            'meta_atingida': {
+                                titulo: `Parabéns, ${window.totemClienteTemp?.nome?.split(' ')[0] || ''}! 🎉`,
+                                texto: 'Você acaba de conquistar seu benefício de R$ 50,00.<br>Na sua próxima visita, o desconto estará disponível para ser utilizado ou, se preferir, poderá continuar guardado.',
+                                icone: '🎉'
+                            },
+                            'aniversario_totem': {
+                                titulo: 'Feliz aniversário! 🎂',
+                                texto: 'Toda a equipe da Top Haus deseja um dia muito especial para você.<br>Consulte o caixa para receber seu benefício de aniversário.',
+                                icone: '🎂'
+                            }
+                        };
+
+                        const novo = novosTextos[tipo];
+                        if (novo) {
+                            titulo.innerText = novo.titulo;
+                            texto.innerHTML = novo.texto;
+                            if (icone) {
+                                icone.innerHTML = `<span style="font-size:clamp(2rem,5vh,3rem);">${novo.icone}</span>`;
+                            }
+                            // Se for uma mensagem de sucesso (não erro), garantimos que o QR Code esteja visível
+                            // O QR Code já está na tela de mensagem, então não precisa fazer nada.
+                        }
+
+                        // Se for erro_cpf, ocultamos o QR Code? Talvez manter.
+                        // O QR Code está na tela de mensagem, mas se for erro, não queremos mostrar a avaliação.
+                        // Vamos esconder o QR Code em mensagens de erro.
+                        const qrArea = document.querySelector('#totem-tela-mensagem .qr-area');
+                        const avalText = document.querySelector('#totem-tela-mensagem .avaliacao-texto');
+                        if (qrArea && avalText) {
+                            if (tipo === 'erro_cpf' || tipo === 'ja_registrado') {
+                                // Para erro e já registrado, não mostramos avaliação
+                                qrArea.style.display = 'none';
+                                avalText.style.display = 'none';
+                            } else {
+                                qrArea.style.display = 'inline-block';
+                                avalText.style.display = 'block';
+                            }
+                        }
+                    };
+                    // Também precisamos garantir que ao voltar ao início, o teclado seja ocultado
+                    const originalVoltarInicio = window.totemVoltarInicio;
+                    window.totemVoltarInicio = function() {
+                        originalVoltarInicio();
+                        const teclado = document.getElementById('totem-teclado');
+                        if (teclado) teclado.classList.remove('visivel');
+                        // Reaplica a formatação nos campos de nome (caso necessário)
+                        const campos = document.querySelectorAll('#totem-cad-nome, #cad-nome, #edit-nome');
+                        campos.forEach(campo => {
+                            if (campo.value) {
+                                const formatado = formatarNome(campo.value);
+                                if (campo.value !== formatado) {
+                                    campo.value = formatado;
+                                }
+                            }
+                        });
+                    };
+                }
+            }, 500); // tempo suficiente para o módulo carregar
+        });
+    </script>
+
     <script type="module" src="./core.js"></script>
     <script type="module" src="./firebase.js"></script>
     <script type="module" src="./auth.js"></script>
@@ -889,243 +1868,5 @@
     <script type="module" src="./marketing.js"></script>
     <script type="module" src="./totem.js"></script>
     <script type="module" src="./dashboard.js"></script>
-
-    <!-- ==========================================================================
-         SCRIPTS INLINES EXCLUSIVOS PARA O TOTEM (Mantendo os .js intactos)
-         ========================================================================== -->
-    <script>
-        // 1. Padronização automática de escrita (CamelCase)
-        window.formatarNomeInlines = function(el) {
-            let text = el.value;
-            text = text.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
-            el.value = text;
-        };
-
-        // 2. Lógica e Instanciação do Teclado Virtual
-        document.addEventListener("DOMContentLoaded", () => {
-            const kbContainer = document.getElementById('vkb-container-inner');
-            
-            // Layout Numérico
-            const numHTML = `
-                <div id="vkb-numeric" class="hidden w-full max-w-sm flex flex-col gap-3">
-                    <div class="grid grid-cols-3 gap-3">
-                        ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="vkb-key text-4xl font-bold text-white bg-white/10 active:bg-white/30 active:scale-95 rounded-[1.5rem] py-6 transition-all" onclick="window.vkb.press('${n}')">${n}</button>`).join('')}
-                    </div>
-                    <div class="grid grid-cols-3 gap-3">
-                        <button class="vkb-key text-2xl font-bold text-slate-400 bg-white/5 active:bg-white/20 active:scale-95 rounded-[1.5rem] py-6 transition-all" onclick="window.vkb.clear()">LIMPAR</button>
-                        <button class="vkb-key text-4xl font-bold text-white bg-white/10 active:bg-white/30 active:scale-95 rounded-[1.5rem] py-6 transition-all" onclick="window.vkb.press('0')">0</button>
-                        <button class="vkb-key flex items-center justify-center text-red-400 bg-white/10 active:bg-red-500/30 active:scale-95 rounded-[1.5rem] py-6 transition-all" onclick="window.vkb.press('BACKSPACE')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 4-14 0c-1.1 0-2.3.8-2.9 1.7L.4 12l3.7 6.3c.6.9 1.8 1.7 2.9 1.7l14 0c1.1 0 2-.9 2-2L23 6c0-1.1-.9-2-2-2z"/><path d="m16 9-6 6"/><path d="m10 9 6 6"/></svg>
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            // Layout Alfanumérico
-            const rows = [
-                ['Q','W','E','R','T','Y','U','I','O','P'],
-                ['A','S','D','F','G','H','J','K','L'],
-                ['Z','X','C','V','B','N','M']
-            ];
-            
-            let alphaHTML = `<div id="vkb-alpha" class="hidden w-full max-w-4xl flex flex-col gap-3">`;
-            rows.forEach((row, i) => {
-                let padding = i === 1 ? 'px-4 md:px-12' : (i === 2 ? 'px-12 md:px-24' : '');
-                alphaHTML += `<div class="flex justify-center gap-2 md:gap-3 ${padding}">`;
-                row.forEach(char => {
-                    alphaHTML += `<button class="vkb-key flex-1 text-2xl md:text-3xl font-bold text-white bg-white/10 active:bg-white/30 active:scale-95 rounded-2xl md:rounded-[1.5rem] py-5 transition-all shadow-sm" onclick="window.vkb.press('${char}')">${char}</button>`;
-                });
-                alphaHTML += `</div>`;
-            });
-            alphaHTML += `
-                <div class="flex justify-center gap-2 md:gap-3 mt-1">
-                    <button class="vkb-key flex items-center justify-center text-red-400 bg-white/10 active:bg-red-500/30 active:scale-95 rounded-2xl md:rounded-[1.5rem] py-5 px-6 md:px-10 transition-all shadow-sm" onclick="window.vkb.press('BACKSPACE')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 4-14 0c-1.1 0-2.3.8-2.9 1.7L.4 12l3.7 6.3c.6.9 1.8 1.7 2.9 1.7l14 0c1.1 0 2-.9 2-2L23 6c0-1.1-.9-2-2-2z"/><path d="m16 9-6 6"/><path d="m10 9 6 6"/></svg>
-                    </button>
-                    <button class="vkb-key flex-[3] text-2xl md:text-3xl font-bold text-white bg-white/10 active:bg-white/30 active:scale-95 rounded-2xl md:rounded-[1.5rem] py-5 transition-all shadow-sm" onclick="window.vkb.press('SPACE')">ESPAÇO</button>
-                    <button class="vkb-key flex-[1.5] text-xl md:text-2xl font-bold text-slate-900 bg-amber-400 active:bg-amber-500 active:scale-95 rounded-2xl md:rounded-[1.5rem] py-5 transition-all shadow-sm" onclick="window.vkb.hide()">OK</button>
-                </div>
-            </div>`;
-
-            kbContainer.innerHTML = numHTML + alphaHTML;
-
-            window.vkb = {
-                activeInput: null,
-                init() {
-                    const inputs = document.querySelectorAll('#tela-totem input[inputmode="none"]');
-                    inputs.forEach(input => {
-                        input.addEventListener('focus', (e) => this.show(e.target));
-                        input.addEventListener('touchstart', (e) => { e.preventDefault(); this.show(e.target); });
-                    });
-                },
-                show(input) {
-                    this.activeInput = input;
-                    const kb = document.getElementById('virtual-keyboard');
-                    kb.classList.remove('translate-y-full');
-                    
-                    if (input.id === 'totem-cad-nome') {
-                        document.getElementById('vkb-numeric').classList.add('hidden');
-                        document.getElementById('vkb-alpha').classList.remove('hidden');
-                        document.getElementById('totem-dynamic-area').style.paddingBottom = '360px';
-                    } else {
-                        document.getElementById('vkb-alpha').classList.add('hidden');
-                        document.getElementById('vkb-numeric').classList.remove('hidden');
-                        document.getElementById('totem-dynamic-area').style.paddingBottom = '420px';
-                    }
-                    
-                    setTimeout(() => {
-                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                },
-                hide() {
-                    this.activeInput = null;
-                    document.getElementById('virtual-keyboard').classList.add('translate-y-full');
-                    document.getElementById('totem-dynamic-area').style.paddingBottom = '0';
-                },
-                clear() {
-                    if (!this.activeInput) return;
-                    this.activeInput.value = '';
-                    this.activeInput.dispatchEvent(new Event('input', { bubbles: true }));
-                },
-                press(key) {
-                    if (!this.activeInput) return;
-                    let val = this.activeInput.value;
-                    
-                    if (key === 'BACKSPACE') {
-                        val = val.slice(0, -1);
-                    } else if (key === 'SPACE') {
-                        val += ' ';
-                    } else {
-                        // Respeita limite máximo
-                        if(this.activeInput.maxLength && this.activeInput.maxLength > 0 && val.length >= this.activeInput.maxLength) return;
-                        val += key;
-                    }
-                    
-                    this.activeInput.value = val;
-                    this.activeInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            };
-            
-            // Inicializa eventos do teclado apenas quando tudo estiver pronto
-            setTimeout(() => window.vkb.init(), 1000);
-        });
-    </script>
-
-    <script type="module">
-        // 3. Sobrescrita de Fluxo e Mensagens do Totem (Sobrescrevendo a função exportada/anexada globalmente pelo totem.js)
-        // Isso nos permite alterar os textos, o fluxo final e inserir a Avaliação (QR Code) sem tocar no totem.js.
-        
-        setTimeout(() => {
-            const originalTotemMostrarMensagem = window.totemMostrarMensagem;
-            if(!originalTotemMostrarMensagem) return; // Segurança
-
-            window.totemMostrarMensagem = (tipo) => {
-                clearTimeout(window.timerInatividade);
-                clearInterval(window.intervaloContagemTotem);
-                
-                ['totem-tela-busca', 'totem-tela-cadastro', 'totem-tela-opcoes'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if(el) el.classList.add('hidden');
-                });
-                
-                const ic = document.getElementById('totem-icone-msg');
-                const ti = document.getElementById('totem-titulo-msg');
-                const te = document.getElementById('totem-texto-msg');
-                const lb = document.getElementById('totem-loading-bar');
-                const counterEl = document.getElementById('totem-timer-count');
-                const qrBloco = document.getElementById('totem-bloco-avaliacao');
-                
-                if(lb) lb.classList.remove('animate-shrink'); 
-                
-                let tempo = 15000; // Tempo padrão aumentado para permitir leitura e scan do QR
-                const nomeC = window.totemClienteTemp && window.totemClienteTemp.nome ? window.escapeHTML(window.totemClienteTemp.nome.split(' ')[0]) : '';
-                const cliente = window.totemClienteTemp;
-
-                // QR Code visível por padrão nas telas de sucesso
-                if(qrBloco) {
-                    qrBloco.classList.remove('hidden');
-                    qrBloco.classList.add('flex');
-                }
-
-                // Aplicação das novas cópias estritas solicitadas
-                if(tipo === 'erro_cpf') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="x" class="w-16 h-16 text-red-500"></i>`; 
-                    if(ti) ti.innerText = "CPF não encontrado."; 
-                    if(te) te.innerText = "Confira os números digitados e tente novamente."; 
-                    if(qrBloco) { qrBloco.classList.add('hidden'); qrBloco.classList.remove('flex'); }
-                    tempo = 6000; 
-                } else if(tipo === 'ja_registrado') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="check-check" class="w-16 h-16 text-green-500"></i>`; 
-                    if(ti) ti.innerText = `Tudo certo, ${nomeC}!`; 
-                    if(te) te.innerText = "Seu almoço de hoje já foi contabilizado com sucesso."; 
-                } else if(tipo === 'aviso_caixa') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="check-circle" class="w-16 h-16 text-green-500"></i>`; 
-                    if(ti) ti.innerText = "Desconto solicitado! ✅"; 
-                    if(te) te.innerHTML = `Informe ao caixa que você escolheu utilizar seu benefício.<br><br>Obrigado pela sua visita e até a próxima! 💛`;
-                } else if(tipo === 'cadastro_sucesso') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="party-popper" class="w-16 h-16 text-amber-400"></i>`; 
-                    if(ti) ti.innerText = `Cadastro realizado! 🎉`; 
-                    if(te) te.innerHTML = `Seu primeiro almoço já foi registrado.<br><br>A partir de agora, cada visita aproxima você do seu desconto de R$ 50,00.`; 
-                } else if(tipo === 'sucesso_acumulo') { 
-                    // Regra para distinguir "Almoço registrado" comum vs "Benefício guardado"
-                    if (cliente && cliente.almocos > 10 && (cliente.almocos % 10 === 1)) {
-                        // Usuário acabou de clicar em "Guardar" no 10º almoço (agora tem 11)
-                        if(ic) ic.innerHTML = `<i data-lucide="heart" class="w-16 h-16 text-amber-400"></i>`; 
-                        if(ti) ti.innerText = `Benefício guardado! 💛`; 
-                        if(te) te.innerHTML = `Seu desconto continuará disponível para quando você quiser usar.<br><br>Obrigado pela sua visita. Até a próxima! 👋`;
-                    } else {
-                        // Almoço comum
-                        if(ic) ic.innerHTML = `<i data-lucide="utensils" class="w-16 h-16 text-amber-400"></i>`; 
-                        if(ti) ti.innerText = `Almoço registrado! 🍽️`; 
-                        let qtd = cliente ? cliente.almocos : 1;
-                        let faltam = 10 - (qtd % 10);
-                        if (faltam === 10) faltam = 0; // se acabou de registrar o 10, cairia no meta_atingida.
-                        if(te) te.innerHTML = `Obrigado por escolher a Top Haus mais uma vez, ${nomeC}.<br><br>Você já acumulou <strong>${qtd}</strong> almoço(s).<br>Faltam apenas <strong>${faltam}</strong> para conquistar seu desconto de R$ 50,00.`;
-                    }
-                } else if(tipo === 'meta_atingida') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="award" class="w-16 h-16 text-amber-400"></i>`; 
-                    if(ti) ti.innerText = `Parabéns, ${nomeC}! 🎉`; 
-                    if(te) te.innerHTML = `Você acaba de conquistar seu benefício de R$ 50,00.<br><br>Na sua próxima visita, o desconto estará disponível para ser utilizado ou, se preferir, poderá continuar guardado.`; 
-                } else if(tipo === 'aniversario_totem') { 
-                    if(ic) ic.innerHTML = `<i data-lucide="cake" class="w-16 h-16 text-amber-400"></i>`; 
-                    if(ti) ti.innerText = `Feliz aniversário! 🎂`; 
-                    if(te) te.innerHTML = `Toda a equipe da Top Haus deseja um dia muito especial para você.<br><br>Consulte o caixa para receber seu benefício de aniversário.`; 
-                }
-
-                const tMsg = document.getElementById('totem-tela-mensagem');
-                const tBot = document.getElementById('totem-bottom-bar');
-                if(tMsg) tMsg.classList.remove('hidden'); 
-                if(tBot) {
-                    tBot.classList.remove('hidden');
-                    tBot.classList.add('flex');
-                }
-                
-                if(window.lucide) window.lucide.createIcons(); 
-                
-                if(lb) {
-                    void lb.offsetWidth; 
-                    lb.style.animationDuration = `${tempo}ms`; 
-                    lb.classList.add('animate-shrink');
-                }
-                
-                let segundosRestantes = Math.floor(tempo / 1000);
-                if(counterEl) counterEl.innerText = segundosRestantes;
-                
-                window.intervaloContagemTotem = setInterval(() => {
-                    segundosRestantes--;
-                    if(counterEl) counterEl.innerText = Math.max(0, segundosRestantes);
-                    if(segundosRestantes <= 0) {
-                        clearInterval(window.intervaloContagemTotem);
-                    }
-                }, 1000);
-                
-                clearTimeout(window.timeoutTotemMsg); 
-                window.timeoutTotemMsg = setTimeout(() => {
-                    if (window.vkb) window.vkb.hide();
-                    window.totemVoltarInicio();
-                }, tempo);
-            };
-        }, 1500); // Aguarda carregamento total do módulo principal antes de sobrescrever
-    </script>
 </body>
 </html>
