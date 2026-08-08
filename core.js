@@ -1,6 +1,39 @@
 // core.js
 // Módulo 1: Utilitários, Máscaras, Validações e Controles de UI Genéricos
 
+// ====== ADICIONAR ANTES DA FUNÇÃO logAuditoria ======
+window.obterTerminalId = () => {
+    let tid = localStorage.getItem('terminal_id');
+    if(!tid) {
+        tid = 'TERM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        localStorage.setItem('terminal_id', tid);
+    }
+    return tid;
+};
+
+// ====== SUBSTITUIR A FUNÇÃO logAuditoria EXISTENTE ======
+window.logAuditoria = (acao, detalhes, extraData = {}) => {
+    const user = window.usuarioLogado ? window.usuarioLogado.email.split('@')[0] : 'sistema';
+    const cargo = window.cargoLogado || 'sistema';
+    const unidade = window.obterUnidade ? window.obterUnidade() : 'desconhecida';
+    const terminal = window.obterTerminalId();
+
+    const payload = {
+        tipo: acao,
+        dataHora: new Date().toLocaleString('pt-BR'),
+        timestamp: Date.now(),
+        usuario: user,
+        cargo: cargo,
+        unidade: unidade,
+        terminal_id: terminal,
+        detalhes: detalhes,
+        ...extraData
+    };
+    
+    const pathAuditoria = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('auditoria') : 'auditoria';
+    window.firebasePush(window.firebaseRef(window.db, pathAuditoria), payload);
+};
+
 // ==========================================================================
 // AMBIENTE DE SIMULAÇÃO (LABORATÓRIO) - BASE
 // ==========================================================================
