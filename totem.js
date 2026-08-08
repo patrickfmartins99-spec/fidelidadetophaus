@@ -16,6 +16,12 @@ window.entrarModoTotemDaTelaLogin = () => {
     
     if(window.logAuditoria) window.logAuditoria('Totem', 'Modo Autoatendimento (Totem) iniciado.');
     
+    // Injeta o QR Code correto da unidade ativa
+    const qrImg = document.getElementById('totem-qrcode-img');
+    if(qrImg) {
+        qrImg.src = window.obterUnidade() === 'picarras' ? './qrcode tophaus piçarras.png' : './qrcode.png';
+    }
+
     document.getElementById('tela-totem').classList.remove('hidden');
     window.totemVoltarInicio();
 };
@@ -84,7 +90,6 @@ window.totemVoltarInicio = () => {
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
     
-    // Libera qualquer trava de processamento pendente em caso de abandono brusco
     if (window.totemClienteTemp && window.operacoesAtivas) {
         window.operacoesAtivas[window.totemClienteTemp.cpf] = false;
     }
@@ -97,18 +102,25 @@ window.totemVoltarInicio = () => {
     if(btnAvancar) btnAvancar.disabled = false;
     if(spanAvancar) spanAvancar.innerText = 'Avançar';
     
-    ['totem-tela-cadastro', 'totem-tela-opcoes', 'totem-tela-mensagem', 'totem-bottom-bar'].forEach(id => {
+    // Oculta TODAS as sub-telas do totem
+    ['totem-tela-cadastro', 'totem-tela-opcoes', 'totem-tela-mensagem', 'totem-tela-avaliacao', 'totem-bottom-bar'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.classList.add('hidden');
     });
     
     document.getElementById('totem-tela-busca').classList.remove('hidden');
-    const inp = document.getElementById('totem-cpf'); 
-    if(inp) {
-        inp.value = ''; 
-        inp.disabled = false;
-        inp.blur();
-    }
+    
+    // NOVO: Limpa RIGOROSAMENTE todos os campos para prevenir vazamento
+    ['totem-cpf', 'totem-cad-cpf', 'totem-cad-nome', 'totem-cad-nasc', 'totem-cad-tel'].forEach(id => {
+        const inp = document.getElementById(id);
+        if(inp) {
+            inp.value = '';
+            inp.blur();
+        }
+    });
+
+    // NOVO: Força o teclado a baixar
+    if(typeof window.tecladoFechar === 'function') window.tecladoFechar();
 };
 
 // ==========================================================================
@@ -334,30 +346,35 @@ window.totemMostrarMensagem = (tipo) => {
     let tempo = 10000;
     const nomeC = window.totemClienteTemp && window.totemClienteTemp.nome ? window.escapeHTML(window.totemClienteTemp.nome.split(' ')[0]) : '';
 
+    // Flag para saber se envia para Avaliação QR Code ou volta direto para o Início
+    let sucessoParaAvaliar = true;
+
     if(tipo === 'erro_cpf') { 
         if(ic) ic.innerHTML = `<i data-lucide="x" class="w-12 h-12"></i>`; 
         if(ti) ti.innerText = "CPF Inválido"; 
         if(te) te.innerText = "Por favor, verifique se os 11 números foram digitados corretamente."; 
         tempo = 6000; 
+        sucessoParaAvaliar = false; // Erro volta direto para o início
     } else if(tipo === 'ja_registrado') { 
         if(ic) ic.innerHTML = `<i data-lucide="check-check" class="w-12 h-12"></i>`; 
         if(ti) ti.innerText = `Tudo certo, ${nomeC}!`; 
         if(te) te.innerText = "Seu almoço de hoje já foi contabilizado com sucesso."; 
+        sucessoParaAvaliar = false; // Já estava resolvido, não incomodar
     } else if(tipo === 'aviso_caixa') { 
         if(ic) ic.innerHTML = `<i data-lucide="info" class="w-12 h-12"></i>`; 
         if(ti) ti.innerText = "Resgate solicitado"; 
         if(te) te.innerHTML = `<strong>${nomeC}</strong>, avise o operador de caixa para validar seu desconto de <strong>R$ 50,00</strong>.`;
-        tempo = 15000; 
+        tempo = 12000; 
     } else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') { 
         if(ic) ic.innerHTML = `<i data-lucide="check" class="w-12 h-12"></i>`; 
         if(ti) ti.innerText = `Registrado com sucesso, ${nomeC}!`; 
         if(te) te.innerHTML = `Você possui agora <strong>${window.totemClienteTemp.almocos||1}</strong> almoço(s) acumulado(s).`; 
+        tempo = 8000;
     } else if(tipo === 'meta_atingida') { 
-        // NOVO: Mensagem explícita informando que o prêmio ficará para a PRÓXIMA visita
         if(ic) ic.innerHTML = `<i data-lucide="star" class="w-12 h-12"></i>`; 
         if(ti) ti.innerText = `Parabéns, ${nomeC}!`; 
         if(te) te.innerHTML = `Você completou 10 almoços.<br>Na sua próxima visita, o desconto de <strong>R$ 50,00</strong> estará disponível para resgate.`; 
-        tempo = 15000; 
+        tempo = 12000; 
     } else if(tipo === 'aniversario_totem') { 
         if(ic) ic.innerHTML = `<i data-lucide="cake" class="w-12 h-12"></i>`; 
         if(ti) ti.innerText = `Feliz Aniversário, ${nomeC}!`; 
@@ -390,5 +407,53 @@ window.totemMostrarMensagem = (tipo) => {
     }, 1000);
     
     clearTimeout(window.timeoutTotemMsg); 
-    window.timeoutTotemMsg = setTimeout(() => window.totemVoltarInicio(), tempo);
+    
+    // NOVO: Fluxo de decisão - Vai para Avaliação ou Volta para o Início
+    window.timeoutTotemMsg = setTimeout(() => {
+        if(sucessoParaAvaliar) {
+            window.totemMostrarAvaliacao();
+        } else {
+            window.totemVoltarInicio();
+        }
+    }, tempo);
+};
+
+// Nova função para transicionar para o QR Code de Avaliação
+window.totemMostrarAvaliacao = () => {
+    ['totem-tela-mensagem'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
+
+    const tAvaliacao = document.getElementById('totem-tela-avaliacao');
+    if(tAvaliacao) tAvaliacao.classList.remove('hidden');
+
+    const lb = document.getElementById('totem-loading-bar');
+    const counterEl = document.getElementById('totem-timer-count');
+    
+    let tempoAvaliacao = 12000; // 12 segundos para a pessoa ler e escanear
+
+    if(lb) {
+        lb.classList.remove('animate-shrink');
+        void lb.offsetWidth; 
+        lb.style.animationDuration = `${tempoAvaliacao}ms`; 
+        lb.classList.add('animate-shrink');
+    }
+    
+    let segundosRestantes = Math.floor(tempoAvaliacao / 1000);
+    if(counterEl) counterEl.innerText = segundosRestantes;
+    
+    clearInterval(window.intervaloContagemTotem);
+    window.intervaloContagemTotem = setInterval(() => {
+        segundosRestantes--;
+        if(counterEl) counterEl.innerText = Math.max(0, segundosRestantes);
+        if(segundosRestantes <= 0) {
+            clearInterval(window.intervaloContagemTotem);
+        }
+    }, 1000);
+
+    clearTimeout(window.timeoutTotemMsg);
+    window.timeoutTotemMsg = setTimeout(() => {
+        window.totemVoltarInicio();
+    }, tempoAvaliacao);
 };
