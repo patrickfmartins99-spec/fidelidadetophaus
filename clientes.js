@@ -223,36 +223,61 @@ window.efetuarResgateEImprimir = (c) => {
     const btn = document.getElementById('btn-trava-resgatar');
     const span = document.getElementById('btn-trava-resgatar-text');
     if(btn) btn.disabled = true; 
-    if(span) span.innerText = 'Atualizando...';
+    if(span) span.innerText = 'Processando Protocolo...';
     
-    setTimeout(()=>{ 
+    const unidadeRef = window.obterUnidade();
+    const prefixo = unidadeRef === 'picarras' ? 'PIC' : 'NAV';
+    const hjData = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    
+    // Caminho exato do contador atômico
+    const counterPath = window.obterCaminhoUnidade('contadores/protocolo');
+    const counterRef = window.firebaseRef(window.db, counterPath);
+
+    // TRANSAÇÃO ATÔMICA
+    window.firebaseRunTransaction(counterRef, (valorAtual) => {
+        return (valorAtual || 0) + 1;
+    }).then((resultado) => {
+        if (!resultado.committed) throw new Error("Falha ao gerar protocolo.");
+        
+        const numSequencial = String(resultado.snapshot.val()).padStart(6, '0');
+        const protocoloGerado = `${prefixo}-${hjData}-${numSequencial}`;
+
+        const dts = (c.historico||[]).slice(0,10); 
+        c.historico = (c.historico||[]).slice(10); 
+        c.almocos -= 10; 
+        c.premiosResgatados = (c.premiosResgatados||0) + 1; 
+        c.notificadoPremio = false;
+        
+        const hr = new Date().toLocaleString('pt-BR'); 
+        if(!c.historicoResgates) c.historicoResgates = []; 
+        c.historicoResgates.push({ dataResgate: hr, datas: dts, protocolo: protocoloGerado });
+        
+        return window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => {
+            window.isProcessing = false; 
+            if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false; 
+            const inp = document.getElementById('busca-cpf');
+            if(inp) inp.value = ''; 
+            if(btn) btn.disabled = false; 
+            if(span) span.innerText = 'Resgatar e imprimir cupom';
+            
+            window.mostrarToast(`Resgate realizado! Protocolo: ${protocoloGerado}`); 
+            
+            // Payload Estruturado de Auditoria
+            if(window.logAuditoria) {
+                window.logAuditoria('Resgate Prêmio', `Desconto de R$ 50 resgatado por ${c.nome}.`, {
+                    clienteCpf: c.cpf,
+                    clienteNome: c.nome,
+                    protocolo: protocoloGerado
+                });
+            }
+            window.dispararImpressao(c.nome, c.cpf, dts, hr, protocoloGerado); 
+        });
+    }).catch((err) => {
         window.isProcessing = false; 
         if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false; 
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Resgatar e imprimir cupom';
-    }, 8000);
-    
-    const dts = (c.historico||[]).slice(0,10); 
-    c.historico = (c.historico||[]).slice(10); 
-    c.almocos -= 10; 
-    c.premiosResgatados = (c.premiosResgatados||0) + 1; 
-    c.notificadoPremio = false;
-    
-    const hr = new Date().toLocaleString('pt-BR'); 
-    if(!c.historicoResgates) c.historicoResgates = []; 
-    c.historicoResgates.push({dataResgate: hr, datas: dts});
-    
-    window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => { 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false; 
-        const inp = document.getElementById('busca-cpf');
-        if(inp) inp.value = ''; 
-        if(btn) btn.disabled = false; 
-        if(span) span.innerText = 'Resgatar e imprimir cupom';
-        
-        window.mostrarToast('Resgate realizado com sucesso!'); 
-        if(window.logAuditoria) window.logAuditoria('Resgate Prêmio', `Desconto de R$ 50 resgatado por ${c.nome}.`);
-        window.dispararImpressao(c.nome, c.cpf, dts, hr); 
+        window.mostrarToast('Erro ao gerar protocolo. Tente novamente.', 'erro');
     });
 };
 
@@ -308,24 +333,30 @@ window.continuarPosAniversario = () => {
     window.acaoPendente = null; 
 };
 
-window.dispararImpressao = (nome, cpf, dts, hr) => {
+window.dispararImpressao = (nome, cpf, dts, hr, protocolo) => {
     let l = ''; 
     (dts||[]).forEach(d => l += `<li>[+] ${window.escapeHTML(d)}</li>`);
     
     const secaoImp = document.getElementById('secao-impressao');
     if(!secaoImp) return;
+
+    const isPic = window.obterUnidade() === 'picarras';
+    const razaoSocial = isPic ? 'PIZZARIA TOP HAUS LTDA' : 'ESPAÇO TOP HAUS LTDA';
+    const cnpj = isPic ? '05.991.972/0001-09' : '26.845.124/0001-61';
+    const ie = isPic ? '258350393' : 'ISENTO';
+    const endereco = isPic ? 'Avenida Nereu Ramos, 299<br>Balneário Piçarras - SC 88380-000' : 'Avenida Pref. Jose Juvenal Mafra, 7155<br>Navegantes - SC 88372-506';
     
     secaoImp.innerHTML = `
         <div style="text-align:center;margin-bottom:5px;line-height:1.2;">
-            <strong style="font-size:15px;color:#000;">ESPAÇO TOP HAUS LTDA</strong><br>
-            CNPJ: 26.845.124/0001-61 | IE: ISENTO<br>
-            Avenida Pref. Jose Juvenal Mafra, 7155<br>Navegantes - SC 88372-506<br>
-            Fone: (47) 3342-5114<br>
+            <strong style="font-size:15px;color:#000;">${razaoSocial}</strong><br>
+            CNPJ: ${cnpj} | IE: ${ie}<br>
+            ${endereco}<br>
         </div>
         <div class="linha-tracejada"></div>
         <div style="text-align:center;margin-bottom:5px;">
             <strong style="font-size:14px;color:#000;">COMPROVANTE DE RESGATE</strong><br>
-            <span style="font-size:11px;">${hr}</span>
+            <span style="font-size:11px;">${hr}</span><br>
+            <strong style="font-size:11px;color:#000;">PROT: ${protocolo}</strong>
         </div>
         <div class="linha-tracejada"></div>
         <div style="margin-bottom:5px;font-size:12px;color:#000;">
@@ -604,6 +635,76 @@ window.restaurarCliente = (cpf) => {
         if(window.filtrarLista) window.filtrarLista(window.filtroAtual);
     }).catch(() => {
         window.mostrarToast("Não foi possível salvar. Tente novamente.", "erro");
+    });
+};
+
+// Funcionalidade de Almoço Atrasado com validação de senha real no Auth
+window.registrarAlmocoAtrasado = () => {
+    // 1. Barreira de Cargo Local (Bloqueia visualmente)
+    if(window.cargoLogado !== 'gerente' && window.cargoLogado !== 'admin') {
+        return window.mostrarToast('Acesso negado. Apenas gerentes e administradores podem realizar esta operação.', 'erro');
+    }
+
+    const cpfNum = document.getElementById('atrasado-cpf').value.replace(/\D/g, '');
+    const dataAtrasada = document.getElementById('atrasado-data').value;
+    const qtd = parseInt(document.getElementById('atrasado-qtd').value, 10);
+    const senha = document.getElementById('atrasado-senha').value;
+
+    if(!window.validarCPFReal(cpfNum)) return window.mostrarToast('CPF inválido.', 'erro');
+    if(!dataAtrasada || isNaN(qtd) || qtd < 1) return window.mostrarToast('Preencha a data e uma quantidade válida.', 'erro');
+    if(!senha) return window.mostrarToast('A senha do administrador é obrigatória.', 'erro');
+
+    const c = window.clientesMap[cpfNum];
+    if(!c) return window.mostrarToast('Cliente não encontrado na base de dados.', 'erro');
+
+    // 2. Barreira de Autenticação Ativa (Garante que quem está logado sabe a senha)
+    const emailAtual = window.usuarioLogado.email;
+    
+    window.firebaseSignIn(window.auth, emailAtual, senha).then(() => {
+        const dataFormatada = dataAtrasada.split('-').reverse().join('/');
+        
+        c.almocos = (c.almocos || 0) + qtd;
+        
+        // Mantém a String para o Frontend original
+        if(!c.historico) c.historico = [];
+        for(let i = 0; i < qtd; i++) {
+            c.historico.push(`${dataFormatada} às 12:00 (Atrasado)`);
+        }
+        c.historico = window.limitarHistorico(c.historico);
+
+        // 3. Nó de Persistência Estruturada para o Banco de Dados (Garante Integridade)
+        if(!c.historicoAtrasados) c.historicoAtrasados = [];
+        c.historicoAtrasados.push({
+            dataRegistro: new Date().toISOString(),
+            dataAlmoco: dataAtrasada,
+            quantidade: qtd,
+            responsavel: emailAtual.split('@')[0]
+        });
+
+        if (c.almocos > 0 && c.almocos % 10 === 0) {
+            if(!c.historicoConquistas) c.historicoConquistas = [];
+            c.historicoConquistas.push(new Date().toLocaleString('pt-BR'));
+        }
+
+        window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => {
+            window.mostrarToast(`Sucesso! +${qtd} almoço(s) retroativos adicionados.`);
+            
+            // 4. Payload Estruturado de Auditoria
+            if(window.logAuditoria) {
+                window.logAuditoria('Almoço Atrasado', `+${qtd} refeição(ões) referente a ${dataFormatada} registrada(s) para ${c.nome}.`, {
+                    clienteCpf: c.cpf,
+                    clienteNome: c.nome,
+                    quantidade: qtd,
+                    dataAlmocoOriginal: dataAtrasada
+                });
+            }
+            
+            document.getElementById('form-almoco-atrasado').reset();
+            window.fecharModal('modal-almoco-atrasado');
+            if(window.filtrarLista) window.filtrarLista(window.filtroAtual);
+        });
+    }).catch((err) => {
+        window.mostrarToast('Senha incorreta. Ação não autorizada.', 'erro');
     });
 };
 
