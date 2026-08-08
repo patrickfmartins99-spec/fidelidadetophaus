@@ -2,7 +2,7 @@
 // Módulo 2: Configuração e Conexão com o Firebase
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, get, push, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+import { getDatabase, ref, set, onValue, get, push, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 import { 
     getAuth, 
     signInWithEmailAndPassword, 
@@ -29,6 +29,9 @@ const auth = getAuth(app);
 // Inicialização Correta do Segundo Firebase App utilizando a API Modular (v10.8.1)
 const secondaryApp = initializeApp(firebaseConfig, "SecondaryAppInstance");
 const authSecundario = getAuth(secondaryApp);
+
+// ====== ADICIONAR NO FINAL DO ARQUIVO firebase.js ======
+window.firebaseRunTransaction = runTransaction;
 
 // ==========================================================================
 // EXPOSIÇÃO GLOBAL (Para uso nos outros módulos sem quebrar a arquitetura)
