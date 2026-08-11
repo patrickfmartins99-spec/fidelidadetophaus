@@ -285,7 +285,10 @@ window.efetuarResgateEImprimir = (c) => {
 // AÇÕES SECUNDÁRIAS (ANIVERSÁRIO E IMPRESSÃO)
 // ==========================================================================
 window.confirmarCortesiaAniversario = () => {
-    if(!window.acaoPendente || window.isProcessing) return; 
+    if (!window.acaoPendente || window.isProcessing) return;
+    const c = window.acaoPendente;
+    window.efetuarResgateAniversarioEImprimir(c);
+}; 
     
     const btn = document.getElementById('btn-alerta-aniversario-confirmar');
     const span = document.getElementById('btn-alerta-aniversario-confirmar-text');
@@ -430,6 +433,153 @@ window.salvarEdicao = (e) => {
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar alterações';
     });
+};
+
+// ==========================================================================
+// RESGATE DE ANIVERSÁRIO COM PROTOCOLO E IMPRESSÃO (REUTILIZANDO CONTADOR)
+// ==========================================================================
+
+window.gerarProtocoloAniversario = (c) => {
+    const unidadeRef = window.obterUnidade();
+    const prefixo = unidadeRef === 'picarras' ? 'PIC' : 'NAV';
+    const hjData = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    
+    const counterPath = window.obterCaminhoUnidade('contadores/protocolo');
+    const counterRef = window.firebaseRef(window.db, counterPath);
+
+    return window.firebaseRunTransaction(counterRef, (valorAtual) => {
+        return (valorAtual || 0) + 1;
+    }).then((resultado) => {
+        if (!resultado.committed) throw new Error("Falha ao gerar protocolo.");
+        const numSequencial = String(resultado.snapshot.val()).padStart(6, '0');
+        return `${prefixo}-${hjData}-${numSequencial}`;
+    });
+};
+
+window.dispararImpressaoAniversario = (c, dataResgate, protocolo) => {
+    const secaoImp = document.getElementById('secao-impressao');
+    if (!secaoImp) return;
+
+    const isPic = window.obterUnidade() === 'picarras';
+    const razaoSocial = isPic ? 'PIZZARIA TOP HAUS LTDA' : 'ESPAÇO TOP HAUS LTDA';
+    const cnpj = isPic ? '05.991.972/0001-09' : '26.845.124/0001-61';
+    const ie = isPic ? '258350393' : 'ISENTO';
+    const endereco = isPic ? 'Avenida Nereu Ramos, 299<br>Balneário Piçarras - SC 88380-000' : 'Avenida Pref. Jose Juvenal Mafra, 7155<br>Navegantes - SC 88372-506';
+
+    // Formata data de nascimento
+    let nascFormatado = c.nascimento || '';
+    if (nascFormatado.includes('-')) {
+        const partes = nascFormatado.split('-');
+        nascFormatado = `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    const dataCadastro = c.dataCadastro || 'Não informada';
+
+    secaoImp.innerHTML = `
+        <div style="text-align:center;margin-bottom:5px;line-height:1.2;">
+            <strong style="font-size:15px;color:#000;">${razaoSocial}</strong><br>
+            CNPJ: ${cnpj} | IE: ${ie}<br>
+            ${endereco}<br>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="text-align:center;margin-bottom:5px;">
+            <strong style="font-size:14px;color:#000;">COMPROVANTE DE RESGATE — ANIVERSÁRIO</strong><br>
+            <span style="font-size:11px;">${dataResgate}</span><br>
+            <strong style="font-size:11px;color:#000;">PROT: ${protocolo}</strong>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="margin-bottom:5px;font-size:12px;color:#000;">
+            <p style="margin:2px 0;"><strong>CLIENTE</strong></p>
+            <p style="margin:2px 0;"><strong>Nome:</strong> ${window.escapeHTML((c.nome||'').toUpperCase())}</p>
+            <p style="margin:2px 0;"><strong>CPF:</strong> ${window.formatarCPF(c.cpf)}</p>
+            <p style="margin:2px 0;"><strong>Data de nascimento:</strong> ${nascFormatado}</p>
+            <p style="margin:2px 0;"><strong>Data de cadastro:</strong> ${dataCadastro}</p>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="margin-bottom:5px;">
+            <p style="font-weight:bold;margin:2px 0;color:#000;">BENEFÍCIO RESGATADO</p>
+            <p style="margin:2px 0;font-size:12px;color:#000;"><strong>Motivo:</strong> Aniversário</p>
+            <p style="margin:2px 0;font-size:12px;color:#000;"><strong>Desconto liberado:</strong> R$ 50,00</p>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="text-align:center;margin-top:5px;">
+            <p style="font-weight:900;margin:0;font-size:12px;color:#000;">CONTROLE INTERNO</p>
+            <p style="font-size:10px;margin:2px 0;">Válido somente na data do aniversário.</p>
+        </div>
+    `;
+
+    window.print();
+};
+
+window.efetuarResgateAniversarioEImprimir = (c) => {
+    if (window.isProcessing) return;
+    window.isProcessing = true;
+    if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = true;
+
+    const btn = document.getElementById('btn-alerta-aniversario-confirmar');
+    const span = document.getElementById('btn-alerta-aniversario-confirmar-text');
+    if (btn) btn.disabled = true;
+    if (span) span.innerText = 'Processando...';
+
+    window.gerarProtocoloAniversario(c)
+        .then((protocolo) => {
+            const dataResgate = new Date().toLocaleString('pt-BR');
+            const anoAtual = new Date().getFullYear();
+
+            c.aniversarioResgatadoAno = anoAtual;
+            if (!c.historicoAniversarios) c.historicoAniversarios = [];
+            c.historicoAniversarios.push({
+                dataResgate: dataResgate,
+                ano: anoAtual,
+                protocolo: protocolo
+            });
+
+            return window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c)
+                .then(() => {
+                    window.isProcessing = false;
+                    if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false;
+                    if (btn) btn.disabled = false;
+                    if (span) span.innerText = 'Confirmar resgate';
+
+                    window.mostrarToast("Resgate de aniversário realizado com sucesso.");
+                    if (window.logAuditoria) {
+                        window.logAuditoria('Resgate Aniversário', `Desconto de aniversário validado para ${c.nome}.`, {
+                            clienteCpf: c.cpf,
+                            clienteNome: c.nome,
+                            protocolo: protocolo
+                        });
+                    }
+
+                    window.dispararImpressaoAniversario(c, dataResgate, protocolo);
+                    window.continuarPosAniversario();
+                })
+                .catch((err) => {
+                    // Reverte o histórico se falhou
+                    if (c.historicoAniversarios && c.historicoAniversarios.length > 0) {
+                        const ultimo = c.historicoAniversarios[c.historicoAniversarios.length - 1];
+                        if (ultimo.protocolo === protocolo) {
+                            c.historicoAniversarios.pop();
+                        }
+                    }
+                    c.aniversarioResgatadoAno = null;
+
+                    window.isProcessing = false;
+                    if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false;
+                    if (btn) btn.disabled = false;
+                    if (span) span.innerText = 'Confirmar resgate';
+
+                    window.mostrarToast('Não foi possível concluir o resgate. Tente novamente.', 'erro');
+                    console.error('Erro no resgate de aniversário:', err);
+                });
+        })
+        .catch((err) => {
+            window.isProcessing = false;
+            if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false;
+            if (btn) btn.disabled = false;
+            if (span) span.innerText = 'Confirmar resgate';
+            window.mostrarToast('Erro ao gerar protocolo. Tente novamente.', 'erro');
+            console.error('Erro na geração de protocolo:', err);
+        });
 };
 
 // ==========================================================================
