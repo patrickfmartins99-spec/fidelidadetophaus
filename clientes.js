@@ -553,11 +553,14 @@ window.abrirHistorico = (cpf) => {
     
     if(c.historicoAniversarios && c.historicoAniversarios.length > 0) { 
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Aniversários</h4>`; 
-        c.historicoAniversarios.forEach(r => { 
+        c.historicoAniversarios.forEach((r, i) => { 
             const protStr = r.protocolo ? `<br><span class="text-indigo-600">Prot: ${r.protocolo}</span>` : '';
             div.innerHTML += `
                 <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 flex justify-between items-center mb-2">
                     <div><p class="text-xs font-bold text-indigo-900">Aniv. ${r.ano}</p><p class="text-xs text-indigo-700">${r.dataResgate}${protStr}</p></div>
+                    <button onclick="reimprimirAniversarioPorCpf('${c.cpf}', ${i})" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition hover:bg-gray-800">
+                        <i data-lucide="printer" class="w-3.5 h-3.5 inline"></i> Reimprimir
+                    </button>
                 </div>`; 
         }); 
     }
@@ -578,6 +581,19 @@ window.reimprimirCupomPorCpf = (c, i) => {
     if(cl && cl.historicoResgates && cl.historicoResgates[i]) {
         if(window.logAuditoria) window.logAuditoria('Reimpressão', `Cupom de resgate reimpresso para ${cl.nome}.`);
         window.dispararImpressao(cl.nome, cl.cpf, cl.historicoResgates[i].datas, cl.historicoResgates[i].dataResgate + " (REIMPRESSÃO)", cl.historicoResgates[i].protocolo); 
+    }
+};
+
+window.reimprimirAniversarioPorCpf = (c, i) => { 
+    if(window.fecharModal) window.fecharModal('modal-historico'); 
+    const cl = window.clientesMap[c]; 
+    if(cl && cl.historicoAniversarios && cl.historicoAniversarios[i]) {
+        if(window.logAuditoria) window.logAuditoria('Reimpressão', `Cupom de aniversário reimpresso para ${cl.nome}.`);
+        window.dispararImpressaoAniversario(
+            cl, 
+            cl.historicoAniversarios[i].dataResgate + " (REIMPRESSÃO)", 
+            cl.historicoAniversarios[i].protocolo
+        ); 
     }
 };
 
