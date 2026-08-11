@@ -1,0 +1,30 @@
+/* style.css - Estilos gerais do sistema Top Haus Fidelidade */
+/* ==========================================================================
+   ESTILOS GERAIS E IMPRESSÃO
+   ========================================================================== */
+
+/* Esconde a área de impressão em tela */
+@media screen { 
+    .print-area { display: none !important; } 
+}
+
+/* Estilos para impressão do cupom */
+@media print {
+    @page { margin: 0; size: 80mm auto; }
+    body { background: white !important; padding: 0; margin: 0; font-family: 'Courier New', Courier, monospace; color: #000 !important; }
+    .no-print { display: none !important; }
+    .print-area { display: block !important; width: 72mm; margin: 0 auto; padding: 0; font-size: 13px; font-weight: bold !important; color: #000 !important; }
+    .linha-tracejada { border-top: 2px dashed #000 !important; margin: 6px 0; }
+    strong { font-weight: 900 !important; }
+}
+
+/* Remove setas dos inputs numéricos */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+/* Animações gerais */
+.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
