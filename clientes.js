@@ -32,28 +32,23 @@ window.processarFluxoNormal = (c) => {
     const ja = window.jaRegistrouHoje(c);
     const p = (c.almocos||0) >= 10;
     
-    // O atalho agora é exibido para QUALQUER usuário, permitindo registrar extra com aprovação
-    const linkAtrasado = `
-        <div class="mt-5 pt-4 border-t border-gray-100">
-            <button type="button" onclick="window.fecharModal('modal-confirmacao'); window.fecharModal('modal-trava'); window.prepararAlmocoAtrasado('${c.cpf}')" class="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 border border-emerald-200 shadow-sm">
-                <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar almoço extra ou perdido
-            </button>
-        </div>`;
+    // NOVO FLUXO: Se o cliente já registrou hoje, interceptamos antes de qualquer tela para pedir senha extra
+    if (ja) {
+        window.confirmacaoDupla(
+            "Almoço Duplicado",
+            `O cliente ${window.escapeHTML(c.nome)} já registrou um almoço hoje. Deseja registrar uma refeição EXTRA neste mesmo dia? (Esta ação exigirá a senha do gerente).`,
+            () => {
+                // Passa 'true' para indicar que é um almoço extra de hoje, preenchendo a data automaticamente
+                window.prepararAlmocoAtrasado(c.cpf, true);
+            }
+        );
+        return;
+    }
 
     if(p) {
         const m = document.getElementById('modal-trava'); 
         m.classList.remove('hidden'); 
         if(window.prenderFocoModal) window.prenderFocoModal(m);
-        
-        let containerAtrasado = document.getElementById('trava-atrasado-container');
-        if(!containerAtrasado) {
-            const conteudo = m.querySelector('.bg-white'); 
-            containerAtrasado = document.createElement('div');
-            containerAtrasado.id = 'trava-atrasado-container';
-            if(conteudo) conteudo.appendChild(containerAtrasado);
-        }
-        if(containerAtrasado) containerAtrasado.innerHTML = linkAtrasado;
-        if(window.lucide) window.lucide.createIcons();
         
         document.getElementById('btn-trava-resgatar').onclick = () => { 
             if(window.fecharModal) window.fecharModal('modal-trava'); 
@@ -63,38 +58,20 @@ window.processarFluxoNormal = (c) => {
         const bA = document.getElementById('btn-trava-acumular');
         const spanAcumular = document.getElementById('btn-trava-acumular-text');
         
-        if(ja) { 
-            if(spanAcumular) spanAcumular.innerText = "Já acumulou hoje";
-            else bA.innerText = "Já acumulou hoje"; 
-            bA.disabled = true; 
-            bA.classList.add('opacity-50'); 
-        } else { 
-            if(spanAcumular) spanAcumular.innerText = "Guardar para outra visita (+1 pago)";
-            else bA.innerText = "Guardar para outra visita (+1 pago)"; 
-            bA.disabled = false; 
-            bA.classList.remove('opacity-50'); 
-            bA.onclick = () => { 
-                if(window.fecharModal) window.fecharModal('modal-trava'); 
-                window.processarConfirmacao(c); 
-            }; 
-        }
+        // Aqui o "ja" sempre será falso devido ao return ali em cima, mas mantemos por consistência visual
+        if(spanAcumular) spanAcumular.innerText = "Guardar para outra visita (+1 pago)";
+        else bA.innerText = "Guardar para outra visita (+1 pago)"; 
+        bA.disabled = false; 
+        bA.classList.remove('opacity-50'); 
+        bA.onclick = () => { 
+            if(window.fecharModal) window.fecharModal('modal-trava'); 
+            window.processarConfirmacao(c); 
+        }; 
     } else {
         const btnConfirmar = document.getElementById('btn-confirmar-almoco');
         if(btnConfirmar) btnConfirmar.classList.remove('hidden');
 
-        if(ja) {
-            // Se já registrou hoje, o sistema avisa, mas não bloqueia a tela se o caixa quiser lançar um extra (com senha)
-            document.getElementById('texto-confirmacao').innerHTML = `<span class="text-red-600 font-bold mb-2 block">O almoço de HOJE já foi registrado.</span> Deseja lançar um almoço de outro dia ou refeição extra? ${linkAtrasado}`;
-            if(btnConfirmar) btnConfirmar.classList.add('hidden'); // Esconde o botão normal de +1
-            
-            const m = document.getElementById('modal-confirmacao'); 
-            m.classList.remove('hidden'); 
-            if(window.prenderFocoModal) window.prenderFocoModal(m);
-            if(window.lucide) window.lucide.createIcons();
-            return;
-        }
-        
-        document.getElementById('texto-confirmacao').innerHTML = `Deseja registrar +1 almoço para <strong>${window.escapeHTML(c.nome)}</strong>? ${linkAtrasado}`;
+        document.getElementById('texto-confirmacao').innerHTML = `Deseja registrar +1 almoço para <strong>${window.escapeHTML(c.nome)}</strong>?`;
         const m = document.getElementById('modal-confirmacao'); 
         m.classList.remove('hidden'); 
         if(window.prenderFocoModal) window.prenderFocoModal(m);
@@ -548,8 +525,8 @@ window.salvarEdicao = (e) => {
     });
 };
 
-// PREPARA O MODAL DE ALMOÇO ATRASADO COM O CPF CORRETO E CONTROLA A SENHA
-window.prepararAlmocoAtrasado = (cpf) => {
+// PREPARA O MODAL DE ALMOÇO ATRASADO (com suporte para pré-preencher a data de hoje se for extra)
+window.prepararAlmocoAtrasado = (cpf, isExtraHoje = false) => {
     if(window.fecharModal) window.fecharModal('modal-historico');
 
     const form = document.getElementById('form-almoco-atrasado');
@@ -560,16 +537,22 @@ window.prepararAlmocoAtrasado = (cpf) => {
         inputCpf.value = window.formatarCPF(cpf);
     }
     
+    const inputData = document.getElementById('atrasado-data');
+    if (inputData && isExtraHoje) {
+        const dataAtual = new Date();
+        const offset = dataAtual.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(dataAtual - offset)).toISOString().split('T')[0];
+        inputData.value = localISOTime;
+    }
+    
     const isGerente = (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin');
     const divAuth = document.getElementById('atrasado-auth-caixa');
     
     if (divAuth) {
         if (isGerente) {
-            // Se for gerente, a senha não é necessária, o campo fica oculto
             divAuth.classList.add('hidden');
             document.getElementById('atrasado-senha').required = false;
         } else {
-            // Se for caixa, exige a Senha Master do gerente
             divAuth.classList.remove('hidden');
             document.getElementById('atrasado-senha').required = true;
         }
@@ -592,13 +575,16 @@ window.abrirHistorico = (cpf) => {
     div.innerHTML = ''; 
     if(!c) return;
 
-    div.innerHTML += `
-        <div class="flex justify-end mb-4">
-            <button onclick="prepararAlmocoAtrasado('${c.cpf}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 border border-emerald-200 shadow-sm">
-                <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar Almoço Perdido / Extra
-            </button>
-        </div>
-    `;
+    // Link discreto apenas para gerentes lançarem almoços diretamente pelo histórico
+    if (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin') {
+        div.innerHTML += `
+            <div class="flex justify-end mb-4 border-b border-gray-100 pb-3">
+                <button onclick="prepararAlmocoAtrasado('${c.cpf}')" class="text-emerald-600 hover:text-emerald-700 text-xs font-bold transition flex items-center gap-1">
+                    <i data-lucide="clock-4" class="w-3.5 h-3.5"></i> Lançar almoço anterior (Gerente)
+                </button>
+            </div>
+        `;
+    }
 
     if(c.historicoConquistas && c.historicoConquistas.length > 0) {
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Conquistas (10 Almoços Alcançados)</h4>`;
@@ -840,7 +826,6 @@ window.registrarAlmocoAtrasado = () => {
     // Validação da Senha Master apenas para operadores de Caixa
     if (!isGerente) {
         const senhaMaster = document.getElementById('atrasado-senha').value;
-        // Senha configurada como tophaus123. Você pode trocar diretamente aqui abaixo:
         if(senhaMaster !== 'tophaus123') {
             return window.mostrarToast('Senha de liberação incorreta.', 'erro');
         }
@@ -875,7 +860,7 @@ window.registrarAlmocoAtrasado = () => {
     }
 
     window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => {
-        window.mostrarToast(`Sucesso! +${qtd} almoço(s) retroativos.`);
+        window.mostrarToast(`Sucesso! +${qtd} almoço(s) extra(s) contabilizado(s).`);
         
         if(window.logAuditoria) {
             window.logAuditoria('Almoço Extra/Atrasado', `+${qtd} refeição (${dataFormatada}) registrada para ${c.nome}.`, {
