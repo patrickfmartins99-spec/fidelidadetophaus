@@ -1,928 +1,459 @@
-/* totem.css - Estilos exclusivos do Totem (centralização visual) */
+// totem.js
+// Módulo 6: Interface de Autoatendimento (Totem) e Lógica de Ecrã Fullscreen (Alinhado ao index.html original)
 
-/* ============================================================
-   CONTAINER PRINCIPAL
-   ============================================================ */
-.totem-container {
-    position: fixed;
-    inset: 0;
-    background-color: #000;
-    z-index: 250;
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    overflow: hidden;
-    min-height: 100dvh;
-}
+window.intervaloContagemTotem = null;
 
-@media (min-width: 768px) {
-    .totem-container {
-        justify-content: center;
+// ==========================================================================
+// CONTROLO DE ECRÃ E NAVEGAÇÃO DO TOTEM (COM SEGURANÇA)
+// ==========================================================================
+window.entrarModoTotemDaTelaLogin = () => {
+    document.getElementById('tela-login').classList.add('hidden');
+    document.getElementById('app-dashboard').classList.add('hidden');
+    
+    if(document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(()=>{});
     }
-}
-
-/* ============================================================
-   HEADER (logo + título)
-   ============================================================ */
-.totem-header {
-    width: 100%;
-    padding-top: 2.5rem;
-    padding-bottom: 0.5rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-shrink: 0;
-    z-index: 20;
-    transition: all 0.2s;
-}
-
-.totem-logo {
-    height: 6rem;
-    width: auto;
-    object-fit: contain;
-    margin-bottom: 1rem;
-    border-radius: 1rem;
-    box-shadow: 0 0 40px rgba(255,255,255,0.05);
-    cursor: pointer;
-}
-
-@media (min-width: 768px) {
-    .totem-logo {
-        height: 8rem;
+    
+    if(window.logAuditoria) window.logAuditoria('Totem', 'Modo Autoatendimento (Totem) iniciado.');
+    
+    // Injeta o QR Code correto da unidade ativa
+    const qrImg = document.getElementById('totem-qrcode-img');
+    if(qrImg) {
+        qrImg.src = window.obterUnidade() === 'picarras' ? './qrcode tophaus piçarras.png' : './qrcode.png';
     }
-}
 
-.totem-title {
-    color: #fff;
-    font-weight: 300;
-    font-size: 1.25rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-align: center;
-}
+    document.getElementById('tela-totem').classList.remove('hidden');
+    window.totemVoltarInicio();
+};
 
-@media (min-width: 768px) {
-    .totem-title {
-        font-size: 1.5rem;
+window.abrirModalSaidaTotem = () => {
+    const modal = document.getElementById('modal-totem-saida');
+    if(modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('totem-pin-input').value = '';
+        setTimeout(() => document.getElementById('totem-pin-input').focus(), 100);
     }
-}
+};
 
-/* ============================================================
-   ÁREA DE CONTEÚDO DINÂMICO
-   ============================================================ */
-.totem-content {
-    width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    position: relative;
-    z-index: 10;
-    max-width: 48rem;
-    margin: 0 auto;
-    overflow-y: auto;
-    margin-bottom: 2.5rem;
-}
-
-/* ============================================================
-   TELAS DO TOTEM
-   ============================================================ */
-.totem-screen {
-    width: 100%;
-    text-align: center;
-    transition: all 0.2s;
-}
-
-.totem-screen-title {
-    font-size: 1.875rem;
-    font-weight: 900;
-    color: #fff;
-    margin-bottom: 1rem;
-    text-align: center;
-    line-height: 1.2;
-}
-
-@media (min-width: 768px) {
-    .totem-screen-title {
-        font-size: 2.25rem;
+window.verificarPinTotem = () => {
+    const pin = document.getElementById('totem-pin-input').value;
+    
+    // PIN Padrão de segurança administrativa
+    if(pin === '1234' || pin === 'admin') {
+        if(window.logAuditoria) window.logAuditoria('Segurança Totem', 'Saída autorizada do modo totem (PIN Correto).');
+        if(window.fecharModal) window.fecharModal('modal-totem-saida');
+        window.sairModoTotem();
+    } else {
+        if(window.logAuditoria) window.logAuditoria('Segurança Totem', 'Tentativa de saída bloqueada (PIN Incorreto).');
+        window.mostrarToast("PIN incorreto. Acesso negado.", "erro");
+        document.getElementById('totem-pin-input').value = '';
+        document.getElementById('totem-pin-input').focus();
     }
-}
-@media (min-width: 1024px) {
-    .totem-screen-title {
-        font-size: 3rem;
+};
+
+window.sairModoTotem = () => {
+    if(document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(()=>{});
     }
-}
-
-.totem-screen-subtitle {
-    color: #9ca3af;
-    margin-bottom: 2.5rem;
-    font-size: 1.125rem;
-    line-height: 1.625;
-    text-align: center;
-}
-
-@media (min-width: 768px) {
-    .totem-screen-subtitle {
-        font-size: 1.25rem;
+    document.getElementById('tela-totem').classList.add('hidden');
+    clearTimeout(window.timerInatividade);
+    clearInterval(window.intervaloContagemTotem);
+    
+    if (window.usuarioLogado) { 
+        document.getElementById('app-dashboard').classList.remove('hidden'); 
+        window.mostrarToast("Painel gerencial liberado."); 
+    } else { 
+        document.getElementById('tela-login').classList.remove('hidden'); 
+        document.getElementById('tela-login').classList.add('flex'); 
     }
-}
-@media (min-width: 1024px) {
-    .totem-screen-subtitle {
-        font-size: 1.5rem;
+};
+
+// Retenção de Sessão Inteligente e Prevenção de Abandono
+window.resetarTimerTotem = () => {
+    clearTimeout(window.timerInatividade);
+    if(document.getElementById('tela-totem').classList.contains('hidden')) return;
+    
+    if(!document.getElementById('totem-tela-busca').classList.contains('hidden')) return;
+
+    // Retenção de sessão estendida para o cadastro (90s) em relação a telas normais (45s)
+    const emCadastro = !document.getElementById('totem-tela-cadastro').classList.contains('hidden');
+    const tempoInatividade = emCadastro ? 90000 : 45000;
+    
+    window.timerInatividade = setTimeout(() => {
+        if(window.logAuditoria) window.logAuditoria('Totem', 'Sessão abandonada e reiniciada automaticamente por inatividade.');
+        window.totemVoltarInicio();
+    }, tempoInatividade);
+};
+
+window.totemVoltarInicio = () => {
+    clearTimeout(window.timeoutTotemMsg); 
+    clearTimeout(window.timerInatividade);
+    clearInterval(window.intervaloContagemTotem);
+    
+    if (window.totemClienteTemp && window.operacoesAtivas) {
+        window.operacoesAtivas[window.totemClienteTemp.cpf] = false;
     }
-}
+    
+    window.totemClienteTemp = null; 
+    window.isProcessing = false;
+    
+    const btnAvancar = document.getElementById('btn-totem-avancar');
+    const spanAvancar = document.getElementById('btn-totem-avancar-text');
+    if(btnAvancar) btnAvancar.disabled = false;
+    if(spanAvancar) spanAvancar.innerText = 'Avançar';
+    
+    // Oculta TODAS as sub-telas do totem
+    ['totem-tela-cadastro', 'totem-tela-opcoes', 'totem-tela-mensagem', 'totem-tela-avaliacao', 'totem-bottom-bar'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
+    
+    document.getElementById('totem-tela-busca').classList.remove('hidden');
+    
+    // NOVO: Limpa RIGOROSAMENTE todos os campos para prevenir vazamento
+    ['totem-cpf', 'totem-cad-cpf', 'totem-cad-nome', 'totem-cad-nasc', 'totem-cad-tel'].forEach(id => {
+        const inp = document.getElementById(id);
+        if(inp) {
+            inp.value = '';
+            inp.blur();
+        }
+    });
 
-/* Tela de avaliação específica */
-.totem-screen-evaluation {
-    padding-bottom: 6rem;
-    padding-top: 1rem;
-}
+    // NOVO: Força o teclado a baixar
+    if(typeof window.tecladoFechar === 'function') window.tecladoFechar();
+};
 
-/* ============================================================
-   INPUTS DO TOTEM
-   ============================================================ */
-.totem-input {
-    width: 100%;
-    max-width: 32rem;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    background-color: #fff;
-    color: #000;
-    text-align: center;
-    font-size: 1.875rem;
-    padding: 1.5rem 0;
-    border-radius: 1rem;
-    font-family: monospace;
-    margin-bottom: 2rem;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-    transition: all 0.2s;
-    outline: none;
-    cursor: text;
-    user-select: none;
-}
+// ==========================================================================
+// PROCESSAMENTO DA LEITURA DO CPF E FLUXO DE TELAS
+// ==========================================================================
+window.totemProcessarCPF = () => {
+    if(window.isProcessing) return;
+    const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
+    if(!window.validarCPFReal(cpfNum)) return window.totemMostrarMensagem('erro_cpf');
+    
+    if(window.operacoesAtivas && window.operacoesAtivas[cpfNum]) return window.mostrarToast('Por favor, aguarde.', 'erro');
+    
+    window.isProcessing = true; 
+    if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = true; 
+    
+    const btn = document.getElementById('btn-totem-avancar');
+    const span = document.getElementById('btn-totem-avancar-text');
+    if(btn) btn.disabled = true; 
+    if(span) span.innerText = 'Buscando...';
+    
+    document.getElementById('totem-cpf').disabled = true;
+    
+    // Fecha o teclado nativo do dispositivo
+    if(document.activeElement) document.activeElement.blur(); 
+    
+    setTimeout(() => { 
+        window.isProcessing = false; 
+        if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
+        if(btn) btn.disabled = false;
+        if(span) span.innerText = 'Avançar';
+    }, 8000); 
 
-@media (min-width: 768px) {
-    .totem-input {
-        font-size: 2.25rem;
+    const cliente = window.clientesMap[cpfNum];
+    
+    if(!cliente || cliente.arquivado) {
+        document.getElementById('totem-tela-busca').classList.add('hidden');
+        document.getElementById('totem-form').reset();
+        document.getElementById('totem-cad-cpf').value = window.formatarCPF(cpfNum);
+        document.getElementById('totem-tela-cadastro').classList.remove('hidden');
+        
+        setTimeout(() => {
+            const cadNome = document.getElementById('totem-cad-nome');
+            if(cadNome) cadNome.focus();
+        }, 300);
+        
+        window.isProcessing = false; 
+        if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
+        
+        if(btn) btn.disabled = false;
+        if(span) span.innerText = 'Avançar';
+        
+        window.resetarTimerTotem();
+    } else {
+        window.totemClienteTemp = cliente;
+        
+        // Verifica se JÁ possuía 10 almoços ANTES de registrar hoje (Próxima Visita = Habilita Resgate)
+        if((cliente.almocos || 0) >= 10) {
+            document.getElementById('totem-tela-busca').classList.add('hidden');
+            document.getElementById('totem-tela-opcoes').classList.remove('hidden');
+            window.isProcessing = false; 
+            if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
+            if(btn) btn.disabled = false;
+            if(span) span.innerText = 'Avançar';
+            window.resetarTimerTotem();
+        } else {
+            if(window.jaRegistrouHoje(cliente)) { 
+                window.isProcessing = false; 
+                if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
+                if(btn) btn.disabled = false;
+                if(span) span.innerText = 'Avançar';
+                return window.totemMostrarMensagem('ja_registrado'); 
+            }
+            window.isProcessing = false; 
+            if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
+            if(btn) btn.disabled = false;
+            if(span) span.innerText = 'Avançar';
+            window.totemExecutarAcumulo();
+        }
     }
-}
-@media (min-width: 1024px) {
-    .totem-input {
-        font-size: 3rem;
+};
+
+window.totemSalvarCadastro = (e) => {
+    e.preventDefault(); 
+    if(window.isProcessing) return;
+    
+    const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
+    if(window.operacoesAtivas && window.operacoesAtivas[cpf]) return;
+    
+    const tel = document.getElementById('totem-cad-tel').value.replace(/\D/g, ''); 
+    if(!window.telefoneValido(tel)) return window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');
+    const nasc = document.getElementById('totem-cad-nasc').value; 
+    if(!window.validarDataReal(nasc)) return window.mostrarToast('Data de nascimento inválida.', 'erro');
+
+    window.isProcessing = true; 
+    if(window.operacoesAtivas) window.operacoesAtivas[cpf] = true; 
+    
+    const btnSalvar = document.getElementById('btn-totem-salvar');
+    const spanSalvar = document.getElementById('btn-totem-salvar-text');
+    if(btnSalvar) btnSalvar.disabled = true; 
+    if(spanSalvar) spanSalvar.innerText = 'Salvando...';
+    
+    if(document.activeElement) document.activeElement.blur(); 
+    
+    setTimeout(() => { 
+        window.isProcessing = false; 
+        if(window.operacoesAtivas) window.operacoesAtivas[cpf] = false; 
+        if(btnSalvar) btnSalvar.disabled = false; 
+        if(spanSalvar) spanSalvar.innerText = 'Salvar cadastro';
+    }, 8000); 
+
+    const nome = document.getElementById('totem-cad-nome').value.trim();
+    let niverF = nasc.includes('/') ? `${nasc.split('/')[2]}-${nasc.split('/')[1]}-${nasc.split('/')[0]}` : nasc;
+
+    const novoCliente = { 
+        cpf, nome, nascimento: niverF, telefone: tel, 
+        almocos: 1, premiosResgatados: 0, 
+        historico: [new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})], 
+        origemCadastro: 'Totem', 
+        dataCadastro: new Date().toLocaleDateString('pt-BR'), 
+        ultimaVisitaTimestamp: Date.now(),
+        arquivado: false
+    };
+    
+    window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cpf), novoCliente).then(() => {
+        window.totemClienteTemp = novoCliente; 
+        window.isProcessing = false; 
+        if(window.operacoesAtivas) window.operacoesAtivas[cpf] = false;
+        
+        if(window.logAuditoria) window.logAuditoria('Cadastro (Totem)', `Cliente ${novoCliente.nome} realizou o próprio cadastro via Totem.`);
+        
+        if(window.checarEAvisarAlmoco) window.checarEAvisarAlmoco(novoCliente);
+        
+        if(window.diasParaAniversario(novoCliente.nascimento) === 0) {
+            window.totemMostrarMensagem('aniversario_totem'); 
+        } else {
+            window.totemMostrarMensagem('cadastro_sucesso');
+        }
+    }).catch(() => { 
+        window.mostrarToast("Não foi possível salvar. Tente novamente.", "erro"); 
+        window.isProcessing = false; 
+        if(window.operacoesAtivas) window.operacoesAtivas[cpf] = false; 
+        if(btnSalvar) btnSalvar.disabled = false; 
+        if(spanSalvar) spanSalvar.innerText = 'Salvar cadastro';
+    });
+};
+
+window.totemExecutarAcumulo = () => {
+    if(window.isProcessing) return;
+    const cliente = window.totemClienteTemp; 
+    if(!cliente) return;
+    if(window.jaRegistrouHoje(cliente)) return window.totemMostrarMensagem('ja_registrado');
+    
+    window.isProcessing = true; 
+    if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = true; 
+    
+    const btn = document.getElementById('btn-totem-acumular'); 
+    const span = document.getElementById('btn-totem-acumular-text');
+    if(btn) btn.disabled = true;
+    if(span) span.innerText = 'Atualizando...';
+    
+    setTimeout(() => { 
+        window.isProcessing = false; 
+        if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
+        if(btn) btn.disabled = false; 
+        if(span) span.innerText = 'Guardar para outra visita';
+    }, 8000); 
+
+    cliente.almocos = (cliente.almocos || 0) + 1;
+    if(!cliente.historico) cliente.historico = [];
+    cliente.historico.push(new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}));
+    cliente.ultimaVisitaTimestamp = Date.now(); 
+    if(window.limitarHistorico) cliente.historico = window.limitarHistorico(cliente.historico);
+
+    // Registro Permanente da Data de Conquista dos 10 Almoços via Totem
+    if (cliente.almocos > 0 && cliente.almocos % 10 === 0) {
+        if(!cliente.historicoConquistas) cliente.historicoConquistas = [];
+        cliente.historicoConquistas.push(new Date().toLocaleString('pt-BR'));
     }
-}
 
-.totem-input:focus {
-    box-shadow: 0 0 0 8px #9ca3af;
-}
+    window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cliente.cpf), cliente).then(() => {
+        window.isProcessing = false; 
+        if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
+        if(btn) btn.disabled = false;
+        if(span) span.innerText = 'Guardar para outra visita';
+        
+        const a = new Date().getFullYear();
+        if(window.checarEAvisarAlmoco) window.checarEAvisarAlmoco(cliente);
+        
+        if (window.diasParaAniversario(cliente.nascimento) === 0 && cliente.aniversarioResgatadoAno !== a) {
+            window.totemMostrarMensagem('aniversario_totem');
+        } else if (cliente.almocos > 0 && cliente.almocos % 10 === 0) {
+            window.totemMostrarMensagem('meta_atingida'); 
+        } else {
+            window.totemMostrarMensagem('sucesso_acumulo');
+        }
+    }).catch(() => { 
+        window.isProcessing = false; 
+        if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
+        if(btn) btn.disabled = false; 
+        if(span) span.innerText = 'Guardar para outra visita';
+    });
+};
 
-.totem-input-disabled {
-    background-color: #1f2937;
-    border: 2px solid #374151;
-    color: #9ca3af;
-    cursor: not-allowed;
-    box-shadow: none;
-}
+// ==========================================================================
+// FUNÇÕES AUXILIARES DE MENSAGENS E TEMPORIZAÇÃO DO TOTEM
+// ==========================================================================
+window.totemMostrarMensagem = (tipo) => {
+    clearTimeout(window.timerInatividade);
+    clearInterval(window.intervaloContagemTotem);
+    
+    ['totem-tela-busca', 'totem-tela-cadastro', 'totem-tela-opcoes'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
+    
+    const ic = document.getElementById('totem-icone-msg');
+    const ti = document.getElementById('totem-titulo-msg');
+    const te = document.getElementById('totem-texto-msg');
+    const lb = document.getElementById('totem-loading-bar');
+    const counterEl = document.getElementById('totem-timer-count');
+    
+    if(lb) lb.classList.remove('animate-shrink'); 
+    let tempo = 10000;
+    const nomeC = window.totemClienteTemp && window.totemClienteTemp.nome ? window.escapeHTML(window.totemClienteTemp.nome.split(' ')[0]) : '';
 
-.totem-input-text {
-    background-color: #fff;
-    color: #000;
-    font-family: sans-serif;
-    font-size: 1.25rem;
-    padding: 1rem 1.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    cursor: text;
-}
+    // Flag para saber se envia para Avaliação QR Code ou volta direto para o Início
+    let sucessoParaAvaliar = true;
 
-@media (min-width: 768px) {
-    .totem-input-text {
-        font-size: 1.5rem;
-        padding: 1.25rem 1.5rem;
+    if(tipo === 'erro_cpf') { 
+        if(ic) ic.innerHTML = `<i data-lucide="x" class="w-12 h-12"></i>`; 
+        if(ti) ti.innerText = "CPF Inválido"; 
+        if(te) te.innerText = "Por favor, verifique se os 11 números foram digitados corretamente."; 
+        tempo = 6000; 
+        sucessoParaAvaliar = false; // Erro volta direto para o início
+    } else if(tipo === 'ja_registrado') { 
+        if(ic) ic.innerHTML = `<i data-lucide="check-check" class="w-12 h-12"></i>`; 
+        if(ti) ti.innerText = `Tudo certo, ${nomeC}!`; 
+        if(te) te.innerText = "Seu almoço de hoje já foi contabilizado com sucesso."; 
+        sucessoParaAvaliar = false; // Já estava resolvido, não incomodar
+    } else if(tipo === 'aviso_caixa') { 
+        if(ic) ic.innerHTML = `<i data-lucide="info" class="w-12 h-12"></i>`; 
+        if(ti) ti.innerText = "Resgate solicitado"; 
+        if(te) te.innerHTML = `<strong>${nomeC}</strong>, avise o operador de caixa para validar seu desconto de <strong>R$ 50,00</strong>.`;
+        tempo = 12000; 
+    } else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') { 
+        if(ic) ic.innerHTML = `<i data-lucide="check" class="w-12 h-12"></i>`; 
+        if(ti) ti.innerText = `Registrado com sucesso, ${nomeC}!`; 
+        if(te) te.innerHTML = `Você possui agora <strong>${window.totemClienteTemp.almocos||1}</strong> almoço(s) acumulado(s).`; 
+        tempo = 8000;
+    } else if(tipo === 'meta_atingida') { 
+        if(ic) ic.innerHTML = `<i data-lucide="star" class="w-12 h-12"></i>`; 
+        if(ti) ti.innerText = `Parabéns, ${nomeC}!`; 
+        if(te) te.innerHTML = `Você completou 10 almoços.<br>Na sua próxima visita, o desconto de <strong>R$ 50,00</strong> estará disponível para resgate.`; 
+        tempo = 12000; 
+    } else if(tipo === 'aniversario_totem') { 
+        if(ic) ic.innerHTML = `<i data-lucide="cake" class="w-12 h-12"></i>`; 
+        if(ti) ti.innerText = `Feliz Aniversário, ${nomeC}!`; 
+        if(te) te.innerHTML = `🎁 Hoje é seu aniversário e você tem <strong>R$ 50,00 de desconto</strong> liberado!<br><br>Avise o caixa agora mesmo para resgatar.`; 
+        tempo = 15000; 
     }
-}
 
-.totem-input-text::placeholder {
-    color: #9ca3af;
-}
-
-/* ============================================================
-   FORMULÁRIO DE CADASTRO
-   ============================================================ */
-.totem-form {
-    width: 100%;
-    max-width: 42rem;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-@media (min-width: 768px) {
-    .totem-form {
-        gap: 1.5rem;
+    const tMsg = document.getElementById('totem-tela-mensagem');
+    const tBot = document.getElementById('totem-bottom-bar');
+    if(tMsg) tMsg.classList.remove('hidden'); 
+    if(tBot) tBot.classList.remove('hidden');
+    
+    if(window.lucide) window.lucide.createIcons(); 
+    
+    if(lb) {
+        void lb.offsetWidth; 
+        lb.style.animationDuration = `${tempo}ms`; 
+        lb.classList.add('animate-shrink');
     }
-}
+    
+    let segundosRestantes = Math.floor(tempo / 1000);
+    if(counterEl) counterEl.innerText = segundosRestantes;
+    
+    window.intervaloContagemTotem = setInterval(() => {
+        segundosRestantes--;
+        if(counterEl) counterEl.innerText = Math.max(0, segundosRestantes);
+        if(segundosRestantes <= 0) {
+            clearInterval(window.intervaloContagemTotem);
+        }
+    }, 1000);
+    
+    clearTimeout(window.timeoutTotemMsg); 
+    
+    // NOVO: Fluxo de decisão - Vai para Avaliação ou Volta para o Início
+    window.timeoutTotemMsg = setTimeout(() => {
+        if(sucessoParaAvaliar) {
+            window.totemMostrarAvaliacao();
+        } else {
+            window.totemVoltarInicio();
+        }
+    }, tempo);
+};
 
-.totem-form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
+// Nova função para transicionar para o QR Code de Avaliação
+window.totemMostrarAvaliacao = () => {
+    ['totem-tela-mensagem'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
 
-@media (min-width: 768px) {
-    .totem-form-row {
-        gap: 1.5rem;
+    const tAvaliacao = document.getElementById('totem-tela-avaliacao');
+    if(tAvaliacao) tAvaliacao.classList.remove('hidden');
+
+    const lb = document.getElementById('totem-loading-bar');
+    const counterEl = document.getElementById('totem-timer-count');
+    
+    let tempoAvaliacao = 12000; // 12 segundos para a pessoa ler e escanear
+
+    if(lb) {
+        lb.classList.remove('animate-shrink');
+        void lb.offsetWidth; 
+        lb.style.animationDuration = `${tempoAvaliacao}ms`; 
+        lb.classList.add('animate-shrink');
     }
-}
-
-.totem-form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-@media (min-width: 768px) {
-    .totem-form-actions {
-        gap: 1.5rem;
-        margin-top: 2rem;
-    }
-}
-
-.totem-form-actions .totem-btn-secondary {
-    width: 33.333%;
-}
-
-.totem-form-actions .totem-btn-primary {
-    width: 66.666%;
-}
-
-/* ============================================================
-   BOTÕES DO TOTEM
-   ============================================================ */
-.totem-btn-primary {
-    display: block;
-    width: 100%;
-    max-width: 32rem;
-    margin: 0 auto;
-    background-color: #fff;
-    color: #000;
-    font-weight: 900;
-    font-size: 1.5rem;
-    padding: 1.5rem 0;
-    border-radius: 1rem;
-    box-shadow: 0 0 25px rgba(255,255,255,0.4);
-    transition: transform 0.15s, opacity 0.15s;
-    border: none;
-    cursor: pointer;
-    text-align: center;
-}
-
-.totem-btn-primary:active {
-    transform: scale(0.95);
-}
-
-.totem-btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-@media (min-width: 768px) {
-    .totem-btn-primary {
-        font-size: 1.875rem;
-        padding: 1.5rem 0;
-    }
-}
-
-.totem-btn-secondary {
-    background-color: #1f2937;
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.25rem;
-    padding: 1.25rem 0;
-    border-radius: 1rem;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    transition: transform 0.15s, opacity 0.15s;
-    border: 1px solid #4b5563;
-    cursor: pointer;
-    text-align: center;
-}
-
-.totem-btn-secondary:active {
-    transform: scale(0.95);
-}
-
-.totem-btn-secondary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-@media (min-width: 768px) {
-    .totem-btn-secondary {
-        font-size: 1.5rem;
-        padding: 1.5rem 0;
-    }
-}
-
-.totem-btn-resgatar {
-    box-shadow: 0 0 40px rgba(255,255,255,0.3);
-}
-
-.totem-btn-acumular {
-    background-color: #1f2937;
-    border-color: #4b5563;
-}
-
-/* ============================================================
-   TELA DE OPÇÕES (BENEFÍCIO)
-   ============================================================ */
-.totem-icon-gift {
-    width: 6rem;
-    height: 6rem;
-    background-color: #fff;
-    color: #000;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-}
-
-@media (min-width: 768px) {
-    .totem-icon-gift {
-        width: 8rem;
-        height: 8rem;
-    }
-}
-
-.totem-icon-large {
-    width: 3rem;
-    height: 3rem;
-}
-
-@media (min-width: 768px) {
-    .totem-icon-large {
-        width: 4rem;
-        height: 4rem;
-    }
-}
-
-.totem-highlight {
-    display: block;
-    color: #fbbf24;
-    font-size: 1.875rem;
-    font-weight: 900;
-    margin-bottom: 2.5rem;
-    text-align: center;
-}
-
-@media (min-width: 768px) {
-    .totem-highlight {
-        font-size: 2.25rem;
-    }
-}
-@media (min-width: 1024px) {
-    .totem-highlight {
-        font-size: 3rem;
-    }
-}
-
-.totem-options {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-@media (min-width: 768px) {
-    .totem-options {
-        gap: 1.5rem;
-    }
-}
-
-.totem-options .totem-btn-primary,
-.totem-options .totem-btn-secondary {
-    max-width: 100%;
-    width: 100%;
-    font-size: 1.5rem;
-    padding: 1.5rem 0;
-}
-
-@media (min-width: 768px) {
-    .totem-options .totem-btn-primary,
-    .totem-options .totem-btn-secondary {
-        font-size: 1.875rem;
-        padding: 2rem 0;
-    }
-}
-
-/* ============================================================
-   TELA DE MENSAGEM
-   ============================================================ */
-.totem-message-icon {
-    width: 5rem;
-    height: 5rem;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 2rem;
-    background-color: #fff;
-    color: #000;
-    box-shadow: 0 0 30px rgba(255,255,255,0.3);
-}
-
-@media (min-width: 768px) {
-    .totem-message-icon {
-        width: 6rem;
-        height: 6rem;
-    }
-}
-
-/* ============================================================
-   TELA DE AVALIAÇÃO (QR CODE)
-   ============================================================ */
-.totem-qrcode-wrapper {
-    background-color: #fff;
-    padding: 1rem;
-    border-radius: 1.5rem;
-    margin-bottom: 1.5rem;
-    display: inline-block;
-    box-shadow: 0 0 40px rgba(255,255,255,0.15);
-}
-
-@media (min-width: 768px) {
-    .totem-qrcode-wrapper {
-        padding: 1.5rem;
-    }
-}
-
-.totem-qrcode-img {
-    width: 12rem;
-    height: 12rem;
-    object-fit: contain;
-    border-radius: 0.75rem;
-}
-
-@media (min-width: 768px) {
-    .totem-qrcode-img {
-        width: 16rem;
-        height: 16rem;
-    }
-}
-
-.totem-qrcode-label {
-    color: #fbbf24;
-    font-weight: 700;
-    font-size: 1.25rem;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-@media (min-width: 768px) {
-    .totem-qrcode-label {
-        font-size: 1.875rem;
-    }
-}
-
-.totem-qrcode-hint {
-    color: #d1d5db;
-    font-size: 1.125rem;
-    margin-top: 1rem;
-    font-weight: 500;
-    text-align: center;
-}
-
-@media (min-width: 768px) {
-    .totem-qrcode-hint {
-        font-size: 1.25rem;
-    }
-}
-
-.totem-qrcode-hint strong {
-    color: #fff;
-}
-
-/* ============================================================
-   BARRA INFERIOR (TIMER)
-   ============================================================ */
-.totem-bottom-bar {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 20;
-}
-
-@media (min-width: 768px) {
-    .totem-bottom-bar {
-        bottom: 2rem;
-        width: 75%;
-    }
-}
-
-.totem-bottom-text {
-    color: #9ca3af;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-@media (min-width: 768px) {
-    .totem-bottom-text {
-        font-size: 1.125rem;
-    }
-}
-
-.totem-timer-count {
-    font-weight: 700;
-    color: #fff;
-}
-
-.totem-progress-track {
-    width: 100%;
-    background-color: #111827;
-    height: 0.5rem;
-    border-radius: 9999px;
-    overflow: hidden;
-    border: 1px solid #1f2937;
-}
-
-@media (min-width: 768px) {
-    .totem-progress-track {
-        height: 0.75rem;
-    }
-}
-
-.totem-progress-bar {
-    background-color: #fff;
-    height: 100%;
-    width: 100%;
-    animation: shrinkBar linear forwards;
-}
-
-@keyframes shrinkBar {
-    from { width: 100%; }
-    to { width: 0%; }
-}
-
-/* ============================================================
-   TECLADO VIRTUAL - ESTADOS
-   ============================================================ */
-.totem-keyboard {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #0f172a;
-    border-top: 1px solid #1e293b;
-    color: #fff;
-    border-radius: 2.5rem 2.5rem 0 0;
-    box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
-    transition: transform 0.3s ease;
-    transform: translateY(100%);
-    z-index: 300;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 2rem;
-    padding-top: 1rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    height: 45dvh;
-    min-height: 350px;
-    max-height: 450px;
-}
-
-/* Estado visível do teclado */
-.totem-keyboard.is-visible {
-    transform: translateY(0);
-}
-
-@media (min-width: 640px) {
-    .totem-keyboard {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-    }
-}
-
-.totem-keyboard-handle {
-    width: 4rem;
-    height: 0.375rem;
-    background-color: #4b5563;
-    border-radius: 9999px;
-    margin-bottom: 1.5rem;
-    flex-shrink: 0;
-    cursor: pointer;
-}
-
-/* Teclado numérico */
-.totem-keyboard-numeric {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    width: 100%;
-    max-width: 28rem;
-    flex: 1;
-}
-
-@media (min-width: 768px) {
-    .totem-keyboard-numeric {
-        gap: 1rem;
-    }
-}
-
-/* Teclado alfabético (QWERTY) */
-.totem-keyboard-alpha {
-    display: none;
-    width: 100%;
-    max-width: 48rem;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.5rem;
-    flex: 1;
-    height: 100%;
-}
-
-@media (min-width: 768px) {
-    .totem-keyboard-alpha {
-        gap: 0.75rem;
-    }
-}
-
-.totem-keyboard-alpha.flex {
-    display: flex;
-}
-
-.totem-keyboard-row {
-    display: flex;
-    justify-content: center;
-    gap: 0.25rem;
-}
-
-@media (min-width: 768px) {
-    .totem-keyboard-row {
-        gap: 0.5rem;
-    }
-}
-
-.totem-keyboard-row-shifted {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-@media (min-width: 768px) {
-    .totem-keyboard-row-shifted {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-}
-
-.totem-keyboard-actions {
-    gap: 0.5rem;
-    margin-top: 0.25rem;
-}
-
-@media (min-width: 768px) {
-    .totem-keyboard-actions {
-        gap: 0.75rem;
-        margin-top: 0.5rem;
-    }
-}
-
-/* Teclas */
-.totem-key {
-    background-color: #1f2937;
-    border: none;
-    border-radius: 0.75rem;
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.25rem;
-    padding: 0.75rem 0;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    transition: background-color 0.15s, transform 0.1s;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    min-height: 3rem;
-}
-
-@media (min-width: 768px) {
-    .totem-key {
-        font-size: 1.5rem;
-        padding: 1rem 0;
-        min-height: 3.5rem;
-    }
-}
-
-.totem-key:active {
-    background-color: #374151;
-    transform: scale(0.95);
-}
-
-.totem-key-number {
-    font-size: 1.875rem;
-}
-
-@media (min-width: 768px) {
-    .totem-key-number {
-        font-size: 2.25rem;
-    }
-}
-
-.totem-key-letter {
-    font-size: 1.25rem;
-}
-
-@media (min-width: 768px) {
-    .totem-key-letter {
-        font-size: 1.5rem;
-        padding: 1rem 0;
-    }
-}
-
-.totem-key-action {
-    background-color: rgba(127,29,29,0.4);
-    color: #f87171;
-}
-
-.totem-key-action:active {
-    background-color: #7f1d1d;
-    color: #fff;
-}
-
-.totem-key-clear {
-    background-color: rgba(127,29,29,0.4);
-    color: #f87171;
-}
-
-.totem-key-clear:active {
-    background-color: #7f1d1d;
-    color: #fff;
-}
-
-.totem-key-delete {
-    background-color: #1f2937;
-    color: #fff;
-}
-
-.totem-key-delete:active {
-    background-color: #374151;
-}
-
-.totem-key-space {
-    flex: 2;
-    background-color: #374151;
-}
-
-.totem-key-space:active {
-    background-color: #4b5563;
-}
-
-.totem-key-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-}
-
-@media (min-width: 768px) {
-    .totem-key-icon {
-        width: 2rem;
-        height: 2rem;
-    }
-}
-
-/* Tecla CONFIRMAR - destaque amarelo */
-.totem-key-confirm {
-    background-color: #fbbf24;
-    color: #000;
-    font-weight: 900;
-    font-size: 1.25rem;
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
-    border: 2px solid #f59e0b;
-}
-
-.totem-key-confirm:active {
-    background-color: #f59e0b;
-    transform: scale(0.95);
-}
-
-@media (min-width: 768px) {
-    .totem-key-confirm {
-        font-size: 1.5rem;
-    }
-}
-
-/* Ajuste do grid para incluir a tecla CONFIRMAR no teclado numérico */
-.totem-keyboard-numeric {
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.totem-keyboard-numeric .totem-key-confirm {
-    grid-column: 1 / -1; /* ocupa toda a largura */
-    margin-top: 0.25rem;
-}
-
-/* ============================================================
-   MODAL DE SAÍDA DO TOTEM
-   ============================================================ */
-.totem-exit-modal {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0,0,0,0.8);
-    backdrop-filter: blur(8px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    z-index: 400;
-}
-
-.totem-exit-modal:not(.hidden) {
-    display: flex;
-}
-
-.totem-exit-content {
-    background-color: #111827;
-    border-radius: 1.5rem;
-    padding: 2rem;
-    max-width: 24rem;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    border: 1px solid #1f2937;
-    overflow-y: auto;
-    max-height: 90dvh;
-}
-
-.totem-exit-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    color: #6b7280;
-    margin: 0 auto 1rem;
-}
-
-.totem-exit-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 0.5rem;
-}
-
-.totem-exit-text {
-    font-size: 0.875rem;
-    color: #9ca3af;
-    margin-bottom: 1.5rem;
-}
-
-.totem-exit-input {
-    width: 100%;
-    padding: 1rem;
-    background-color: #000;
-    border: 1px solid #374151;
-    border-radius: 0.75rem;
-    outline: none;
-    font-size: 1.5rem;
-    font-weight: 900;
-    letter-spacing: 0.1em;
-    text-align: center;
-    color: #fff;
-    margin-bottom: 1.5rem;
-}
-
-.totem-exit-input:focus {
-    box-shadow: 0 0 0 2px #fff;
-}
-
-.totem-exit-actions {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.totem-exit-actions .totem-btn-secondary,
-.totem-exit-actions .totem-btn-primary {
-    flex: 1;
-    font-size: 1rem;
-    padding: 0.75rem 0;
-    max-width: 100%;
-}
-
-/* ============================================================
-   UTILITÁRIOS (controle de exibição)
-   ============================================================ */
-.hidden {
-    display: none !important;
-    }
+    
+    let segundosRestantes = Math.floor(tempoAvaliacao / 1000);
+    if(counterEl) counterEl.innerText = segundosRestantes;
+    
+    clearInterval(window.intervaloContagemTotem);
+    window.intervaloContagemTotem = setInterval(() => {
+        segundosRestantes--;
+        if(counterEl) counterEl.innerText = Math.max(0, segundosRestantes);
+        if(segundosRestantes <= 0) {
+            clearInterval(window.intervaloContagemTotem);
+        }
+    }, 1000);
+
+    clearTimeout(window.timeoutTotemMsg);
+    window.timeoutTotemMsg = setTimeout(() => {
+        window.totemVoltarInicio();
+    }, tempoAvaliacao);
+};
