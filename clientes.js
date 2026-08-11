@@ -1,5 +1,4 @@
-// clientes.js
-// Módulo 4: Frente de Caixa, Gestão de Clientes e Fidelidade (Alinhado ao index.html original)
+// Módulo 4: Frente de Caixa, Gestão de Clientes e Fidelidade
 
 // ==========================================================================
 // FRENTE DE CAIXA: FLUXO DE BUSCA E ROTEAMENTO
@@ -14,7 +13,6 @@ window.buscarEContabilizar = () => {
     
     const c = window.clientesMap[cpf]; 
     
-    // Ignora clientes arquivados na busca do caixa
     if(!c || c.arquivado) return window.mostrarToast(`Nenhum cliente encontrado para "${window.formatarCPF(cpf)}".`, 'erro');
     
     if (window.diasParaAniversario(c.nascimento) === 0 && c.aniversarioResgatadoAno !== new Date().getFullYear()) { 
@@ -173,7 +171,6 @@ window.processarConfirmacao = (c) => {
     if(!c.historico) c.historico = []; 
     c.historico.push(new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})); 
     
-    // NOVO: Registro Permanente e Separado da Data de Conquista
     if (c.almocos > 0 && c.almocos % 10 === 0) {
         if(!c.historicoConquistas) c.historicoConquistas = [];
         c.historicoConquistas.push(new Date().toLocaleString('pt-BR'));
@@ -194,7 +191,6 @@ window.processarConfirmacao = (c) => {
         
         if(window.logAuditoria) window.logAuditoria('Almoço', `+1 almoço registrado para ${c.nome}. Saldo: ${c.almocos}.`);
         
-        // NOVO: Regra do 10º Almoço (Somente Celebração, sem resgate)
         if (c.almocos % 10 === 0) {
             const m = document.getElementById('modal-celebracao-10');
             if(m) {
@@ -223,13 +219,14 @@ window.efetuarResgateEImprimir = (c) => {
     const btn = document.getElementById('btn-trava-resgatar');
     const span = document.getElementById('btn-trava-resgatar-text');
     if(btn) btn.disabled = true; 
-    if(span) span.innerText = 'Processando Protocolo...';
+    if(span) span.innerText = 'Gerando Protocolo...';
     
-    const unidadeRef = window.obterUnidade();
+    const unidadeRef = window.obterUnidade() || 'navegantes';
     const prefixo = unidadeRef === 'picarras' ? 'PIC' : 'NAV';
-    const hjData = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const dataHjObj = new Date();
+    const offset = dataHjObj.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(dataHjObj - offset)).toISOString().split('T')[0].replace(/-/g, '');
     
-    // Caminho exato do contador atômico
     const counterPath = window.obterCaminhoUnidade('contadores/protocolo');
     const counterRef = window.firebaseRef(window.db, counterPath);
 
@@ -240,7 +237,7 @@ window.efetuarResgateEImprimir = (c) => {
         if (!resultado.committed) throw new Error("Falha ao gerar protocolo.");
         
         const numSequencial = String(resultado.snapshot.val()).padStart(6, '0');
-        const protocoloGerado = `${prefixo}-${hjData}-${numSequencial}`;
+        const protocoloGerado = `${prefixo}-${localISOTime}-${numSequencial}`;
 
         const dts = (c.historico||[]).slice(0,10); 
         c.historico = (c.historico||[]).slice(10); 
@@ -262,9 +259,8 @@ window.efetuarResgateEImprimir = (c) => {
             
             window.mostrarToast(`Resgate realizado! Protocolo: ${protocoloGerado}`); 
             
-            // Payload Estruturado de Auditoria
             if(window.logAuditoria) {
-                window.logAuditoria('Resgate Prêmio', `Desconto de R$ 50 resgatado por ${c.nome}.`, {
+                window.logAuditoria('Resgate Prêmio', `Desconto de R$ 50 resgatado por ${c.nome}. Protocolo: ${protocoloGerado}`, {
                     clienteCpf: c.cpf,
                     clienteNome: c.nome,
                     protocolo: protocoloGerado
@@ -285,44 +281,8 @@ window.efetuarResgateEImprimir = (c) => {
 // AÇÕES SECUNDÁRIAS (ANIVERSÁRIO E IMPRESSÃO)
 // ==========================================================================
 window.confirmarCortesiaAniversario = () => {
-    if (!window.acaoPendente || window.isProcessing) return;
-    const c = window.acaoPendente;
-    window.efetuarResgateAniversarioEImprimir(c);
-}; 
-    
-    const btn = document.getElementById('btn-alerta-aniversario-confirmar');
-    const span = document.getElementById('btn-alerta-aniversario-confirmar-text');
-    if(btn) btn.disabled = true;
-    if(span) span.innerText = 'Atualizando...';
-    
-    const c = window.acaoPendente; 
-    window.isProcessing = true; 
-    if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = true; 
-    
-    setTimeout(()=>{ 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false; 
-        if(btn) btn.disabled = false;
-        if(span) span.innerText = 'Confirmar resgate';
-    }, 8000);
-    
-    const a = new Date().getFullYear(); 
-    c.aniversarioResgatadoAno = a; 
-    
-    if(!c.historicoAniversarios) c.historicoAniversarios = [];
-    c.historicoAniversarios.push({ dataResgate: new Date().toLocaleString('pt-BR'), ano: a });
-    
-    window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => { 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false; 
-        
-        if(btn) btn.disabled = false;
-        if(span) span.innerText = 'Confirmar resgate';
-        
-        window.mostrarToast("Resgate de aniversário realizado com sucesso."); 
-        if(window.logAuditoria) window.logAuditoria('Resgate Aniversário', `Desconto de aniversário validado para ${c.nome}.`);
-        window.continuarPosAniversario(); 
-    });
+    if (!window.acaoPendente || window.isProcessing) return; 
+    window.efetuarResgateAniversarioEImprimir(window.acaoPendente);
 };
 
 window.continuarPosAniversario = () => { 
@@ -336,7 +296,8 @@ window.continuarPosAniversario = () => {
     window.acaoPendente = null; 
 };
 
-window.dispararImpressao = (nome, cpf, dts, hr, protocolo) => {
+// Impressão: 10 Almoços
+window.dispararImpressao = (nome, cpf, dts, hr, protocolo = 'S/N') => {
     let l = ''; 
     (dts||[]).forEach(d => l += `<li>[+] ${window.escapeHTML(d)}</li>`);
     
@@ -380,8 +341,130 @@ window.dispararImpressao = (nome, cpf, dts, hr, protocolo) => {
     window.print();
 };
 
+// Impressão: Aniversário
+window.dispararImpressaoAniversario = (c, dataResgate, protocolo) => {
+    const secaoImp = document.getElementById('secao-impressao');
+    if (!secaoImp) return;
+
+    const isPic = window.obterUnidade() === 'picarras';
+    const razaoSocial = isPic ? 'PIZZARIA TOP HAUS LTDA' : 'ESPAÇO TOP HAUS LTDA';
+    const cnpj = isPic ? '05.991.972/0001-09' : '26.845.124/0001-61';
+    const ie = isPic ? '258350393' : 'ISENTO';
+    const endereco = isPic ? 'Avenida Nereu Ramos, 299<br>Balneário Piçarras - SC 88380-000' : 'Avenida Pref. Jose Juvenal Mafra, 7155<br>Navegantes - SC 88372-506';
+
+    let nascFormatado = c.nascimento || '';
+    if (nascFormatado.includes('-')) {
+        const partes = nascFormatado.split('-');
+        nascFormatado = `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+    const dataCadastroFormatada = c.dataCadastro || 'Não informada';
+
+    secaoImp.innerHTML = `
+        <div style="text-align:center;margin-bottom:5px;line-height:1.2;">
+            <strong style="font-size:15px;color:#000;">${razaoSocial}</strong><br>
+            CNPJ: ${cnpj} | IE: ${ie}<br>
+            ${endereco}<br>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="text-align:center;margin-bottom:5px;">
+            <strong style="font-size:14px;color:#000;">COMPROVANTE DE RESGATE — ANIVERSÁRIO</strong><br>
+            <span style="font-size:11px;">${dataResgate}</span><br>
+            <strong style="font-size:11px;color:#000;">PROT: ${protocolo}</strong>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="margin-bottom:5px;font-size:12px;color:#000;">
+            <p style="margin:2px 0;"><strong>CLIENTE</strong></p>
+            <p style="margin:2px 0;"><strong>Nome:</strong> ${window.escapeHTML((c.nome||'').toUpperCase())}</p>
+            <p style="margin:2px 0;"><strong>CPF:</strong> ${window.formatarCPF(c.cpf)}</p>
+            <p style="margin:2px 0;"><strong>Data de nascimento:</strong> ${nascFormatado}</p>
+            <p style="margin:2px 0;"><strong>Data de cadastro:</strong> ${dataCadastroFormatada}</p>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="margin-bottom:5px;">
+            <p style="font-weight:bold;margin:2px 0;color:#000;">BENEFÍCIO RESGATADO</p>
+            <p style="margin:2px 0;font-size:11px;color:#000;"><strong>Motivo:</strong> Aniversário</p>
+            <p style="margin:2px 0;font-size:11px;color:#000;"><strong>Desconto liberado:</strong> R$ 50,00</p>
+        </div>
+        <div class="linha-tracejada"></div>
+        <div style="text-align:center;margin-top:5px;">
+            <p style="font-weight:900;margin:0;font-size:12px;color:#000;">CONTROLE INTERNO</p>
+            <p style="font-size:10px;margin:2px 0;">Válido somente na data do aniversário.</p>
+        </div>`;
+
+    window.print();
+};
+
+window.efetuarResgateAniversarioEImprimir = (c) => {
+    if (window.isProcessing) return;
+    window.isProcessing = true;
+    if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = true;
+
+    const btn = document.getElementById('btn-alerta-aniversario-confirmar');
+    const span = document.getElementById('btn-alerta-aniversario-confirmar-text');
+    if (btn) btn.disabled = true;
+    if (span) span.innerText = 'Processando Protocolo...';
+
+    const unidadeRef = window.obterUnidade() || 'navegantes';
+    const prefixo = unidadeRef === 'picarras' ? 'PIC' : 'NAV';
+    const dataHjObj = new Date();
+    const offset = dataHjObj.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(dataHjObj - offset)).toISOString().split('T')[0].replace(/-/g, '');
+
+    const counterPath = window.obterCaminhoUnidade('contadores/protocolo');
+    const counterRef = window.firebaseRef(window.db, counterPath);
+
+    // TRANSAÇÃO ATÔMICA
+    window.firebaseRunTransaction(counterRef, (valorAtual) => {
+        return (valorAtual || 0) + 1;
+    }).then((resultado) => {
+        if (!resultado.committed) throw new Error("Falha ao gerar protocolo.");
+        
+        const numSequencial = String(resultado.snapshot.val()).padStart(6, '0');
+        const protocoloGerado = `${prefixo}-${localISOTime}-${numSequencial}`;
+
+        const hr = new Date().toLocaleString('pt-BR');
+        const anoAtual = new Date().getFullYear();
+        
+        c.aniversarioResgatadoAno = anoAtual;
+        
+        if (!c.historicoAniversarios) c.historicoAniversarios = [];
+        c.historicoAniversarios.push({
+            dataResgate: hr,
+            ano: anoAtual,
+            protocolo: protocoloGerado
+        });
+        
+        return window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => {
+            window.isProcessing = false;
+            if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false;
+            
+            if (btn) btn.disabled = false;
+            if (span) span.innerText = 'Confirmar resgate';
+            
+            window.mostrarToast(`Resgate de aniversário realizado! Protocolo: ${protocoloGerado}`);
+            
+            if (window.logAuditoria) {
+                window.logAuditoria('Resgate Aniversário', `Desconto de aniversário validado para ${c.nome}. Protocolo: ${protocoloGerado}`, {
+                    clienteCpf: c.cpf,
+                    clienteNome: c.nome,
+                    protocolo: protocoloGerado
+                });
+            }
+            
+            window.dispararImpressaoAniversario(c, hr, protocoloGerado);
+            window.continuarPosAniversario();
+        });
+    }).catch((err) => {
+        window.isProcessing = false;
+        if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false;
+        if (btn) btn.disabled = false;
+        if (span) span.innerText = 'Confirmar resgate';
+        window.mostrarToast('Erro ao processar resgate de aniversário. Tente novamente.', 'erro');
+    });
+};
+
 // ==========================================================================
-// MODAL ESTÁTICO DE EDIÇÃO (CHAMADO PELA TABELA)
+// MODAL ESTÁTICO DE EDIÇÃO E HISTÓRICO (CHAMADO PELA TABELA)
 // ==========================================================================
 window.abrirEditar = (cpf) => {
     const c = window.clientesMap[cpf]; 
@@ -435,156 +518,6 @@ window.salvarEdicao = (e) => {
     });
 };
 
-// ==========================================================================
-// RESGATE DE ANIVERSÁRIO COM PROTOCOLO E IMPRESSÃO (REUTILIZANDO CONTADOR)
-// ==========================================================================
-
-window.gerarProtocoloAniversario = (c) => {
-    const unidadeRef = window.obterUnidade();
-    const prefixo = unidadeRef === 'picarras' ? 'PIC' : 'NAV';
-    const hjData = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    
-    const counterPath = window.obterCaminhoUnidade('contadores/protocolo');
-    const counterRef = window.firebaseRef(window.db, counterPath);
-
-    return window.firebaseRunTransaction(counterRef, (valorAtual) => {
-        return (valorAtual || 0) + 1;
-    }).then((resultado) => {
-        if (!resultado.committed) throw new Error("Falha ao gerar protocolo.");
-        const numSequencial = String(resultado.snapshot.val()).padStart(6, '0');
-        return `${prefixo}-${hjData}-${numSequencial}`;
-    });
-};
-
-window.dispararImpressaoAniversario = (c, dataResgate, protocolo) => {
-    const secaoImp = document.getElementById('secao-impressao');
-    if (!secaoImp) return;
-
-    const isPic = window.obterUnidade() === 'picarras';
-    const razaoSocial = isPic ? 'PIZZARIA TOP HAUS LTDA' : 'ESPAÇO TOP HAUS LTDA';
-    const cnpj = isPic ? '05.991.972/0001-09' : '26.845.124/0001-61';
-    const ie = isPic ? '258350393' : 'ISENTO';
-    const endereco = isPic ? 'Avenida Nereu Ramos, 299<br>Balneário Piçarras - SC 88380-000' : 'Avenida Pref. Jose Juvenal Mafra, 7155<br>Navegantes - SC 88372-506';
-
-    // Formata data de nascimento
-    let nascFormatado = c.nascimento || '';
-    if (nascFormatado.includes('-')) {
-        const partes = nascFormatado.split('-');
-        nascFormatado = `${partes[2]}/${partes[1]}/${partes[0]}`;
-    }
-
-    const dataCadastro = c.dataCadastro || 'Não informada';
-
-    secaoImp.innerHTML = `
-        <div style="text-align:center;margin-bottom:5px;line-height:1.2;">
-            <strong style="font-size:15px;color:#000;">${razaoSocial}</strong><br>
-            CNPJ: ${cnpj} | IE: ${ie}<br>
-            ${endereco}<br>
-        </div>
-        <div class="linha-tracejada"></div>
-        <div style="text-align:center;margin-bottom:5px;">
-            <strong style="font-size:14px;color:#000;">COMPROVANTE DE RESGATE — ANIVERSÁRIO</strong><br>
-            <span style="font-size:11px;">${dataResgate}</span><br>
-            <strong style="font-size:11px;color:#000;">PROT: ${protocolo}</strong>
-        </div>
-        <div class="linha-tracejada"></div>
-        <div style="margin-bottom:5px;font-size:12px;color:#000;">
-            <p style="margin:2px 0;"><strong>CLIENTE</strong></p>
-            <p style="margin:2px 0;"><strong>Nome:</strong> ${window.escapeHTML((c.nome||'').toUpperCase())}</p>
-            <p style="margin:2px 0;"><strong>CPF:</strong> ${window.formatarCPF(c.cpf)}</p>
-            <p style="margin:2px 0;"><strong>Data de nascimento:</strong> ${nascFormatado}</p>
-            <p style="margin:2px 0;"><strong>Data de cadastro:</strong> ${dataCadastro}</p>
-        </div>
-        <div class="linha-tracejada"></div>
-        <div style="margin-bottom:5px;">
-            <p style="font-weight:bold;margin:2px 0;color:#000;">BENEFÍCIO RESGATADO</p>
-            <p style="margin:2px 0;font-size:12px;color:#000;"><strong>Motivo:</strong> Aniversário</p>
-            <p style="margin:2px 0;font-size:12px;color:#000;"><strong>Desconto liberado:</strong> R$ 50,00</p>
-        </div>
-        <div class="linha-tracejada"></div>
-        <div style="text-align:center;margin-top:5px;">
-            <p style="font-weight:900;margin:0;font-size:12px;color:#000;">CONTROLE INTERNO</p>
-            <p style="font-size:10px;margin:2px 0;">Válido somente na data do aniversário.</p>
-        </div>
-    `;
-
-    window.print();
-};
-
-window.efetuarResgateAniversarioEImprimir = (c) => {
-    if (window.isProcessing) return;
-    window.isProcessing = true;
-    if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = true;
-
-    const btn = document.getElementById('btn-alerta-aniversario-confirmar');
-    const span = document.getElementById('btn-alerta-aniversario-confirmar-text');
-    if (btn) btn.disabled = true;
-    if (span) span.innerText = 'Processando...';
-
-    window.gerarProtocoloAniversario(c)
-        .then((protocolo) => {
-            const dataResgate = new Date().toLocaleString('pt-BR');
-            const anoAtual = new Date().getFullYear();
-
-            c.aniversarioResgatadoAno = anoAtual;
-            if (!c.historicoAniversarios) c.historicoAniversarios = [];
-            c.historicoAniversarios.push({
-                dataResgate: dataResgate,
-                ano: anoAtual,
-                protocolo: protocolo
-            });
-
-            return window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c)
-                .then(() => {
-                    window.isProcessing = false;
-                    if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false;
-                    if (btn) btn.disabled = false;
-                    if (span) span.innerText = 'Confirmar resgate';
-
-                    window.mostrarToast("Resgate de aniversário realizado com sucesso.");
-                    if (window.logAuditoria) {
-                        window.logAuditoria('Resgate Aniversário', `Desconto de aniversário validado para ${c.nome}.`, {
-                            clienteCpf: c.cpf,
-                            clienteNome: c.nome,
-                            protocolo: protocolo
-                        });
-                    }
-
-                    window.dispararImpressaoAniversario(c, dataResgate, protocolo);
-                    window.continuarPosAniversario();
-                })
-                .catch((err) => {
-                    // Reverte o histórico se falhou
-                    if (c.historicoAniversarios && c.historicoAniversarios.length > 0) {
-                        const ultimo = c.historicoAniversarios[c.historicoAniversarios.length - 1];
-                        if (ultimo.protocolo === protocolo) {
-                            c.historicoAniversarios.pop();
-                        }
-                    }
-                    c.aniversarioResgatadoAno = null;
-
-                    window.isProcessing = false;
-                    if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false;
-                    if (btn) btn.disabled = false;
-                    if (span) span.innerText = 'Confirmar resgate';
-
-                    window.mostrarToast('Não foi possível concluir o resgate. Tente novamente.', 'erro');
-                    console.error('Erro no resgate de aniversário:', err);
-                });
-        })
-        .catch((err) => {
-            window.isProcessing = false;
-            if (window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false;
-            if (btn) btn.disabled = false;
-            if (span) span.innerText = 'Confirmar resgate';
-            window.mostrarToast('Erro ao gerar protocolo. Tente novamente.', 'erro');
-            console.error('Erro na geração de protocolo:', err);
-        });
-};
-
-// ==========================================================================
-// MODAL ESTÁTICO DE HISTÓRICO (CHAMADO PELA TABELA)
-// ==========================================================================
 window.abrirHistorico = (cpf) => {
     const c = window.clientesMap[cpf];
     const div = document.getElementById('lista-historico'); 
@@ -593,7 +526,6 @@ window.abrirHistorico = (cpf) => {
     div.innerHTML = ''; 
     if(!c) return;
 
-    // NOVO: Exibição das Conquistas
     if(c.historicoConquistas && c.historicoConquistas.length > 0) {
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Conquistas (10 Almoços Alcançados)</h4>`;
         c.historicoConquistas.forEach((r, i) => {
@@ -608,21 +540,24 @@ window.abrirHistorico = (cpf) => {
     if(c.historicoResgates && c.historicoResgates.length > 0) { 
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Resgates de Prêmio Realizados</h4>`; 
         c.historicoResgates.forEach((r, i) => { 
+            const protStr = r.protocolo ? `<br><span class="text-indigo-600">Prot: ${r.protocolo}</span>` : '';
             div.innerHTML += `
                 <div class="bg-gray-50 p-3 rounded-lg border flex justify-between items-center mb-2">
-                    <div><p class="text-xs font-bold text-gray-800">Resgate #${i+1}</p><p class="text-xs text-gray-600">${r.dataResgate}</p></div>
+                    <div><p class="text-xs font-bold text-gray-800">Resgate #${i+1}</p><p class="text-xs text-gray-600">${r.dataResgate}${protStr}</p></div>
                     <button onclick="reimprimirCupomPorCpf('${c.cpf}', ${i})" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition hover:bg-gray-800">
                         <i data-lucide="printer" class="w-3.5 h-3.5 inline"></i> Reimprimir
                     </button>
                 </div>`; 
         }); 
     }
+    
     if(c.historicoAniversarios && c.historicoAniversarios.length > 0) { 
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Aniversários</h4>`; 
         c.historicoAniversarios.forEach(r => { 
+            const protStr = r.protocolo ? `<br><span class="text-indigo-600">Prot: ${r.protocolo}</span>` : '';
             div.innerHTML += `
                 <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 flex justify-between items-center mb-2">
-                    <div><p class="text-xs font-bold text-indigo-900">Aniv. ${r.ano}</p><p class="text-xs text-indigo-700">${r.dataResgate}</p></div>
+                    <div><p class="text-xs font-bold text-indigo-900">Aniv. ${r.ano}</p><p class="text-xs text-indigo-700">${r.dataResgate}${protStr}</p></div>
                 </div>`; 
         }); 
     }
@@ -642,22 +577,32 @@ window.reimprimirCupomPorCpf = (c, i) => {
     const cl = window.clientesMap[c]; 
     if(cl && cl.historicoResgates && cl.historicoResgates[i]) {
         if(window.logAuditoria) window.logAuditoria('Reimpressão', `Cupom de resgate reimpresso para ${cl.nome}.`);
-        window.dispararImpressao(cl.nome, cl.cpf, cl.historicoResgates[i].datas, cl.historicoResgates[i].dataResgate + " (REIMPRESSÃO)"); 
+        window.dispararImpressao(cl.nome, cl.cpf, cl.historicoResgates[i].datas, cl.historicoResgates[i].dataResgate + " (REIMPRESSÃO)", cl.historicoResgates[i].protocolo); 
     }
 };
 
 // ==========================================================================
 // SEGURANÇA E AUDITORIA (MULTILIVRE)
 // ==========================================================================
-window.logAuditoria = (acao, detalhes) => {
+window.logAuditoria = (acao, detalhes, extraData = {}) => {
     const user = window.usuarioLogado ? window.usuarioLogado.email.split('@')[0] : 'sistema';
+    const cargo = window.cargoLogado || 'sistema';
+    const unidade = window.obterUnidade ? window.obterUnidade() : 'desconhecida';
+    const terminal = window.obterTerminalId ? window.obterTerminalId() : 'desconhecido';
+
     const log = {
+        tipo: acao,
+        acao: acao,
         dataHora: new Date().toLocaleString('pt-BR'),
         timestamp: Date.now(),
         usuario: user,
-        acao: acao,
-        detalhes: detalhes
+        cargo: cargo,
+        unidade: unidade,
+        terminal_id: terminal,
+        detalhes: detalhes,
+        ...extraData
     };
+    
     const pathAuditoria = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('auditoria') : 'auditoria';
     window.firebasePush(window.firebaseRef(window.db, pathAuditoria), log);
 };
@@ -683,7 +628,7 @@ window.abrirAuditoria = () => {
                 tb.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
                         <td class="py-3 px-4 text-xs whitespace-nowrap">${l.dataHora}<br><span class="text-indigo-600 font-bold uppercase">@${l.usuario}</span></td>
-                        <td class="py-3 px-4 text-xs font-bold text-gray-800">${l.acao}</td>
+                        <td class="py-3 px-4 text-xs font-bold text-gray-800">${l.acao || l.tipo}</td>
                         <td class="py-3 px-4 text-xs text-gray-600">${window.escapeHTML(l.detalhes)}</td>
                     </tr>
                 `;
@@ -788,26 +733,26 @@ window.restaurarCliente = (cpf) => {
     });
 };
 
-// Funcionalidade de Almoço Atrasado com validação de senha real no Auth
 window.registrarAlmocoAtrasado = () => {
-    // 1. Barreira de Cargo Local (Bloqueia visualmente)
     if(window.cargoLogado !== 'gerente' && window.cargoLogado !== 'admin') {
-        return window.mostrarToast('Acesso negado. Apenas gerentes e administradores podem realizar esta operação.', 'erro');
+        return window.mostrarToast('Acesso negado. Apenas gerentes e administradores.', 'erro');
     }
 
+    const inputData = document.getElementById('atrasado-data');
+    if(!inputData) return window.mostrarToast('Erro interno: Campo de data não encontrado.', 'erro');
+    
     const cpfNum = document.getElementById('atrasado-cpf').value.replace(/\D/g, '');
-    const dataAtrasada = document.getElementById('atrasado-data').value;
+    const dataAtrasada = inputData.value;
     const qtd = parseInt(document.getElementById('atrasado-qtd').value, 10);
     const senha = document.getElementById('atrasado-senha').value;
 
     if(!window.validarCPFReal(cpfNum)) return window.mostrarToast('CPF inválido.', 'erro');
-    if(!dataAtrasada || isNaN(qtd) || qtd < 1) return window.mostrarToast('Preencha a data e uma quantidade válida.', 'erro');
+    if(!dataAtrasada || isNaN(qtd) || qtd < 1) return window.mostrarToast('Preencha a data e quantidade.', 'erro');
     if(!senha) return window.mostrarToast('A senha do administrador é obrigatória.', 'erro');
 
     const c = window.clientesMap[cpfNum];
-    if(!c) return window.mostrarToast('Cliente não encontrado na base de dados.', 'erro');
+    if(!c) return window.mostrarToast('Cliente não encontrado.', 'erro');
 
-    // 2. Barreira de Autenticação Ativa (Garante que quem está logado sabe a senha)
     const emailAtual = window.usuarioLogado.email;
     
     window.firebaseSignIn(window.auth, emailAtual, senha).then(() => {
@@ -815,14 +760,12 @@ window.registrarAlmocoAtrasado = () => {
         
         c.almocos = (c.almocos || 0) + qtd;
         
-        // Mantém a String para o Frontend original
         if(!c.historico) c.historico = [];
         for(let i = 0; i < qtd; i++) {
             c.historico.push(`${dataFormatada} às 12:00 (Atrasado)`);
         }
         c.historico = window.limitarHistorico(c.historico);
 
-        // 3. Nó de Persistência Estruturada para o Banco de Dados (Garante Integridade)
         if(!c.historicoAtrasados) c.historicoAtrasados = [];
         c.historicoAtrasados.push({
             dataRegistro: new Date().toISOString(),
@@ -837,11 +780,10 @@ window.registrarAlmocoAtrasado = () => {
         }
 
         window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => {
-            window.mostrarToast(`Sucesso! +${qtd} almoço(s) retroativos adicionados.`);
+            window.mostrarToast(`Sucesso! +${qtd} almoço(s) retroativos.`);
             
-            // 4. Payload Estruturado de Auditoria
             if(window.logAuditoria) {
-                window.logAuditoria('Almoço Atrasado', `+${qtd} refeição(ões) referente a ${dataFormatada} registrada(s) para ${c.nome}.`, {
+                window.logAuditoria('Almoço Atrasado', `+${qtd} refeição referente a ${dataFormatada} registrada para ${c.nome}.`, {
                     clienteCpf: c.cpf,
                     clienteNome: c.nome,
                     quantidade: qtd,
@@ -858,9 +800,6 @@ window.registrarAlmocoAtrasado = () => {
     });
 };
 
-// ==========================================================================
-// MESCLAGEM DE CADASTROS DUPLICADOS
-// ==========================================================================
 window.abrirModalMesclagem = () => {
     if(!window.permissoesLogado || !window.permissoesLogado.clientes) {
         return window.mostrarToast("Seu perfil não tem acesso a esta ação.", "erro");
