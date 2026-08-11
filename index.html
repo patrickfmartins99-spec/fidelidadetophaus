@@ -159,7 +159,7 @@
                         <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i> Gestão
                     </div>
                     
-                    <button id="btn-almoco-atrasado" onclick="prepararAlmocoAtrasado('')" class="hidden bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm shadow-sm">
+                    <button id="btn-almoco-atrasado" onclick="prepararAlmocoAtrasado('')" class="bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm shadow-sm">
     <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar Almoço Perdido
 </button>
                     
@@ -472,40 +472,42 @@
             </div>
         </div>
 
-        <!-- MODAL: ALMOÇO ATRASADO (Atualizado com o campo Data) -->
-        <div id="modal-almoco-atrasado" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-emerald-500 overflow-y-auto max-h-[90dvh]">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="clock" class="w-5 h-5 text-emerald-500"></i> Registrar Almoço Atrasado</h3>
-                    <button type="button" onclick="fecharModal('modal-almoco-atrasado')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-                <p class="text-sm text-gray-500 mb-4 text-center">Exceção de segurança para registrar almoços perdidos devido a quedas de sistema. Esta ação gera log de auditoria.</p>
-                <form id="form-almoco-atrasado" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">CPF do Cliente</label>
-                        <input type="tel" id="atrasado-cpf" inputmode="numeric" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono text-center">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Data Perdida</label>
-                            <input type="date" id="atrasado-data" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Quantidade</label>
-                            <input type="number" id="atrasado-qtd" required min="1" max="10" value="1" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 text-center font-bold">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Senha de Gerente/Admin</label>
-                        <input type="password" id="atrasado-senha" required placeholder="Senha de autorização" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-gray-800 tracking-widest">
-                    </div>
-                    <div class="mt-6 flex gap-3">
-                        <button type="button" onclick="fecharModal('modal-almoco-atrasado')" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">Cancelar</button>
-                        <button type="button" onclick="if(typeof window.registrarAlmocoAtrasado === 'function') window.registrarAlmocoAtrasado()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition"><i data-lucide="check-circle" class="w-4 h-4"></i> Registrar</button>
-                    </div>
-                </form>
-            </div>
+        <!-- MODAL: ALMOÇO ATRASADO / EXTRA -->
+<div id="modal-almoco-atrasado" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-emerald-500 overflow-y-auto max-h-[90dvh]">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="clock" class="w-5 h-5 text-emerald-500"></i> Almoço Extra/Perdido</h3>
+            <button type="button" onclick="fecharModal('modal-almoco-atrasado')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
+        <form id="form-almoco-atrasado" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">CPF do Cliente</label>
+                <input type="tel" id="atrasado-cpf" inputmode="numeric" required placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono text-center">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Data do Almoço</label>
+                    <input type="date" id="atrasado-data" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1 text-center">Quantidade</label>
+                    <input type="number" id="atrasado-qtd" required min="1" max="10" value="1" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 text-center font-bold">
+                </div>
+            </div>
+            
+            <!-- Campo de senha só aparece para o Caixa -->
+            <div id="atrasado-auth-caixa" class="hidden">
+                <label class="block text-xs font-semibold text-red-600 uppercase mb-1 text-center">Senha Master (Gerente)</label>
+                <input type="password" id="atrasado-senha" placeholder="Autorização necessária" class="w-full px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl focus:ring-2 focus:ring-red-500 text-center font-bold text-gray-800 tracking-widest">
+            </div>
+
+            <div class="mt-6 flex gap-3">
+                <button type="button" onclick="fecharModal('modal-almoco-atrasado')" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition">Cancelar</button>
+                <button type="button" onclick="if(typeof window.registrarAlmocoAtrasado === 'function') window.registrarAlmocoAtrasado()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition"><i data-lucide="check-circle" class="w-4 h-4"></i> Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>
 
         <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
