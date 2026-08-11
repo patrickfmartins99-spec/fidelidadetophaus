@@ -32,10 +32,31 @@ window.processarFluxoNormal = (c) => {
     const ja = window.jaRegistrouHoje(c);
     const p = (c.almocos||0) >= 10;
     
+    // Atalho direto no Caixa para lançar almoços atrasados (Apenas Gerentes/Admins)
+    const isGerente = (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin');
+    const linkAtrasado = isGerente 
+        ? `<div class="mt-5 pt-4 border-t border-gray-100">
+             <button type="button" onclick="window.fecharModal('modal-confirmacao'); window.fecharModal('modal-trava'); window.prepararAlmocoAtrasado('${c.cpf}')" class="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 border border-emerald-200 shadow-sm">
+               <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar almoço perdido (Gerente)
+             </button>
+           </div>` 
+        : '';
+
     if(p) {
         const m = document.getElementById('modal-trava'); 
         m.classList.remove('hidden'); 
         if(window.prenderFocoModal) window.prenderFocoModal(m);
+        
+        // Injeta o atalho de Almoço Atrasado no modal de trava (caso seja gerente)
+        let containerAtrasado = document.getElementById('trava-atrasado-container');
+        if(!containerAtrasado) {
+            const conteudo = m.querySelector('.bg-white'); 
+            containerAtrasado = document.createElement('div');
+            containerAtrasado.id = 'trava-atrasado-container';
+            if(conteudo) conteudo.appendChild(containerAtrasado);
+        }
+        if(containerAtrasado) containerAtrasado.innerHTML = linkAtrasado;
+        if(window.lucide) window.lucide.createIcons();
         
         document.getElementById('btn-trava-resgatar').onclick = () => { 
             if(window.fecharModal) window.fecharModal('modal-trava'); 
@@ -61,12 +82,30 @@ window.processarFluxoNormal = (c) => {
             }; 
         }
     } else {
-        if(ja) return window.mostrarToast('Este cliente já registrou um almoço hoje.', 'erro');
+        const btnConfirmar = document.getElementById('btn-confirmar-almoco');
+        if(btnConfirmar) btnConfirmar.classList.remove('hidden');
+
+        if(ja) {
+            // Se já registrou hoje, mas é gerente, ele tem a opção de lançar o de ontem.
+            if(isGerente) {
+                document.getElementById('texto-confirmacao').innerHTML = `<span class="text-red-600 font-bold mb-2 block">O almoço de HOJE já foi registrado.</span> Deseja lançar um almoço de outro dia? ${linkAtrasado}`;
+                if(btnConfirmar) btnConfirmar.classList.add('hidden'); // Esconde o botão normal de +1
+                
+                const m = document.getElementById('modal-confirmacao'); 
+                m.classList.remove('hidden'); 
+                if(window.prenderFocoModal) window.prenderFocoModal(m);
+                if(window.lucide) window.lucide.createIcons();
+                return;
+            }
+            return window.mostrarToast('Este cliente já registrou um almoço hoje.', 'erro');
+        }
         
-        document.getElementById('texto-confirmacao').innerHTML = `Deseja registrar +1 almoço para <strong>${window.escapeHTML(c.nome)}</strong>?`;
+        // Fluxo normal de registro com o atalho opcional
+        document.getElementById('texto-confirmacao').innerHTML = `Deseja registrar +1 almoço para <strong>${window.escapeHTML(c.nome)}</strong>? ${linkAtrasado}`;
         const m = document.getElementById('modal-confirmacao'); 
         m.classList.remove('hidden'); 
         if(window.prenderFocoModal) window.prenderFocoModal(m);
+        if(window.lucide) window.lucide.createIcons();
         
         document.getElementById('btn-confirmar-almoco').onclick = () => { 
             if(window.fecharModal) window.fecharModal('modal-confirmacao'); 
@@ -516,6 +555,7 @@ window.salvarEdicao = (e) => {
     });
 };
 
+// PREPARA O MODAL DE ALMOÇO ATRASADO COM O CPF CORRETO
 window.prepararAlmocoAtrasado = (cpf) => {
     if(window.fecharModal) window.fecharModal('modal-historico');
     
@@ -547,17 +587,6 @@ window.abrirHistorico = (cpf) => {
     div.innerHTML = ''; 
     if(!c) return;
 
-    // NOVO: Atalho para Almoço Atrasado se for Gerente/Admin
-    if (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin') {
-        div.innerHTML += `
-            <div class="flex justify-end mb-4">
-                <button onclick="prepararAlmocoAtrasado('${c.cpf}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 border border-emerald-200 shadow-sm">
-                    <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar Almoço Perdido
-                </button>
-            </div>
-        `;
-    }
-
     if(c.historicoConquistas && c.historicoConquistas.length > 0) {
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Conquistas (10 Almoços Alcançados)</h4>`;
         c.historicoConquistas.forEach((r, i) => {
@@ -586,7 +615,6 @@ window.abrirHistorico = (cpf) => {
     if(c.historicoAniversarios && c.historicoAniversarios.length > 0) { 
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Aniversários</h4>`; 
         c.historicoAniversarios.forEach((r, i) => { 
-            // Fallback para exibir S/N se o resgate for antigo e não tiver protocolo salvo
             const protocoloFormatado = r.protocolo || 'S/N';
             div.innerHTML += `
                 <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 flex justify-between items-center mb-2">
@@ -601,7 +629,7 @@ window.abrirHistorico = (cpf) => {
         }); 
     }
     
-    if(div.innerHTML === '' || (div.innerHTML.includes('Lançar Almoço Perdido') && (!c.historicoConquistas) && (!c.historicoResgates) && (!c.historicoAniversarios))) {
+    if(div.innerHTML === '') {
         div.innerHTML += '<p class="text-sm text-gray-500 text-center py-4">Nenhum histórico de prêmios encontrado.</p>';
     }
     
