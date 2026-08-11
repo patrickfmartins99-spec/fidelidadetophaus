@@ -230,7 +230,6 @@ window.efetuarResgateEImprimir = (c) => {
     const counterPath = window.obterCaminhoUnidade('contadores/protocolo');
     const counterRef = window.firebaseRef(window.db, counterPath);
 
-    // TRANSAÇÃO ATÔMICA
     window.firebaseRunTransaction(counterRef, (valorAtual) => {
         return (valorAtual || 0) + 1;
     }).then((resultado) => {
@@ -342,7 +341,7 @@ window.dispararImpressao = (nome, cpf, dts, hr, protocolo = 'S/N') => {
 };
 
 // Impressão: Aniversário
-window.dispararImpressaoAniversario = (c, dataResgate, protocolo) => {
+window.dispararImpressaoAniversario = (c, dataResgate, protocolo = 'S/N') => {
     const secaoImp = document.getElementById('secao-impressao');
     if (!secaoImp) return;
 
@@ -413,7 +412,6 @@ window.efetuarResgateAniversarioEImprimir = (c) => {
     const counterPath = window.obterCaminhoUnidade('contadores/protocolo');
     const counterRef = window.firebaseRef(window.db, counterPath);
 
-    // TRANSAÇÃO ATÔMICA
     window.firebaseRunTransaction(counterRef, (valorAtual) => {
         return (valorAtual || 0) + 1;
     }).then((resultado) => {
@@ -464,7 +462,7 @@ window.efetuarResgateAniversarioEImprimir = (c) => {
 };
 
 // ==========================================================================
-// MODAL ESTÁTICO DE EDIÇÃO E HISTÓRICO (CHAMADO PELA TABELA)
+// MODAL ESTÁTICO DE EDIÇÃO, HISTÓRICO E ATALHOS (CHAMADOS PELA TABELA)
 // ==========================================================================
 window.abrirEditar = (cpf) => {
     const c = window.clientesMap[cpf]; 
@@ -518,6 +516,29 @@ window.salvarEdicao = (e) => {
     });
 };
 
+window.prepararAlmocoAtrasado = (cpf) => {
+    if(window.fecharModal) window.fecharModal('modal-historico');
+    
+    if (window.cargoLogado !== 'gerente' && window.cargoLogado !== 'admin') {
+        return window.mostrarToast('Apenas gerentes e administradores podem lançar almoços perdidos.', 'erro');
+    }
+
+    const form = document.getElementById('form-almoco-atrasado');
+    if(form) form.reset();
+    
+    const m = document.getElementById('modal-almoco-atrasado');
+    if(m) {
+        const inputCpf = document.getElementById('atrasado-cpf');
+        if(inputCpf) {
+            inputCpf.value = window.formatarCPF(cpf);
+        }
+        m.classList.remove('hidden');
+        if(window.prenderFocoModal) window.prenderFocoModal(m);
+    } else {
+        window.mostrarToast('Painel de almoço atrasado não encontrado no sistema.', 'erro');
+    }
+};
+
 window.abrirHistorico = (cpf) => {
     const c = window.clientesMap[cpf];
     const div = document.getElementById('lista-historico'); 
@@ -525,6 +546,17 @@ window.abrirHistorico = (cpf) => {
     
     div.innerHTML = ''; 
     if(!c) return;
+
+    // NOVO: Atalho para Almoço Atrasado se for Gerente/Admin
+    if (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin') {
+        div.innerHTML += `
+            <div class="flex justify-end mb-4">
+                <button onclick="prepararAlmocoAtrasado('${c.cpf}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 border border-emerald-200 shadow-sm">
+                    <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar Almoço Perdido
+                </button>
+            </div>
+        `;
+    }
 
     if(c.historicoConquistas && c.historicoConquistas.length > 0) {
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Conquistas (10 Almoços Alcançados)</h4>`;
@@ -554,19 +586,23 @@ window.abrirHistorico = (cpf) => {
     if(c.historicoAniversarios && c.historicoAniversarios.length > 0) { 
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Aniversários</h4>`; 
         c.historicoAniversarios.forEach((r, i) => { 
-            const protStr = r.protocolo ? `<br><span class="text-indigo-600">Prot: ${r.protocolo}</span>` : '';
+            // Fallback para exibir S/N se o resgate for antigo e não tiver protocolo salvo
+            const protocoloFormatado = r.protocolo || 'S/N';
             div.innerHTML += `
                 <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 flex justify-between items-center mb-2">
-                    <div><p class="text-xs font-bold text-indigo-900">Aniv. ${r.ano}</p><p class="text-xs text-indigo-700">${r.dataResgate}${protStr}</p></div>
-                    <button onclick="reimprimirAniversarioPorCpf('${c.cpf}', ${i})" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition hover:bg-gray-800">
+                    <div>
+                        <p class="text-xs font-bold text-indigo-900">Aniv. ${r.ano}</p>
+                        <p class="text-xs text-indigo-700">${r.dataResgate}<br><span class="text-indigo-600">Prot: ${protocoloFormatado}</span></p>
+                    </div>
+                    <button onclick="reimprimirAniversarioPorCpf('${c.cpf}', ${i})" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition hover:bg-gray-800 shadow-sm">
                         <i data-lucide="printer" class="w-3.5 h-3.5 inline"></i> Reimprimir
                     </button>
                 </div>`; 
         }); 
     }
     
-    if(div.innerHTML === '') {
-        div.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Nenhum histórico encontrado para este cliente.</p>';
+    if(div.innerHTML === '' || (div.innerHTML.includes('Lançar Almoço Perdido') && (!c.historicoConquistas) && (!c.historicoResgates) && (!c.historicoAniversarios))) {
+        div.innerHTML += '<p class="text-sm text-gray-500 text-center py-4">Nenhum histórico de prêmios encontrado.</p>';
     }
     
     const m = document.getElementById('modal-historico'); 
@@ -580,7 +616,8 @@ window.reimprimirCupomPorCpf = (c, i) => {
     const cl = window.clientesMap[c]; 
     if(cl && cl.historicoResgates && cl.historicoResgates[i]) {
         if(window.logAuditoria) window.logAuditoria('Reimpressão', `Cupom de resgate reimpresso para ${cl.nome}.`);
-        window.dispararImpressao(cl.nome, cl.cpf, cl.historicoResgates[i].datas, cl.historicoResgates[i].dataResgate + " (REIMPRESSÃO)", cl.historicoResgates[i].protocolo); 
+        const protocolo = cl.historicoResgates[i].protocolo || 'S/N';
+        window.dispararImpressao(cl.nome, cl.cpf, cl.historicoResgates[i].datas, cl.historicoResgates[i].dataResgate + " (REIMPRESSÃO)", protocolo); 
     }
 };
 
@@ -589,10 +626,11 @@ window.reimprimirAniversarioPorCpf = (c, i) => {
     const cl = window.clientesMap[c]; 
     if(cl && cl.historicoAniversarios && cl.historicoAniversarios[i]) {
         if(window.logAuditoria) window.logAuditoria('Reimpressão', `Cupom de aniversário reimpresso para ${cl.nome}.`);
+        const protocolo = cl.historicoAniversarios[i].protocolo || 'S/N';
         window.dispararImpressaoAniversario(
             cl, 
             cl.historicoAniversarios[i].dataResgate + " (REIMPRESSÃO)", 
-            cl.historicoAniversarios[i].protocolo
+            protocolo
         ); 
     }
 };
