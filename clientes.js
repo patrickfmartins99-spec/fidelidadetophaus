@@ -32,22 +32,19 @@ window.processarFluxoNormal = (c) => {
     const ja = window.jaRegistrouHoje(c);
     const p = (c.almocos||0) >= 10;
     
-    // Atalho direto no Caixa para lançar almoços atrasados (Apenas Gerentes/Admins)
-    const isGerente = (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin');
-    const linkAtrasado = isGerente 
-        ? `<div class="mt-5 pt-4 border-t border-gray-100">
-             <button type="button" onclick="window.fecharModal('modal-confirmacao'); window.fecharModal('modal-trava'); window.prepararAlmocoAtrasado('${c.cpf}')" class="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 border border-emerald-200 shadow-sm">
-               <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar almoço perdido (Gerente)
-             </button>
-           </div>` 
-        : '';
+    // O atalho agora é exibido para QUALQUER usuário, permitindo registrar extra com aprovação
+    const linkAtrasado = `
+        <div class="mt-5 pt-4 border-t border-gray-100">
+            <button type="button" onclick="window.fecharModal('modal-confirmacao'); window.fecharModal('modal-trava'); window.prepararAlmocoAtrasado('${c.cpf}')" class="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 border border-emerald-200 shadow-sm">
+                <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar almoço extra ou perdido
+            </button>
+        </div>`;
 
     if(p) {
         const m = document.getElementById('modal-trava'); 
         m.classList.remove('hidden'); 
         if(window.prenderFocoModal) window.prenderFocoModal(m);
         
-        // Injeta o atalho de Almoço Atrasado no modal de trava (caso seja gerente)
         let containerAtrasado = document.getElementById('trava-atrasado-container');
         if(!containerAtrasado) {
             const conteudo = m.querySelector('.bg-white'); 
@@ -86,21 +83,17 @@ window.processarFluxoNormal = (c) => {
         if(btnConfirmar) btnConfirmar.classList.remove('hidden');
 
         if(ja) {
-            // Se já registrou hoje, mas é gerente, ele tem a opção de lançar o de ontem.
-            if(isGerente) {
-                document.getElementById('texto-confirmacao').innerHTML = `<span class="text-red-600 font-bold mb-2 block">O almoço de HOJE já foi registrado.</span> Deseja lançar um almoço de outro dia? ${linkAtrasado}`;
-                if(btnConfirmar) btnConfirmar.classList.add('hidden'); // Esconde o botão normal de +1
-                
-                const m = document.getElementById('modal-confirmacao'); 
-                m.classList.remove('hidden'); 
-                if(window.prenderFocoModal) window.prenderFocoModal(m);
-                if(window.lucide) window.lucide.createIcons();
-                return;
-            }
-            return window.mostrarToast('Este cliente já registrou um almoço hoje.', 'erro');
+            // Se já registrou hoje, o sistema avisa, mas não bloqueia a tela se o caixa quiser lançar um extra (com senha)
+            document.getElementById('texto-confirmacao').innerHTML = `<span class="text-red-600 font-bold mb-2 block">O almoço de HOJE já foi registrado.</span> Deseja lançar um almoço de outro dia ou refeição extra? ${linkAtrasado}`;
+            if(btnConfirmar) btnConfirmar.classList.add('hidden'); // Esconde o botão normal de +1
+            
+            const m = document.getElementById('modal-confirmacao'); 
+            m.classList.remove('hidden'); 
+            if(window.prenderFocoModal) window.prenderFocoModal(m);
+            if(window.lucide) window.lucide.createIcons();
+            return;
         }
         
-        // Fluxo normal de registro com o atalho opcional
         document.getElementById('texto-confirmacao').innerHTML = `Deseja registrar +1 almoço para <strong>${window.escapeHTML(c.nome)}</strong>? ${linkAtrasado}`;
         const m = document.getElementById('modal-confirmacao'); 
         m.classList.remove('hidden'); 
@@ -555,25 +548,37 @@ window.salvarEdicao = (e) => {
     });
 };
 
-// PREPARA O MODAL DE ALMOÇO ATRASADO COM O CPF CORRETO
+// PREPARA O MODAL DE ALMOÇO ATRASADO COM O CPF CORRETO E CONTROLA A SENHA
 window.prepararAlmocoAtrasado = (cpf) => {
     if(window.fecharModal) window.fecharModal('modal-historico');
-    
-    if (window.cargoLogado !== 'gerente' && window.cargoLogado !== 'admin') {
-        return window.mostrarToast('Apenas gerentes e administradores podem lançar almoços perdidos.', 'erro');
-    }
 
     const form = document.getElementById('form-almoco-atrasado');
     if(form) form.reset();
     
-    const m = document.getElementById('modal-almoco-atrasado');
-    if(m) {
-        const inputCpf = document.getElementById('atrasado-cpf');
-        if(inputCpf) {
-            inputCpf.value = window.formatarCPF(cpf);
+    const inputCpf = document.getElementById('atrasado-cpf');
+    if(inputCpf && cpf) {
+        inputCpf.value = window.formatarCPF(cpf);
+    }
+    
+    const isGerente = (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin');
+    const divAuth = document.getElementById('atrasado-auth-caixa');
+    
+    if (divAuth) {
+        if (isGerente) {
+            // Se for gerente, a senha não é necessária, o campo fica oculto
+            divAuth.classList.add('hidden');
+            document.getElementById('atrasado-senha').required = false;
+        } else {
+            // Se for caixa, exige a Senha Master do gerente
+            divAuth.classList.remove('hidden');
+            document.getElementById('atrasado-senha').required = true;
         }
+    }
+
+    const m = document.getElementById('modal-almoco-atrasado');
+    if (m) {
         m.classList.remove('hidden');
-        if(window.prenderFocoModal) window.prenderFocoModal(m);
+        if (window.prenderFocoModal) window.prenderFocoModal(m);
     } else {
         window.mostrarToast('Painel de almoço atrasado não encontrado no sistema.', 'erro');
     }
@@ -586,6 +591,14 @@ window.abrirHistorico = (cpf) => {
     
     div.innerHTML = ''; 
     if(!c) return;
+
+    div.innerHTML += `
+        <div class="flex justify-end mb-4">
+            <button onclick="prepararAlmocoAtrasado('${c.cpf}')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 border border-emerald-200 shadow-sm">
+                <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar Almoço Perdido / Extra
+            </button>
+        </div>
+    `;
 
     if(c.historicoConquistas && c.historicoConquistas.length > 0) {
         div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Conquistas (10 Almoços Alcançados)</h4>`;
@@ -627,10 +640,6 @@ window.abrirHistorico = (cpf) => {
                     </button>
                 </div>`; 
         }); 
-    }
-    
-    if(div.innerHTML === '') {
-        div.innerHTML += '<p class="text-sm text-gray-500 text-center py-4">Nenhum histórico de prêmios encontrado.</p>';
     }
     
     const m = document.getElementById('modal-historico'); 
@@ -815,70 +824,77 @@ window.restaurarCliente = (cpf) => {
     });
 };
 
+// REGISTRA O ALMOÇO COM A SENHA MASTER
 window.registrarAlmocoAtrasado = () => {
-    if(window.cargoLogado !== 'gerente' && window.cargoLogado !== 'admin') {
-        return window.mostrarToast('Acesso negado. Apenas gerentes e administradores.', 'erro');
-    }
-
     const inputData = document.getElementById('atrasado-data');
     if(!inputData) return window.mostrarToast('Erro interno: Campo de data não encontrado.', 'erro');
     
     const cpfNum = document.getElementById('atrasado-cpf').value.replace(/\D/g, '');
     const dataAtrasada = inputData.value;
     const qtd = parseInt(document.getElementById('atrasado-qtd').value, 10);
-    const senha = document.getElementById('atrasado-senha').value;
-
+    const isGerente = (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin');
+    
     if(!window.validarCPFReal(cpfNum)) return window.mostrarToast('CPF inválido.', 'erro');
     if(!dataAtrasada || isNaN(qtd) || qtd < 1) return window.mostrarToast('Preencha a data e quantidade.', 'erro');
-    if(!senha) return window.mostrarToast('A senha do administrador é obrigatória.', 'erro');
+
+    // Validação da Senha Master apenas para operadores de Caixa
+    if (!isGerente) {
+        const senhaMaster = document.getElementById('atrasado-senha').value;
+        // Senha configurada como tophaus123. Você pode trocar diretamente aqui abaixo:
+        if(senhaMaster !== 'tophaus123') {
+            return window.mostrarToast('Senha de liberação incorreta.', 'erro');
+        }
+    }
 
     const c = window.clientesMap[cpfNum];
     if(!c) return window.mostrarToast('Cliente não encontrado.', 'erro');
 
-    const emailAtual = window.usuarioLogado.email;
+    const emailAtual = window.usuarioLogado.email.split('@')[0];
+    const dataFormatada = dataAtrasada.split('-').reverse().join('/');
     
-    window.firebaseSignIn(window.auth, emailAtual, senha).then(() => {
-        const dataFormatada = dataAtrasada.split('-').reverse().join('/');
+    c.almocos = (c.almocos || 0) + qtd;
+    
+    if(!c.historico) c.historico = [];
+    for(let i = 0; i < qtd; i++) {
+        c.historico.push(`${dataFormatada} às 12:00 (Atrasado/Extra)`);
+    }
+    c.historico = window.limitarHistorico(c.historico);
+
+    if(!c.historicoAtrasados) c.historicoAtrasados = [];
+    c.historicoAtrasados.push({
+        dataRegistro: new Date().toISOString(),
+        dataAlmoco: dataAtrasada,
+        quantidade: qtd,
+        responsavel: isGerente ? emailAtual : 'Autorizado via Senha Master',
+        operador_caixa: emailAtual
+    });
+
+    if (c.almocos > 0 && c.almocos % 10 === 0) {
+        if(!c.historicoConquistas) c.historicoConquistas = [];
+        c.historicoConquistas.push(new Date().toLocaleString('pt-BR'));
+    }
+
+    window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => {
+        window.mostrarToast(`Sucesso! +${qtd} almoço(s) retroativos.`);
         
-        c.almocos = (c.almocos || 0) + qtd;
+        if(window.logAuditoria) {
+            window.logAuditoria('Almoço Extra/Atrasado', `+${qtd} refeição (${dataFormatada}) registrada para ${c.nome}.`, {
+                clienteCpf: c.cpf,
+                clienteNome: c.nome,
+                quantidade: qtd,
+                dataAlmocoOriginal: dataAtrasada,
+                operador: emailAtual
+            });
+        }
         
-        if(!c.historico) c.historico = [];
-        for(let i = 0; i < qtd; i++) {
-            c.historico.push(`${dataFormatada} às 12:00 (Atrasado)`);
-        }
-        c.historico = window.limitarHistorico(c.historico);
-
-        if(!c.historicoAtrasados) c.historicoAtrasados = [];
-        c.historicoAtrasados.push({
-            dataRegistro: new Date().toISOString(),
-            dataAlmoco: dataAtrasada,
-            quantidade: qtd,
-            responsavel: emailAtual.split('@')[0]
-        });
-
-        if (c.almocos > 0 && c.almocos % 10 === 0) {
-            if(!c.historicoConquistas) c.historicoConquistas = [];
-            c.historicoConquistas.push(new Date().toLocaleString('pt-BR'));
-        }
-
-        window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => {
-            window.mostrarToast(`Sucesso! +${qtd} almoço(s) retroativos.`);
-            
-            if(window.logAuditoria) {
-                window.logAuditoria('Almoço Atrasado', `+${qtd} refeição referente a ${dataFormatada} registrada para ${c.nome}.`, {
-                    clienteCpf: c.cpf,
-                    clienteNome: c.nome,
-                    quantidade: qtd,
-                    dataAlmocoOriginal: dataAtrasada
-                });
-            }
-            
-            document.getElementById('form-almoco-atrasado').reset();
-            window.fecharModal('modal-almoco-atrasado');
-            if(window.filtrarLista) window.filtrarLista(window.filtroAtual);
-        });
-    }).catch((err) => {
-        window.mostrarToast('Senha incorreta. Ação não autorizada.', 'erro');
+        document.getElementById('form-almoco-atrasado').reset();
+        window.fecharModal('modal-almoco-atrasado');
+        if(window.filtrarLista) window.filtrarLista(window.filtroAtual);
+        
+        const inp = document.getElementById('busca-cpf');
+        if(inp) inp.value = ''; 
+    }).catch(() => {
+        window.mostrarToast('Não foi possível salvar no banco. Tente novamente.', 'erro');
     });
 };
 
