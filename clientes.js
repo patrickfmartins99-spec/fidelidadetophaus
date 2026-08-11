@@ -810,7 +810,7 @@ window.restaurarCliente = (cpf) => {
     });
 };
 
-// REGISTRA O ALMOÇO COM A SENHA MASTER
+// REGISTRA O ALMOÇO COM A SENHA DO GERENTE/ADMIN
 window.registrarAlmocoAtrasado = () => {
     const inputData = document.getElementById('atrasado-data');
     if(!inputData) return window.mostrarToast('Erro interno: Campo de data não encontrado.', 'erro');
@@ -823,7 +823,7 @@ window.registrarAlmocoAtrasado = () => {
     if(!window.validarCPFReal(cpfNum)) return window.mostrarToast('CPF inválido.', 'erro');
     if(!dataAtrasada || isNaN(qtd) || qtd < 1) return window.mostrarToast('Preencha a data e quantidade.', 'erro');
 
-    // Validação da Senha Master apenas para operadores de Caixa
+    // Validação da Senha do Gerente/Admin apenas para operadores de Caixa
     if (!isGerente) {
         const senhaMaster = document.getElementById('atrasado-senha').value;
         if(senhaMaster !== 'tophaus123') {
@@ -850,7 +850,7 @@ window.registrarAlmocoAtrasado = () => {
         dataRegistro: new Date().toISOString(),
         dataAlmoco: dataAtrasada,
         quantidade: qtd,
-        responsavel: isGerente ? emailAtual : 'Autorizado via Senha Master',
+        responsavel: isGerente ? emailAtual : 'Autorizado via Senha do Gerente/Admin',
         operador_caixa: emailAtual
     });
 
