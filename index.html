@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- CSS externos (refatoração) -->
+    <!-- CSS externos -->
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./totem.css">
 </head>
@@ -651,7 +651,7 @@
             <!-- Tela de busca -->
             <div id="totem-tela-busca" class="totem-screen">
                 <h1 class="totem-screen-title">Bem-vindo(a) à Top Haus!</h1>
-                <p class="totem-screen-subtitle">Digite seu CPF para registrar o almoço de hoje<br> e acompanhar seus benefícios.</p>
+                <p class="totem-screen-subtitle">Digite seu CPF para registrar o almoço de hoje e acompanhar seus benefícios.</p>
                 <input type="tel" inputmode="none" readonly id="totem-cpf" placeholder="000.000.000-00" maxlength="14" class="totem-input">
                 <button id="btn-totem-avancar" onclick="if(typeof totemProcessarCPF === 'function') totemProcessarCPF()" class="totem-btn-primary">
                     <span id="btn-totem-avancar-text">Avançar</span>
@@ -660,8 +660,8 @@
 
             <!-- Tela de cadastro -->
             <div id="totem-tela-cadastro" class="totem-screen hidden">
-                <h2 class="totem-screen-title">Que bom ter você aqui!</h2>
-                <p class="totem-screen-subtitle">Ainda não encontramos seu cadastro.<br> Leva menos de 1 minuto para participar do Clube de Fidelidade.</p>
+                <h2 class="totem-screen-title">Que bom ter você aqui! 💛</h2>
+                <p class="totem-screen-subtitle">Ainda não encontramos seu cadastro.<br>Leva menos de 1 minuto para participar do Clube de Fidelidade.</p>
                 <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="totem-form">
                     <input type="tel" inputmode="none" readonly id="totem-cad-cpf" class="totem-input totem-input-disabled">
                     <input type="text" inputmode="none" readonly id="totem-cad-nome" required placeholder="Nome completo" class="totem-input totem-input-text">
@@ -681,7 +681,7 @@
                 <div class="totem-icon-gift">
                     <i data-lucide="gift" class="totem-icon-large"></i>
                 </div>
-                <h2 class="totem-screen-title">Seu desconto está disponível!</h2>
+                <h2 class="totem-screen-title">Seu desconto está disponível! 🎁</h2>
                 <p class="totem-screen-subtitle">Você já tem um benefício de R$ 50,00.</p>
                 <strong class="totem-highlight">O que deseja fazer hoje?</strong>
                 <div class="totem-options">
@@ -703,8 +703,8 @@
 
             <!-- Tela de avaliação (QR Code) -->
             <div id="totem-tela-avaliacao" class="totem-screen hidden totem-screen-evaluation">
-                <h2 class="totem-screen-title">Obrigado pela sua visita!</h2>
-                <p class="totem-screen-subtitle">Antes de ir, que tal nos contar como foi sua experiência?<br> Sua opinião nos ajuda a melhorar todos os dias.</p>
+                <h2 class="totem-screen-title">Obrigado pela sua visita! 💛</h2>
+                <p class="totem-screen-subtitle">Antes de finalizar, que tal nos contar como foi sua experiência?</p>
                 <div class="totem-qrcode-wrapper">
                     <img id="totem-qrcode-img" src="./qrcode.png" alt="QR Code Avaliação" class="totem-qrcode-img">
                 </div>
@@ -714,7 +714,7 @@
             
             <!-- Barra inferior (timer) -->
             <div id="totem-bottom-bar" class="totem-bottom-bar hidden">
-                <p class="totem-bottom-text">Esta tela voltará ao início em <span id="totem-timer-count" class="totem-timer-count">10</span> segundos.</p>
+                <p class="totem-bottom-text">Atendimento finalizado. Esta tela voltará ao início em <span id="totem-timer-count" class="totem-timer-count">10</span> segundos.</p>
                 <div class="totem-progress-track">
                     <div id="totem-loading-bar" class="totem-progress-bar"></div>
                 </div>
@@ -737,9 +737,11 @@
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('7')">7</button>
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('8')">8</button>
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('9')">9</button>
-                <button class="totem-key totem-key-action totem-key-clear" onclick="tecladoLimpar()">C</button>
+                <button class="totem-key totem-key-action totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('0')">0</button>
                 <button class="totem-key totem-key-action totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
+                <!-- Tecla CONFIRMAR -->
+                <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
             </div>
 
             <!-- Teclado alfabético (QWERTY) -->
@@ -777,9 +779,10 @@
                     <button class="totem-key totem-key-letter" onclick="tecladoDigitar('M')">M</button>
                 </div>
                 <div class="totem-keyboard-row totem-keyboard-actions">
-                    <button class="totem-key totem-key-action totem-key-clear" onclick="tecladoLimpar()">Limpar</button>
-                    <button class="totem-key totem-key-action totem-key-space" onclick="tecladoDigitar(' ')">Espaço</button>
+                    <button class="totem-key totem-key-action totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
+                    <button class="totem-key totem-key-action totem-key-space" onclick="tecladoDigitar(' ')">ESPAÇO</button>
                     <button class="totem-key totem-key-action totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
+                    <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
                 </div>
             </div>
         </div>
@@ -811,7 +814,7 @@
     <script type="module" src="./totem.js"></script>
     <script type="module" src="./dashboard.js"></script>
 
-    <!-- SCRIPT DO TECLADO VIRTUAL (lógica inalterada) -->
+    <!-- SCRIPT DO TECLADO VIRTUAL (CORRIGIDO) -->
     <script>
         let activeTotemInput = null;
 
@@ -820,23 +823,23 @@
             const teclado = document.getElementById('teclado-virtual');
             
             inputsTotem.forEach(input => {
-                input.addEventListener('mousedown', e => e.preventDefault());
-                input.addEventListener('touchstart', e => e.preventDefault());
-                
+                // Apenas o evento click, sem preventDefault nos toques
                 input.addEventListener('click', (e) => {
-                    e.preventDefault();
                     if(input.id === 'totem-pin-input') return;
                     
                     activeTotemInput = input;
                     mostrarTecladoAdequado(input);
-                    teclado.classList.remove('translate-y-full');
+                    teclado.classList.add('is-visible');
+                    input.focus({ preventScroll: true });
                     
+                    // Rolagem suave
                     setTimeout(() => {
-                       input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 300);
                 });
             });
 
+            // Fecha teclado ao clicar fora dos inputs e do teclado
             document.getElementById('tela-totem').addEventListener('click', (e) => {
                 if(!e.target.closest('input') && !e.target.closest('#teclado-virtual') && !e.target.closest('button')) {
                     tecladoFechar();
@@ -881,7 +884,8 @@
         }
 
         function tecladoFechar() {
-            document.getElementById('teclado-virtual').classList.add('translate-y-full');
+            const teclado = document.getElementById('teclado-virtual');
+            teclado.classList.remove('is-visible');
             tecladoLimparEstado();
         }
         
@@ -889,6 +893,45 @@
             if (activeTotemInput) {
                 activeTotemInput.blur();
                 activeTotemInput = null;
+            }
+        }
+
+        // Função da tecla CONFIRMAR – agora chama diretamente as funções do Totem
+        function confirmarTeclado() {
+            // Fecha o teclado
+            tecladoFechar();
+
+            const telaBusca = document.getElementById('totem-tela-busca');
+            const telaCadastro = document.getElementById('totem-tela-cadastro');
+
+            // Tela de busca de CPF
+            if (telaBusca && !telaBusca.classList.contains('hidden')) {
+                if (typeof window.totemProcessarCPF === 'function') {
+                    window.totemProcessarCPF();
+                }
+                return; // evita que caia no cadastro
+            }
+
+            // Tela de cadastro
+            if (telaCadastro && !telaCadastro.classList.contains('hidden')) {
+                const nome = document.getElementById('totem-cad-nome');
+                if (!nome || !nome.value.trim()) {
+                    window.mostrarToast('Digite seu nome completo.', 'erro');
+                    setTimeout(() => {
+                        if (nome) {
+                            // Reabre o teclado no campo nome para correção
+                            nome.click();
+                        }
+                    }, 200);
+                    return;
+                }
+
+                // Chama a função de salvamento diretamente, com um evento simulado
+                if (typeof window.totemSalvarCadastro === 'function') {
+                    window.totemSalvarCadastro({
+                        preventDefault: () => {} // atende à chamada interna e.preventDefault()
+                    });
+                }
             }
         }
     </script>
