@@ -1,5 +1,5 @@
 // totem.js
-// Módulo 6: Interface de Autoatendimento (Totem) e Lógica de Ecrã Fullscreen (Alinhado ao index.html original)
+// Módulo 6: Interface de Autoatendimento (Totem) e Lógica de Ecrã Fullscreen
 
 window.intervaloContagemTotem = null;
 
@@ -110,16 +110,17 @@ window.totemVoltarInicio = () => {
     
     document.getElementById('totem-tela-busca').classList.remove('hidden');
     
-    // NOVO: Limpa RIGOROSAMENTE todos os campos para prevenir vazamento
+    // Limpa todos os campos e reabilita o CPF
     ['totem-cpf', 'totem-cad-cpf', 'totem-cad-nome', 'totem-cad-nasc', 'totem-cad-tel'].forEach(id => {
         const inp = document.getElementById(id);
         if(inp) {
             inp.value = '';
+            inp.disabled = false;   // reabilita o campo CPF
             inp.blur();
         }
     });
 
-    // NOVO: Força o teclado a baixar
+    // Fecha o teclado
     if(typeof window.tecladoFechar === 'function') window.tecladoFechar();
 };
 
@@ -209,6 +210,13 @@ window.totemSalvarCadastro = (e) => {
     const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
     if(window.operacoesAtivas && window.operacoesAtivas[cpf]) return;
     
+    // Validação explícita do nome
+    const nome = document.getElementById('totem-cad-nome').value.trim();
+    if (!nome) {
+        window.mostrarToast('Digite seu nome completo.', 'erro');
+        return;
+    }
+    
     const tel = document.getElementById('totem-cad-tel').value.replace(/\D/g, ''); 
     if(!window.telefoneValido(tel)) return window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');
     const nasc = document.getElementById('totem-cad-nasc').value; 
@@ -231,7 +239,6 @@ window.totemSalvarCadastro = (e) => {
         if(spanSalvar) spanSalvar.innerText = 'Salvar cadastro';
     }, 8000); 
 
-    const nome = document.getElementById('totem-cad-nome').value.trim();
     let niverF = nasc.includes('/') ? `${nasc.split('/')[2]}-${nasc.split('/')[1]}-${nasc.split('/')[0]}` : nasc;
 
     const novoCliente = { 
@@ -328,6 +335,9 @@ window.totemExecutarAcumulo = () => {
 // FUNÇÕES AUXILIARES DE MENSAGENS E TEMPORIZAÇÃO DO TOTEM
 // ==========================================================================
 window.totemMostrarMensagem = (tipo) => {
+    // Fecha o teclado antes de exibir a mensagem
+    if(typeof window.tecladoFechar === 'function') window.tecladoFechar();
+
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
     
@@ -351,34 +361,47 @@ window.totemMostrarMensagem = (tipo) => {
 
     if(tipo === 'erro_cpf') { 
         if(ic) ic.innerHTML = `<i data-lucide="x" class="w-12 h-12"></i>`; 
-        if(ti) ti.innerText = "CPF Inválido"; 
-        if(te) te.innerText = "Por favor, verifique se os 11 números foram digitados corretamente."; 
+        if(ti) ti.innerText = "Não conseguimos identificar esse CPF."; 
+        if(te) te.innerText = "Confira os números e tente novamente."; 
         tempo = 6000; 
         sucessoParaAvaliar = false; // Erro volta direto para o início
     } else if(tipo === 'ja_registrado') { 
         if(ic) ic.innerHTML = `<i data-lucide="check-check" class="w-12 h-12"></i>`; 
-        if(ti) ti.innerText = `Tudo certo, ${nomeC}!`; 
-        if(te) te.innerText = "Seu almoço de hoje já foi contabilizado com sucesso."; 
+        if(ti) ti.innerText = `Olá, ${nomeC}!`; 
+        if(te) te.innerText = "Seu almoço de hoje já está registrado. Obrigado por voltar!"; 
         sucessoParaAvaliar = false; // Já estava resolvido, não incomodar
     } else if(tipo === 'aviso_caixa') { 
         if(ic) ic.innerHTML = `<i data-lucide="info" class="w-12 h-12"></i>`; 
-        if(ti) ti.innerText = "Resgate solicitado"; 
-        if(te) te.innerHTML = `<strong>${nomeC}</strong>, avise o operador de caixa para validar seu desconto de <strong>R$ 50,00</strong>.`;
+        if(ti) ti.innerText = "Desconto utilizado com sucesso! ✅"; 
+        if(te) te.innerHTML = `${nomeC}, você optou por usar seu desconto de R$ 50,00 agora. Por favor, informe o caixa para finalizar.`;
         tempo = 12000; 
-    } else if(tipo === 'sucesso_acumulo' || tipo === 'cadastro_sucesso') { 
+    } else if(tipo === 'sucesso_acumulo') { 
         if(ic) ic.innerHTML = `<i data-lucide="check" class="w-12 h-12"></i>`; 
-        if(ti) ti.innerText = `Registrado com sucesso, ${nomeC}!`; 
-        if(te) te.innerHTML = `Você possui agora <strong>${window.totemClienteTemp.almocos||1}</strong> almoço(s) acumulado(s).`; 
+        if(ti) ti.innerText = `Almoço registrado, ${nomeC}! 🍽️`; 
+        const almoços = window.totemClienteTemp.almocos || 0;
+        const faltam = almoços < 10 ? 10 - almoços : 0;
+        let msgExtra = '';
+        if (faltam > 0) {
+            msgExtra = `Faltam apenas ${faltam} para ganhar seu desconto de R$ 50,00.`;
+        } else {
+            msgExtra = 'Você já acumulou 10 almoços e ganhou seu desconto!';
+        }
+        te.innerHTML = `Você já acumulou <strong>${almoços}</strong> almoço(s). ${msgExtra}`;
+        tempo = 8000;
+    } else if(tipo === 'cadastro_sucesso') { 
+        if(ic) ic.innerHTML = `<i data-lucide="check" class="w-12 h-12"></i>`; 
+        if(ti) ti.innerText = `Cadastro realizado, ${nomeC}! 🎉`; 
+        te.innerHTML = "Seu primeiro almoço já foi contabilizado. Bem-vindo ao Top Haus Fidelidade!";
         tempo = 8000;
     } else if(tipo === 'meta_atingida') { 
         if(ic) ic.innerHTML = `<i data-lucide="star" class="w-12 h-12"></i>`; 
-        if(ti) ti.innerText = `Parabéns, ${nomeC}!`; 
-        if(te) te.innerHTML = `Você completou 10 almoços.<br>Na sua próxima visita, o desconto de <strong>R$ 50,00</strong> estará disponível para resgate.`; 
+        if(ti) ti.innerText = `Parabéns, ${nomeC}! 🎉`; 
+        te.innerHTML = "Você acaba de conquistar seu benefício de R$ 50,00. Na próxima visita, é só escolher entre usar agora ou guardar para depois.";
         tempo = 12000; 
     } else if(tipo === 'aniversario_totem') { 
         if(ic) ic.innerHTML = `<i data-lucide="cake" class="w-12 h-12"></i>`; 
-        if(ti) ti.innerText = `Feliz Aniversário, ${nomeC}!`; 
-        if(te) te.innerHTML = `🎁 Hoje é seu aniversário e você tem <strong>R$ 50,00 de desconto</strong> liberado!<br><br>Avise o caixa agora mesmo para resgatar.`; 
+        if(ti) ti.innerText = `Feliz aniversário, ${nomeC}! 🎂`; 
+        te.innerHTML = "Toda a equipe Top Haus deseja um dia muito especial para você. Seu benefício de aniversário é válido somente hoje. Consulte o caixa para utilizá-lo.";
         tempo = 15000; 
     }
 
@@ -408,7 +431,6 @@ window.totemMostrarMensagem = (tipo) => {
     
     clearTimeout(window.timeoutTotemMsg); 
     
-    // NOVO: Fluxo de decisão - Vai para Avaliação ou Volta para o Início
     window.timeoutTotemMsg = setTimeout(() => {
         if(sucessoParaAvaliar) {
             window.totemMostrarAvaliacao();
