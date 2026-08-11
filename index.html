@@ -666,8 +666,8 @@
                     <input type="tel" inputmode="none" readonly id="totem-cad-cpf" class="totem-input totem-input-disabled">
                     <input type="text" inputmode="none" readonly id="totem-cad-nome" required placeholder="Nome completo" class="totem-input totem-input-text">
                     <div class="totem-form-row">
-                        <input type="tel" inputmode="none" readonly id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" class="totem-input totem-input-text">
-                        <input type="tel" inputmode="none" readonly id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" class="totem-input totem-input-text">
+                        <input type="tel" inputmode="none" readonly id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" class="totem-input totem-input-text" oninput="mascaraData(this)">
+                        <input type="tel" inputmode="none" readonly id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" class="totem-input totem-input-text" oninput="mascaraTelefone(this)">
                     </div>
                     <div class="totem-form-actions">
                         <button type="button" onclick="totemVoltarInicio()" class="totem-btn-secondary">Voltar</button>
@@ -722,11 +722,11 @@
 
         </div>
 
-        <!-- TECLADO VIRTUAL HÍBRIDO -->
+        <!-- TECLADO VIRTUAL HÍBRIDO (redesenhado) -->
         <div id="teclado-virtual" class="totem-keyboard">
             <div class="totem-keyboard-handle" onclick="tecladoFechar()"></div>
             
-            <!-- Teclado numérico -->
+            <!-- Teclado numérico (corrigido) -->
             <div id="teclado-numerico" class="totem-keyboard-numeric">
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('1')">1</button>
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('2')">2</button>
@@ -737,10 +737,10 @@
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('7')">7</button>
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('8')">8</button>
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('9')">9</button>
-                <button class="totem-key totem-key-action totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
+                <!-- Linha inferior: LIMPAR (span 3), 0 (span 3), APAGAR (span 3), CONFIRMAR (span 3) -->
+                <button class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('0')">0</button>
-                <button class="totem-key totem-key-action totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
-                <!-- Tecla CONFIRMAR -->
+                <button class="totem-key totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
                 <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
             </div>
 
@@ -779,9 +779,9 @@
                     <button class="totem-key totem-key-letter" onclick="tecladoDigitar('M')">M</button>
                 </div>
                 <div class="totem-keyboard-row totem-keyboard-actions">
-                    <button class="totem-key totem-key-action totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
-                    <button class="totem-key totem-key-action totem-key-space" onclick="tecladoDigitar(' ')">ESPAÇO</button>
-                    <button class="totem-key totem-key-action totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
+                    <button class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
+                    <button class="totem-key totem-key-space" onclick="tecladoDigitar(' ')">ESPAÇO</button>
+                    <button class="totem-key totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
                     <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
                 </div>
             </div>
@@ -818,30 +818,40 @@
     <script>
         let activeTotemInput = null;
 
+        // Função central para definir o input ativo e abrir o teclado
+        function definirInputAtivo(input) {
+            if (!input) return;
+            if (input.id === 'totem-pin-input') return;
+
+            activeTotemInput = input;
+            mostrarTecladoAdequado(input);
+
+            const teclado = document.getElementById('teclado-virtual');
+            teclado.classList.add('is-visible');
+
+            // Adiciona classe ao container para subir o conteúdo
+            document.getElementById('tela-totem').classList.add('keyboard-open');
+
+            // Rolagem suave (sem focus, apenas visual)
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Pequeno delay para garantir scroll
+            setTimeout(() => input.focus({ preventScroll: true }), 100);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const inputsTotem = document.querySelectorAll('#tela-totem input[type="tel"], #tela-totem input[type="text"]');
-            const teclado = document.getElementById('teclado-virtual');
             
             inputsTotem.forEach(input => {
-                // Apenas o evento click, sem preventDefault nos toques
+                // Apenas click, sem interceptações desnecessárias
                 input.addEventListener('click', (e) => {
-                    if(input.id === 'totem-pin-input') return;
-                    
-                    activeTotemInput = input;
-                    mostrarTecladoAdequado(input);
-                    teclado.classList.add('is-visible');
-                    input.focus({ preventScroll: true });
-                    
-                    // Rolagem suave
-                    setTimeout(() => {
-                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 300);
+                    e.stopPropagation();
+                    definirInputAtivo(input);
                 });
             });
 
             // Fecha teclado ao clicar fora dos inputs e do teclado
             document.getElementById('tela-totem').addEventListener('click', (e) => {
-                if(!e.target.closest('input') && !e.target.closest('#teclado-virtual') && !e.target.closest('button')) {
+                if (!e.target.closest('input') && !e.target.closest('#teclado-virtual') && !e.target.closest('button')) {
                     tecladoFechar();
                 }
             });
@@ -864,31 +874,41 @@
         }
 
         function tecladoDigitar(val) {
-            if(!activeTotemInput) return;
-            if (activeTotemInput.value.length < activeTotemInput.maxLength || !activeTotemInput.maxLength) {
-               activeTotemInput.value += val;
-               activeTotemInput.dispatchEvent(new Event('input', { bubbles: true }));
+            if (!activeTotemInput) return;
+
+            const input = activeTotemInput;
+            // Verifica se atingiu o maxlength
+            if (input.maxLength > 0 && input.value.length >= input.maxLength) {
+                return;
             }
+
+            // Insere o caractere
+            input.value += val;
+            // Dispara evento input para ativar máscaras
+            input.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
         function tecladoApagar() {
-            if(!activeTotemInput) return;
-            activeTotemInput.value = activeTotemInput.value.slice(0, -1);
-            activeTotemInput.dispatchEvent(new Event('input', { bubbles: true }));
+            if (!activeTotemInput) return;
+            const input = activeTotemInput;
+            input.value = input.value.slice(0, -1);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
         function tecladoLimpar() {
-            if(!activeTotemInput) return;
-            activeTotemInput.value = '';
-            activeTotemInput.dispatchEvent(new Event('input', { bubbles: true }));
+            if (!activeTotemInput) return;
+            const input = activeTotemInput;
+            input.value = '';
+            input.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
         function tecladoFechar() {
             const teclado = document.getElementById('teclado-virtual');
             teclado.classList.remove('is-visible');
+            document.getElementById('tela-totem').classList.remove('keyboard-open');
             tecladoLimparEstado();
         }
-        
+
         function tecladoLimparEstado() {
             if (activeTotemInput) {
                 activeTotemInput.blur();
@@ -896,7 +916,7 @@
             }
         }
 
-        // Função da tecla CONFIRMAR – agora chama diretamente as funções do Totem
+        // Função da tecla CONFIRMAR – agora com validação direta
         function confirmarTeclado() {
             // Fecha o teclado
             tecladoFechar();
@@ -909,7 +929,7 @@
                 if (typeof window.totemProcessarCPF === 'function') {
                     window.totemProcessarCPF();
                 }
-                return; // evita que caia no cadastro
+                return;
             }
 
             // Tela de cadastro
@@ -918,10 +938,7 @@
                 if (!nome || !nome.value.trim()) {
                     window.mostrarToast('Digite seu nome completo.', 'erro');
                     setTimeout(() => {
-                        if (nome) {
-                            // Reabre o teclado no campo nome para correção
-                            nome.click();
-                        }
+                        if (nome) definirInputAtivo(nome);
                     }, 200);
                     return;
                 }
@@ -929,11 +946,11 @@
                 // Chama a função de salvamento diretamente, com um evento simulado
                 if (typeof window.totemSalvarCadastro === 'function') {
                     window.totemSalvarCadastro({
-                        preventDefault: () => {} // atende à chamada interna e.preventDefault()
+                        preventDefault: () => {}
                     });
                 }
             }
         }
     </script>
 </body>
-    </html>
+</html>
