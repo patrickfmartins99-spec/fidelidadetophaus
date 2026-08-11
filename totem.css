@@ -579,7 +579,7 @@
 }
 
 /* ============================================================
-   TECLADO VIRTUAL
+   TECLADO VIRTUAL - ESTADOS
    ============================================================ */
 .totem-keyboard {
     position: fixed;
@@ -604,6 +604,11 @@
     height: 45dvh;
     min-height: 350px;
     max-height: 450px;
+}
+
+/* Estado visível do teclado */
+.totem-keyboard.is-visible {
+    transform: translateY(0);
 }
 
 @media (min-width: 640px) {
@@ -800,6 +805,37 @@
     }
 }
 
+/* Tecla CONFIRMAR - destaque amarelo */
+.totem-key-confirm {
+    background-color: #fbbf24;
+    color: #000;
+    font-weight: 900;
+    font-size: 1.25rem;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+    border: 2px solid #f59e0b;
+}
+
+.totem-key-confirm:active {
+    background-color: #f59e0b;
+    transform: scale(0.95);
+}
+
+@media (min-width: 768px) {
+    .totem-key-confirm {
+        font-size: 1.5rem;
+    }
+}
+
+/* Ajuste do grid para incluir a tecla CONFIRMAR no teclado numérico */
+.totem-keyboard-numeric {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.totem-keyboard-numeric .totem-key-confirm {
+    grid-column: 1 / -1; /* ocupa toda a largura */
+    margin-top: 0.25rem;
+}
+
 /* ============================================================
    MODAL DE SAÍDA DO TOTEM
    ============================================================ */
@@ -889,8 +925,4 @@
    ============================================================ */
 .hidden {
     display: none !important;
-}
-
-.translate-y-full {
-    transform: translateY(100%);
-}
+       }
