@@ -219,19 +219,28 @@ window.injetarUICampanhas = () => {
     wrapperAntigo.parentNode.insertBefore(painel, wrapperAntigo);
 };
 
+// ==========================================================================
+// ALTERAÇÃO CAMPANHAS RECORRENTES: substituir style.display por classList
+// ==========================================================================
 window.alternarTipoCampanha = () => {
     const t = document.getElementById('mkt-novo-tipo').value;
-    document.getElementById('painel-mkt-unica').style.display = (t === 'unica') ? 'flex' : 'none';
-    document.getElementById('painel-mkt-recorrente').style.display = (t === 'recorrente') ? 'flex' : 'none';
+    const painelUnica = document.getElementById('painel-mkt-unica');
+    const painelRecorrente = document.getElementById('painel-mkt-recorrente');
+
+    // Correção: usar classList.toggle em vez de style.display
+    painelUnica.classList.toggle('hidden', t !== 'unica');
+    painelRecorrente.classList.toggle('hidden', t !== 'recorrente');
 };
 
 window.alternarFreqCampanha = () => {
     const f = document.getElementById('mkt-nova-freq').value;
-    document.getElementById('freq-diaria').style.display = (f === 'diaria') ? 'block' : 'none';
-    document.getElementById('freq-semanal').style.display = (f === 'semanal') ? 'flex' : 'none';
-    document.getElementById('freq-mensal').style.display = (f === 'mensal') ? 'flex' : 'none';
-    document.getElementById('freq-anual').style.display = (f === 'anual') ? 'flex' : 'none';
-    document.getElementById('freq-data-especifica').style.display = (f === 'data_especifica') ? 'flex' : 'none';
+
+    // Correção: usar classList.toggle para cada elemento de frequência
+    document.getElementById('freq-diaria').classList.toggle('hidden', f !== 'diaria');
+    document.getElementById('freq-semanal').classList.toggle('hidden', f !== 'semanal');
+    document.getElementById('freq-mensal').classList.toggle('hidden', f !== 'mensal');
+    document.getElementById('freq-anual').classList.toggle('hidden', f !== 'anual');
+    document.getElementById('freq-data-especifica').classList.toggle('hidden', f !== 'data_especifica');
 };
 
 // ==========================================================================
