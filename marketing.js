@@ -1,5 +1,5 @@
 // marketing.js
-// Módulo 5: Robô do WhatsApp, Automações e Disparos em Massa (Suporte a Campanhas Recorrentes e Fila)[span_2](start_span)[span_2](end_span)
+// Módulo 5: Robô do WhatsApp, Automações e Disparos em Massa (Suporte a Campanhas Recorrentes e Fila)
 
 // ==========================================================================
 // CORE DO ROBÔ DE MARKETING: ENVIAR PARA A FILA FIREBASE (MULTIUNIDADE)
@@ -177,13 +177,17 @@ window.injetarUICampanhas = () => {
         <div id="painel-mkt-recorrente" class="hidden flex-col gap-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
             <div class="flex gap-2">
                 <select id="mkt-nova-freq" onchange="alternarFreqCampanha()" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none font-bold text-indigo-900">
+                    <option value="diaria">Diária</option>
                     <option value="semanal">Semanal</option>
                     <option value="mensal">Mensal</option>
                     <option value="anual">Anual</option>
+                    <option value="data_especifica">Data específica</option>
                 </select>
                 <input type="time" id="mkt-novo-horario-rec" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none text-center font-bold" value="09:00">
             </div>
             
+            <div id="freq-diaria" class="text-sm text-gray-500 text-center">Executa todos os dias no horário definido.</div>
+
             <div id="freq-semanal" class="flex flex-wrap gap-2 text-xs font-bold text-gray-700">
                 <label class="bg-white p-1.5 rounded border border-gray-200 cursor-pointer hover:bg-indigo-100"><input type="checkbox" value="1" class="chk-dia mr-1"> Seg</label>
                 <label class="bg-white p-1.5 rounded border border-gray-200 cursor-pointer hover:bg-indigo-100"><input type="checkbox" value="2" class="chk-dia mr-1"> Ter</label>
@@ -203,6 +207,11 @@ window.injetarUICampanhas = () => {
                 <span>Todo ano em:</span>
                 <input type="text" id="mkt-dia-ano" class="p-1 border border-indigo-200 rounded w-20 text-center bg-white" placeholder="DD/MM" maxlength="5" oninput="this.value = this.value.replace(/[^0-9/]/g, '').replace(/^(\\d{2})(\\d)/, '$1/$2').substring(0,5)">
             </div>
+
+            <div id="freq-data-especifica" class="hidden gap-2 items-center text-sm font-bold text-indigo-900">
+                <span>Data:</span>
+                <input type="date" id="mkt-data-especifica" class="p-1 border border-indigo-200 rounded text-center bg-white">
+            </div>
         </div>
     `;
     
@@ -218,9 +227,11 @@ window.alternarTipoCampanha = () => {
 
 window.alternarFreqCampanha = () => {
     const f = document.getElementById('mkt-nova-freq').value;
+    document.getElementById('freq-diaria').style.display = (f === 'diaria') ? 'block' : 'none';
     document.getElementById('freq-semanal').style.display = (f === 'semanal') ? 'flex' : 'none';
     document.getElementById('freq-mensal').style.display = (f === 'mensal') ? 'flex' : 'none';
     document.getElementById('freq-anual').style.display = (f === 'anual') ? 'flex' : 'none';
+    document.getElementById('freq-data-especifica').style.display = (f === 'data_especifica') ? 'flex' : 'none';
 };
 
 // ==========================================================================
@@ -270,14 +281,19 @@ window.renderizarMensagensCustomizadas = () => {
                 const c = m.configRecorrencia || {};
                 const hor = c.horario ? ` às ${c.horario}` : '';
                 let det = '';
-                if(m.frequencia === 'semanal') {
+                if (m.frequencia === 'diaria') {
+                    det = `Todos os dias`;
+                } else if (m.frequencia === 'semanal') {
                     const diasMapa = {0:'Dom', 1:'Seg', 2:'Ter', 3:'Qua', 4:'Qui', 5:'Sex', 6:'Sáb'};
                     const nmDias = (c.diasSemana||[]).map(d => diasMapa[d]).join(', ');
                     det = `Toda Semana (${nmDias})`;
-                } else if(m.frequencia === 'mensal') {
+                } else if (m.frequencia === 'mensal') {
                     det = `Todo dia ${c.diaMes} do mês`;
-                } else if(m.frequencia === 'anual') {
+                } else if (m.frequencia === 'anual') {
                     det = `Anualmente em ${c.diaAno}`;
+                } else if (m.frequencia === 'data_especifica') {
+                    const dataEsp = c.dataEspecifica ? c.dataEspecifica.split('-').reverse().join('/') : 'S/D';
+                    det = `Data específica: ${dataEsp}`;
                 }
                 labelTipo = `<span class="bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">Recorrente: ${m.frequencia}</span>`;
                 info = `<i data-lucide="repeat" class="w-3.5 h-3.5"></i> ${det}${hor}`;
@@ -356,7 +372,9 @@ window.adicionarAgendamento = () => {
             novaCampanha.frequencia = freq;
             novaCampanha.configRecorrencia = { horario: horario || "09:00" };
             
-            if (freq === 'semanal') {
+            if (freq === 'diaria') {
+                // nenhum campo extra
+            } else if (freq === 'semanal') {
                 const chks = document.querySelectorAll('.chk-dia:checked');
                 if(chks.length === 0) return window.mostrarToast("Selecione pelo menos um dia da semana.", "erro");
                 novaCampanha.configRecorrencia.diasSemana = Array.from(chks).map(c => parseInt(c.value));
@@ -368,6 +386,10 @@ window.adicionarAgendamento = () => {
                 const diaA = document.getElementById('mkt-dia-ano').value;
                 if(!diaA || diaA.length !== 5) return window.mostrarToast("Informe uma data anual válida no formato DD/MM.", "erro");
                 novaCampanha.configRecorrencia.diaAno = diaA;
+            } else if (freq === 'data_especifica') {
+                const dataEsp = document.getElementById('mkt-data-especifica').value;
+                if(!dataEsp) return window.mostrarToast("Selecione a data específica.", "erro");
+                novaCampanha.configRecorrencia.dataEspecifica = dataEsp;
             }
         }
     } else {
@@ -384,6 +406,7 @@ window.adicionarAgendamento = () => {
     if (uiAtiva) {
         document.getElementById('mkt-novo-titulo').value = '';
         document.querySelectorAll('.chk-dia').forEach(c => c.checked = false);
+        document.getElementById('mkt-data-especifica').value = '';
     } else {
         document.getElementById('mkt-agenda-data').value = '';
         document.getElementById('mkt-agenda-titulo').value = '';
@@ -506,3 +529,143 @@ window.dispararWhatsApp = (cpf, tipo, idx = -1) => {
     
     if(window.fecharModal) window.fecharModal('modal-whatsapp'); 
 };
+
+// ==========================================================================
+// EXECUÇÃO DE CAMPANHAS AGENDADAS (RECORRENTES E ÚNICAS)
+// NOTA: Esta funcionalidade depende da página estar aberta e do navegador ativo.
+//       Se o sistema ficar offline, as campanhas programadas para aquele período
+//       não serão executadas automaticamente. Para execução ininterrupta,
+//       seria necessário um backend/Node.js dedicado.
+// ==========================================================================
+
+window.executarCampanhasAgendadas = async () => {
+    // Evita execução concorrente
+    if (window._executandoCampanhas) return;
+    window._executandoCampanhas = true;
+
+    try {
+        const campanhas = window.msgsMarketing.agendadas || [];
+        if (!campanhas.length) {
+            window._executandoCampanhas = false;
+            return;
+        }
+
+        const agora = new Date();
+        const now = agora.getTime();
+        const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+        const hojeStr = hoje.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        // Converte hora atual para minutos desde meia-noite para comparação robusta
+        const minutosAtual = agora.getHours() * 60 + agora.getMinutes();
+
+        let campanhaAlterada = false;
+
+        for (let i = 0; i < campanhas.length; i++) {
+            const camp = campanhas[i];
+            if (camp.status !== 'ativa') continue;
+
+            let deveExecutar = false;
+            let config = camp.configRecorrencia || {};
+            let horario = config.horario || '09:00';
+
+            // Converte horário agendado para minutos
+            const [hora, min] = horario.split(':').map(Number);
+            const minutosAgendado = hora * 60 + min;
+
+            // Verifica se já passou do horário e se ainda não foi executado hoje
+            const jaExecutadoHoje = camp.ultimoDisparo && new Date(camp.ultimoDisparo).toISOString().split('T')[0] === hojeStr;
+
+            if (camp.tipo === 'unica') {
+                // Disparo único: executa apenas no dia agendado, se ainda não executou hoje
+                if (camp.data === hojeStr && !jaExecutadoHoje) {
+                    // Só executa se o horário atual for >= horário agendado (ou se não tiver horário? assumimos que tem)
+                    if (minutosAtual >= minutosAgendado) {
+                        deveExecutar = true;
+                    }
+                }
+            } else {
+                // Campanha recorrente
+                const freq = camp.frequencia;
+                if (freq === 'diaria') {
+                    if (!jaExecutadoHoje && minutosAtual >= minutosAgendado) {
+                        deveExecutar = true;
+                    }
+                } else if (freq === 'semanal') {
+                    const diasSemana = config.diasSemana || [];
+                    const diaSemana = agora.getDay();
+                    if (diasSemana.includes(diaSemana) && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
+                        deveExecutar = true;
+                    }
+                } else if (freq === 'mensal') {
+                    const diaMes = config.diaMes || 1;
+                    if (agora.getDate() === diaMes && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
+                        deveExecutar = true;
+                    }
+                } else if (freq === 'anual') {
+                    const diaAno = config.diaAno || '01/01';
+                    const [dia, mes] = diaAno.split('/').map(Number);
+                    if (agora.getDate() === dia && (agora.getMonth() + 1) === mes && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
+                        deveExecutar = true;
+                    }
+                } else if (freq === 'data_especifica') {
+                    const dataEsp = config.dataEspecifica;
+                    if (dataEsp === hojeStr && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
+                        deveExecutar = true;
+                    }
+                }
+            }
+
+            if (deveExecutar) {
+                const textoBase = camp.texto || '';
+                const clientes = (window.clientesArray || []).filter(c => !c.arquivado);
+                if (clientes.length === 0) {
+                    // Se não há clientes, marca como executado para não tentar novamente hoje
+                    camp.ultimoDisparo = now;
+                    campanhaAlterada = true;
+                    continue;
+                }
+
+                let enviados = 0;
+                for (const cliente of clientes) {
+                    if (!cliente.telefone) continue;
+                    let msg = textoBase.replace(/\[Nome\]/g, (cliente.nome||'').split(' ')[0] || 'Cliente')
+                                       .replace(/\[Acumulados\]/g, cliente.almocos || 0);
+                    window.enviarParaFilaRobo(cliente.cpf, cliente.telefone, msg);
+                    enviados++;
+                }
+
+                camp.ultimoDisparo = now;
+                campanhaAlterada = true;
+
+                if (window.logAuditoria) {
+                    window.logAuditoria('Campanha Automática', 
+                        `Campanha "${camp.titulo}" disparada para ${enviados} clientes.`,
+                        { titulo: camp.titulo, enviados }
+                    );
+                }
+            }
+        }
+
+        if (campanhaAlterada) {
+            window.msgsMarketing.agendadas = campanhas;
+            await window.firebaseSet(window.firebaseRef(window.db, window.PATH_MENSAGENS), window.msgsMarketing);
+        }
+
+    } catch (err) {
+        console.error('Erro na execução de campanhas:', err);
+    } finally {
+        window._executandoCampanhas = false;
+    }
+};
+
+// Inicia o intervalo de verificação a cada 60 segundos
+if (typeof window._intervaloCampanhas === 'undefined') {
+    window._intervaloCampanhas = setInterval(() => {
+        window.executarCampanhasAgendadas();
+    }, 60000);
+
+    // Executa uma vez imediatamente para verificar campanhas que possam ter sido perdidas
+    setTimeout(() => {
+        window.executarCampanhasAgendadas();
+    }, 5000);
+}
