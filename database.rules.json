@@ -13,9 +13,9 @@
         },
 
         "clientes": {
-          ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'gerente')",
+          ".read": "auth != null && (auth.token.role === 'admin' || (auth.token.role === 'gerente' && auth.token.unit === $unidade))",
           "$cpf": {
-            ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'gerente')",
+            ".write": "auth != null && (auth.token.role === 'admin' || (auth.token.role === 'gerente' && auth.token.unit === $unidade))",
             "almocos": {
               ".validate": "newData.isNumber() && newData.val() >= 0"
             }
@@ -24,8 +24,8 @@
 
         "config": {
           "mensagens": {
-            ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'gerente')",
-            ".write": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'gerente')"
+            ".read": "auth != null && (auth.token.role === 'admin' || (auth.token.role === 'gerente' && auth.token.unit === $unidade))",
+            ".write": "auth != null && (auth.token.role === 'admin' || (auth.token.role === 'gerente' && auth.token.unit === $unidade))"
           }
         },
 
