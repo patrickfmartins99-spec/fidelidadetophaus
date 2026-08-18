@@ -62,10 +62,48 @@ function normalizeName(value) {
   }).join(" ");
 }
 
+function brazilClock(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23", weekday: "short"
+  }).formatToParts(now).reduce((result, part) => {
+    if (part.type !== "literal") result[part.type] = part.value;
+    return result;
+  }, {});
+  return {
+    date: `${parts.year}-${parts.month}-${parts.day}`,
+    minutes: Number(parts.hour) * 60 + Number(parts.minute),
+    weekday: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(parts.weekday),
+    dayOfMonth: Number(parts.day),
+    month: Number(parts.month)
+  };
+}
+
 function brazilDate(now = new Date()) {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit"
-  }).format(now);
+  return brazilClock(now).date;
+}
+
+function campaignRunKey(campaign, clock) {
+  const schedule = campaign.horario || campaign.configRecorrencia?.horario || "09:00";
+  const match = /^(\d{2}):(\d{2})$/.exec(schedule);
+  if (!match) return null;
+  const scheduledMinutes = Number(match[1]) * 60 + Number(match[2]);
+  // Não dispara campanhas atrasadas horas depois; a tolerância cobre atrasos do agendador.
+  if (clock.minutes < scheduledMinutes || clock.minutes > scheduledMinutes + 5) return null;
+
+  if (campaign.tipo === "unica") {
+    return campaign.data === clock.date ? `${clock.date}T${schedule}` : null;
+  }
+  const config = campaign.configRecorrencia || {};
+  if (campaign.frequencia === "diaria") return `${clock.date}T${schedule}`;
+  if (campaign.frequencia === "semanal" && (config.diasSemana || []).includes(clock.weekday)) return `${clock.date}T${schedule}`;
+  if (campaign.frequencia === "mensal" && Number(config.diaMes) === clock.dayOfMonth) return `${clock.date}T${schedule}`;
+  if (campaign.frequencia === "anual") {
+    const [day, month] = String(config.diaAno || "").split("/").map(Number);
+    return day === clock.dayOfMonth && month === clock.month ? `${clock.date}T${schedule}` : null;
+  }
+  if (campaign.frequencia === "data_especifica" && config.dataEspecifica === clock.date) return `${clock.date}T${schedule}`;
+  return null;
 }
 
 function firstName(name) {
@@ -210,8 +248,74 @@ exports.enqueueCampaign = onCall({ enforceAppCheck: true }, async (request) => {
   return { queued: Object.keys(updates).length };
 });
 
+exports.enqueueDirectMessage = onCall({ enforceAppCheck: true }, async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Faça login para enviar mensagens.");
+  const { unit, cpf, telefone, texto } = request.data || {};
+  assertUnit(unit);
+  const cleanCpf = onlyDigits(cpf);
+  if (!validCpf(cleanCpf) || !validPhone(telefone) || !String(texto || "").trim()) {
+    throw new HttpsError("invalid-argument", "Mensagem incompleta.");
+  }
+  const idempotencyKey = `manual-${request.auth.uid}-${Date.now()}-${cleanCpf}`;
+  await db.ref(`lojas/${unit}/fila_mensagens/${idempotencyKey}`).set({
+    cpf: cleanCpf, telefone: onlyDigits(telefone), texto: String(texto),
+    status: "pendente", idempotencyKey, criadoEm: admin.database.ServerValue.TIMESTAMP
+  });
+  return { idempotencyKey };
+});
+
 exports.dispatchDueCampaigns = onSchedule({ schedule: "every 1 minutes", timeZone: "America/Sao_Paulo" }, async () => {
-  // A execução efetiva será habilitada após o robô de WhatsApp adotar idempotencyKey.
-  // Esta trava evita que uma implantação parcial envie mensagens em duplicidade.
-  console.log("Dispatcher aguardando integração do robô de WhatsApp.");
+  const clock = brazilClock();
+  for (const unit of UNITS) {
+    const campaignsRef = db.ref(`lojas/${unit}/config/mensagens/agendadas`);
+    const snapshot = await campaignsRef.get();
+    const campaigns = snapshot.val() || {};
+
+    for (const [storageKey, campaign] of Object.entries(campaigns)) {
+      const runKey = campaignRunKey(campaign, clock);
+      if (!runKey || campaign.status !== "ativa") continue;
+
+      const claim = await campaignsRef.child(storageKey).transaction((current) => {
+        if (!current || current.status !== "ativa" || current.lastRunKey === runKey) return;
+        return {
+          ...current,
+          id: current.id || `legacy-${storageKey}`,
+          lastRunKey: runKey,
+          ultimoDisparo: admin.database.ServerValue.TIMESTAMP
+        };
+      });
+      if (!claim.committed) continue;
+
+      const activeCampaign = claim.snapshot.val();
+      const clients = (await db.ref(`lojas/${unit}/clientes`).get()).val() || {};
+      const updates = {};
+      let queued = 0;
+      for (const [cpf, client] of Object.entries(clients)) {
+        if (client.arquivado || !validPhone(client.telefone)) continue;
+        const idempotencyKey = `${activeCampaign.id}:${runKey}:${cpf}`;
+        updates[`lojas/${unit}/fila_mensagens/${idempotencyKey}`] = {
+          campaignId: activeCampaign.id,
+          runKey,
+          cpf,
+          telefone: onlyDigits(client.telefone),
+          texto: String(activeCampaign.texto || "")
+            .replace(/\[Nome\]/g, firstName(client.nome))
+            .replace(/\[Acumulados\]/g, String(client.almocos || 0)),
+          status: "pendente",
+          idempotencyKey,
+          criadoEm: admin.database.ServerValue.TIMESTAMP
+        };
+        queued += 1;
+      }
+      await db.ref().update(updates);
+      await db.ref(`lojas/${unit}/auditoria`).push({
+        tipo: "Campanha Automática",
+        timestamp: admin.database.ServerValue.TIMESTAMP,
+        detalhes: `Campanha ${activeCampaign.id} enfileirada para ${queued} destinatários.`,
+        campaignId: activeCampaign.id,
+        runKey,
+        queued
+      });
+    }
+  }
 });
