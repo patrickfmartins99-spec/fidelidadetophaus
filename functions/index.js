@@ -114,10 +114,11 @@ function totemError(message, code = "failed-precondition") {
   throw new HttpsError(code, message);
 }
 
-function requireStaff(request) {
+function requireStaff(request, unit) {
   const role = request.auth?.token?.role;
-  if (!request.auth || !["admin", "gerente"].includes(role)) {
-    throw new HttpsError("permission-denied", "Ação restrita à gestão.");
+  const assignedUnit = request.auth?.token?.unit;
+  if (!request.auth || (role !== "admin" && !(role === "gerente" && assignedUnit === unit))) {
+    throw new HttpsError("permission-denied", "Ação restrita à gestão desta unidade.");
   }
 }
 
@@ -227,9 +228,9 @@ exports.checkInTotemClient = onCall({ enforceAppCheck: true }, async (request) =
 });
 
 exports.enqueueCampaign = onCall({ enforceAppCheck: true }, async (request) => {
-  requireStaff(request);
   const { unit, campaignId, runKey, recipients } = request.data || {};
   assertUnit(unit);
+  requireStaff(request, unit);
   if (!campaignId || !runKey || !Array.isArray(recipients)) {
     throw new HttpsError("invalid-argument", "Campanha incompleta.");
   }
