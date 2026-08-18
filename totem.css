@@ -614,14 +614,23 @@
     padding-top: 0.75rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-    height: 39dvh;
-    min-height: 330px;
-    max-height: 410px;
+    height: min(39dvh, 410px);
+    min-height: 280px;
 }
 
 /* Estado visível do teclado */
 .totem-keyboard.is-visible {
     transform: translateY(0);
+}
+
+@media (max-height: 650px) {
+    .totem-keyboard {
+        height: 52dvh;
+        min-height: 280px;
+        padding-bottom: 0.75rem;
+    }
+    .totem-keyboard-handle { margin-bottom: 0.5rem; }
+    .totem-key { min-height: 2.25rem; }
 }
 
 @media (min-width: 640px) {
@@ -674,8 +683,8 @@
     grid-column: span 3;
 }
 
-/* A tecla 0 também é um número, então já tem span 4 (mas na última linha, queremos apenas 3 colunas para o 0) – vamos sobrescrever */
-.totem-keyboard-numeric .totem-key-number:last-of-type {
+/* O 0 não é o último botão da grade; uma classe explícita evita quebrar Confirmar em outra linha. */
+.totem-keyboard-numeric .totem-key-zero {
     grid-column: span 3;
 }
 
