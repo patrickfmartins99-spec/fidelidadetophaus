@@ -181,7 +181,10 @@ exports.checkInTotemClient = onCall({ enforceAppCheck: true }, async (request) =
     client.ultimaVisitaTimestamp = admin.database.ServerValue.TIMESTAMP;
     return client;
   });
-  if (!result.committed) totemError(response?.state === "already_checked_in" ? "Almoço já registrado hoje." : "Cliente não encontrado.");
+  if (!result.committed) {
+    if (response) return response;
+    totemError("Cliente não encontrado.");
+  }
   return response;
 });
 
