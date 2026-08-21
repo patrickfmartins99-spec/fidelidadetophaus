@@ -654,7 +654,7 @@
             <div id="totem-tela-busca" class="totem-screen">
                 <h1 class="totem-screen-title">Bem-vindo(a) à Top Haus!</h1>
                 <p class="totem-screen-subtitle">Digite seu CPF para registrar o almoço de hoje e acompanhar seus benefícios.</p>
-                <input type="tel" inputmode="none" readonly id="totem-cpf" placeholder="000.000.000-00" maxlength="14" class="totem-input">
+                <input type="tel" inputmode="none" readonly id="totem-cpf" placeholder="000.000.000-00" maxlength="14" class="totem-input" oninput="mascaraCPF(this)">
                 <button id="btn-totem-avancar" onclick="if(typeof totemProcessarCPF === 'function') totemProcessarCPF()" class="totem-btn-primary">
                     <span id="btn-totem-avancar-text">Avançar</span>
                 </button>
@@ -741,7 +741,7 @@
                 <button class="totem-key totem-key-number" onclick="tecladoDigitar('9')">9</button>
                 <!-- Linha inferior: LIMPAR (span 3), 0 (span 3), APAGAR (span 3), CONFIRMAR (span 3) -->
                 <button class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('0')">0</button>
+                <button class="totem-key totem-key-number totem-key-zero" onclick="tecladoDigitar('0')">0</button>
                 <button class="totem-key totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
                 <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
             </div>
