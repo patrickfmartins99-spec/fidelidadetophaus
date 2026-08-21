@@ -18,7 +18,7 @@ window.buscarEContabilizar = () => {
     if (window.diasParaAniversario(c.nascimento) === 0 && c.aniversarioResgatadoAno !== new Date().getFullYear()) { 
         window.acaoPendente = c; 
         window.tipoAcaoPendente = 'busca'; 
-        document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-black">${window.escapeHTML(c.nome)}</strong>!`; 
+        document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-black">${window.escapeHTML(window.nomeExibicao(c.nome))}</strong>!`; 
         const m = document.getElementById('modal-alerta-aniversario'); 
         m.classList.remove('hidden'); 
         if(window.prenderFocoModal) window.prenderFocoModal(m); 
@@ -36,7 +36,7 @@ window.processarFluxoNormal = (c) => {
     if (ja) {
         window.confirmacaoDupla(
             "Almoço Duplicado",
-            `O cliente ${window.escapeHTML(c.nome)} já registrou um almoço hoje. Deseja registrar uma refeição EXTRA neste mesmo dia? (Esta ação exigirá a senha do gerente).`,
+            `O cliente ${window.escapeHTML(window.nomeExibicao(c.nome))} já registrou um almoço hoje. Deseja registrar uma refeição EXTRA neste mesmo dia? (Esta ação exigirá a senha do gerente).`,
             () => {
                 // Passa 'true' para indicar que é um almoço extra de hoje, preenchendo a data automaticamente
                 window.prepararAlmocoAtrasado(c.cpf, true);
@@ -71,7 +71,7 @@ window.processarFluxoNormal = (c) => {
         const btnConfirmar = document.getElementById('btn-confirmar-almoco');
         if(btnConfirmar) btnConfirmar.classList.remove('hidden');
 
-        document.getElementById('texto-confirmacao').innerHTML = `Deseja registrar +1 almoço para <strong>${window.escapeHTML(c.nome)}</strong>?`;
+        document.getElementById('texto-confirmacao').innerHTML = `Deseja registrar +1 almoço para <strong>${window.escapeHTML(window.nomeExibicao(c.nome))}</strong>?`;
         const m = document.getElementById('modal-confirmacao'); 
         m.classList.remove('hidden'); 
         if(window.prenderFocoModal) window.prenderFocoModal(m);
@@ -274,7 +274,7 @@ window.efetuarResgateEImprimir = (c) => {
                     protocolo: protocoloGerado
                 });
             }
-            window.dispararImpressao(c.nome, c.cpf, dts, hr, protocoloGerado); 
+            window.dispararImpressao(window.nomeExibicao(c.nome), c.cpf, dts, hr, protocoloGerado); 
         });
     }).catch((err) => {
         window.isProcessing = false; 
@@ -382,7 +382,7 @@ window.dispararImpressaoAniversario = (c, dataResgate, protocolo = 'S/N') => {
         <div class="linha-tracejada"></div>
         <div style="margin-bottom:5px;font-size:12px;color:#000;">
             <p style="margin:2px 0;"><strong>CLIENTE</strong></p>
-            <p style="margin:2px 0;"><strong>Nome:</strong> ${window.escapeHTML((c.nome||'').toUpperCase())}</p>
+            <p style="margin:2px 0;"><strong>Nome:</strong> ${window.escapeHTML(window.nomeExibicao(c.nome).toUpperCase())}</p>
             <p style="margin:2px 0;"><strong>CPF:</strong> ${window.formatarCPF(c.cpf)}</p>
             <p style="margin:2px 0;"><strong>Data de nascimento:</strong> ${nascFormatado}</p>
             <p style="margin:2px 0;"><strong>Data de cadastro:</strong> ${dataCadastroFormatada}</p>
@@ -479,7 +479,7 @@ window.abrirEditar = (cpf) => {
     
     document.getElementById('edit-cpf-raw').value = c.cpf||''; 
     document.getElementById('edit-cpf-display').value = window.formatarCPF(c.cpf);
-    document.getElementById('edit-nome').value = c.nome||''; 
+    document.getElementById('edit-nome').value = window.nomeExibicao(c.nome); 
     
     document.getElementById('edit-nascimento').value = c.nascimento && c.nascimento.includes('-') ? 
         `${c.nascimento.split('-')[2]}/${c.nascimento.split('-')[1]}/${c.nascimento.split('-')[0]}` : c.nascimento||'';
@@ -775,7 +775,7 @@ window.abrirLixeira = () => {
         arquivados.forEach(c => {
             tb.innerHTML += `
                 <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                    <td class="py-3 px-4 text-xs font-bold text-gray-800">${window.escapeHTML(c.nome)}</td>
+                    <td class="py-3 px-4 text-xs font-bold text-gray-800">${window.escapeHTML(window.nomeExibicao(c.nome))}</td>
                     <td class="py-3 px-4 text-xs text-center text-gray-500 font-mono">${window.formatarCPF(c.cpf)}</td>
                     <td class="py-3 px-4 text-right">
                         <button onclick="restaurarCliente('${c.cpf}')" class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-100 transition shadow-sm">

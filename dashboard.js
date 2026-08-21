@@ -337,7 +337,7 @@ window.renderizarTabela = (l) => {
         const tr = document.createElement('tr'); 
         tr.className = 'border-b hover:bg-gray-50 transition';
         tr.innerHTML = `
-            <td class="py-3 px-6 text-center font-bold">${window.escapeHTML(c.nome)}</td>
+            <td class="py-3 px-6 text-center font-bold">${window.escapeHTML(window.nomeExibicao(c.nome))}</td>
             <td class="py-3 px-6 text-center text-xs font-mono text-gray-500">${window.formatarCPF(c.cpf)}<br>${window.formatarTel(c.telefone)}</td>
             <td class="py-3 px-6 text-center font-bold text-base ${(c.almocos||0) >= 10 ? 'text-black' : 'text-gray-500'}">${c.almocos||0}</td>
             <td class="py-3 px-6 text-center font-bold text-gray-500">${c.premiosResgatados||0}</td>
@@ -362,7 +362,7 @@ window.exportarExcel = () => {
         const dUltima = c.historico && c.historico.length > 0 ? c.historico[c.historico.length-1].split(' às ')[0] : 'Nunca';
         const inativo = window.diasDesdeUltimaVisita(c) > 30 ? 'Inativo (+30d)' : 'Ativo';
         
-        csvContent += `${c.nome};${c.cpf};${c.nascimento};${c.telefone};${c.almocos || 0};${c.premiosResgatados || 0};${inativo};${dUltima}\n`;
+        csvContent += `${window.nomeExibicao(c.nome)};${c.cpf};${c.nascimento};${c.telefone};${c.almocos || 0};${c.premiosResgatados || 0};${inativo};${dUltima}\n`;
     });
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
