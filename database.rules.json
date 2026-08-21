@@ -1,66 +1,49 @@
 {
   "rules": {
+    ".read": false,
+    ".write": false,
+
     "lojas": {
       "$unidade": {
-        
-        // 1. Proteção Global de Leitura: Qualquer usuário logado no Auth pode ler a unidade
-        ".read": "auth != null",
-        
-        "usuarios": {
-          // Apenas Gerentes e Admins podem manipular usuários.
-          // NOTA: Requer que a chave do nó do usuário seja o UID do Firebase Auth.
-          ".write": "root.child('lojas').child($unidade).child('usuarios').child(auth.uid).child('cargo').val() === 'admin' || root.child('lojas').child($unidade).child('usuarios').child(auth.uid).child('cargo').val() === 'gerente'"
+        "usuarios_por_uid": {
+          "$uid": {
+            ".read": "auth != null && (auth.uid === $uid || auth.token.role === 'admin')",
+            ".write": false
+          }
         },
 
         "clientes": {
+          ".read": "auth != null && (auth.token.role === 'admin' || (auth.token.role === 'gerente' && auth.token.unit === $unidade))",
           "$cpf": {
-            // Operadores de Caixa podem criar/editar clientes normais
-            ".write": "auth != null",
-            
-            // BLOQUEIO 1: Impede manipulação direta do nó estruturado de "Almoço Atrasado" por caixas
-            "historicoAtrasados": {
-              ".write": "root.child('lojas').child($unidade).child('usuarios').child(auth.uid).child('cargo').val() === 'admin' || root.child('lojas').child($unidade).child('usuarios').child(auth.uid).child('cargo').val() === 'gerente'"
-            },
-            
-            // BLOQUEIO 2: Bloqueia saltos ilícitos na quantidade de almoços normais
-            // Se o usuário não for gerente/admin, o salto de almoços só pode ser +1 (ou negativo no caso de resgate)
+            ".write": "auth != null && (auth.token.role === 'admin' || (auth.token.role === 'gerente' && auth.token.unit === $unidade))",
             "almocos": {
-              ".validate": "
-                (root.child('lojas').child($unidade).child('usuarios').child(auth.uid).child('cargo').val() === 'admin' || root.child('lojas').child($unidade).child('usuarios').child(auth.uid).child('cargo').val() === 'gerente') 
-                || 
-                (newData.val() <= data.val() + 1)
-              "
+              ".validate": "newData.isNumber() && newData.val() >= 0"
             }
           }
         },
 
-        "auditoria": {
-          // Auditoria: Qualquer um pode escrever (logs), mas NINGUÉM pode alterar ou apagar.
-          ".write": "auth != null",
-          "$logId": {
-            ".validate": "!data.exists()"
-          }
-        },
-
-        "contadores": {
-          "protocolo": {
-            // Permite leitura e incremento, mas valida se o novo dado é numérico
-            ".write": "auth != null",
-            ".validate": "newData.isNumber()"
+        "config": {
+          "mensagens": {
+            ".read": "auth != null && (auth.token.role === 'admin' || (auth.token.role === 'gerente' && auth.token.unit === $unidade))",
+            ".write": "auth != null && (auth.token.role === 'admin' || (auth.token.role === 'gerente' && auth.token.unit === $unidade))"
           }
         },
 
         "fila_mensagens": {
-           // Mensagens de MKT
-          ".write": "auth != null"
+          ".read": false,
+          ".write": false
+        },
+
+        "auditoria": {
+          ".read": "auth != null && auth.token.role === 'admin'",
+          ".write": false
+        },
+
+        "contadores": {
+          ".read": false,
+          ".write": false
         }
       }
-    },
-    
-    // Configurações Globais fora de lojas (se houver)
-    "config": {
-      ".read": "auth != null",
-      ".write": "root.child('lojas/navegantes/usuarios').child(auth.uid).child('cargo').val() === 'admin'"
     }
   }
 }

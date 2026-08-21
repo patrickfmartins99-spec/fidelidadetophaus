@@ -4,22 +4,21 @@
 // ==========================================================================
 // CORE DO ROBÔ DE MARKETING: ENVIAR PARA A FILA FIREBASE (MULTIUNIDADE)
 // ==========================================================================
-window.enviarParaFilaRobo = (cpf, telefone, textoMensagem) => {
-    if(!telefone || !textoMensagem) return;
+window.enviarParaFilaRobo = async (cpf, telefone, textoMensagem) => {
+    if (!telefone || !textoMensagem || !window.firebaseCallable || !window.firebaseFunctions) return;
     const telLimpo = telefone.toString().replace(/\D/g, '');
-    if(telLimpo.length < 10) return; 
-    
-    const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('fila_mensagens') : 'fila_mensagens';
+    if (telLimpo.length < 10) return;
 
-    window.firebasePush(window.firebaseRef(window.db, pathFila), {
-        cpf: cpf,
-        telefone: telLimpo,
-        texto: textoMensagem,
-        timestamp: Date.now(),
-        status: 'pendente'
-    }).then(() => {
-        console.log("Ordem despachada para o Robô Node.js da unidade.");
-    });
+    try {
+        const chamada = window.firebaseCallable(window.firebaseFunctions, 'enqueueDirectMessage');
+        await chamada({
+            unit: window.obterUnidade ? window.obterUnidade() : null,
+            cpf, telefone: telLimpo, texto: textoMensagem
+        });
+    } catch (erro) {
+        console.error('Não foi possível enfileirar a mensagem.', erro);
+        if (window.mostrarToast) window.mostrarToast('Não foi possível preparar a mensagem.', 'erro');
+    }
 };
 
 window.checarEAvisarAlmoco = (c) => {
@@ -405,7 +404,10 @@ window.adicionarAgendamento = () => {
         const data = document.getElementById('mkt-agenda-data').value;
         const titulo = document.getElementById('mkt-agenda-titulo').value;
         if(!data || !titulo || !texto) return window.mostrarToast("Preencha todos os campos para continuar.", "erro");
-        novaCampanha = { data: data, titulo: titulo, texto: texto, tipo: 'unica', status: 'ativa' };
+        novaCampanha = {
+            id: window.crypto?.randomUUID?.() || `campanha-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            data, titulo, texto, tipo: 'unica', status: 'ativa', horario: '09:00'
+        };
     }
     
     if(!Array.isArray(window.msgsMarketing.agendadas)) window.msgsMarketing.agendadas = Object.values(window.msgsMarketing.agendadas||{}); 
@@ -548,123 +550,9 @@ window.dispararWhatsApp = (cpf, tipo, idx = -1) => {
 // ==========================================================================
 
 window.executarCampanhasAgendadas = async () => {
-    // Evita execução concorrente
-    if (window._executandoCampanhas) return;
-    window._executandoCampanhas = true;
-
-    try {
-        const campanhas = window.msgsMarketing.agendadas || [];
-        if (!campanhas.length) {
-            window._executandoCampanhas = false;
-            return;
-        }
-
-        const agora = new Date();
-        const now = agora.getTime();
-        const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
-        const hojeStr = hoje.toISOString().split('T')[0]; // YYYY-MM-DD
-
-        // Converte hora atual para minutos desde meia-noite para comparação robusta
-        const minutosAtual = agora.getHours() * 60 + agora.getMinutes();
-
-        let campanhaAlterada = false;
-
-        for (let i = 0; i < campanhas.length; i++) {
-            const camp = campanhas[i];
-            if (camp.status !== 'ativa') continue;
-
-            let deveExecutar = false;
-            let config = camp.configRecorrencia || {};
-            let horario = config.horario || '09:00';
-
-            // Converte horário agendado para minutos
-            const [hora, min] = horario.split(':').map(Number);
-            const minutosAgendado = hora * 60 + min;
-
-            // Verifica se já passou do horário e se ainda não foi executado hoje
-            const jaExecutadoHoje = camp.ultimoDisparo && new Date(camp.ultimoDisparo).toISOString().split('T')[0] === hojeStr;
-
-            if (camp.tipo === 'unica') {
-                // Disparo único: executa apenas no dia agendado, se ainda não executou hoje
-                if (camp.data === hojeStr && !jaExecutadoHoje) {
-                    // Só executa se o horário atual for >= horário agendado (ou se não tiver horário? assumimos que tem)
-                    if (minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                }
-            } else {
-                // Campanha recorrente
-                const freq = camp.frequencia;
-                if (freq === 'diaria') {
-                    if (!jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                } else if (freq === 'semanal') {
-                    const diasSemana = config.diasSemana || [];
-                    const diaSemana = agora.getDay();
-                    if (diasSemana.includes(diaSemana) && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                } else if (freq === 'mensal') {
-                    const diaMes = config.diaMes || 1;
-                    if (agora.getDate() === diaMes && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                } else if (freq === 'anual') {
-                    const diaAno = config.diaAno || '01/01';
-                    const [dia, mes] = diaAno.split('/').map(Number);
-                    if (agora.getDate() === dia && (agora.getMonth() + 1) === mes && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                } else if (freq === 'data_especifica') {
-                    const dataEsp = config.dataEspecifica;
-                    if (dataEsp === hojeStr && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                }
-            }
-
-            if (deveExecutar) {
-                const textoBase = camp.texto || '';
-                const clientes = (window.clientesArray || []).filter(c => !c.arquivado);
-                if (clientes.length === 0) {
-                    // Se não há clientes, marca como executado para não tentar novamente hoje
-                    camp.ultimoDisparo = now;
-                    campanhaAlterada = true;
-                    continue;
-                }
-
-                let enviados = 0;
-                for (const cliente of clientes) {
-                    if (!cliente.telefone) continue;
-                    let msg = textoBase.replace(/\[Nome\]/g, (cliente.nome||'').split(' ')[0] || 'Cliente')
-                                       .replace(/\[Acumulados\]/g, cliente.almocos || 0);
-                    window.enviarParaFilaRobo(cliente.cpf, cliente.telefone, msg);
-                    enviados++;
-                }
-
-                camp.ultimoDisparo = now;
-                campanhaAlterada = true;
-
-                if (window.logAuditoria) {
-                    window.logAuditoria('Campanha Automática', 
-                        `Campanha "${camp.titulo}" disparada para ${enviados} clientes.`,
-                        { titulo: camp.titulo, enviados }
-                    );
-                }
-            }
-        }
-
-        if (campanhaAlterada) {
-            window.msgsMarketing.agendadas = campanhas;
-            await window.firebaseSet(window.firebaseRef(window.db, window.PATH_MENSAGENS), window.msgsMarketing);
-        }
-
-    } catch (err) {
-        console.error('Erro na execução de campanhas:', err);
-    } finally {
-        window._executandoCampanhas = false;
-    }
+    // O agendamento ocorre no servidor (Cloud Scheduler + Cloud Functions).
+    // Manter esta função sem efeitos impede que cada navegador dispare a mesma campanha.
+    return;
 };
 
 // Inicia o intervalo de verificação a cada 60 segundos

@@ -3,6 +3,17 @@
 
 window.intervaloContagemTotem = null;
 
+// Chamadas do totem passam por Cloud Functions; o navegador não lê a base de clientes.
+window.chamarFuncaoTotem = async (nome, dados) => {
+    if (!window.firebaseCallable || !window.firebaseFunctions) {
+        throw new Error('Serviço seguro do totem indisponível.');
+    }
+    const chamada = window.firebaseCallable(window.firebaseFunctions, nome);
+    const resultado = await chamada(dados);
+    return resultado.data;
+};
+
+
 // ==========================================================================
 // CONTROLO DE ECRÃ E NAVEGAÇÃO DO TOTEM (COM SEGURANÇA)
 // ==========================================================================
@@ -127,208 +138,115 @@ window.totemVoltarInicio = () => {
 // ==========================================================================
 // PROCESSAMENTO DA LEITURA DO CPF E FLUXO DE TELAS
 // ==========================================================================
-window.totemProcessarCPF = () => {
-    if(window.isProcessing) return;
-    const cpfNum = document.getElementById('totem-cpf').value.replace(/\D/g, '');
-    if(!window.validarCPFReal(cpfNum)) return window.totemMostrarMensagem('erro_cpf');
-    
-    if(window.operacoesAtivas && window.operacoesAtivas[cpfNum]) return window.mostrarToast('Por favor, aguarde.', 'erro');
-    
-    window.isProcessing = true; 
-    if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = true; 
-    
+window.totemProcessarCPF = async () => {
+    if (window.isProcessing) return;
+    const cpf = document.getElementById('totem-cpf').value.replace(/\D/g, '');
+    if (!window.validarCPFReal(cpf)) return window.totemMostrarMensagem('erro_cpf');
+
     const btn = document.getElementById('btn-totem-avancar');
     const span = document.getElementById('btn-totem-avancar-text');
-    if(btn) btn.disabled = true; 
-    if(span) span.innerText = 'Buscando...';
-    
-    document.getElementById('totem-cpf').disabled = true;
-    
-    // Fecha o teclado nativo do dispositivo
-    if(document.activeElement) document.activeElement.blur(); 
-    
-    setTimeout(() => { 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
-        if(btn) btn.disabled = false;
-        if(span) span.innerText = 'Avançar';
-    }, 8000); 
+    window.isProcessing = true;
+    if (btn) btn.disabled = true;
+    if (span) span.innerText = 'Buscando...';
 
-    const cliente = window.clientesMap[cpfNum];
-    
-    if(!cliente || cliente.arquivado) {
-        document.getElementById('totem-tela-busca').classList.add('hidden');
-        document.getElementById('totem-form').reset();
-        document.getElementById('totem-cad-cpf').value = window.formatarCPF(cpfNum);
-        document.getElementById('totem-tela-cadastro').classList.remove('hidden');
-        
-        setTimeout(() => {
-            const cadNome = document.getElementById('totem-cad-nome');
-            if(cadNome) cadNome.focus();
-        }, 300);
-        
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
-        
-        if(btn) btn.disabled = false;
-        if(span) span.innerText = 'Avançar';
-        
-        window.resetarTimerTotem();
-    } else {
-        window.totemClienteTemp = cliente;
-        
-        // Verifica se JÁ possuía 10 almoços ANTES de registrar hoje (Próxima Visita = Habilita Resgate)
-        if((cliente.almocos || 0) >= 10) {
+    try {
+        const resposta = await window.chamarFuncaoTotem('lookupTotemClient', {
+            unit: window.obterUnidade(),
+            cpf
+        });
+
+        if (!resposta.found) {
             document.getElementById('totem-tela-busca').classList.add('hidden');
-            document.getElementById('totem-tela-opcoes').classList.remove('hidden');
-            window.isProcessing = false; 
-            if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
-            if(btn) btn.disabled = false;
-            if(span) span.innerText = 'Avançar';
+            document.getElementById('totem-form').reset();
+            document.getElementById('totem-cad-cpf').value = window.formatarCPF(cpf);
+            document.getElementById('totem-tela-cadastro').classList.remove('hidden');
+            setTimeout(() => document.getElementById('totem-cad-nome')?.focus(), 250);
             window.resetarTimerTotem();
-        } else {
-            if(window.jaRegistrouHoje(cliente)) { 
-                window.isProcessing = false; 
-                if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
-                if(btn) btn.disabled = false;
-                if(span) span.innerText = 'Avançar';
-                return window.totemMostrarMensagem('ja_registrado'); 
-            }
-            window.isProcessing = false; 
-            if(window.operacoesAtivas) window.operacoesAtivas[cpfNum] = false; 
-            if(btn) btn.disabled = false;
-            if(span) span.innerText = 'Avançar';
-            window.totemExecutarAcumulo();
+            return;
         }
+
+        window.totemClienteTemp = {
+            cpf,
+            nome: resposta.firstName,
+            almocos: resposta.rewardAvailable ? 10 : 0
+        };
+        if (resposta.alreadyCheckedIn) return window.totemMostrarMensagem('ja_registrado');
+
+        document.getElementById('totem-tela-busca').classList.add('hidden');
+        if (resposta.rewardAvailable) {
+            document.getElementById('totem-tela-opcoes').classList.remove('hidden');
+            return window.resetarTimerTotem();
+        }
+        await window.totemExecutarAcumulo();
+    } catch (erro) {
+        console.error('Erro seguro do totem:', erro);
+        window.mostrarToast('Não foi possível consultar o cadastro. Tente novamente.', 'erro');
+    } finally {
+        window.isProcessing = false;
+        if (btn) btn.disabled = false;
+        if (span) span.innerText = 'Avançar';
     }
 };
 
-window.totemSalvarCadastro = (e) => {
-    e.preventDefault(); 
-    if(window.isProcessing) return;
-    
+window.totemSalvarCadastro = async (e) => {
+    e.preventDefault();
+    if (window.isProcessing) return;
+
     const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
-    if(window.operacoesAtivas && window.operacoesAtivas[cpf]) return;
-    
-    // Validação explícita do nome
     const nome = document.getElementById('totem-cad-nome').value.trim();
-    if (!nome) {
-        window.mostrarToast('Digite seu nome completo.', 'erro');
-        return;
+    const nascimento = document.getElementById('totem-cad-nasc').value;
+    const telefone = document.getElementById('totem-cad-tel').value;
+    if (!nome) return window.mostrarToast('Digite seu nome completo.', 'erro');
+
+    const btn = document.getElementById('btn-totem-salvar');
+    const span = document.getElementById('btn-totem-salvar-text');
+    window.isProcessing = true;
+    if (btn) btn.disabled = true;
+    if (span) span.innerText = 'Salvando...';
+
+    try {
+        const resposta = await window.chamarFuncaoTotem('registerTotemClient', {
+            unit: window.obterUnidade(), cpf, nome, nascimento, telefone
+        });
+        window.totemClienteTemp = { cpf, nome: resposta.firstName, almocos: 1 };
+        window.totemMostrarMensagem(resposta.birthdayToday ? 'aniversario_totem' : 'cadastro_sucesso');
+    } catch (erro) {
+        window.mostrarToast(erro.message || 'Não foi possível salvar. Tente novamente.', 'erro');
+    } finally {
+        window.isProcessing = false;
+        if (btn) btn.disabled = false;
+        if (span) span.innerText = 'Salvar cadastro';
     }
-    
-    const tel = document.getElementById('totem-cad-tel').value.replace(/\D/g, ''); 
-    if(!window.telefoneValido(tel)) return window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');
-    const nasc = document.getElementById('totem-cad-nasc').value; 
-    if(!window.validarDataReal(nasc)) return window.mostrarToast('Data de nascimento inválida.', 'erro');
-
-    window.isProcessing = true; 
-    if(window.operacoesAtivas) window.operacoesAtivas[cpf] = true; 
-    
-    const btnSalvar = document.getElementById('btn-totem-salvar');
-    const spanSalvar = document.getElementById('btn-totem-salvar-text');
-    if(btnSalvar) btnSalvar.disabled = true; 
-    if(spanSalvar) spanSalvar.innerText = 'Salvando...';
-    
-    if(document.activeElement) document.activeElement.blur(); 
-    
-    setTimeout(() => { 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[cpf] = false; 
-        if(btnSalvar) btnSalvar.disabled = false; 
-        if(spanSalvar) spanSalvar.innerText = 'Salvar cadastro';
-    }, 8000); 
-
-    let niverF = nasc.includes('/') ? `${nasc.split('/')[2]}-${nasc.split('/')[1]}-${nasc.split('/')[0]}` : nasc;
-
-    const novoCliente = { 
-        cpf, nome, nascimento: niverF, telefone: tel, 
-        almocos: 1, premiosResgatados: 0, 
-        historico: [new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})], 
-        origemCadastro: 'Totem', 
-        dataCadastro: new Date().toLocaleDateString('pt-BR'), 
-        ultimaVisitaTimestamp: Date.now(),
-        arquivado: false
-    };
-    
-    window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cpf), novoCliente).then(() => {
-        window.totemClienteTemp = novoCliente; 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[cpf] = false;
-        
-        if(window.logAuditoria) window.logAuditoria('Cadastro (Totem)', `Cliente ${novoCliente.nome} realizou o próprio cadastro via Totem.`);
-        
-        if(window.checarEAvisarAlmoco) window.checarEAvisarAlmoco(novoCliente);
-        
-        if(window.diasParaAniversario(novoCliente.nascimento) === 0) {
-            window.totemMostrarMensagem('aniversario_totem'); 
-        } else {
-            window.totemMostrarMensagem('cadastro_sucesso');
-        }
-    }).catch(() => { 
-        window.mostrarToast("Não foi possível salvar. Tente novamente.", "erro"); 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[cpf] = false; 
-        if(btnSalvar) btnSalvar.disabled = false; 
-        if(spanSalvar) spanSalvar.innerText = 'Salvar cadastro';
-    });
 };
 
-window.totemExecutarAcumulo = () => {
-    if(window.isProcessing) return;
-    const cliente = window.totemClienteTemp; 
-    if(!cliente) return;
-    if(window.jaRegistrouHoje(cliente)) return window.totemMostrarMensagem('ja_registrado');
-    
-    window.isProcessing = true; 
-    if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = true; 
-    
-    const btn = document.getElementById('btn-totem-acumular'); 
+window.totemExecutarAcumulo = async () => {
+    if (window.isProcessing || !window.totemClienteTemp) return;
+
+    const btn = document.getElementById('btn-totem-acumular');
     const span = document.getElementById('btn-totem-acumular-text');
-    if(btn) btn.disabled = true;
-    if(span) span.innerText = 'Atualizando...';
-    
-    setTimeout(() => { 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
-        if(btn) btn.disabled = false; 
-        if(span) span.innerText = 'Guardar para outra visita';
-    }, 8000); 
+    window.isProcessing = true;
+    if (btn) btn.disabled = true;
+    if (span) span.innerText = 'Atualizando...';
 
-    cliente.almocos = (cliente.almocos || 0) + 1;
-    if(!cliente.historico) cliente.historico = [];
-    cliente.historico.push(new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}));
-    cliente.ultimaVisitaTimestamp = Date.now(); 
-    if(window.limitarHistorico) cliente.historico = window.limitarHistorico(cliente.historico);
+    try {
+        const resposta = await window.chamarFuncaoTotem('checkInTotemClient', {
+            unit: window.obterUnidade(),
+            cpf: window.totemClienteTemp.cpf,
+            action: 'accumulate'
+        });
+        window.totemClienteTemp.nome = resposta.firstName || window.totemClienteTemp.nome;
+        window.totemClienteTemp.almocos = resposta.lunches || window.totemClienteTemp.almocos;
 
-    // Registro Permanente da Data de Conquista dos 10 Almoços via Totem
-    if (cliente.almocos > 0 && cliente.almocos % 10 === 0) {
-        if(!cliente.historicoConquistas) cliente.historicoConquistas = [];
-        cliente.historicoConquistas.push(new Date().toLocaleString('pt-BR'));
+        if (resposta.state === 'already_checked_in') return window.totemMostrarMensagem('ja_registrado');
+        if (resposta.state === 'reward_earned') return window.totemMostrarMensagem('meta_atingida');
+        return window.totemMostrarMensagem('sucesso_acumulo');
+    } catch (erro) {
+        window.mostrarToast(erro.message || 'Não foi possível registrar o almoço.', 'erro');
+    } finally {
+        window.isProcessing = false;
+        if (btn) btn.disabled = false;
+        if (span) span.innerText = 'Guardar para outra visita';
     }
-
-    window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + cliente.cpf), cliente).then(() => {
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
-        if(btn) btn.disabled = false;
-        if(span) span.innerText = 'Guardar para outra visita';
-        
-        const a = new Date().getFullYear();
-        if(window.checarEAvisarAlmoco) window.checarEAvisarAlmoco(cliente);
-        
-        if (window.diasParaAniversario(cliente.nascimento) === 0 && cliente.aniversarioResgatadoAno !== a) {
-            window.totemMostrarMensagem('aniversario_totem');
-        } else if (cliente.almocos > 0 && cliente.almocos % 10 === 0) {
-            window.totemMostrarMensagem('meta_atingida'); 
-        } else {
-            window.totemMostrarMensagem('sucesso_acumulo');
-        }
-    }).catch(() => { 
-        window.isProcessing = false; 
-        if(window.operacoesAtivas) window.operacoesAtivas[cliente.cpf] = false; 
-        if(btn) btn.disabled = false; 
-        if(span) span.innerText = 'Guardar para outra visita';
-    });
 };
 
 // ==========================================================================

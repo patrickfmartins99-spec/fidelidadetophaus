@@ -2,6 +2,8 @@
 // Módulo 2: Configuração e Conexão com o Firebase
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-functions.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app-check.js";
 import { getDatabase, ref, set, onValue, get, push, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 import { 
     getAuth, 
@@ -25,6 +27,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
+const functions = getFunctions(app, "southamerica-east1");
+
+// O site key é público por definição; a verificação ocorre no servidor.
+// Configure window.TOPHAUS_APP_CHECK_SITE_KEY antes de ativar o totem em produção.
+if (window.TOPHAUS_APP_CHECK_SITE_KEY) {
+    initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(window.TOPHAUS_APP_CHECK_SITE_KEY),
+        isTokenAutoRefreshEnabled: true
+    });
+}
 
 // Inicialização Correta do Segundo Firebase App utilizando a API Modular (v10.8.1)
 const secondaryApp = initializeApp(firebaseConfig, "SecondaryAppInstance");
@@ -39,6 +51,8 @@ window.firebaseRunTransaction = runTransaction;
 window.firebaseApp = app;
 window.db = db;
 window.auth = auth;
+window.firebaseFunctions = functions;
+window.firebaseCallable = httpsCallable;
 window.authSecundario = authSecundario;
 
 // Expondo as funções do SDK do Firebase que são usadas pelo sistema[span_1](start_span)[span_1](end_span)

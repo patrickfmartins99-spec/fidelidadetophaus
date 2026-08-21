@@ -154,6 +154,22 @@ document.addEventListener('keydown', (e) => {
 // ==========================================================================
 // MÁSCARAS E FORMATAÇÕES (Inputs e Display)
 // ==========================================================================
+
+// Padroniza nomes sem apagar partículas usuais da língua portuguesa.
+window.normalizarNome = (valor) => {
+    const particulas = new Set(['da', 'das', 'de', 'do', 'dos', 'e']);
+    const palavras = String(valor || '').trim().toLocaleLowerCase('pt-BR').split(/\s+/).filter(Boolean);
+    if (palavras.length < 2 || palavras.some(p => !/^[\p{L}'’-]+$/u.test(p))) return '';
+
+    return palavras.map((palavra, indice) => {
+        if (indice > 0 && particulas.has(palavra)) return palavra;
+        return palavra.split(/(['’-])/).map(parte => {
+            if (/['’-]/.test(parte)) return parte;
+            return parte ? parte[0].toLocaleUpperCase('pt-BR') + parte.slice(1) : parte;
+        }).join('');
+    }).join(' ');
+};
+
 window.mascaraCPF = (i) => { 
     let v = (i.value||"").replace(/\D/g,""); 
     v = v.replace(/(\d{3})(\d)/, "$1.$2"); 

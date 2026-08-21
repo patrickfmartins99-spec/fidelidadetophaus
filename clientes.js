@@ -118,7 +118,7 @@ window.cadastrarCliente = (e) => {
 
     const nf = nasc.includes('/') ? `${nasc.split('/')[2]}-${nasc.split('/')[1]}-${nasc.split('/')[0]}` : nasc;
     const nc = { 
-        cpf, nome: document.getElementById('cad-nome').value.trim(), 
+        cpf, nome, 
         nascimento: nf, telefone: tel, 
         almocos: 0, premiosResgatados: 0, historico: [], 
         origemCadastro: 'Caixa', 
@@ -507,7 +507,7 @@ window.salvarEdicao = (e) => {
     if(span) span.innerText = 'Atualizando...';
     
     const oldNome = c.nome;
-    c.nome = document.getElementById('edit-nome').value; 
+    c.nome = nome; 
     c.telefone = tel; 
     c.nascimento = nasc.includes('/') ? `${nasc.split('/')[2]}-${nasc.split('/')[1]}-${nasc.split('/')[0]}` : nasc;
     
