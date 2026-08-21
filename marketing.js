@@ -188,7 +188,7 @@ window.injetarUICampanhas = () => {
             
             <div id="freq-diaria" class="text-sm text-gray-500 text-center">Executa todos os dias no horário definido.</div>
 
-            <div id="freq-semanal" class="flex flex-wrap gap-2 text-xs font-bold text-gray-700">
+            <div id="freq-semanal" class="hidden flex flex-wrap gap-2 text-xs font-bold text-gray-700">
                 <label class="bg-white p-1.5 rounded border border-gray-200 cursor-pointer hover:bg-indigo-100"><input type="checkbox" value="1" class="chk-dia mr-1"> Seg</label>
                 <label class="bg-white p-1.5 rounded border border-gray-200 cursor-pointer hover:bg-indigo-100"><input type="checkbox" value="2" class="chk-dia mr-1"> Ter</label>
                 <label class="bg-white p-1.5 rounded border border-gray-200 cursor-pointer hover:bg-indigo-100"><input type="checkbox" value="3" class="chk-dia mr-1"> Qua</label>
