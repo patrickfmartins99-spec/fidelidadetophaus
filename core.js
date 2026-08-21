@@ -170,6 +170,9 @@ window.normalizarNome = (valor) => {
     }).join(' ');
 };
 
+// Normaliza apenas para leitura da interface; não altera o cadastro já salvo.
+window.nomeExibicao = (valor) => window.normalizarNome(valor) || String(valor || '').trim();
+
 window.mascaraCPF = (i) => { 
     let v = (i.value||"").replace(/\D/g,""); 
     v = v.replace(/(\d{3})(\d)/, "$1.$2"); 
