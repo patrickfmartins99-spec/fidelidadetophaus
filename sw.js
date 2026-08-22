@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v61-responsive';
+const CACHE_NAME = 'tophaus-fidelidade-v62-production-css';
 
 const CORE_ASSETS = [
     './',
@@ -6,6 +6,7 @@ const CORE_ASSETS = [
     './manifest.json',
     './icon.svg',
     './logo.jpg',
+    './tailwind.css',
     './style.css',
     './totem.css',
     './app.js',
