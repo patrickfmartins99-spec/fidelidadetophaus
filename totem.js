@@ -9,6 +9,7 @@ window.intervaloContagemTotem = null;
 window.entrarModoTotemDaTelaLogin = () => {
     document.getElementById('tela-login').classList.add('hidden');
     document.getElementById('app-dashboard').classList.add('hidden');
+    document.body.classList.add('totem-active');
     
     if(document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(()=>{});
@@ -55,6 +56,7 @@ window.sairModoTotem = () => {
     if(document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen().catch(()=>{});
     }
+    document.body.classList.remove('totem-active');
     document.getElementById('tela-totem').classList.add('hidden');
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
@@ -109,6 +111,9 @@ window.totemVoltarInicio = () => {
     });
     
     document.getElementById('totem-tela-busca').classList.remove('hidden');
+
+    const conteudoTotem = document.getElementById('totem-dynamic-area');
+    if(conteudoTotem) conteudoTotem.scrollTop = 0;
     
     // Limpa todos os campos e reabilita o CPF
     ['totem-cpf', 'totem-cad-cpf', 'totem-cad-nome', 'totem-cad-nasc', 'totem-cad-tel'].forEach(id => {
@@ -164,7 +169,11 @@ window.totemProcessarCPF = () => {
         
         setTimeout(() => {
             const cadNome = document.getElementById('totem-cad-nome');
-            if(cadNome) cadNome.focus();
+            if(cadNome && typeof window.definirInputAtivo === 'function') {
+                window.definirInputAtivo(cadNome);
+            } else if(cadNome) {
+                cadNome.focus();
+            }
         }, 300);
         
         window.isProcessing = false; 
@@ -481,3 +490,4 @@ window.totemMostrarAvaliacao = () => {
         window.totemVoltarInicio();
     }, tempoAvaliacao);
 };
+
