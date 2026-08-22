@@ -16,7 +16,8 @@ window.enviarParaFilaRobo = (cpf, telefone, textoMensagem) => {
         telefone: telLimpo,
         texto: textoMensagem,
         timestamp: Date.now(),
-        status: 'pendente'
+        status: 'pendente',
+        origem: 'painel'
     }).then(() => {
         console.log("Ordem despachada para o Robô Node.js da unidade.");
     });
