@@ -210,12 +210,14 @@ window.totemSalvarCadastro = (e) => {
     const cpf = document.getElementById('totem-cad-cpf').value.replace(/\D/g, '');
     if(window.operacoesAtivas && window.operacoesAtivas[cpf]) return;
     
-    // Validação explícita do nome
-    const nome = document.getElementById('totem-cad-nome').value.trim();
+    // Padroniza o nome antes de gravar, independentemente de como foi digitado.
+    const inputNome = document.getElementById('totem-cad-nome');
+    const nome = window.normalizarNome(inputNome.value);
     if (!nome) {
-        window.mostrarToast('Digite seu nome completo.', 'erro');
+        window.mostrarToast('Digite seu nome completo usando apenas letras.', 'erro');
         return;
     }
+    inputNome.value = nome;
     
     const tel = document.getElementById('totem-cad-tel').value.replace(/\D/g, ''); 
     if(!window.telefoneValido(tel)) return window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');
@@ -479,3 +481,4 @@ window.totemMostrarAvaliacao = () => {
         window.totemVoltarInicio();
     }, tempoAvaliacao);
 };
+
