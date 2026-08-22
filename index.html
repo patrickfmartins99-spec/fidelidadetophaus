@@ -2,15 +2,18 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
-    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#050505">
+    <meta name="description" content="Autoatendimento e gestão do programa de fidelidade Top Haus.">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Top Haus Fidelidade</title>
     <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./icon.svg">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script defer src="https://unpkg.com/lucide@0.468.0"></script>
     
     <!-- CSS externos -->
     <link rel="stylesheet" href="./style.css">
@@ -18,7 +21,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen relative overflow-x-hidden">
 
-    <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none" aria-live="polite" aria-atomic="true"></div>
 
     <!-- TELA DE SELEÇÃO DA UNIDADE (MULTIUNIDADE) -->
     <div id="tela-selecao-unidade" class="hidden fixed inset-0 bg-slate-900 z-[999] flex flex-col items-center justify-center p-4 transition-all overflow-y-auto">
@@ -39,8 +42,8 @@
     </div>
 
     <!-- TELA DE LOGIN -->
-    <div id="tela-login" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
-        <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-y-auto max-h-[90dvh] border border-gray-800">
+    <div id="tela-login" class="login-screen fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
+        <div class="login-card bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative border border-gray-800">
             <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
             <span class="text-white font-light text-xl tracking-widest uppercase block mb-8">Fidelidade</span>
             
@@ -76,7 +79,7 @@
     <!-- PAINEL PRINCIPAL -->
     <div id="app-dashboard" class="hidden no-print">
         
-        <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
+        <header class="app-header bg-black text-white shadow-md py-4 px-6 mb-6">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4 flex-wrap justify-center">
                     <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain rounded">
@@ -88,7 +91,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="flex flex-wrap justify-center gap-3">
+                <div class="app-header-actions flex flex-wrap justify-center gap-3">
                     <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition">
                         <i data-lucide="calculator" class="w-4 h-4"></i> Caixa
                     </button>
@@ -106,7 +109,7 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 pb-12">
+        <main class="app-main max-w-7xl mx-auto px-4 pb-12">
             
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
@@ -158,7 +161,7 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
-                <div class="flex flex-wrap gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <div class="management-toolbar flex flex-wrap gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                     <div class="text-sm font-black text-gray-800 uppercase flex items-center gap-2 pr-4 border-r border-gray-200">
                         <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i> Gestão
                     </div>
@@ -193,52 +196,52 @@
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
+                    <button type="button" onclick="filtrarLista('todos')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-500 uppercase">Todos os clientes</p>
                         <p id="card-total" class="text-2xl font-black text-black">0</p>
-                    </div>
-                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden text-center">
+                    </button>
+                    <button type="button" onclick="filtrarLista('premios')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden text-center">
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-gray-800"></i> Prêmios a resgatar</p>
                         <p id="card-premios" class="text-2xl font-black text-black">0</p>
-                    </div>
-                    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
+                    </button>
+                    <button type="button" onclick="filtrarLista('vips')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-gray-800"></i> Clientes VIP</p>
                         <p id="card-vips" class="text-2xl font-black text-black">0</p>
-                    </div>
-                    <div onclick="filtrarLista('niver_mes')" class="bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden text-center">
-                        <div class="absolute top-0 right-0 w-2 h-full bg-black"></div>
-                        <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Aniversariantes</p>
-                        <p id="card-niver-central" class="text-2xl font-black text-black">0</p>
-                    </div>
+                    </button>
+                    <button type="button" onclick="filtrarLista('niver_mes')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden text-center">
+                        <span class="absolute top-0 right-0 w-2 h-full bg-black" aria-hidden="true"></span>
+                        <span class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Aniversariantes</span>
+                        <span id="card-niver-central" class="block text-2xl font-black text-black">0</span>
+                    </button>
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="painel-metricas-avancadas">
                     <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Taxa de Resgate</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase">Taxa de Resgate</p>
                         <p id="card-taxa-resgate" class="text-lg font-black text-indigo-600">--</p>
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Retenção (30d)</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase">Retenção (30d)</p>
                         <p id="card-retencao" class="text-lg font-black text-green-600">--</p>
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Reativados</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase">Reativados</p>
                         <p id="card-reativacao" class="text-lg font-black text-blue-600">--</p>
                     </div>
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="filtrarLista('inativos_30d')">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Inativos (+30d)</p>
-                        <p id="card-inativos-total" class="text-lg font-black text-red-600">--</p>
-                    </div>
+                    <button type="button" class="w-full bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="filtrarLista('inativos_30d')">
+                        <span class="block text-xs font-bold text-slate-500 uppercase">Inativos (+30d)</span>
+                        <span id="card-inativos-total" class="block text-lg font-black text-red-600">--</span>
+                    </button>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     
                     <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
-                        <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center justify-center border border-gray-200">
+                        <div class="birthday-filter-controls bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center justify-center border border-gray-200">
                             <span class="text-xs font-bold text-gray-600 uppercase"><i data-lucide="filter" class="w-4 h-4 inline"></i> Filtro de aniversários:</span>
                             <button id="btn-niver-mes" onclick="filtrarLista('niver_mes')" class="px-4 py-2 bg-black text-white rounded-lg text-xs font-bold transition shadow-sm">Mês atual</button>
                             <span class="text-sm font-semibold text-gray-400">OU PERÍODO:</span>
-                            <div class="flex items-center gap-2">
+                            <div class="birthday-date-range flex items-center gap-2">
                                 <input type="date" id="filtro-data-inicio" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black text-center">
                                 <span class="text-gray-400 text-sm">até</span>
                                 <input type="date" id="filtro-data-fim" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-700 outline-none focus:border-black text-center">
@@ -263,8 +266,8 @@
                         </div>
                     </div>
                     
-                    <div class="overflow-x-auto min-h-[300px]">
-                        <table class="w-full text-left border-collapse">
+                    <div class="client-table-wrapper overflow-x-auto min-h-[300px]">
+                        <table class="client-table w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-100">
                                     <th class="py-3 px-6 text-center">Nome</th>
@@ -284,7 +287,7 @@
 
         <!-- MODAIS -->
         
-        <div id="modal-alerta-aniversario" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+        <div id="modal-alerta-aniversario" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-black">
                 <div class="w-20 h-20 bg-gray-100 text-black rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                     <i data-lucide="cake" class="w-10 h-10"></i>
@@ -306,7 +309,7 @@
             </div>
         </div>
 
-        <div id="modal-whatsapp" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-whatsapp" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-green-500 overflow-y-auto max-h-[90dvh]">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="message-circle" class="w-5 h-5 text-green-500"></i> Enviar mensagem</h3>
@@ -317,29 +320,38 @@
             </div>
         </div>
 
-        <div id="modal-marketing" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-            <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90dvh] overflow-y-auto border-t-4 border-indigo-600">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
+        <div id="modal-marketing" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="marketing-title" class="app-modal hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+            <div class="modal-panel marketing-panel bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90dvh] overflow-y-auto border-t-4 border-indigo-600">
+                <div class="modal-header flex items-center justify-between mb-6">
+                    <h3 id="marketing-title" class="text-xl font-black text-gray-800 flex items-center gap-2"><i data-lucide="megaphone" class="w-6 h-6 text-indigo-600"></i> Central de Marketing</h3>
                     <button onclick="fecharModal('modal-marketing')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 bg-indigo-50 p-3 rounded-lg text-center"><strong>Dica:</strong> Use <strong>[Nome]</strong> para puxar o nome do cliente automaticamente e <strong>[Acumulados]</strong> para mostrar os almoços.</p>
 
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem de aniversário</label>
-                        <textarea id="mkt-msg-niver" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem de prêmio</label>
-                        <textarea id="mkt-msg-premio" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1 text-center">Mensagem de inatividade</label>
-                        <textarea id="mkt-msg-inativo" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm text-center"></textarea>
-                    </div>
+                <div class="marketing-tabs" role="tablist" aria-label="Seções da Central de Marketing">
+                    <button type="button" class="marketing-tab is-active" data-marketing-tab="mensagens" onclick="alternarSecaoMarketing('mensagens')">Mensagens</button>
+                    <button type="button" class="marketing-tab" data-marketing-tab="campanhas" onclick="alternarSecaoMarketing('campanhas')">Campanhas</button>
+                    <button type="button" class="marketing-tab" data-marketing-tab="fila" onclick="alternarSecaoMarketing('fila')">Fila</button>
+                    <button type="button" class="marketing-tab" data-marketing-tab="acoes" onclick="alternarSecaoMarketing('acoes')">Ações manuais</button>
+                </div>
 
-                    <div class="pt-4 border-t border-gray-200 mt-4">
+                <div class="space-y-6 marketing-sections">
+                    <section id="marketing-section-mensagens" class="marketing-section space-y-4" data-marketing-section="mensagens">
+                        <div>
+                            <label for="mkt-msg-niver" class="block text-sm font-bold text-gray-700 mb-1">Mensagem de aniversário</label>
+                            <textarea id="mkt-msg-niver" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                        </div>
+                        <div>
+                            <label for="mkt-msg-premio" class="block text-sm font-bold text-gray-700 mb-1">Mensagem de prêmio</label>
+                            <textarea id="mkt-msg-premio" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                        </div>
+                        <div>
+                            <label for="mkt-msg-inativo" class="block text-sm font-bold text-gray-700 mb-1">Mensagem de inatividade</label>
+                            <textarea id="mkt-msg-inativo" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none text-sm"></textarea>
+                        </div>
+                    </section>
+
+                    <section id="marketing-section-fila" class="marketing-section hidden pt-4 border-t border-gray-200 mt-4" data-marketing-section="fila">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-indigo-600"></i> Fila de Envios e Status</h4>
                             <button id="btn-limpar-fila" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-100 transition shadow-sm hidden">Limpar Fila</button>
@@ -347,39 +359,39 @@
                         <div id="area-fila-envio" class="space-y-2 max-h-40 overflow-y-auto pr-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
                             <p class="text-sm text-gray-500 text-center py-2">Nenhuma mensagem na fila no momento.</p>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="pt-4 border-t border-gray-200 bg-indigo-50 p-4 rounded-xl mt-4">
+                    <section id="marketing-section-campanhas" class="marketing-section hidden pt-4 border-t border-gray-200 bg-indigo-50 p-4 rounded-xl mt-4" data-marketing-section="campanhas">
                         <div class="flex items-center gap-2 mb-3 text-indigo-900 justify-center">
                             <i data-lucide="calendar-clock" class="w-5 h-5"></i>
                             <h4 class="font-bold text-center">Agendar disparo automático</h4>
                         </div>
-                        <div class="flex gap-2 mb-2">
+                        <div class="marketing-date-row flex gap-2 mb-2">
                             <input type="date" id="mkt-agenda-data" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/3 outline-none text-center">
                             <input type="text" id="mkt-agenda-titulo" placeholder="Título (Ex: Promoção Dia das Mães)" class="p-2 border border-indigo-200 rounded-lg text-sm w-2/3 outline-none text-center">
                         </div>
                         <textarea id="mkt-agenda-texto" rows="2" placeholder="Digite a mensagem promocional..." class="w-full p-2 border border-indigo-200 rounded-lg text-sm mb-2 outline-none text-center"></textarea>
                         <button onclick="adicionarAgendamento()" class="w-full bg-indigo-600 text-white px-3 py-2 rounded-lg font-bold hover:bg-indigo-700 transition text-sm mb-4">+ Agendar campanha</button>
                         <div id="area-agendamentos" class="space-y-3"></div>
-                    </div>
+                    </section>
                     
-                    <div class="pt-4 border-t border-gray-200">
+                    <section id="marketing-section-acoes" class="marketing-section hidden pt-4 border-t border-gray-200" data-marketing-section="acoes">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800">Ações manuais (Envio individual)</h4>
                             <button onclick="adicionarMsgCustom()" class="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-bold hover:bg-gray-800">+ Novo botão</button>
                         </div>
                         <div id="area-mensagens-custom" class="space-y-4"></div>
-                    </div>
+                    </section>
                 </div>
 
-                <div class="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-4">
+                <div class="modal-actions mt-8 flex justify-end gap-3 border-t border-gray-200 pt-4">
                     <button onclick="fecharModal('modal-marketing')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold">Cancelar</button>
                     <button id="btn-marketing-salvar" onclick="salvarCentralMarketing()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i> <span id="btn-marketing-salvar-text">Salvar alterações</span></button>
                 </div>
             </div>
         </div>
 
-        <div id="modal-editar" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-editar" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-gray-800"></i> Editar Cadastro</h3>
@@ -413,7 +425,7 @@
             </div>
         </div>
 
-        <div id="modal-usuarios" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
+        <div id="modal-usuarios" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-indigo-600 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Gestão de Acessos</h3>
@@ -437,7 +449,7 @@
             </div>
         </div>
 
-        <div id="modal-confirmacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-confirmacao" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
                 <h3 class="text-lg font-bold text-gray-800 mb-2 text-center">Contabilizar Refeição</h3>
                 <p class="text-gray-600 mb-6 text-center" id="texto-confirmacao">Deseja registrar +1 almoço?</p>
@@ -448,7 +460,7 @@
             </div>
         </div>
 
-        <div id="modal-celebracao-10" tabindex="-1" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-celebracao-10" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center relative overflow-hidden border-t-8 border-amber-400">
                 <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                     <i data-lucide="award" class="w-10 h-10"></i>
@@ -461,7 +473,7 @@
             </div>
         </div>
 
-        <div id="modal-trava" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-trava" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-black">
                 <div class="flex items-center justify-center gap-2 mb-2 text-black">
                     <i data-lucide="alert-triangle" class="w-6 h-6"></i>
@@ -477,7 +489,7 @@
         </div>
 
         <!-- MODAL: ALMOÇO ATRASADO / EXTRA -->
-<div id="modal-almoco-atrasado" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
+<div id="modal-almoco-atrasado" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
     <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-emerald-500 overflow-y-auto max-h-[90dvh]">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="clock" class="w-5 h-5 text-emerald-500"></i> Almoço Extra/Perdido</h3>
@@ -513,7 +525,7 @@
     </div>
 </div>
 
-        <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="modal-historico" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> Histórico de Resgates</h3>
                 <div id="lista-historico" class="max-h-80 overflow-y-auto space-y-3 mb-6"></div>
@@ -521,7 +533,7 @@
             </div>
         </div>
 
-        <div id="modal-simulacao" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
+        <div id="modal-simulacao" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-orange-500 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="flask-conical" class="w-5 h-5 text-orange-500"></i> Ajustes de Depuração</h3>
@@ -560,7 +572,7 @@
             </div>
         </div>
 
-        <div id="modal-alerta-generico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[300]">
+        <div id="modal-alerta-generico" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[300]">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border-t-4 border-red-600 text-center overflow-y-auto max-h-[90dvh]">
                 <i data-lucide="alert-triangle" class="w-12 h-12 text-red-600 mx-auto mb-4"></i>
                 <h3 id="alerta-generico-titulo" class="text-lg font-bold text-gray-900 mb-2">Atenção</h3>
@@ -572,7 +584,7 @@
             </div>
         </div>
 
-        <div id="modal-lixeira" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
+        <div id="modal-lixeira" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
             <div class="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="archive" class="w-5 h-5 text-gray-800"></i> Clientes Arquivados</h3>
@@ -594,7 +606,7 @@
             </div>
         </div>
 
-        <div id="modal-auditoria" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
+        <div id="modal-auditoria" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
             <div class="bg-white rounded-2xl p-6 max-w-3xl w-full shadow-xl border-t-4 border-indigo-600 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="clipboard-list" class="w-5 h-5 text-indigo-600"></i> Log de Auditoria</h3>
@@ -616,7 +628,7 @@
             </div>
         </div>
 
-        <div id="modal-mesclagem" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
+        <div id="modal-mesclagem" tabindex="-1" role="dialog" aria-modal="true" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[150]">
             <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border-t-4 border-purple-600 overflow-y-auto max-h-[90dvh]">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="merge" class="w-5 h-5 text-purple-600"></i> Mesclar Cadastros</h3>
@@ -647,7 +659,7 @@
         
         <!-- Header -->
         <div class="totem-header">
-            <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="totem-logo" title="Área Restrita">
+            <button type="button" onclick="abrirModalSaidaTotem()" class="totem-logo-button" title="Área restrita" aria-label="Abrir acesso administrativo"><img src="./logo.jpg" alt="Top Haus" class="totem-logo"></button>
             <span class="totem-title">Fidelidade</span>
         </div>
 
@@ -658,7 +670,8 @@
             <div id="totem-tela-busca" class="totem-screen">
                 <h1 class="totem-screen-title">Bem-vindo(a) à Top Haus!</h1>
                 <p class="totem-screen-subtitle">Digite seu CPF para registrar o almoço de hoje e acompanhar seus benefícios.</p>
-                <input type="tel" inputmode="none" readonly id="totem-cpf" placeholder="000.000.000-00" maxlength="14" class="totem-input" oninput="mascaraCPF(this)">
+                <label for="totem-cpf" class="sr-only">CPF</label>
+                <input type="tel" inputmode="numeric" autocomplete="off" enterkeyhint="go" id="totem-cpf" aria-label="CPF" placeholder="000.000.000-00" maxlength="14" class="totem-input" oninput="mascaraCPF(this)">
                 <button id="btn-totem-avancar" onclick="if(typeof totemProcessarCPF === 'function') totemProcessarCPF()" class="totem-btn-primary">
                     <span id="btn-totem-avancar-text">Avançar</span>
                 </button>
@@ -669,11 +682,15 @@
                 <h2 class="totem-screen-title">Que bom ter você aqui! 💛</h2>
                 <p class="totem-screen-subtitle">Ainda não encontramos seu cadastro.<br>Leva menos de 1 minuto para participar do Clube de Fidelidade.</p>
                 <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="totem-form">
-                    <input type="tel" inputmode="none" readonly id="totem-cad-cpf" class="totem-input totem-input-disabled">
-                    <input type="text" inputmode="none" readonly id="totem-cad-nome" required placeholder="Nome completo" class="totem-input totem-input-text">
+                    <label for="totem-cad-cpf" class="sr-only">CPF</label>
+                    <input type="tel" inputmode="numeric" readonly id="totem-cad-cpf" aria-label="CPF" class="totem-input totem-input-disabled">
+                    <label for="totem-cad-nome" class="sr-only">Nome completo</label>
+                    <input type="text" inputmode="text" autocomplete="name" enterkeyhint="next" id="totem-cad-nome" required aria-label="Nome completo" placeholder="Nome completo" class="totem-input totem-input-text">
                     <div class="totem-form-row">
-                        <input type="tel" inputmode="none" readonly id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" class="totem-input totem-input-text" oninput="mascaraData(this)">
-                        <input type="tel" inputmode="none" readonly id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" class="totem-input totem-input-text" oninput="mascaraTelefone(this)">
+                        <label for="totem-cad-nasc" class="sr-only">Data de nascimento</label>
+                        <input type="tel" inputmode="numeric" autocomplete="bday" enterkeyhint="next" id="totem-cad-nasc" required aria-label="Data de nascimento" placeholder="Nascimento (DD/MM/AAAA)" maxlength="10" class="totem-input totem-input-text" oninput="mascaraData(this)">
+                        <label for="totem-cad-tel" class="sr-only">WhatsApp</label>
+                        <input type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="done" id="totem-cad-tel" required aria-label="WhatsApp" placeholder="WhatsApp" maxlength="15" class="totem-input totem-input-text" oninput="mascaraTelefone(this)">
                     </div>
                     <div class="totem-form-actions">
                         <button type="button" onclick="totemVoltarInicio()" class="totem-btn-secondary">Voltar</button>
@@ -701,7 +718,7 @@
             </div>
 
             <!-- Tela de mensagem -->
-            <div id="totem-tela-mensagem" class="totem-screen hidden">
+            <div id="totem-tela-mensagem" class="totem-screen hidden" role="status" aria-live="polite">
                 <div id="totem-icone-msg" class="totem-message-icon"></div>
                 <h2 id="totem-titulo-msg" class="totem-screen-title"></h2>
                 <p id="totem-texto-msg" class="totem-screen-subtitle"></p>
@@ -719,7 +736,7 @@
             </div>
             
             <!-- Barra inferior (timer) -->
-            <div id="totem-bottom-bar" class="totem-bottom-bar hidden">
+            <div id="totem-bottom-bar" class="totem-bottom-bar hidden" role="status" aria-live="polite">
                 <p class="totem-bottom-text">Atendimento finalizado. Esta tela voltará ao início em <span id="totem-timer-count" class="totem-timer-count">10</span> segundos.</p>
                 <div class="totem-progress-track">
                     <div id="totem-loading-bar" class="totem-progress-bar"></div>
@@ -728,88 +745,8 @@
 
         </div>
 
-        <!-- TECLADO VIRTUAL HÍBRIDO (redesenhado) -->
-        <div id="teclado-virtual" class="totem-keyboard" role="group" aria-label="Teclado virtual">
-            <button type="button" class="totem-keyboard-handle" onclick="tecladoFechar()" aria-label="Fechar teclado"></button>
-            
-            <!-- Teclado numérico (corrigido) -->
-            <div id="teclado-numerico" class="totem-keyboard-numeric">
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('1')">1</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('2')">2</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('3')">3</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('4')">4</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('5')">5</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('6')">6</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('7')">7</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('8')">8</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('9')">9</button>
-                <!-- Linha inferior: LIMPAR (span 3), 0 (span 3), APAGAR (span 3), CONFIRMAR (span 3) -->
-                <button class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
-                <button class="totem-key totem-key-number totem-key-zero" onclick="tecladoDigitar('0')">0</button>
-                <button type="button" class="totem-key totem-key-delete" onclick="tecladoApagar()" aria-label="Apagar último caractere"><i data-lucide="delete" class="totem-key-icon"></i></button>
-                <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
-            </div>
-
-            <!-- Teclado alfabético (QWERTY) -->
-            <div id="teclado-alfabetico" class="totem-keyboard-alpha hidden">
-                <div class="totem-keyboard-row" data-keyboard-alpha="base">
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Q')">Q</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('W')">W</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('E')">E</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('R')">R</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('T')">T</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Y')">Y</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('U')">U</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('I')">I</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('O')">O</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('P')">P</button>
-                </div>
-                <div class="totem-keyboard-row totem-keyboard-row-shifted" data-keyboard-alpha="base">
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('A')">A</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('S')">S</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('D')">D</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('F')">F</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('G')">G</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('H')">H</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('J')">J</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('K')">K</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('L')">L</button>
-                </div>
-                <div class="totem-keyboard-row totem-keyboard-row-shifted" data-keyboard-alpha="base">
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Z')">Z</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('X')">X</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('C')">C</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('V')">V</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('B')">B</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('N')">N</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('M')">M</button>
-                </div>
-                <div id="teclado-acentos" class="totem-keyboard-row totem-keyboard-row-shifted hidden" aria-label="Caracteres acentuados">
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Á')">Á</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('À')">À</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Â')">Â</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ã')">Ã</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('É')">É</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ê')">Ê</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Í')">Í</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ó')">Ó</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ô')">Ô</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Õ')">Õ</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ú')">Ú</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ç')">Ç</button>
-                </div>
-                <div class="totem-keyboard-row totem-keyboard-actions">
-                    <button type="button" class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
-                    <button type="button" class="totem-key totem-key-space" onclick="tecladoDigitar(' ')">ESPAÇO</button>
-                    <button type="button" id="btn-totem-acentos" class="totem-key totem-key-accents-toggle" onclick="alternarAcentos()" aria-pressed="false">ÁÇ</button>
-                    <button type="button" class="totem-key totem-key-delete" onclick="tecladoApagar()" aria-label="Apagar último caractere"><i data-lucide="delete" class="totem-key-icon"></i></button>
-                    <button type="button" class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
-                </div>
-            </div>
-        </div>
-
         <!-- MODAL DE SAÍDA DO TOTEM -->
-        <div id="modal-totem-saida" tabindex="-1" class="totem-exit-modal hidden">
+        <div id="modal-totem-saida" tabindex="-1" role="dialog" aria-modal="true" class="totem-exit-modal hidden">
             <div class="totem-exit-content">
                 <i data-lucide="lock" class="totem-exit-icon"></i>
                 <h3 class="totem-exit-title">Acesso Restrito</h3>
@@ -835,230 +772,7 @@
     <script type="module" src="./totem.js"></script>
     <script type="module" src="./dashboard.js"></script>
 
-    <!-- SCRIPT DO TECLADO VIRTUAL (CORRIGIDO) -->
-    <script>
-        let activeTotemInput = null;
 
-        // Função central para definir o input ativo e abrir o teclado
-        function definirInputAtivo(input) {
-            if (!input) return;
-            if (input.id === 'totem-pin-input') return;
-            if (input.disabled || input.classList.contains('totem-input-disabled')) return;
-
-            activeTotemInput = input;
-            mostrarTecladoAdequado(input);
-
-            const teclado = document.getElementById('teclado-virtual');
-            teclado.classList.add('is-visible');
-
-            // Adiciona classe ao container para subir o conteúdo
-            document.getElementById('tela-totem').classList.add('keyboard-open');
-
-            // O teclado é fixo; a rolagem considera a área realmente livre acima dele.
-            setTimeout(() => manterCampoTotemVisivel(input), 340);
-            setTimeout(() => input.focus({ preventScroll: true }), 80);
-        }
-
-        function manterCampoTotemVisivel(input) {
-            if (!input || input !== activeTotemInput) return;
-
-            const conteudo = document.getElementById('totem-dynamic-area');
-            const teclado = document.getElementById('teclado-virtual');
-            if (!conteudo || !teclado) return;
-
-            const campoRect = input.getBoundingClientRect();
-            const conteudoRect = conteudo.getBoundingClientRect();
-            const tecladoVisivel = teclado.classList.contains('is-visible');
-            const tecladoRect = teclado.getBoundingClientRect();
-            const limiteSuperior = conteudoRect.top + 12;
-            const limiteInferior = tecladoVisivel ? tecladoRect.top - 16 : conteudoRect.bottom - 16;
-
-            if (campoRect.bottom > limiteInferior) {
-                conteudo.scrollBy({ top: campoRect.bottom - limiteInferior + 16, behavior: 'smooth' });
-            } else if (campoRect.top < limiteSuperior) {
-                conteudo.scrollBy({ top: campoRect.top - limiteSuperior - 12, behavior: 'smooth' });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputsTotem = document.querySelectorAll('#tela-totem input[type="tel"], #tela-totem input[type="text"]');
-            
-            inputsTotem.forEach(input => {
-                // Apenas click, sem interceptações desnecessárias
-                input.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    definirInputAtivo(input);
-                });
-            });
-
-            // Fecha teclado ao clicar fora dos inputs e do teclado
-            document.getElementById('tela-totem').addEventListener('click', (e) => {
-                if (!e.target.closest('input') && !e.target.closest('#teclado-virtual') && !e.target.closest('button')) {
-                    tecladoFechar();
-                }
-            });
-
-            let timerReposicionamento;
-            const reposicionarCampoAtivo = () => {
-                clearTimeout(timerReposicionamento);
-                timerReposicionamento = setTimeout(() => manterCampoTotemVisivel(activeTotemInput), 180);
-            };
-            window.addEventListener('resize', reposicionarCampoAtivo, { passive: true });
-            window.addEventListener('orientationchange', reposicionarCampoAtivo, { passive: true });
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', reposicionarCampoAtivo, { passive: true });
-                window.visualViewport.addEventListener('scroll', reposicionarCampoAtivo, { passive: true });
-            }
-        });
-
-        function mostrarTecladoAdequado(input) {
-            const isTexto = input.type === 'text';
-            const numGrid = document.getElementById('teclado-numerico');
-            const alphaGrid = document.getElementById('teclado-alfabetico');
-
-            if (isTexto) {
-                numGrid.classList.add('hidden');
-                alphaGrid.classList.remove('hidden');
-                alphaGrid.classList.add('flex');
-            } else {
-                alphaGrid.classList.add('hidden');
-                alphaGrid.classList.remove('flex');
-                numGrid.classList.remove('hidden');
-            }
-        }
-
-        function alternarAcentos() {
-            const acentos = document.getElementById('teclado-acentos');
-            const alpha = document.getElementById('teclado-alfabetico');
-            const botao = document.getElementById('btn-totem-acentos');
-            if (!acentos || !alpha) return;
-
-            const mostrar = acentos.classList.contains('hidden');
-            acentos.classList.toggle('hidden', !mostrar);
-            alpha.querySelectorAll('[data-keyboard-alpha="base"]').forEach((linha) => {
-                linha.classList.toggle('hidden', mostrar);
-            });
-            if (botao) {
-                botao.textContent = mostrar ? 'ABC' : 'ÁÇ';
-                botao.setAttribute('aria-pressed', String(mostrar));
-            }
-        }
-
-        function tecladoDigitar(val) {
-            if (!activeTotemInput) return;
-
-            const input = activeTotemInput;
-            // Verifica se atingiu o maxlength
-            if (input.maxLength > 0 && input.value.length >= input.maxLength) {
-                return;
-            }
-
-            // Insere o caractere
-            input.value += val;
-            // Dispara evento input para ativar máscaras
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        function tecladoApagar() {
-            if (!activeTotemInput) return;
-            const input = activeTotemInput;
-            input.value = input.value.slice(0, -1);
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        function tecladoLimpar() {
-            if (!activeTotemInput) return;
-            const input = activeTotemInput;
-            input.value = '';
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        function tecladoFechar() {
-            const teclado = document.getElementById('teclado-virtual');
-            teclado.classList.remove('is-visible');
-            document.getElementById('tela-totem').classList.remove('keyboard-open');
-            tecladoLimparEstado();
-
-        }
-
-        function tecladoLimparEstado() {
-            if (activeTotemInput) {
-                activeTotemInput.blur();
-                activeTotemInput = null;
-            }
-        }
-
-        // Confirma o campo atual e avança pelo cadastro; salva apenas no último campo.
-        function confirmarTeclado() {
-            const telaBusca = document.getElementById('totem-tela-busca');
-            const telaCadastro = document.getElementById('totem-tela-cadastro');
-
-            // Tela de busca de CPF
-            if (telaBusca && !telaBusca.classList.contains('hidden')) {
-                tecladoFechar();
-                if (typeof window.totemProcessarCPF === 'function') {
-                    window.totemProcessarCPF();
-                }
-                return;
-            }
-
-            // Tela de cadastro
-            if (telaCadastro && !telaCadastro.classList.contains('hidden')) {
-                const nome = document.getElementById('totem-cad-nome');
-                const nascimento = document.getElementById('totem-cad-nasc');
-                const telefone = document.getElementById('totem-cad-tel');
-                const nomeNormalizado = nome && window.normalizarNome ? window.normalizarNome(nome.value) : '';
-
-                if (activeTotemInput === nome) {
-                    if (!nomeNormalizado) {
-                        window.mostrarToast('Digite seu nome completo usando apenas letras.', 'erro');
-                        return;
-                    }
-                    nome.value = nomeNormalizado;
-                    definirInputAtivo(nascimento);
-                    return;
-                }
-
-                if (activeTotemInput === nascimento) {
-                    if (!window.validarDataReal(nascimento.value)) {
-                        window.mostrarToast('Data de nascimento inválida.', 'erro');
-                        return;
-                    }
-                    definirInputAtivo(telefone);
-                    return;
-                }
-
-                if (!nomeNormalizado) {
-                    window.mostrarToast('Digite seu nome completo usando apenas letras.', 'erro');
-                    definirInputAtivo(nome);
-                    return;
-                }
-                nome.value = nomeNormalizado;
-
-                if (!window.validarDataReal(nascimento.value)) {
-                    window.mostrarToast('Data de nascimento inválida.', 'erro');
-                    definirInputAtivo(nascimento);
-                    return;
-                }
-
-                if (!window.telefoneValido(telefone.value)) {
-                    window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');
-                    definirInputAtivo(telefone);
-                    return;
-                }
-
-                tecladoFechar();
-                if (typeof window.totemSalvarCadastro === 'function') {
-                    window.totemSalvarCadastro({
-                        preventDefault: () => {}
-                    });
-                }
-                return;
-            }
-
-            tecladoFechar();
-        }
-    </script>
 </body>
 </html>
 
