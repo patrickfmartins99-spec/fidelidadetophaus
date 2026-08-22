@@ -244,6 +244,18 @@ window.alternarFreqCampanha = () => {
 };
 
 // ==========================================================================
+// IDENTIFICADORES ESTÁVEIS DE CAMPANHAS
+// ==========================================================================
+// O ID não pode depender da posição da campanha na lista, pois a lista pode
+// ser reorganizada/removida sem criar uma nova ocorrência de disparo.
+window.gerarIdCampanha = () => {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        return window.crypto.randomUUID();
+    }
+    return `camp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+};
+
+// ==========================================================================
 // CENTRAL GERENCIAL DE MARKETING
 // ==========================================================================
 window.abrirCentralMarketing = () => {
@@ -276,7 +288,7 @@ window.renderizarMensagensCustomizadas = () => {
         
         listaAg.forEach((m, idx) => {
             const tipoC = m.tipo || 'unica'; 
-            const statusC = m.status || 'ativa'; 
+            const statusC = m.status === 'encerrada' ? 'cancelada' : (m.status || 'ativa'); 
             
             let labelTipo = '';
             let info = '';
@@ -320,7 +332,7 @@ window.renderizarMensagensCustomizadas = () => {
                         <select onchange="alterarStatusCampanha(${idx}, this.value)" class="text-[10px] font-black px-2 py-1 rounded-lg border outline-none cursor-pointer uppercase shadow-sm transition ${bgStatus}">
                             <option value="ativa" class="bg-white text-black" ${statusC === 'ativa' ? 'selected' : ''}>🟢 Ativa</option>
                             <option value="pausada" class="bg-white text-black" ${statusC === 'pausada' ? 'selected' : ''}>🟡 Pausada</option>
-                            <option value="encerrada" class="bg-white text-black" ${statusC === 'encerrada' ? 'selected' : ''}>🔴 Encerrada</option>
+                            <option value="cancelada" class="bg-white text-black" ${statusC === 'cancelada' ? 'selected' : ''}>🔴 Encerrada</option>
                         </select>
                     </div>
                     
@@ -361,6 +373,7 @@ window.adicionarAgendamento = () => {
         if(!titulo || !texto) return window.mostrarToast("Preencha o título e o texto da campanha para continuar.", "erro");
         
         novaCampanha = {
+            id: window.gerarIdCampanha(),
             titulo: titulo,
             texto: texto,
             tipo: tipo,
@@ -405,7 +418,7 @@ window.adicionarAgendamento = () => {
         const data = document.getElementById('mkt-agenda-data').value;
         const titulo = document.getElementById('mkt-agenda-titulo').value;
         if(!data || !titulo || !texto) return window.mostrarToast("Preencha todos os campos para continuar.", "erro");
-        novaCampanha = { data: data, titulo: titulo, texto: texto, tipo: 'unica', status: 'ativa' };
+        novaCampanha = { id: window.gerarIdCampanha(), data: data, titulo: titulo, texto: texto, tipo: 'unica', status: 'ativa' };
     }
     
     if(!Array.isArray(window.msgsMarketing.agendadas)) window.msgsMarketing.agendadas = Object.values(window.msgsMarketing.agendadas||{}); 
@@ -460,6 +473,10 @@ window.salvarCentralMarketing = () => {
     window.msgsMarketing.inativo = document.getElementById('mkt-msg-inativo').value;
     
     window.msgsMarketing.agendadas = Array.isArray(window.msgsMarketing.agendadas) ? window.msgsMarketing.agendadas : Object.values(window.msgsMarketing.agendadas||{});
+    window.msgsMarketing.agendadas.forEach(campanha => {
+        if (!campanha.id) campanha.id = window.gerarIdCampanha();
+        if (campanha.status === 'encerrada') campanha.status = 'cancelada';
+    });
     
     const lista = Array.isArray(window.msgsMarketing.personalizadas) ? window.msgsMarketing.personalizadas : Object.values(window.msgsMarketing.personalizadas||{});
     lista.forEach((m, idx) => { 
@@ -523,7 +540,6 @@ window.dispararWhatsApp = (cpf, tipo, idx = -1) => {
     
     if (tipo === 'aniversario') { 
         t = window.msgsMarketing.aniversario; 
-        window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES+`/${cpf}/notificadoAniversarioAno`), new Date().getFullYear()); 
     } else if (tipo === 'custom') { 
         const l = Array.isArray(window.msgsMarketing.personalizadas) ? window.msgsMarketing.personalizadas : Object.values(window.msgsMarketing.personalizadas||{}); 
         t = l[idx].texto; 
@@ -540,141 +556,9 @@ window.dispararWhatsApp = (cpf, tipo, idx = -1) => {
 };
 
 // ==========================================================================
-// EXECUÇÃO DE CAMPANHAS AGENDADAS (RECORRENTES E ÚNICAS)
-// NOTA: Esta funcionalidade depende da página estar aberta e do navegador ativo.
-//       Se o sistema ficar offline, as campanhas programadas para aquele período
-//       não serão executadas automaticamente. Para execução ininterrupta,
-//       seria necessário um backend/Node.js dedicado.
+// EXECUÇÃO DE CAMPANHAS AGENDADAS
 // ==========================================================================
-
-window.executarCampanhasAgendadas = async () => {
-    // Evita execução concorrente
-    if (window._executandoCampanhas) return;
-    window._executandoCampanhas = true;
-
-    try {
-        const campanhas = window.msgsMarketing.agendadas || [];
-        if (!campanhas.length) {
-            window._executandoCampanhas = false;
-            return;
-        }
-
-        const agora = new Date();
-        const now = agora.getTime();
-        const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
-        const hojeStr = hoje.toISOString().split('T')[0]; // YYYY-MM-DD
-
-        // Converte hora atual para minutos desde meia-noite para comparação robusta
-        const minutosAtual = agora.getHours() * 60 + agora.getMinutes();
-
-        let campanhaAlterada = false;
-
-        for (let i = 0; i < campanhas.length; i++) {
-            const camp = campanhas[i];
-            if (camp.status !== 'ativa') continue;
-
-            let deveExecutar = false;
-            let config = camp.configRecorrencia || {};
-            let horario = config.horario || '09:00';
-
-            // Converte horário agendado para minutos
-            const [hora, min] = horario.split(':').map(Number);
-            const minutosAgendado = hora * 60 + min;
-
-            // Verifica se já passou do horário e se ainda não foi executado hoje
-            const jaExecutadoHoje = camp.ultimoDisparo && new Date(camp.ultimoDisparo).toISOString().split('T')[0] === hojeStr;
-
-            if (camp.tipo === 'unica') {
-                // Disparo único: executa apenas no dia agendado, se ainda não executou hoje
-                if (camp.data === hojeStr && !jaExecutadoHoje) {
-                    // Só executa se o horário atual for >= horário agendado (ou se não tiver horário? assumimos que tem)
-                    if (minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                }
-            } else {
-                // Campanha recorrente
-                const freq = camp.frequencia;
-                if (freq === 'diaria') {
-                    if (!jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                } else if (freq === 'semanal') {
-                    const diasSemana = config.diasSemana || [];
-                    const diaSemana = agora.getDay();
-                    if (diasSemana.includes(diaSemana) && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                } else if (freq === 'mensal') {
-                    const diaMes = config.diaMes || 1;
-                    if (agora.getDate() === diaMes && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                } else if (freq === 'anual') {
-                    const diaAno = config.diaAno || '01/01';
-                    const [dia, mes] = diaAno.split('/').map(Number);
-                    if (agora.getDate() === dia && (agora.getMonth() + 1) === mes && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                } else if (freq === 'data_especifica') {
-                    const dataEsp = config.dataEspecifica;
-                    if (dataEsp === hojeStr && !jaExecutadoHoje && minutosAtual >= minutosAgendado) {
-                        deveExecutar = true;
-                    }
-                }
-            }
-
-            if (deveExecutar) {
-                const textoBase = camp.texto || '';
-                const clientes = (window.clientesArray || []).filter(c => !c.arquivado);
-                if (clientes.length === 0) {
-                    // Se não há clientes, marca como executado para não tentar novamente hoje
-                    camp.ultimoDisparo = now;
-                    campanhaAlterada = true;
-                    continue;
-                }
-
-                let enviados = 0;
-                for (const cliente of clientes) {
-                    if (!cliente.telefone) continue;
-                    let msg = textoBase.replace(/\[Nome\]/g, (cliente.nome||'').split(' ')[0] || 'Cliente')
-                                       .replace(/\[Acumulados\]/g, cliente.almocos || 0);
-                    window.enviarParaFilaRobo(cliente.cpf, cliente.telefone, msg);
-                    enviados++;
-                }
-
-                camp.ultimoDisparo = now;
-                campanhaAlterada = true;
-
-                if (window.logAuditoria) {
-                    window.logAuditoria('Campanha Automática', 
-                        `Campanha "${camp.titulo}" disparada para ${enviados} clientes.`,
-                        { titulo: camp.titulo, enviados }
-                    );
-                }
-            }
-        }
-
-        if (campanhaAlterada) {
-            window.msgsMarketing.agendadas = campanhas;
-            await window.firebaseSet(window.firebaseRef(window.db, window.PATH_MENSAGENS), window.msgsMarketing);
-        }
-
-    } catch (err) {
-        console.error('Erro na execução de campanhas:', err);
-    } finally {
-        window._executandoCampanhas = false;
-    }
-};
-
-// Inicia o intervalo de verificação a cada 60 segundos
-if (typeof window._intervaloCampanhas === 'undefined') {
-    window._intervaloCampanhas = setInterval(() => {
-        window.executarCampanhasAgendadas();
-    }, 60000);
-
-    // Executa uma vez imediatamente para verificar campanhas que possam ter sido perdidas
-    setTimeout(() => {
-        window.executarCampanhasAgendadas();
-    }, 5000);
-}
+// As campanhas agendadas são executadas exclusivamente pelo robô Node.js.
+// O painel apenas grava e exibe as configurações; não existe mais um segundo
+// timer no navegador que possa duplicar os disparos.
+window.campanhasAgendadasExecutadasNoServidor = true;
