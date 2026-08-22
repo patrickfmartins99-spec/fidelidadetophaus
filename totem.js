@@ -481,4 +481,3 @@ window.totemMostrarAvaliacao = () => {
         window.totemVoltarInicio();
     }, tempoAvaliacao);
 };
-
