@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Top Haus Fidelidade</title>
+  <desc id="desc">Ícone preto com a marca Top Haus Fidelidade em branco e dourado.</desc>
+  <rect width="512" height="512" rx="112" fill="#050505"/>
+  <rect x="32" y="32" width="448" height="448" rx="92" fill="none" stroke="#1f2937" stroke-width="4"/>
+  <text x="256" y="186" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="76" font-style="italic" font-weight="700" text-anchor="middle">top</text>
+  <text x="256" y="292" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="116" font-weight="900" letter-spacing="-8" text-anchor="middle">HAUS</text>
+  <line x1="118" y1="332" x2="394" y2="332" stroke="#fbbf24" stroke-width="5" stroke-linecap="round"/>
+  <text x="256" y="385" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="9" text-anchor="middle">FIDELIDADE</text>
+</svg>
