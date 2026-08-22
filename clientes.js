@@ -94,6 +94,10 @@ window.cadastrarCliente = (e) => {
     const cpf = document.getElementById('cad-cpf').value.replace(/\D/g, ''); 
     if(!window.validarCPFReal(cpf)) return window.mostrarToast('CPF inválido. Verifique e tente novamente.', 'erro');
     if(window.clientesMap[cpf] || (window.operacoesAtivas && window.operacoesAtivas[cpf])) return window.mostrarToast('Cliente já cadastrado no sistema.', 'erro');
+
+    const nome = window.normalizarNome(document.getElementById('cad-nome').value);
+    if(!nome) return window.mostrarToast('Informe o nome completo usando apenas letras.', 'erro');
+    document.getElementById('cad-nome').value = nome;
     
     const tel = document.getElementById('cad-telefone').value.replace(/\D/g, ''); 
     if(!window.telefoneValido(tel)) return window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');
@@ -495,6 +499,10 @@ window.salvarEdicao = (e) => {
     e.preventDefault(); 
     const c = window.clientesMap[document.getElementById('edit-cpf-raw').value]; 
     if(!c) return;
+
+    const nome = window.normalizarNome(document.getElementById('edit-nome').value);
+    if(!nome) return window.mostrarToast('Informe o nome completo usando apenas letras.', 'erro');
+    document.getElementById('edit-nome').value = nome;
     
     const tel = document.getElementById('edit-telefone').value.replace(/\D/g, ''); 
     if(!window.telefoneValido(tel)) return window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');

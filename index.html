@@ -918,16 +918,14 @@
             }
         }
 
-        // Função da tecla CONFIRMAR – agora com validação direta
+        // Confirma o campo atual e avança pelo cadastro; salva apenas no último campo.
         function confirmarTeclado() {
-            // Fecha o teclado
-            tecladoFechar();
-
             const telaBusca = document.getElementById('totem-tela-busca');
             const telaCadastro = document.getElementById('totem-tela-cadastro');
 
             // Tela de busca de CPF
             if (telaBusca && !telaBusca.classList.contains('hidden')) {
+                tecladoFechar();
                 if (typeof window.totemProcessarCPF === 'function') {
                     window.totemProcessarCPF();
                 }
@@ -937,21 +935,58 @@
             // Tela de cadastro
             if (telaCadastro && !telaCadastro.classList.contains('hidden')) {
                 const nome = document.getElementById('totem-cad-nome');
-                if (!nome || !nome.value.trim()) {
-                    window.mostrarToast('Digite seu nome completo.', 'erro');
-                    setTimeout(() => {
-                        if (nome) definirInputAtivo(nome);
-                    }, 200);
+                const nascimento = document.getElementById('totem-cad-nasc');
+                const telefone = document.getElementById('totem-cad-tel');
+                const nomeNormalizado = nome && window.normalizarNome ? window.normalizarNome(nome.value) : '';
+
+                if (activeTotemInput === nome) {
+                    if (!nomeNormalizado) {
+                        window.mostrarToast('Digite seu nome completo usando apenas letras.', 'erro');
+                        return;
+                    }
+                    nome.value = nomeNormalizado;
+                    definirInputAtivo(nascimento);
                     return;
                 }
 
-                // Chama a função de salvamento diretamente, com um evento simulado
+                if (activeTotemInput === nascimento) {
+                    if (!window.validarDataReal(nascimento.value)) {
+                        window.mostrarToast('Data de nascimento inválida.', 'erro');
+                        return;
+                    }
+                    definirInputAtivo(telefone);
+                    return;
+                }
+
+                if (!nomeNormalizado) {
+                    window.mostrarToast('Digite seu nome completo usando apenas letras.', 'erro');
+                    definirInputAtivo(nome);
+                    return;
+                }
+                nome.value = nomeNormalizado;
+
+                if (!window.validarDataReal(nascimento.value)) {
+                    window.mostrarToast('Data de nascimento inválida.', 'erro');
+                    definirInputAtivo(nascimento);
+                    return;
+                }
+
+                if (!window.telefoneValido(telefone.value)) {
+                    window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');
+                    definirInputAtivo(telefone);
+                    return;
+                }
+
+                tecladoFechar();
                 if (typeof window.totemSalvarCadastro === 'function') {
                     window.totemSalvarCadastro({
                         preventDefault: () => {}
                     });
                 }
+                return;
             }
+
+            tecladoFechar();
         }
     </script>
 </body>
