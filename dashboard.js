@@ -45,6 +45,47 @@ window.timeoutTotemMsg = null;
 window.timerInatividade = null;
 window.totemClienteTemp = null;
 
+// ========================================================================
+// NORMALIZAÇÃO AUTOMÁTICA DOS CLIENTES DA UNIDADE ATIVA
+// ========================================================================
+// A normalização de cadastro/edição não corrige registros antigos. Esta rotina
+// executa uma vez por carregamento, sempre usando PATH_CLIENTES da unidade ativa.
+window._normalizacaoNomesUnidade = {
+    emAndamento: false,
+    concluida: false
+};
+
+window.normalizarNomesDaUnidade = async (clientes) => {
+    const estado = window._normalizacaoNomesUnidade;
+    if (estado.emAndamento || estado.concluida || typeof window.normalizarNome !== 'function') return;
+
+    const alteracoes = Object.entries(clientes || {}).filter(([, cliente]) => {
+        if (!cliente || typeof cliente.nome !== 'string') return false;
+        const nomePadronizado = window.normalizarNome(cliente.nome);
+        return Boolean(nomePadronizado) && nomePadronizado !== cliente.nome;
+    });
+
+    if (!alteracoes.length) {
+        estado.concluida = true;
+        return;
+    }
+
+    estado.emAndamento = true;
+    try {
+        await Promise.all(alteracoes.map(([chave, cliente]) => {
+            const nomePadronizado = window.normalizarNome(cliente.nome);
+            const caminhoNome = window.PATH_CLIENTES + '/' + chave + '/nome';
+            return window.firebaseSet(window.firebaseRef(window.db, caminhoNome), nomePadronizado);
+        }));
+        estado.concluida = true;
+        console.info(`✅ ${alteracoes.length} nome(s) padronizado(s) na unidade ativa.`);
+    } catch (erro) {
+        console.error('❌ Não foi possível padronizar todos os nomes da unidade:', erro);
+    } finally {
+        estado.emAndamento = false;
+    }
+};
+
 // ==========================================================================
 // INICIALIZAÇÃO E LISTENERS (DOMContentLoaded)
 // ==========================================================================
@@ -72,7 +113,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Listener Principal de Clientes
     window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_CLIENTES), (snapshot) => {
-        const data = snapshot.val();
+        const data = snapshot.val() || {};
+        window.normalizarNomesDaUnidade(data);
         if (data) { 
             window.clientesMap = data; 
             window.clientesArray = Object.values(data); 
