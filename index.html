@@ -752,43 +752,58 @@
 
             <!-- Teclado alfabético (QWERTY) -->
             <div id="teclado-alfabetico" class="totem-keyboard-alpha hidden">
-                <div class="totem-keyboard-row">
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('Q')">Q</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('W')">W</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('E')">E</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('R')">R</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('T')">T</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('Y')">Y</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('U')">U</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('I')">I</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('O')">O</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('P')">P</button>
+                <div class="totem-keyboard-row" data-keyboard-alpha="base">
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Q')">Q</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('W')">W</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('E')">E</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('R')">R</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('T')">T</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Y')">Y</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('U')">U</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('I')">I</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('O')">O</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('P')">P</button>
                 </div>
-                <div class="totem-keyboard-row totem-keyboard-row-shifted">
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('A')">A</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('S')">S</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('D')">D</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('F')">F</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('G')">G</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('H')">H</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('J')">J</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('K')">K</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('L')">L</button>
+                <div class="totem-keyboard-row totem-keyboard-row-shifted" data-keyboard-alpha="base">
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('A')">A</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('S')">S</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('D')">D</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('F')">F</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('G')">G</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('H')">H</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('J')">J</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('K')">K</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('L')">L</button>
                 </div>
-                <div class="totem-keyboard-row totem-keyboard-row-shifted">
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('Z')">Z</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('X')">X</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('C')">C</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('V')">V</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('B')">B</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('N')">N</button>
-                    <button class="totem-key totem-key-letter" onclick="tecladoDigitar('M')">M</button>
+                <div class="totem-keyboard-row totem-keyboard-row-shifted" data-keyboard-alpha="base">
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Z')">Z</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('X')">X</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('C')">C</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('V')">V</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('B')">B</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('N')">N</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('M')">M</button>
+                </div>
+                <div id="teclado-acentos" class="totem-keyboard-row totem-keyboard-row-shifted hidden" aria-label="Caracteres acentuados">
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Á')">Á</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('À')">À</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Â')">Â</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ã')">Ã</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('É')">É</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ê')">Ê</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Í')">Í</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ó')">Ó</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ô')">Ô</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Õ')">Õ</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ú')">Ú</button>
+                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ç')">Ç</button>
                 </div>
                 <div class="totem-keyboard-row totem-keyboard-actions">
-                    <button class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
-                    <button class="totem-key totem-key-space" onclick="tecladoDigitar(' ')">ESPAÇO</button>
+                    <button type="button" class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
+                    <button type="button" class="totem-key totem-key-space" onclick="tecladoDigitar(' ')">ESPAÇO</button>
+                    <button type="button" id="btn-totem-acentos" class="totem-key totem-key-accents-toggle" onclick="alternarAcentos()" aria-pressed="false">ÁÇ</button>
                     <button type="button" class="totem-key totem-key-delete" onclick="tecladoApagar()" aria-label="Apagar último caractere"><i data-lucide="delete" class="totem-key-icon"></i></button>
-                    <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
+                    <button type="button" class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
                 </div>
             </div>
         </div>
@@ -890,6 +905,10 @@
             };
             window.addEventListener('resize', reposicionarCampoAtivo, { passive: true });
             window.addEventListener('orientationchange', reposicionarCampoAtivo, { passive: true });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', reposicionarCampoAtivo, { passive: true });
+                window.visualViewport.addEventListener('scroll', reposicionarCampoAtivo, { passive: true });
+            }
         });
 
         function mostrarTecladoAdequado(input) {
@@ -905,6 +924,23 @@
                 alphaGrid.classList.add('hidden');
                 alphaGrid.classList.remove('flex');
                 numGrid.classList.remove('hidden');
+            }
+        }
+
+        function alternarAcentos() {
+            const acentos = document.getElementById('teclado-acentos');
+            const alpha = document.getElementById('teclado-alfabetico');
+            const botao = document.getElementById('btn-totem-acentos');
+            if (!acentos || !alpha) return;
+
+            const mostrar = acentos.classList.contains('hidden');
+            acentos.classList.toggle('hidden', !mostrar);
+            alpha.querySelectorAll('[data-keyboard-alpha="base"]').forEach((linha) => {
+                linha.classList.toggle('hidden', mostrar);
+            });
+            if (botao) {
+                botao.textContent = mostrar ? 'ABC' : 'ÁÇ';
+                botao.setAttribute('aria-pressed', String(mostrar));
             }
         }
 
@@ -943,10 +979,6 @@
             document.getElementById('tela-totem').classList.remove('keyboard-open');
             tecladoLimparEstado();
 
-            const conteudo = document.getElementById('totem-dynamic-area');
-            if (conteudo) {
-                setTimeout(() => conteudo.scrollTo({ top: 0, behavior: 'smooth' }), 320);
-            }
         }
 
         function tecladoLimparEstado() {
