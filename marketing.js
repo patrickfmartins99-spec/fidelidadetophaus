@@ -334,6 +334,7 @@ window.renderizarMensagensCustomizadas = () => {
                             <option value="ativa" class="bg-white text-black" ${statusC === 'ativa' ? 'selected' : ''}>🟢 Ativa</option>
                             <option value="pausada" class="bg-white text-black" ${statusC === 'pausada' ? 'selected' : ''}>🟡 Pausada</option>
                             <option value="cancelada" class="bg-white text-black" ${statusC === 'cancelada' ? 'selected' : ''}>🔴 Encerrada</option>
+                            <option value="concluida" class="bg-white text-black" ${statusC === 'concluida' ? 'selected' : ''}>✅ Concluída</option>
                         </select>
                     </div>
                     
