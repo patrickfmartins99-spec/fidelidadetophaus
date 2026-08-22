@@ -3,100 +3,6 @@
 
 window.intervaloContagemTotem = null;
 
-
-// Gerencia o teclado natural sem reservar espaço quando ele está fechado.
-window.inicializarTecladoNativoTotem = () => {
-    const container = document.getElementById('tela-totem');
-    const content = document.getElementById('totem-dynamic-area');
-    if (!container || !content || container.dataset.nativeKeyboardReady === 'true') return;
-
-    container.dataset.nativeKeyboardReady = 'true';
-    const viewport = window.visualViewport;
-    let baselineHeight = viewport ? viewport.height : window.innerHeight;
-    let updateTimer = null;
-
-    const activeTotemField = () => {
-        const active = document.activeElement;
-        return active && active.matches('#tela-totem input:not(#totem-pin-input):not([readonly]):not([disabled])')
-            ? active
-            : null;
-    };
-
-    const keepFocusedFieldVisible = (behavior = 'smooth') => {
-        const field = activeTotemField();
-        if (!field) return;
-        window.setTimeout(() => {
-            field.scrollIntoView({ block: 'center', inline: 'nearest', behavior });
-        }, 80);
-    };
-
-    const updateViewportState = () => {
-        window.clearTimeout(updateTimer);
-        updateTimer = window.setTimeout(() => {
-            const currentHeight = viewport ? viewport.height : window.innerHeight;
-            const keyboardLikelyOpen = Boolean(activeTotemField()) &&
-                (baselineHeight - currentHeight > 120 || currentHeight < window.innerHeight * 0.78);
-
-            container.style.setProperty('--totem-visual-height', Math.round(currentHeight) + 'px');
-            container.classList.toggle('keyboard-open', keyboardLikelyOpen);
-
-            if (!keyboardLikelyOpen && !activeTotemField()) {
-                baselineHeight = Math.max(baselineHeight, currentHeight);
-                container.classList.remove('field-focused');
-            }
-
-            if (keyboardLikelyOpen) keepFocusedFieldVisible('smooth');
-        }, 70);
-    };
-
-    container.addEventListener('focusin', (event) => {
-        if (!event.target.matches('input:not(#totem-pin-input):not([readonly]):not([disabled])')) return;
-        container.classList.add('field-focused');
-        updateViewportState();
-        keepFocusedFieldVisible('smooth');
-    });
-
-    container.addEventListener('focusout', () => {
-        window.setTimeout(() => {
-            if (!activeTotemField()) {
-                container.classList.remove('field-focused', 'keyboard-open');
-                content.scrollTo({ top: 0, behavior: 'smooth' });
-                updateViewportState();
-            }
-        }, 180);
-    });
-
-    container.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return;
-        const field = event.target;
-
-        if (field.id === 'totem-cpf') {
-            event.preventDefault();
-            window.totemProcessarCPF();
-        } else if (field.id === 'totem-cad-nome') {
-            event.preventDefault();
-            document.getElementById('totem-cad-nasc')?.focus();
-        } else if (field.id === 'totem-cad-nasc') {
-            event.preventDefault();
-            document.getElementById('totem-cad-tel')?.focus();
-        } else if (field.id === 'totem-cad-tel') {
-            event.preventDefault();
-            document.getElementById('totem-form')?.requestSubmit();
-        }
-    });
-
-    if (viewport) {
-        viewport.addEventListener('resize', updateViewportState, { passive: true });
-        viewport.addEventListener('scroll', updateViewportState, { passive: true });
-    }
-    window.addEventListener('orientationchange', () => {
-        baselineHeight = viewport ? viewport.height : window.innerHeight;
-        updateViewportState();
-    }, { passive: true });
-
-    updateViewportState();
-};
-
 // ==========================================================================
 // CONTROLO DE ECRÃ E NAVEGAÇÃO DO TOTEM (COM SEGURANÇA)
 // ==========================================================================
@@ -118,7 +24,6 @@ window.entrarModoTotemDaTelaLogin = () => {
     }
 
     document.getElementById('tela-totem').classList.remove('hidden');
-    window.inicializarTecladoNativoTotem();
     window.totemVoltarInicio();
 };
 
@@ -152,9 +57,7 @@ window.sairModoTotem = () => {
         document.exitFullscreen().catch(()=>{});
     }
     document.body.classList.remove('totem-active');
-    const totemContainer = document.getElementById('tela-totem');
-    totemContainer.classList.remove('keyboard-open', 'field-focused');
-    totemContainer.classList.add('hidden');
+    document.getElementById('tela-totem').classList.add('hidden');
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
     
@@ -222,8 +125,8 @@ window.totemVoltarInicio = () => {
         }
     });
 
-    const container = document.getElementById('tela-totem');
-    if(container) container.classList.remove('keyboard-open', 'field-focused');
+    // Fecha o teclado
+    if(typeof window.tecladoFechar === 'function') window.tecladoFechar();
 };
 
 // ==========================================================================
@@ -266,7 +169,11 @@ window.totemProcessarCPF = () => {
         
         setTimeout(() => {
             const cadNome = document.getElementById('totem-cad-nome');
-            if(cadNome) cadNome.focus({ preventScroll: true });
+            if(cadNome && typeof window.definirInputAtivo === 'function') {
+                window.definirInputAtivo(cadNome);
+            } else if(cadNome) {
+                cadNome.focus();
+            }
         }, 300);
         
         window.isProcessing = false; 
@@ -439,12 +346,8 @@ window.totemExecutarAcumulo = () => {
 // FUNÇÕES AUXILIARES DE MENSAGENS E TEMPORIZAÇÃO DO TOTEM
 // ==========================================================================
 window.totemMostrarMensagem = (tipo) => {
-    // Fecha o teclado natural antes de exibir a mensagem.
-    if(document.activeElement && document.activeElement.matches('#tela-totem input')) {
-        document.activeElement.blur();
-    }
-    const totemContainer = document.getElementById('tela-totem');
-    if(totemContainer) totemContainer.classList.remove('keyboard-open', 'field-focused');
+    // Fecha o teclado antes de exibir a mensagem
+    if(typeof window.tecladoFechar === 'function') window.tecladoFechar();
 
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
@@ -591,9 +494,3 @@ window.totemMostrarAvaliacao = () => {
     }, tempoAvaliacao);
 };
 
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.inicializarTecladoNativoTotem, { once: true });
-} else {
-    window.inicializarTecladoNativoTotem();
-}
