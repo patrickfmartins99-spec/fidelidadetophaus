@@ -84,15 +84,15 @@ window.renderizarFilaEnvios = (snapshot) => {
         let bgClass = 'bg-gray-50 border-gray-200';
         
         if (status === 'pendente') {
-            statusHtml = '<span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded uppercase tracking-wider">⏳ Pendente</span>';
+            statusHtml = '<span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded uppercase tracking-wider">⏳ Pendente</span>';
         } else if (status === 'enviado' || status === 'sucesso') {
-            statusHtml = '<span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded uppercase tracking-wider">✅ Enviado</span>';
+            statusHtml = '<span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded uppercase tracking-wider">✅ Enviado</span>';
             bgClass = 'bg-green-50/30 border-green-100';
         } else if (status === 'erro' || status === 'falha') {
-            statusHtml = '<span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded uppercase tracking-wider">❌ Falha</span>';
+            statusHtml = '<span class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded uppercase tracking-wider">❌ Falha</span>';
             bgClass = 'bg-red-50 border-red-200';
         } else if (status === 'cancelado') {
-            statusHtml = '<span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded uppercase tracking-wider">🚫 Cancelado</span>';
+            statusHtml = '<span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded uppercase tracking-wider">🚫 Cancelado</span>';
         }
 
         const dataStr = m.timestamp ? new Date(m.timestamp).toLocaleString('pt-BR') : '--';
@@ -108,7 +108,7 @@ window.renderizarFilaEnvios = (snapshot) => {
         area.innerHTML += `
             <div class="p-3 mb-2 rounded-xl border ${bgClass} flex justify-between items-center text-sm shadow-sm transition">
                 <div class="flex-1 min-w-0 pr-4">
-                    <p class="font-bold text-gray-800">${window.formatarTel(m.telefone) || 'Sem número'} <span class="text-xs text-gray-400 font-normal ml-2">${dataStr}</span></p>
+                    <p class="font-bold text-gray-800">${window.formatarTel(m.telefone) || 'Sem número'} <span class="text-[10px] text-gray-400 font-normal ml-2">${dataStr}</span></p>
                     <p class="text-xs text-gray-500 truncate mt-0.5" title="${window.escapeHTML(m.texto)}">${window.escapeHTML(m.texto)}</p>
                 </div>
                 <div class="flex flex-col items-end gap-1.5 shrink-0">
@@ -160,9 +160,9 @@ window.injetarUICampanhas = () => {
     const wrapperAntigo = document.getElementById('mkt-agenda-data').parentNode;
     
     const painel = document.createElement('div');
-    painel.className = "campaign-builder flex flex-col gap-3 mb-3 w-full bg-white p-4 rounded-xl border border-indigo-100 shadow-sm";
+    painel.className = "flex flex-col gap-3 mb-3 w-full bg-white p-4 rounded-xl border border-indigo-100 shadow-sm";
     painel.innerHTML = `
-        <div class="campaign-row flex gap-2">
+        <div class="flex gap-2">
             <select id="mkt-novo-tipo" onchange="alternarTipoCampanha()" class="p-2 bg-gray-50 border border-indigo-200 rounded-lg text-sm font-bold w-1/3 outline-none focus:ring-2 focus:ring-indigo-500">
                 <option value="unica">Disparo único</option>
                 <option value="recorrente">Campanha recorrente</option>
@@ -170,13 +170,13 @@ window.injetarUICampanhas = () => {
             <input type="text" id="mkt-novo-titulo" placeholder="Título interno (Ex: Promoção Terça)" class="p-2 border border-indigo-200 rounded-lg text-sm w-2/3 outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         
-        <div id="painel-mkt-unica" class="campaign-row flex gap-2">
+        <div id="painel-mkt-unica" class="flex gap-2">
             <input type="date" id="mkt-nova-data" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none text-center">
             <input type="time" id="mkt-novo-horario-unica" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none text-center" value="09:00">
         </div>
 
         <div id="painel-mkt-recorrente" class="hidden flex-col gap-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-            <div class="campaign-row flex gap-2">
+            <div class="flex gap-2">
                 <select id="mkt-nova-freq" onchange="alternarFreqCampanha()" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none font-bold text-indigo-900">
                     <option value="diaria">Diária</option>
                     <option value="semanal">Semanal</option>
@@ -259,29 +259,8 @@ window.gerarIdCampanha = () => {
 // ==========================================================================
 // CENTRAL GERENCIAL DE MARKETING
 // ==========================================================================
-// Alterna as áreas da Central de Marketing sem criar rolagens aninhadas.
-window.alternarSecaoMarketing = (secao = 'mensagens') => {
-    const secoesValidas = new Set(['mensagens', 'campanhas', 'fila', 'acoes']);
-    const alvo = secoesValidas.has(secao) ? secao : 'mensagens';
-
-    document.querySelectorAll('[data-marketing-section]').forEach((section) => {
-        section.classList.toggle('hidden', section.dataset.marketingSection !== alvo);
-    });
-
-    document.querySelectorAll('[data-marketing-tab]').forEach((button) => {
-        const ativo = button.dataset.marketingTab === alvo;
-        button.classList.toggle('is-active', ativo);
-        button.setAttribute('aria-selected', String(ativo));
-        button.setAttribute('tabindex', ativo ? '0' : '-1');
-    });
-
-    const painel = document.querySelector('#modal-marketing .marketing-panel');
-    if(painel) painel.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
 window.abrirCentralMarketing = () => {
     window.injetarUICampanhas();
-    window.alternarSecaoMarketing('mensagens');
     
     document.getElementById('mkt-msg-niver').value = window.msgsMarketing.aniversario || '';
     document.getElementById('mkt-msg-premio').value = window.msgsMarketing.premio || '';
@@ -318,7 +297,7 @@ window.renderizarMensagensCustomizadas = () => {
             if (tipoC === 'unica') {
                 const dataFormatada = m.data ? m.data.split('-').reverse().join('/') : 'S/D';
                 const horarioFormatado = m.horario ? ` às ${m.horario}` : '';
-                labelTipo = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-black uppercase tracking-wider">Disparo Único</span>`;
+                labelTipo = `<span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider">Disparo Único</span>`;
                 info = `<i data-lucide="calendar" class="w-3.5 h-3.5"></i> Execução em: ${dataFormatada}${horarioFormatado}`;
             } else {
                 const c = m.configRecorrencia || {};
@@ -338,7 +317,7 @@ window.renderizarMensagensCustomizadas = () => {
                     const dataEsp = c.dataEspecifica ? c.dataEspecifica.split('-').reverse().join('/') : 'S/D';
                     det = `Data específica: ${dataEsp}`;
                 }
-                labelTipo = `<span class="bg-indigo-600 text-white px-2 py-0.5 rounded text-xs font-black uppercase tracking-wider shadow-sm">Recorrente: ${m.frequencia}</span>`;
+                labelTipo = `<span class="bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">Recorrente: ${m.frequencia}</span>`;
                 info = `<i data-lucide="repeat" class="w-3.5 h-3.5"></i> ${det}${hor}`;
             }
             
@@ -351,7 +330,7 @@ window.renderizarMensagensCustomizadas = () => {
                     
                     <div class="flex flex-wrap items-center gap-2 mb-3 pr-6">
                         ${labelTipo}
-                        <select onchange="alterarStatusCampanha(${idx}, this.value)" class="text-xs font-black px-2 py-1 rounded-lg border outline-none cursor-pointer uppercase shadow-sm transition ${bgStatus}">
+                        <select onchange="alterarStatusCampanha(${idx}, this.value)" class="text-[10px] font-black px-2 py-1 rounded-lg border outline-none cursor-pointer uppercase shadow-sm transition ${bgStatus}">
                             <option value="ativa" class="bg-white text-black" ${statusC === 'ativa' ? 'selected' : ''}>🟢 Ativa</option>
                             <option value="pausada" class="bg-white text-black" ${statusC === 'pausada' ? 'selected' : ''}>🟡 Pausada</option>
                             <option value="cancelada" class="bg-white text-black" ${statusC === 'cancelada' ? 'selected' : ''}>🔴 Encerrada</option>

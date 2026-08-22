@@ -257,24 +257,24 @@ window.calcularNotificacoesPainel = () => {
     
     if(nNiv > 0) {
         p.innerHTML += `
-            <button type="button" onclick="filtrarLista('alerta_niver')" class="w-full text-left bg-red-50 border border-red-200 p-4 rounded-xl cursor-pointer hover:bg-red-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="filtrarLista('alerta_niver')" class="bg-red-50 border border-red-200 p-4 rounded-xl cursor-pointer hover:bg-red-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="cake" class="w-8 h-8 text-red-500"></i>
-                <span><span class="block text-sm font-bold text-red-800">Aniversários!</span><span class="block text-xs text-red-600"><strong>${nNiv}</strong> pendentes.</span></span>
-            </button>`;
+                <div><p class="text-sm font-bold text-red-800">Aniversários!</p><p class="text-xs text-red-600"><strong>${nNiv}</strong> pendentes.</p></div>
+            </div>`;
     }
     if(nPre > 0) {
         p.innerHTML += `
-            <button type="button" onclick="filtrarLista('alerta_premio')" class="w-full text-left bg-amber-50 border border-amber-200 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="filtrarLista('alerta_premio')" class="bg-amber-50 border border-amber-200 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="gift" class="w-8 h-8 text-amber-500"></i>
-                <span><span class="block text-sm font-bold text-amber-800">Prêmios!</span><span class="block text-xs text-amber-600"><strong>${nPre}</strong> pendentes.</span></span>
-            </button>`;
+                <div><p class="text-sm font-bold text-amber-800">Prêmios!</p><p class="text-xs text-amber-600"><strong>${nPre}</strong> pendentes.</p></div>
+            </div>`;
     }
     if(nIna > 0) {
         p.innerHTML += `
-            <button type="button" onclick="filtrarLista('alerta_inativos')" class="w-full text-left bg-blue-50 border border-blue-200 p-4 rounded-xl cursor-pointer hover:bg-blue-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="filtrarLista('alerta_inativos')" class="bg-blue-50 border border-blue-200 p-4 rounded-xl cursor-pointer hover:bg-blue-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="user-minus" class="w-8 h-8 text-blue-500"></i>
-                <span><span class="block text-sm font-bold text-blue-800">Ausentes!</span><span class="block text-xs text-blue-600"><strong>${nIna}</strong> (+15 dias).</span></span>
-            </button>`;
+                <div><p class="text-sm font-bold text-blue-800">Ausentes!</p><p class="text-xs text-blue-600"><strong>${nIna}</strong> (+15 dias).</p></div>
+            </div>`;
     }
     if(window.lucide) window.lucide.createIcons();
 };
@@ -368,13 +368,13 @@ window.renderizarTabela = (l) => {
     
     l.forEach(c => {
         const bHist = ((c.premiosResgatados||0) > 0 || (c.historicoAniversarios && c.historicoAniversarios.length > 0) || (c.historicoConquistas && c.historicoConquistas.length > 0)) ? 
-            `<button onclick="abrirHistorico('${c.cpf}')" type="button" class="client-action-button text-gray-500 hover:text-black transition" title="Ver histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` : ``;
-        const bEdit = `<button onclick="abrirEditar('${c.cpf}')" type="button" class="client-action-button text-gray-500 hover:text-indigo-600 transition" title="Editar cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
-        const bZap = `<button onclick="abrirModalWhatsApp('${c.cpf}')" type="button" class="client-action-button text-green-600 hover:text-green-700 transition" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>`;
+            `<button onclick="abrirHistorico('${c.cpf}')" class="text-gray-500 hover:text-black p-1.5 transition" title="Ver histórico"><i data-lucide="history" class="w-4 h-4"></i></button>` : ``;
+        const bEdit = `<button onclick="abrirEditar('${c.cpf}')" class="text-gray-500 hover:text-indigo-600 p-1.5 transition" title="Editar cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
+        const bZap = `<button onclick="abrirModalWhatsApp('${c.cpf}')" class="text-green-600 hover:text-green-700 p-1.5 transition" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>`;
         const bSim = (window.isSimulationMode && window.permissoesLogado && window.permissoesLogado.simulacao) ? 
-            `<button onclick="abrirSimulador('${c.cpf}')" type="button" class="client-action-button text-orange-600 hover:text-orange-700 transition" title="Simular dados"><i data-lucide="flask-conical" class="w-4 h-4"></i></button>` : ``;
+            `<button onclick="abrirSimulador('${c.cpf}')" class="text-orange-600 hover:text-orange-700 p-1.5 transition" title="Simular dados"><i data-lucide="flask-conical" class="w-4 h-4"></i></button>` : ``;
         const bArq = (window.permissoesLogado && window.permissoesLogado.clientes) ? 
-            `<button onclick="arquivarCliente('${c.cpf}')" type="button" class="client-action-button text-red-400 hover:text-red-600 transition" title="Arquivar cliente"><i data-lucide="archive-x" class="w-4 h-4"></i></button>` : ``;
+            `<button onclick="arquivarCliente('${c.cpf}')" class="text-red-400 hover:text-red-600 p-1.5 transition" title="Arquivar cliente"><i data-lucide="archive-x" class="w-4 h-4"></i></button>` : ``;
         
         const tr = document.createElement('tr'); 
         tr.className = 'border-b hover:bg-gray-50 transition';

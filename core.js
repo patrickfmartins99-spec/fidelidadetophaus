@@ -284,15 +284,3 @@ window.limitarHistorico = (h) => {
     // Ampliado de 50 para 100 devido à funcionalidade de mesclagem (pode gerar arrays maiores subitamente)
     return h && h.length > 100 ? h.slice(-100) : (h||[]); 
 };
-
-
-// Mantém os arquivos essenciais disponíveis no tablet e atualizados entre versões.
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then((registration) => {
-            registration.update().catch(() => {});
-        }).catch(() => {
-            // O sistema continua funcionando on-line mesmo se o cache não puder ser ativado.
-        });
-    }, { once: true });
-}
