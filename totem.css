@@ -7,6 +7,7 @@
     position: fixed;
     inset: 0;
     background-color: #000;
+    padding-bottom: env(safe-area-inset-bottom);
     z-index: 250;
     font-family: sans-serif;
     display: flex;
@@ -15,6 +16,8 @@
     justify-content: flex-start;
     overflow: hidden;
     min-height: 100dvh;
+    height: 100%;
+    overscroll-behavior: none;
 }
 
 @media (min-width: 768px) {
@@ -83,12 +86,16 @@
     justify-content: center;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
     position: relative;
     z-index: 10;
     max-width: 48rem;
     margin: 0 auto;
     overflow-y: auto;
+    min-height: 0;
     margin-bottom: 2.5rem;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
     transition: padding-top 0.3s ease, justify-content 0.3s ease;
 }
 
@@ -248,6 +255,7 @@
 .totem-form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    min-width: 0;
     gap: 1rem;
 }
 
@@ -614,8 +622,13 @@
     padding-top: 0.75rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-    height: min(39dvh, 410px);
-    min-height: 280px;
+    height: clamp(15rem, 42dvh, 26rem);
+    min-height: 0;
+    max-height: calc(100dvh - 5rem);
+    box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 /* Estado visível do teclado */
@@ -625,9 +638,9 @@
 
 @media (max-height: 650px) {
     .totem-keyboard {
-        height: 52dvh;
-        min-height: 280px;
-        padding-bottom: 0.75rem;
+        height: clamp(15rem, 48dvh, 24rem);
+        min-height: 0;
+        padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
     }
     .totem-keyboard-handle { margin-bottom: 0.5rem; }
     .totem-key { min-height: 2.25rem; }
@@ -749,6 +762,9 @@
 /* Teclas - identidade visual */
 .totem-key {
     background-color: #111;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
     border: 1px solid #262626;
     border-radius: 0.75rem;
     color: #fff;
@@ -1218,3 +1234,95 @@ body.totem-active {
     }
 }
 
+
+
+/* Ajustes de interação para tablets pequenos e orientação paisagem. */
+.totem-content::-webkit-scrollbar,
+.totem-keyboard::-webkit-scrollbar { display: none; }
+
+.totem-key:focus-visible,
+.totem-btn-primary:focus-visible,
+.totem-btn-secondary:focus-visible,
+.totem-keyboard-handle:focus-visible {
+    outline: 3px solid #fbbf24;
+    outline-offset: 3px;
+}
+
+.totem-key-accents-toggle {
+    background-color: #172554;
+    border-color: #1d4ed8;
+    color: #bfdbfe;
+}
+
+@media (max-width: 520px) {
+    .totem-content {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .totem-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .totem-form-actions {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+
+    .totem-form-actions .totem-btn-secondary,
+    .totem-form-actions .totem-btn-primary {
+        width: 100%;
+    }
+
+    .totem-screen-title {
+        font-size: clamp(1.4rem, 6vw, 1.875rem);
+        margin-bottom: 0.75rem;
+    }
+
+    .totem-screen-subtitle {
+        margin-bottom: 1.25rem;
+        font-size: 1rem;
+    }
+
+    .totem-btn-primary,
+    .totem-btn-secondary {
+        font-size: 1.125rem;
+        padding: 1rem 0;
+    }
+
+    .totem-key {
+        min-height: 2.5rem;
+        padding: 0.35rem 0;
+    }
+
+    .totem-key-letter {
+        font-size: 0.95rem;
+    }
+
+    .totem-keyboard-actions {
+        flex-wrap: wrap;
+    }
+
+    .totem-keyboard-actions .totem-key-clear,
+    .totem-keyboard-actions .totem-key-space,
+    .totem-keyboard-actions .totem-key-accents-toggle,
+    .totem-keyboard-actions .totem-key-delete {
+        flex: 1 1 20%;
+    }
+
+    .totem-keyboard-actions .totem-key-confirm {
+        flex: 1 1 100%;
+        min-height: 2.75rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .totem-container *,
+    .totem-container *::before,
+    .totem-container *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}

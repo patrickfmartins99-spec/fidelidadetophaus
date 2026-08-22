@@ -365,7 +365,10 @@ window.totemMostrarMensagem = (tipo) => {
     
     if(lb) lb.classList.remove('animate-shrink'); 
     let tempo = 10000;
-    const nomeC = window.totemClienteTemp && window.totemClienteTemp.nome ? window.escapeHTML(window.totemClienteTemp.nome.split(' ')[0]) : '';
+    const nomeExibicao = window.totemClienteTemp && window.totemClienteTemp.nome
+        ? (window.nomeExibicao ? window.nomeExibicao(window.totemClienteTemp.nome) : window.totemClienteTemp.nome)
+        : '';
+    const nomeC = window.escapeHTML(nomeExibicao.split(' ')[0]);
 
     // Flag para saber se envia para Avaliação QR Code ou volta direto para o Início
     let sucessoParaAvaliar = true;
