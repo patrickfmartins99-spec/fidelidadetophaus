@@ -1,17 +1,19 @@
 {
   "name": "Top Haus Fidelidade",
-  "short_name": "TopHaus",
-  "start_url": "./index.html",
+  "short_name": "Top Haus",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "description": "Autoatendimento e gestão do programa de fidelidade Top Haus.",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046784.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]
 }
-
