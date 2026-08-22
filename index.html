@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Top Haus Fidelidade</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -725,8 +729,8 @@
         </div>
 
         <!-- TECLADO VIRTUAL HÍBRIDO (redesenhado) -->
-        <div id="teclado-virtual" class="totem-keyboard">
-            <div class="totem-keyboard-handle" onclick="tecladoFechar()"></div>
+        <div id="teclado-virtual" class="totem-keyboard" role="group" aria-label="Teclado virtual">
+            <button type="button" class="totem-keyboard-handle" onclick="tecladoFechar()" aria-label="Fechar teclado"></button>
             
             <!-- Teclado numérico (corrigido) -->
             <div id="teclado-numerico" class="totem-keyboard-numeric">
@@ -742,7 +746,7 @@
                 <!-- Linha inferior: LIMPAR (span 3), 0 (span 3), APAGAR (span 3), CONFIRMAR (span 3) -->
                 <button class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
                 <button class="totem-key totem-key-number totem-key-zero" onclick="tecladoDigitar('0')">0</button>
-                <button class="totem-key totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
+                <button type="button" class="totem-key totem-key-delete" onclick="tecladoApagar()" aria-label="Apagar último caractere"><i data-lucide="delete" class="totem-key-icon"></i></button>
                 <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
             </div>
 
@@ -783,7 +787,7 @@
                 <div class="totem-keyboard-row totem-keyboard-actions">
                     <button class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
                     <button class="totem-key totem-key-space" onclick="tecladoDigitar(' ')">ESPAÇO</button>
-                    <button class="totem-key totem-key-delete" onclick="tecladoApagar()"><i data-lucide="delete" class="totem-key-icon"></i></button>
+                    <button type="button" class="totem-key totem-key-delete" onclick="tecladoApagar()" aria-label="Apagar último caractere"><i data-lucide="delete" class="totem-key-icon"></i></button>
                     <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
                 </div>
             </div>
@@ -824,6 +828,7 @@
         function definirInputAtivo(input) {
             if (!input) return;
             if (input.id === 'totem-pin-input') return;
+            if (input.disabled || input.classList.contains('totem-input-disabled')) return;
 
             activeTotemInput = input;
             mostrarTecladoAdequado(input);
@@ -834,10 +839,30 @@
             // Adiciona classe ao container para subir o conteúdo
             document.getElementById('tela-totem').classList.add('keyboard-open');
 
-            // Rolagem suave (sem focus, apenas visual)
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Pequeno delay para garantir scroll
-            setTimeout(() => input.focus({ preventScroll: true }), 100);
+            // O teclado é fixo; a rolagem considera a área realmente livre acima dele.
+            setTimeout(() => manterCampoTotemVisivel(input), 340);
+            setTimeout(() => input.focus({ preventScroll: true }), 80);
+        }
+
+        function manterCampoTotemVisivel(input) {
+            if (!input || input !== activeTotemInput) return;
+
+            const conteudo = document.getElementById('totem-dynamic-area');
+            const teclado = document.getElementById('teclado-virtual');
+            if (!conteudo || !teclado) return;
+
+            const campoRect = input.getBoundingClientRect();
+            const conteudoRect = conteudo.getBoundingClientRect();
+            const tecladoVisivel = teclado.classList.contains('is-visible');
+            const tecladoRect = teclado.getBoundingClientRect();
+            const limiteSuperior = conteudoRect.top + 12;
+            const limiteInferior = tecladoVisivel ? tecladoRect.top - 16 : conteudoRect.bottom - 16;
+
+            if (campoRect.bottom > limiteInferior) {
+                conteudo.scrollBy({ top: campoRect.bottom - limiteInferior + 16, behavior: 'smooth' });
+            } else if (campoRect.top < limiteSuperior) {
+                conteudo.scrollBy({ top: campoRect.top - limiteSuperior - 12, behavior: 'smooth' });
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -857,6 +882,14 @@
                     tecladoFechar();
                 }
             });
+
+            let timerReposicionamento;
+            const reposicionarCampoAtivo = () => {
+                clearTimeout(timerReposicionamento);
+                timerReposicionamento = setTimeout(() => manterCampoTotemVisivel(activeTotemInput), 180);
+            };
+            window.addEventListener('resize', reposicionarCampoAtivo, { passive: true });
+            window.addEventListener('orientationchange', reposicionarCampoAtivo, { passive: true });
         });
 
         function mostrarTecladoAdequado(input) {
@@ -909,6 +942,11 @@
             teclado.classList.remove('is-visible');
             document.getElementById('tela-totem').classList.remove('keyboard-open');
             tecladoLimparEstado();
+
+            const conteudo = document.getElementById('totem-dynamic-area');
+            if (conteudo) {
+                setTimeout(() => conteudo.scrollTo({ top: 0, behavior: 'smooth' }), 320);
+            }
         }
 
         function tecladoLimparEstado() {
@@ -991,3 +1029,4 @@
     </script>
 </body>
 </html>
+
