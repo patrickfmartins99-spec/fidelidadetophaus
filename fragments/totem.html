@@ -1,0 +1,120 @@
+<!-- TELA DO TOTEM -->
+    <div id="tela-totem" class="totem-container hidden" aria-label="Autoatendimento Top Haus">
+        <header class="totem-header">
+            <img src="./logo.jpg" alt="Top Haus" class="totem-logo">
+            <span class="totem-title">Fidelidade</span>
+            <button type="button" class="totem-exit-trigger" onclick="abrirModalSaidaTotem()" aria-label="Sair do modo totem" title="Área restrita">
+                <i data-lucide="lock" aria-hidden="true"></i>
+            </button>
+        </header>
+
+        <main class="totem-content" id="totem-dynamic-area">
+            <section id="totem-tela-busca" class="totem-screen">
+                <div class="totem-copy">
+                    <h1 class="totem-screen-title">Bem-vindo(a) à Top Haus!</h1>
+                    <p class="totem-screen-subtitle">Digite seu CPF para registrar a visita e consultar seus benefícios.</p>
+                </div>
+                <form class="totem-search-form" onsubmit="event.preventDefault(); totemProcessarCPF()">
+                    <label for="totem-cpf" class="totem-field-label">CPF</label>
+                    <input type="tel" inputmode="numeric" enterkeyhint="go" autocomplete="off" autocorrect="off" spellcheck="false"
+                           id="totem-cpf" placeholder="000.000.000-00" maxlength="14" class="totem-input"
+                           oninput="mascaraCPF(this)">
+                    <button type="submit" id="btn-totem-avancar" class="totem-btn-primary">
+                        <span id="btn-totem-avancar-text">Continuar</span>
+                    </button>
+                </form>
+            </section>
+
+            <section id="totem-tela-cadastro" class="totem-screen hidden">
+                <div class="totem-copy">
+                    <h2 class="totem-screen-title">Vamos fazer seu cadastro</h2>
+                    <p class="totem-screen-subtitle">Preencha os dados abaixo. É rápido e seu primeiro almoço já será registrado.</p>
+                </div>
+                <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="totem-form" autocomplete="off">
+                    <div class="totem-field totem-field-readonly">
+                        <label for="totem-cad-cpf" class="totem-field-label">CPF</label>
+                        <input type="tel" id="totem-cad-cpf" class="totem-input totem-input-disabled" readonly tabindex="-1" aria-readonly="true">
+                    </div>
+                    <div class="totem-field">
+                        <label for="totem-cad-nome" class="totem-field-label">Nome completo</label>
+                        <input type="text" inputmode="text" enterkeyhint="next" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
+                               id="totem-cad-nome" required placeholder="Ex.: Patrick Martins" class="totem-input totem-input-text"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('totem-cad-nasc').focus()}">
+                    </div>
+                    <div class="totem-form-row">
+                        <div class="totem-field">
+                            <label for="totem-cad-nasc" class="totem-field-label">Nascimento</label>
+                            <input type="tel" inputmode="numeric" enterkeyhint="next" autocomplete="off"
+                                   id="totem-cad-nasc" required placeholder="DD/MM/AAAA" maxlength="10" class="totem-input totem-input-text"
+                                   oninput="mascaraData(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('totem-cad-tel').focus()}">
+                        </div>
+                        <div class="totem-field">
+                            <label for="totem-cad-tel" class="totem-field-label">WhatsApp</label>
+                            <input type="tel" inputmode="tel" enterkeyhint="done" autocomplete="off"
+                                   id="totem-cad-tel" required placeholder="(00) 90000-0000" maxlength="15" class="totem-input totem-input-text"
+                                   oninput="mascaraTelefone(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.form.requestSubmit()}">
+                        </div>
+                    </div>
+                    <div class="totem-form-actions">
+                        <button type="button" onclick="totemVoltarInicio()" class="totem-btn-secondary">Voltar</button>
+                        <button type="submit" id="btn-totem-salvar" class="totem-btn-primary"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="totem-tela-opcoes" class="totem-screen hidden">
+                <div class="totem-icon-gift"><i data-lucide="gift" class="totem-icon-large" aria-hidden="true"></i></div>
+                <h2 class="totem-screen-title">Você tem R$ 50,00 de desconto</h2>
+                <p class="totem-screen-subtitle">Escolha o que deseja fazer nesta visita.</p>
+                <div class="totem-options">
+                    <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="totem-btn-primary totem-btn-resgatar">
+                        <span id="btn-totem-resgatar-text">Usar o desconto agora</span>
+                    </button>
+                    <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="totem-btn-secondary totem-btn-acumular">
+                        <span id="btn-totem-acumular-text">Guardar para outra visita</span>
+                    </button>
+                </div>
+            </section>
+
+            <section id="totem-tela-mensagem" class="totem-screen hidden">
+                <div id="totem-icone-msg" class="totem-message-icon"></div>
+                <h2 id="totem-titulo-msg" class="totem-screen-title"></h2>
+                <p id="totem-texto-msg" class="totem-screen-subtitle"></p>
+            </section>
+
+            <section id="totem-tela-avaliacao" class="totem-screen hidden totem-screen-evaluation">
+                <div class="totem-copy">
+                    <h2 class="totem-screen-title">Obrigado pela visita!</h2>
+                    <p class="totem-screen-subtitle">Avalie a unidade em que você foi atendido.</p>
+                </div>
+                <div class="totem-qrcode-wrapper">
+                    <img id="totem-qrcode-img" alt="" class="totem-qrcode-img">
+                </div>
+                <p id="totem-qrcode-unit" class="totem-qrcode-unit"></p>
+                <p id="totem-qrcode-label" class="totem-qrcode-label">Aponte a câmera para o QR Code</p>
+                <p class="totem-qrcode-hint">Mostre a avaliação no caixa e ganhe um bombom.</p>
+            </section>
+
+            <div id="totem-bottom-bar" class="totem-bottom-bar hidden" aria-live="polite">
+                <p class="totem-bottom-text">Voltando ao início em <span id="totem-timer-count" class="totem-timer-count">10</span>s</p>
+                <div class="totem-progress-track" aria-hidden="true">
+                    <div id="totem-loading-bar" class="totem-progress-bar"></div>
+                </div>
+            </div>
+        </main>
+
+        <div id="modal-totem-saida" tabindex="-1" class="totem-exit-modal hidden" role="dialog" aria-modal="true" aria-labelledby="totem-exit-title">
+            <div class="totem-exit-content">
+                <i data-lucide="lock" class="totem-exit-icon" aria-hidden="true"></i>
+                <h3 id="totem-exit-title" class="totem-exit-title">Área restrita</h3>
+                <p class="totem-exit-text">Digite o PIN administrativo para sair do totem.</p>
+                <input type="password" inputmode="numeric" enterkeyhint="done" autocomplete="off" id="totem-pin-input" placeholder="PIN" minlength="4" maxlength="10" pattern="[0-9]*" class="totem-exit-input" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
+                <div class="totem-exit-actions">
+                    <button type="button" onclick="fecharModal('modal-totem-saida')" class="totem-btn-secondary">Cancelar</button>
+                    <button type="button" onclick="window.verificarPinTotem()" class="totem-btn-primary">Sair do totem</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+

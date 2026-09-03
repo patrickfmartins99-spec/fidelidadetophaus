@@ -1,0 +1,54 @@
+<!-- TELA DE SELEÇÃO DA UNIDADE (MULTIUNIDADE) -->
+    <div id="tela-selecao-unidade" class="hidden fixed inset-0 bg-slate-900 z-[999] flex flex-col items-center justify-center p-4 transition-all overflow-y-auto">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl text-center my-auto">
+            <img src="./logo.jpg" alt="Top Haus" class="h-20 w-auto mx-auto mb-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Selecione a Unidade</h2>
+            <p class="text-slate-500 mb-8 text-sm">Escolha a unidade onde este dispositivo irá operar. Essa configuração será salva.</p>
+            
+            <div class="flex flex-col gap-4">
+                <button onclick="selecionarUnidadeAtiva('navegantes')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-3">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i> Navegantes
+                </button>
+                <button onclick="selecionarUnidadeAtiva('picarras')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-3">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i> Balneário Piçarras
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DE LOGIN -->
+    <div id="tela-login" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
+        <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-y-auto max-h-[90dvh] border border-gray-800">
+            <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
+            <span class="text-white font-light text-xl tracking-widest uppercase block mb-8">Fidelidade</span>
+            
+            <h2 class="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Acesso ao Sistema</h2>
+            
+            <form id="form-login" onsubmit="fazerLogin(event)" class="space-y-4 relative z-10">
+                <input type="text" id="login-user" required placeholder="Usuário" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
+                <input type="password" id="login-senha" required placeholder="Senha" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
+                <button type="submit" id="btn-login" class="w-full bg-white text-black font-black py-4 rounded-xl transition hover:bg-gray-200 shadow-md">
+                    <span id="btn-login-text">Acessar sistema</span>
+                </button>
+            </form>
+
+            <div class="mt-8 pt-8 border-t border-gray-800 relative z-10">
+                <p class="text-xs text-gray-500 mb-3 font-bold uppercase">Autoatendimento</p>
+                <button onclick="entrarModoTotemDaTelaLogin()" type="button" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition border border-gray-700">
+                    <i data-lucide="tablet" class="w-5 h-5"></i> <span id="btn-totem-shortcut-text">Abrir totem</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="banner-simulacao" class="hidden bg-orange-600 text-white font-bold py-2 px-6 shadow-md z-[99999] fixed top-0 left-0 w-full flex flex-col sm:flex-row justify-center items-center gap-3">
+        <div class="flex items-center gap-2">
+            <i data-lucide="flask-conical" class="w-5 h-5"></i>
+            <span>AMBIENTE DE SIMULAÇÃO ATIVO - DADOS REAIS BLINDADOS</span>
+        </div>
+        <button onclick="desativarSimulacao()" class="bg-white text-orange-600 px-4 py-1.5 rounded-lg text-sm hover:bg-orange-50 transition shadow-sm font-black">
+            Sair e Voltar ao Normal
+        </button>
+    </div>
+
+

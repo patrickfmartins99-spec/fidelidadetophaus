@@ -28,3 +28,247 @@ input[type=number]::-webkit-outer-spin-button {
 /* Animações gerais */
 .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Base responsiva: evita rolagem lateral e componentes maiores que a tela. */
+html {
+    width: 100%;
+    min-height: 100%;
+    background: #000;
+    -webkit-text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    min-width: 0;
+    min-height: 100dvh;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+    max-width: 100%;
+    font: inherit;
+}
+
+#app-dashboard,
+#app-dashboard main,
+#app-dashboard section,
+#app-dashboard section > * {
+    min-width: 0;
+}
+
+/* O login se comprime em telas baixas sem criar uma barra de rolagem visível. */
+#tela-login {
+    overflow: hidden;
+}
+
+#tela-login > div {
+    max-height: calc(100dvh - 1.5rem);
+    scrollbar-width: none;
+}
+
+#tela-login > div::-webkit-scrollbar {
+    display: none;
+}
+
+@media (max-height: 720px) {
+    #tela-login > div {
+        padding: 1.35rem !important;
+    }
+
+    #tela-login img {
+        height: 4.5rem !important;
+    }
+
+    #tela-login h2 {
+        margin-bottom: 1rem !important;
+    }
+
+    #tela-login form {
+        gap: .65rem !important;
+    }
+
+    #tela-login form input,
+    #tela-login form button {
+        min-height: 3rem;
+        padding-top: .65rem !important;
+        padding-bottom: .65rem !important;
+    }
+
+    #tela-login form + div {
+        margin-top: 1rem !important;
+        padding-top: 1rem !important;
+    }
+}
+
+@media (pointer: coarse) {
+    button,
+    [role="button"],
+    input,
+    select {
+        min-height: 44px;
+    }
+}
+
+.app-load-error {
+    min-height: 100dvh;
+    display: grid;
+    place-content: center;
+    gap: .5rem;
+    padding: 2rem;
+    background: #020617;
+    color: #fff;
+    text-align: center;
+}
+
+.app-load-error h1 {
+    margin: 0;
+    font-size: clamp(1.25rem, 4vw, 2rem);
+}
+
+.app-load-error p {
+    margin: 0;
+    color: #cbd5e1;
+}
+
+/* Painel administrativo em celulares: tabelas viram cartões e os modais usam
+   a altura útil da tela sem criar uma segunda barra de rolagem na página. */
+@media (max-width: 640px) {
+    #app-dashboard header {
+        padding: .8rem 1rem !important;
+        margin-bottom: .75rem !important;
+    }
+
+    #app-dashboard main {
+        padding-left: .75rem !important;
+        padding-right: .75rem !important;
+    }
+
+    .responsive-table {
+        overflow: visible !important;
+        min-height: 0 !important;
+        max-height: none !important;
+    }
+
+    .responsive-table table,
+    .responsive-table tbody,
+    .responsive-table tr,
+    .responsive-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .responsive-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    .responsive-table tbody {
+        padding: .75rem;
+    }
+
+    .responsive-table tr {
+        margin-bottom: .75rem;
+        padding: .55rem .8rem;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: .9rem;
+        background: #fff;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
+    }
+
+    .responsive-table td {
+        display: grid;
+        grid-template-columns: minmax(7.25rem, 42%) minmax(0, 1fr);
+        align-items: center;
+        gap: .75rem;
+        min-height: 2.5rem;
+        padding: .45rem 0 !important;
+        text-align: right !important;
+        border: 0 !important;
+        overflow-wrap: anywhere;
+    }
+
+    .responsive-table td::before {
+        content: attr(data-label);
+        color: #64748b;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: .68rem;
+        font-weight: 800;
+        letter-spacing: .035em;
+        line-height: 1.2;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    .responsive-table td[colspan] {
+        display: block;
+        padding: 1.5rem .5rem !important;
+        text-align: center !important;
+    }
+
+    .responsive-table td[colspan]::before {
+        content: none;
+    }
+
+    .responsive-table td > .flex {
+        justify-content: flex-end !important;
+        flex-wrap: wrap;
+    }
+
+    [id^="modal-"]:not(#modal-totem-saida) {
+        align-items: flex-end !important;
+        padding: .5rem !important;
+        overflow: hidden;
+    }
+
+    [id^="modal-"]:not(#modal-totem-saida) > div {
+        width: 100% !important;
+        max-width: none !important;
+        max-height: calc(100dvh - 1rem) !important;
+        margin: 0 !important;
+        padding: 1rem !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+        border-radius: 1.2rem !important;
+    }
+
+    [id^="modal-"] input,
+    [id^="modal-"] select,
+    [id^="modal-"] textarea,
+    [id^="modal-"] button {
+        min-height: 44px;
+    }
+
+    #modal-marketing .flex.gap-2,
+    #modal-usuarios .flex.gap-2,
+    #modal-mesclagem .flex.gap-2 {
+        flex-wrap: wrap;
+    }
+
+    #modal-marketing .w-1\/3,
+    #modal-marketing .w-1\/2,
+    #modal-marketing .w-2\/3 {
+        width: 100% !important;
+    }
+}
+

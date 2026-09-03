@@ -89,12 +89,14 @@ window.normalizarNomesDaUnidade = async (clientes) => {
 // ==========================================================================
 // INICIALIZAÇÃO E LISTENERS (DOMContentLoaded)
 // ==========================================================================
-window.addEventListener('DOMContentLoaded', () => {
-    if(window.lucide) window.lucide.createIcons();
-    
-    // Trava de segurança: Se o dispositivo não tem unidade, não inicia as conexões com o banco de dados
+window.listenersProtegidosAtivos = false;
+window.cancelarListenersProtegidos = [];
+
+window.iniciarListenersProtegidos = () => {
+    if (window.listenersProtegidosAtivos || !window.usuarioLogado) return;
     if (window.obterUnidade && !window.obterUnidade()) return;
-    
+    window.listenersProtegidosAtivos = true;
+
     if(window.isSimulationMode) { 
         const banner = document.getElementById('banner-simulacao');
         if(banner) banner.classList.remove('hidden'); 
@@ -102,17 +104,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // Listener de Marketing
-    window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_MENSAGENS), (snapshot) => {
+    const cancelarMarketing = window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_MENSAGENS), (snapshot) => {
         const data = snapshot.val();
         if (data) { 
             window.msgsMarketing = {...window.msgsMarketing, ...data}; 
             if(!window.msgsMarketing.personalizadas) window.msgsMarketing.personalizadas = []; 
             if(!window.msgsMarketing.agendadas) window.msgsMarketing.agendadas = []; 
         }
+    }, (erro) => {
+        console.error('Acesso às configurações de marketing negado:', erro.code || erro.message);
     });
 
     // Listener Principal de Clientes
-    window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_CLIENTES), (snapshot) => {
+    const cancelarClientes = window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_CLIENTES), (snapshot) => {
         const data = snapshot.val() || {};
         window.normalizarNomesDaUnidade(data);
         if (data) { 
@@ -131,7 +135,27 @@ window.addEventListener('DOMContentLoaded', () => {
         if(modalLixeira && !modalLixeira.classList.contains('hidden') && window.abrirLixeira) {
             window.abrirLixeira();
         }
+    }, (erro) => {
+        console.error('Acesso aos clientes negado:', erro.code || erro.message);
+        if (window.mostrarToast) window.mostrarToast('Sua sessão não tem acesso aos dados desta unidade.', 'erro');
     });
+
+    window.cancelarListenersProtegidos.push(cancelarMarketing, cancelarClientes);
+};
+
+window.pararListenersProtegidos = () => {
+    window.cancelarListenersProtegidos.forEach(cancelar => {
+        if (typeof cancelar === 'function') cancelar();
+    });
+    window.cancelarListenersProtegidos = [];
+    window.listenersProtegidosAtivos = false;
+    window.clientesMap = {};
+    window.clientesArray = [];
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+    if(window.lucide) window.lucide.createIcons();
+    if(window.usuarioLogado) window.iniciarListenersProtegidos();
 
     // Listener do Totem (Inatividade)
     const areaTotem = document.getElementById('area-totem-interativa') || document.getElementById('totem-dynamic-area');
@@ -379,11 +403,11 @@ window.renderizarTabela = (l) => {
         const tr = document.createElement('tr'); 
         tr.className = 'border-b hover:bg-gray-50 transition';
         tr.innerHTML = `
-            <td class="py-3 px-6 text-center font-bold">${window.escapeHTML(window.nomeExibicao(c.nome))}</td>
-            <td class="py-3 px-6 text-center text-xs font-mono text-gray-500">${window.formatarCPF(c.cpf)}<br>${window.formatarTel(c.telefone)}</td>
-            <td class="py-3 px-6 text-center font-bold text-base ${(c.almocos||0) >= 10 ? 'text-black' : 'text-gray-500'}">${c.almocos||0}</td>
-            <td class="py-3 px-6 text-center font-bold text-gray-500">${c.premiosResgatados||0}</td>
-            <td class="py-3 px-6 text-right"><div class="flex justify-end items-center gap-1">${bSim}${bZap}${bEdit}${bHist}${bArq}</div></td>`;
+            <td data-label="Nome" class="py-3 px-6 text-center font-bold">${window.escapeHTML(window.nomeExibicao(c.nome))}</td>
+            <td data-label="CPF / WhatsApp" class="py-3 px-6 text-center text-xs font-mono text-gray-500">${window.formatarCPF(c.cpf)}<br>${window.formatarTel(c.telefone)}</td>
+            <td data-label="Acumulados" class="py-3 px-6 text-center font-bold text-base ${(c.almocos||0) >= 10 ? 'text-black' : 'text-gray-500'}">${c.almocos||0}</td>
+            <td data-label="Resgates" class="py-3 px-6 text-center font-bold text-gray-500">${c.premiosResgatados||0}</td>
+            <td data-label="Ações" class="py-3 px-6 text-right"><div class="flex justify-end items-center gap-1">${bSim}${bZap}${bEdit}${bHist}${bArq}</div></td>`;
         tb.appendChild(tr);
     }); 
     if(window.lucide) window.lucide.createIcons();
@@ -536,3 +560,4 @@ window.simularInatividade = (event) => {
         }
     });
 };
+
