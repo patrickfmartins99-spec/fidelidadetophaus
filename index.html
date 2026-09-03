@@ -263,7 +263,7 @@
                         </div>
                     </div>
                     
-                    <div class="overflow-x-auto min-h-[300px]">
+                    <div class="overflow-x-auto min-h-[300px] responsive-table" data-mobile-cards="clientes">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-100">
@@ -578,7 +578,7 @@
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="archive" class="w-5 h-5 text-gray-800"></i> Clientes Arquivados</h3>
                     <button type="button" onclick="fecharModal('modal-lixeira')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                <div class="overflow-y-auto max-h-96">
+                <div class="overflow-y-auto max-h-96 responsive-table" data-mobile-cards="lixeira">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gray-50 text-gray-500 text-xs font-semibold uppercase border-b border-gray-200">
@@ -600,7 +600,7 @@
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i data-lucide="clipboard-list" class="w-5 h-5 text-indigo-600"></i> Log de Auditoria</h3>
                     <button type="button" onclick="fecharModal('modal-auditoria')" class="text-gray-400 hover:text-black"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                <div class="overflow-y-auto max-h-96">
+                <div class="overflow-y-auto max-h-96 responsive-table" data-mobile-cards="auditoria">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gray-50 text-gray-500 text-xs font-semibold uppercase border-b border-gray-200">
@@ -752,7 +752,7 @@
                 <i data-lucide="lock" class="totem-exit-icon" aria-hidden="true"></i>
                 <h3 id="totem-exit-title" class="totem-exit-title">Área restrita</h3>
                 <p class="totem-exit-text">Digite o PIN administrativo para sair do totem.</p>
-                <input type="password" inputmode="numeric" enterkeyhint="done" autocomplete="off" id="totem-pin-input" placeholder="PIN" class="totem-exit-input" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
+                <input type="password" inputmode="numeric" enterkeyhint="done" autocomplete="off" id="totem-pin-input" placeholder="PIN" minlength="4" maxlength="10" pattern="[0-9]*" class="totem-exit-input" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
                 <div class="totem-exit-actions">
                     <button type="button" onclick="fecharModal('modal-totem-saida')" class="totem-btn-secondary">Cancelar</button>
                     <button type="button" onclick="window.verificarPinTotem()" class="totem-btn-primary">Sair do totem</button>
