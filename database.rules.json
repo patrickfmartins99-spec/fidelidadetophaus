@@ -4,27 +4,30 @@
     ".write": false,
     "lojas": {
       "$unidade": {
-        ".read": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())",
+        ".read": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists() || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())",
         "clientes": {
           ".indexOn": ["nome", "telefone", "ultimaVisitaTimestamp", "arquivado"],
-          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())"
+          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists() || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())"
         },
         "fila_mensagens": {
           ".indexOn": ["status", "timestamp", "dedupeKey"],
-          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())"
+          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists() || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())"
         },
         "config": {
-          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'admin' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'gerente')"
+          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists() || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())"
         },
-        "usuarios": {
-          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'admin' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'gerente')"
+        "contadores": {
+          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists() || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())"
         },
         "auditoria": {
           ".indexOn": ["timestamp"],
-          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())"
+          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists() || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).exists())"
         },
         "clientes_simulacao": {
-          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'admin')"
+          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'admin' || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'admin')"
+        },
+        "usuarios": {
+          ".write": "auth != null && auth.token.email != null && auth.token.email.endsWith('@tophaus.com.br') && (auth.token.email === 'admin@tophaus.com.br' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'admin' || root.child('lojas').child($unidade).child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'gerente' || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'admin' || root.child('usuarios').child(auth.token.email.replace('@tophaus.com.br', '').toLowerCase()).child('cargo').val() === 'gerente')"
         },
         "controle_campanhas": {
           ".indexOn": ["status", "iniciadoEm"]
