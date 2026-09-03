@@ -399,6 +399,7 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
 
     const btnAdmin = document.getElementById('btn-aba-admin');
     const btnCaixa = document.getElementById('btn-aba-caixa');
+    const btnRelatorios = document.getElementById('btn-aba-relatorios');
     const btnSimulacao = document.getElementById('btn-ativar-simulacao');
     const btnZerar = document.getElementById('btn-zerar-banco');
     const btnAcessos = document.getElementById('btn-gerenciar-acessos');
@@ -413,6 +414,7 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
 
     if (btnAdmin) permissoes.dashboard ? btnAdmin.classList.remove('hidden') : btnAdmin.classList.add('hidden');
     if (btnCaixa) permissoes.caixa ? btnCaixa.classList.remove('hidden') : btnCaixa.classList.add('hidden');
+    if (btnRelatorios) cargo === 'admin' ? btnRelatorios.classList.remove('hidden') : btnRelatorios.classList.add('hidden');
     if (btnSimulacao) permissoes.simulacao ? btnSimulacao.classList.remove('hidden') : btnSimulacao.classList.add('hidden');
     if (btnZerar) permissoes.reset ? btnZerar.classList.remove('hidden') : btnZerar.classList.add('hidden');
     if (btnAcessos) permissoes.usuarios ? btnAcessos.classList.remove('hidden') : btnAcessos.classList.add('hidden');
