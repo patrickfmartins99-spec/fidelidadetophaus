@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -642,186 +642,123 @@
 
     </div> 
     
-    <!-- TELA DO TOTEM: ESTRUTURA COM CLASSES SEMÂNTICAS -->
-    <div id="tela-totem" class="totem-container hidden">
-        
-        <!-- Header -->
-        <div class="totem-header">
-            <img src="./logo.jpg" alt="Top Haus" onclick="abrirModalSaidaTotem()" class="totem-logo" title="Área Restrita">
+    <!-- TELA DO TOTEM -->
+    <div id="tela-totem" class="totem-container hidden" aria-label="Autoatendimento Top Haus">
+        <header class="totem-header">
+            <img src="./logo.jpg" alt="Top Haus" class="totem-logo">
             <span class="totem-title">Fidelidade</span>
-        </div>
+            <button type="button" class="totem-exit-trigger" onclick="abrirModalSaidaTotem()" aria-label="Sair do modo totem" title="Área restrita">
+                <i data-lucide="lock" aria-hidden="true"></i>
+            </button>
+        </header>
 
-        <!-- Área de conteúdo dinâmico -->
-        <div class="totem-content" id="totem-dynamic-area">
-            
-            <!-- Tela de busca -->
-            <div id="totem-tela-busca" class="totem-screen">
-                <h1 class="totem-screen-title">Bem-vindo(a) à Top Haus!</h1>
-                <p class="totem-screen-subtitle">Digite seu CPF para registrar o almoço de hoje e acompanhar seus benefícios.</p>
-                <input type="tel" inputmode="none" readonly id="totem-cpf" placeholder="000.000.000-00" maxlength="14" class="totem-input" oninput="mascaraCPF(this)">
-                <button id="btn-totem-avancar" onclick="if(typeof totemProcessarCPF === 'function') totemProcessarCPF()" class="totem-btn-primary">
-                    <span id="btn-totem-avancar-text">Avançar</span>
-                </button>
-            </div>
+        <main class="totem-content" id="totem-dynamic-area">
+            <section id="totem-tela-busca" class="totem-screen">
+                <div class="totem-copy">
+                    <h1 class="totem-screen-title">Bem-vindo(a) à Top Haus!</h1>
+                    <p class="totem-screen-subtitle">Digite seu CPF para registrar a visita e consultar seus benefícios.</p>
+                </div>
+                <form class="totem-search-form" onsubmit="event.preventDefault(); totemProcessarCPF()">
+                    <label for="totem-cpf" class="totem-field-label">CPF</label>
+                    <input type="tel" inputmode="numeric" enterkeyhint="go" autocomplete="off" autocorrect="off" spellcheck="false"
+                           id="totem-cpf" placeholder="000.000.000-00" maxlength="14" class="totem-input"
+                           oninput="mascaraCPF(this)">
+                    <button type="submit" id="btn-totem-avancar" class="totem-btn-primary">
+                        <span id="btn-totem-avancar-text">Continuar</span>
+                    </button>
+                </form>
+            </section>
 
-            <!-- Tela de cadastro -->
-            <div id="totem-tela-cadastro" class="totem-screen hidden">
-                <h2 class="totem-screen-title">Que bom ter você aqui! 💛</h2>
-                <p class="totem-screen-subtitle">Ainda não encontramos seu cadastro.<br>Leva menos de 1 minuto para participar do Clube de Fidelidade.</p>
-                <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="totem-form">
-                    <input type="tel" inputmode="none" readonly id="totem-cad-cpf" class="totem-input totem-input-disabled">
-                    <input type="text" inputmode="none" readonly id="totem-cad-nome" required placeholder="Nome completo" class="totem-input totem-input-text">
+            <section id="totem-tela-cadastro" class="totem-screen hidden">
+                <div class="totem-copy">
+                    <h2 class="totem-screen-title">Vamos fazer seu cadastro</h2>
+                    <p class="totem-screen-subtitle">Preencha os dados abaixo. É rápido e seu primeiro almoço já será registrado.</p>
+                </div>
+                <form id="totem-form" onsubmit="totemSalvarCadastro(event)" class="totem-form" autocomplete="off">
+                    <div class="totem-field totem-field-readonly">
+                        <label for="totem-cad-cpf" class="totem-field-label">CPF</label>
+                        <input type="tel" id="totem-cad-cpf" class="totem-input totem-input-disabled" readonly tabindex="-1" aria-readonly="true">
+                    </div>
+                    <div class="totem-field">
+                        <label for="totem-cad-nome" class="totem-field-label">Nome completo</label>
+                        <input type="text" inputmode="text" enterkeyhint="next" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false"
+                               id="totem-cad-nome" required placeholder="Ex.: Patrick Martins" class="totem-input totem-input-text"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('totem-cad-nasc').focus()}">
+                    </div>
                     <div class="totem-form-row">
-                        <input type="tel" inputmode="none" readonly id="totem-cad-nasc" required placeholder="Nasc. (Ex: 30/04/1999)" maxlength="10" class="totem-input totem-input-text" oninput="mascaraData(this)">
-                        <input type="tel" inputmode="none" readonly id="totem-cad-tel" required placeholder="WhatsApp" maxlength="15" class="totem-input totem-input-text" oninput="mascaraTelefone(this)">
+                        <div class="totem-field">
+                            <label for="totem-cad-nasc" class="totem-field-label">Nascimento</label>
+                            <input type="tel" inputmode="numeric" enterkeyhint="next" autocomplete="off"
+                                   id="totem-cad-nasc" required placeholder="DD/MM/AAAA" maxlength="10" class="totem-input totem-input-text"
+                                   oninput="mascaraData(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('totem-cad-tel').focus()}">
+                        </div>
+                        <div class="totem-field">
+                            <label for="totem-cad-tel" class="totem-field-label">WhatsApp</label>
+                            <input type="tel" inputmode="tel" enterkeyhint="done" autocomplete="off"
+                                   id="totem-cad-tel" required placeholder="(00) 90000-0000" maxlength="15" class="totem-input totem-input-text"
+                                   oninput="mascaraTelefone(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.form.requestSubmit()}">
+                        </div>
                     </div>
                     <div class="totem-form-actions">
                         <button type="button" onclick="totemVoltarInicio()" class="totem-btn-secondary">Voltar</button>
                         <button type="submit" id="btn-totem-salvar" class="totem-btn-primary"><span id="btn-totem-salvar-text">Salvar cadastro</span></button>
                     </div>
                 </form>
-            </div>
+            </section>
 
-            <!-- Tela de opções (benefício) -->
-            <div id="totem-tela-opcoes" class="totem-screen hidden">
-                <div class="totem-icon-gift">
-                    <i data-lucide="gift" class="totem-icon-large"></i>
-                </div>
-                <h2 class="totem-screen-title">Seu desconto está disponível! 🎁</h2>
-                <p class="totem-screen-subtitle">Você já tem um benefício de R$ 50,00.</p>
-                <strong class="totem-highlight">O que deseja fazer hoje?</strong>
+            <section id="totem-tela-opcoes" class="totem-screen hidden">
+                <div class="totem-icon-gift"><i data-lucide="gift" class="totem-icon-large" aria-hidden="true"></i></div>
+                <h2 class="totem-screen-title">Você tem R$ 50,00 de desconto</h2>
+                <p class="totem-screen-subtitle">Escolha o que deseja fazer nesta visita.</p>
                 <div class="totem-options">
                     <button id="btn-totem-resgatar" onclick="totemMostrarMensagem('aviso_caixa')" class="totem-btn-primary totem-btn-resgatar">
-                        <span id="btn-totem-resgatar-text">Usar desconto</span>
+                        <span id="btn-totem-resgatar-text">Usar o desconto agora</span>
                     </button>
                     <button id="btn-totem-acumular" onclick="totemExecutarAcumulo()" class="totem-btn-secondary totem-btn-acumular">
                         <span id="btn-totem-acumular-text">Guardar para outra visita</span>
                     </button>
                 </div>
-            </div>
+            </section>
 
-            <!-- Tela de mensagem -->
-            <div id="totem-tela-mensagem" class="totem-screen hidden">
+            <section id="totem-tela-mensagem" class="totem-screen hidden">
                 <div id="totem-icone-msg" class="totem-message-icon"></div>
                 <h2 id="totem-titulo-msg" class="totem-screen-title"></h2>
                 <p id="totem-texto-msg" class="totem-screen-subtitle"></p>
-            </div>
+            </section>
 
-            <!-- Tela de avaliação (QR Code) -->
-            <div id="totem-tela-avaliacao" class="totem-screen hidden totem-screen-evaluation">
-                <h2 class="totem-screen-title">Obrigado pela sua visita! 💛</h2>
-                <p class="totem-screen-subtitle">Antes de finalizar, que tal nos contar como foi sua experiência?</p>
-                <div class="totem-qrcode-wrapper">
-                    <img id="totem-qrcode-img" src="./qrcode.png" alt="QR Code Avaliação" class="totem-qrcode-img">
+            <section id="totem-tela-avaliacao" class="totem-screen hidden totem-screen-evaluation">
+                <div class="totem-copy">
+                    <h2 class="totem-screen-title">Obrigado pela visita!</h2>
+                    <p class="totem-screen-subtitle">Avalie a unidade em que você foi atendido.</p>
                 </div>
-                <p class="totem-qrcode-label">Aponte a câmera para o QR Code</p>
-                <p class="totem-qrcode-hint">Deixe sua avaliação e ganhe um <strong> bombom especial</strong>!</p>
-            </div>
-            
-            <!-- Barra inferior (timer) -->
-            <div id="totem-bottom-bar" class="totem-bottom-bar hidden">
-                <p class="totem-bottom-text">Atendimento finalizado. Esta tela voltará ao início em <span id="totem-timer-count" class="totem-timer-count">10</span> segundos.</p>
-                <div class="totem-progress-track">
+                <div class="totem-qrcode-wrapper">
+                    <img id="totem-qrcode-img" alt="" class="totem-qrcode-img">
+                </div>
+                <p id="totem-qrcode-unit" class="totem-qrcode-unit"></p>
+                <p id="totem-qrcode-label" class="totem-qrcode-label">Aponte a câmera para o QR Code</p>
+                <p class="totem-qrcode-hint">Mostre a avaliação no caixa e ganhe um bombom.</p>
+            </section>
+
+            <div id="totem-bottom-bar" class="totem-bottom-bar hidden" aria-live="polite">
+                <p class="totem-bottom-text">Voltando ao início em <span id="totem-timer-count" class="totem-timer-count">10</span>s</p>
+                <div class="totem-progress-track" aria-hidden="true">
                     <div id="totem-loading-bar" class="totem-progress-bar"></div>
                 </div>
             </div>
+        </main>
 
-        </div>
-
-        <!-- TECLADO VIRTUAL HÍBRIDO (redesenhado) -->
-        <div id="teclado-virtual" class="totem-keyboard" role="group" aria-label="Teclado virtual">
-            <button type="button" class="totem-keyboard-handle" onclick="tecladoFechar()" aria-label="Fechar teclado"></button>
-            
-            <!-- Teclado numérico (corrigido) -->
-            <div id="teclado-numerico" class="totem-keyboard-numeric">
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('1')">1</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('2')">2</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('3')">3</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('4')">4</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('5')">5</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('6')">6</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('7')">7</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('8')">8</button>
-                <button class="totem-key totem-key-number" onclick="tecladoDigitar('9')">9</button>
-                <!-- Linha inferior: LIMPAR (span 3), 0 (span 3), APAGAR (span 3), CONFIRMAR (span 3) -->
-                <button class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
-                <button class="totem-key totem-key-number totem-key-zero" onclick="tecladoDigitar('0')">0</button>
-                <button type="button" class="totem-key totem-key-delete" onclick="tecladoApagar()" aria-label="Apagar último caractere"><i data-lucide="delete" class="totem-key-icon"></i></button>
-                <button class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
-            </div>
-
-            <!-- Teclado alfabético (QWERTY) -->
-            <div id="teclado-alfabetico" class="totem-keyboard-alpha hidden">
-                <div class="totem-keyboard-row" data-keyboard-alpha="base">
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Q')">Q</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('W')">W</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('E')">E</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('R')">R</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('T')">T</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Y')">Y</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('U')">U</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('I')">I</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('O')">O</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('P')">P</button>
-                </div>
-                <div class="totem-keyboard-row totem-keyboard-row-shifted" data-keyboard-alpha="base">
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('A')">A</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('S')">S</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('D')">D</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('F')">F</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('G')">G</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('H')">H</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('J')">J</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('K')">K</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('L')">L</button>
-                </div>
-                <div class="totem-keyboard-row totem-keyboard-row-shifted" data-keyboard-alpha="base">
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Z')">Z</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('X')">X</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('C')">C</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('V')">V</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('B')">B</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('N')">N</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('M')">M</button>
-                </div>
-                <div id="teclado-acentos" class="totem-keyboard-row totem-keyboard-row-shifted hidden" aria-label="Caracteres acentuados">
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Á')">Á</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('À')">À</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Â')">Â</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ã')">Ã</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('É')">É</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ê')">Ê</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Í')">Í</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ó')">Ó</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ô')">Ô</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Õ')">Õ</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ú')">Ú</button>
-                    <button type="button" class="totem-key totem-key-letter" onclick="tecladoDigitar('Ç')">Ç</button>
-                </div>
-                <div class="totem-keyboard-row totem-keyboard-actions">
-                    <button type="button" class="totem-key totem-key-clear" onclick="tecladoLimpar()">LIMPAR</button>
-                    <button type="button" class="totem-key totem-key-space" onclick="tecladoDigitar(' ')">ESPAÇO</button>
-                    <button type="button" id="btn-totem-acentos" class="totem-key totem-key-accents-toggle" onclick="alternarAcentos()" aria-pressed="false">ÁÇ</button>
-                    <button type="button" class="totem-key totem-key-delete" onclick="tecladoApagar()" aria-label="Apagar último caractere"><i data-lucide="delete" class="totem-key-icon"></i></button>
-                    <button type="button" class="totem-key totem-key-confirm" onclick="confirmarTeclado()">✓ CONFIRMAR</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MODAL DE SAÍDA DO TOTEM -->
-        <div id="modal-totem-saida" tabindex="-1" class="totem-exit-modal hidden">
+        <div id="modal-totem-saida" tabindex="-1" class="totem-exit-modal hidden" role="dialog" aria-modal="true" aria-labelledby="totem-exit-title">
             <div class="totem-exit-content">
-                <i data-lucide="lock" class="totem-exit-icon"></i>
-                <h3 class="totem-exit-title">Acesso Restrito</h3>
-                <p class="totem-exit-text">Insira o PIN administrativo para sair do modo totem.</p>
-                <input type="password" inputmode="numeric" id="totem-pin-input" placeholder="PIN" class="totem-exit-input" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
+                <i data-lucide="lock" class="totem-exit-icon" aria-hidden="true"></i>
+                <h3 id="totem-exit-title" class="totem-exit-title">Área restrita</h3>
+                <p class="totem-exit-text">Digite o PIN administrativo para sair do totem.</p>
+                <input type="password" inputmode="numeric" enterkeyhint="done" autocomplete="off" id="totem-pin-input" placeholder="PIN" class="totem-exit-input" onkeydown="if(event.key==='Enter') window.verificarPinTotem()">
                 <div class="totem-exit-actions">
-                    <button onclick="fecharModal('modal-totem-saida')" class="totem-btn-secondary">Cancelar</button>
-                    <button onclick="window.verificarPinTotem()" class="totem-btn-primary">Desbloquear</button>
+                    <button type="button" onclick="fecharModal('modal-totem-saida')" class="totem-btn-secondary">Cancelar</button>
+                    <button type="button" onclick="window.verificarPinTotem()" class="totem-btn-primary">Sair do totem</button>
                 </div>
             </div>
         </div>
-
     </div>
 
     <!-- ÁREA DE IMPRESSÃO -->
@@ -834,231 +771,6 @@
     <script type="module" src="./marketing.js"></script>
     <script type="module" src="./totem.js"></script>
     <script type="module" src="./dashboard.js"></script>
-
-    <!-- SCRIPT DO TECLADO VIRTUAL (CORRIGIDO) -->
-    <script>
-        let activeTotemInput = null;
-
-        // Função central para definir o input ativo e abrir o teclado
-        function definirInputAtivo(input) {
-            if (!input) return;
-            if (input.id === 'totem-pin-input') return;
-            if (input.disabled || input.classList.contains('totem-input-disabled')) return;
-
-            activeTotemInput = input;
-            mostrarTecladoAdequado(input);
-
-            const teclado = document.getElementById('teclado-virtual');
-            teclado.classList.add('is-visible');
-
-            // Adiciona classe ao container para subir o conteúdo
-            document.getElementById('tela-totem').classList.add('keyboard-open');
-
-            // O teclado é fixo; a rolagem considera a área realmente livre acima dele.
-            setTimeout(() => manterCampoTotemVisivel(input), 340);
-            setTimeout(() => input.focus({ preventScroll: true }), 80);
-        }
-
-        function manterCampoTotemVisivel(input) {
-            if (!input || input !== activeTotemInput) return;
-
-            const conteudo = document.getElementById('totem-dynamic-area');
-            const teclado = document.getElementById('teclado-virtual');
-            if (!conteudo || !teclado) return;
-
-            const campoRect = input.getBoundingClientRect();
-            const conteudoRect = conteudo.getBoundingClientRect();
-            const tecladoVisivel = teclado.classList.contains('is-visible');
-            const tecladoRect = teclado.getBoundingClientRect();
-            const limiteSuperior = conteudoRect.top + 12;
-            const limiteInferior = tecladoVisivel ? tecladoRect.top - 16 : conteudoRect.bottom - 16;
-
-            if (campoRect.bottom > limiteInferior) {
-                conteudo.scrollBy({ top: campoRect.bottom - limiteInferior + 16, behavior: 'smooth' });
-            } else if (campoRect.top < limiteSuperior) {
-                conteudo.scrollBy({ top: campoRect.top - limiteSuperior - 12, behavior: 'smooth' });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputsTotem = document.querySelectorAll('#tela-totem input[type="tel"], #tela-totem input[type="text"]');
-            
-            inputsTotem.forEach(input => {
-                // Apenas click, sem interceptações desnecessárias
-                input.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    definirInputAtivo(input);
-                });
-            });
-
-            // Fecha teclado ao clicar fora dos inputs e do teclado
-            document.getElementById('tela-totem').addEventListener('click', (e) => {
-                if (!e.target.closest('input') && !e.target.closest('#teclado-virtual') && !e.target.closest('button')) {
-                    tecladoFechar();
-                }
-            });
-
-            let timerReposicionamento;
-            const reposicionarCampoAtivo = () => {
-                clearTimeout(timerReposicionamento);
-                timerReposicionamento = setTimeout(() => manterCampoTotemVisivel(activeTotemInput), 180);
-            };
-            window.addEventListener('resize', reposicionarCampoAtivo, { passive: true });
-            window.addEventListener('orientationchange', reposicionarCampoAtivo, { passive: true });
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', reposicionarCampoAtivo, { passive: true });
-                window.visualViewport.addEventListener('scroll', reposicionarCampoAtivo, { passive: true });
-            }
-        });
-
-        function mostrarTecladoAdequado(input) {
-            const isTexto = input.type === 'text';
-            const numGrid = document.getElementById('teclado-numerico');
-            const alphaGrid = document.getElementById('teclado-alfabetico');
-
-            if (isTexto) {
-                numGrid.classList.add('hidden');
-                alphaGrid.classList.remove('hidden');
-                alphaGrid.classList.add('flex');
-            } else {
-                alphaGrid.classList.add('hidden');
-                alphaGrid.classList.remove('flex');
-                numGrid.classList.remove('hidden');
-            }
-        }
-
-        function alternarAcentos() {
-            const acentos = document.getElementById('teclado-acentos');
-            const alpha = document.getElementById('teclado-alfabetico');
-            const botao = document.getElementById('btn-totem-acentos');
-            if (!acentos || !alpha) return;
-
-            const mostrar = acentos.classList.contains('hidden');
-            acentos.classList.toggle('hidden', !mostrar);
-            alpha.querySelectorAll('[data-keyboard-alpha="base"]').forEach((linha) => {
-                linha.classList.toggle('hidden', mostrar);
-            });
-            if (botao) {
-                botao.textContent = mostrar ? 'ABC' : 'ÁÇ';
-                botao.setAttribute('aria-pressed', String(mostrar));
-            }
-        }
-
-        function tecladoDigitar(val) {
-            if (!activeTotemInput) return;
-
-            const input = activeTotemInput;
-            // Verifica se atingiu o maxlength
-            if (input.maxLength > 0 && input.value.length >= input.maxLength) {
-                return;
-            }
-
-            // Insere o caractere
-            input.value += val;
-            // Dispara evento input para ativar máscaras
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        function tecladoApagar() {
-            if (!activeTotemInput) return;
-            const input = activeTotemInput;
-            input.value = input.value.slice(0, -1);
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        function tecladoLimpar() {
-            if (!activeTotemInput) return;
-            const input = activeTotemInput;
-            input.value = '';
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        function tecladoFechar() {
-            const teclado = document.getElementById('teclado-virtual');
-            teclado.classList.remove('is-visible');
-            document.getElementById('tela-totem').classList.remove('keyboard-open');
-            tecladoLimparEstado();
-
-        }
-
-        function tecladoLimparEstado() {
-            if (activeTotemInput) {
-                activeTotemInput.blur();
-                activeTotemInput = null;
-            }
-        }
-
-        // Confirma o campo atual e avança pelo cadastro; salva apenas no último campo.
-        function confirmarTeclado() {
-            const telaBusca = document.getElementById('totem-tela-busca');
-            const telaCadastro = document.getElementById('totem-tela-cadastro');
-
-            // Tela de busca de CPF
-            if (telaBusca && !telaBusca.classList.contains('hidden')) {
-                tecladoFechar();
-                if (typeof window.totemProcessarCPF === 'function') {
-                    window.totemProcessarCPF();
-                }
-                return;
-            }
-
-            // Tela de cadastro
-            if (telaCadastro && !telaCadastro.classList.contains('hidden')) {
-                const nome = document.getElementById('totem-cad-nome');
-                const nascimento = document.getElementById('totem-cad-nasc');
-                const telefone = document.getElementById('totem-cad-tel');
-                const nomeNormalizado = nome && window.normalizarNome ? window.normalizarNome(nome.value) : '';
-
-                if (activeTotemInput === nome) {
-                    if (!nomeNormalizado) {
-                        window.mostrarToast('Digite seu nome completo usando apenas letras.', 'erro');
-                        return;
-                    }
-                    nome.value = nomeNormalizado;
-                    definirInputAtivo(nascimento);
-                    return;
-                }
-
-                if (activeTotemInput === nascimento) {
-                    if (!window.validarDataReal(nascimento.value)) {
-                        window.mostrarToast('Data de nascimento inválida.', 'erro');
-                        return;
-                    }
-                    definirInputAtivo(telefone);
-                    return;
-                }
-
-                if (!nomeNormalizado) {
-                    window.mostrarToast('Digite seu nome completo usando apenas letras.', 'erro');
-                    definirInputAtivo(nome);
-                    return;
-                }
-                nome.value = nomeNormalizado;
-
-                if (!window.validarDataReal(nascimento.value)) {
-                    window.mostrarToast('Data de nascimento inválida.', 'erro');
-                    definirInputAtivo(nascimento);
-                    return;
-                }
-
-                if (!window.telefoneValido(telefone.value)) {
-                    window.mostrarToast('Telefone inválido. Verifique e tente novamente.', 'erro');
-                    definirInputAtivo(telefone);
-                    return;
-                }
-
-                tecladoFechar();
-                if (typeof window.totemSalvarCadastro === 'function') {
-                    window.totemSalvarCadastro({
-                        preventDefault: () => {}
-                    });
-                }
-                return;
-            }
-
-            tecladoFechar();
-        }
-    </script>
 </body>
 </html>
 
