@@ -39,7 +39,9 @@ window.atualizarViewportTotem = () => {
     const alturaAtual = Math.round(viewport ? viewport.height : window.innerHeight);
     const campoEmFoco = campoEditavelDoTotem(document.activeElement);
     if (!alturaBaseTotem || !campoEmFoco) {
-        alturaBaseTotem = Math.max(alturaBaseTotem, Math.round(window.innerHeight), alturaAtual);
+        alturaBaseTotem = Math.max(Math.round(window.innerHeight), alturaAtual);
+    } else if (alturaAtual > alturaBaseTotem) {
+        alturaBaseTotem = alturaAtual;
     }
 
     document.documentElement.style.setProperty('--totem-viewport-height', alturaAtual + 'px');
