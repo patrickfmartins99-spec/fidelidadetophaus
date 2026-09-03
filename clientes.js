@@ -670,6 +670,8 @@ window.reimprimirAniversarioPorCpf = (c, i) => {
 // SEGURANÇA E AUDITORIA (MULTILIVRE)
 // ==========================================================================
 window.logAuditoria = (acao, detalhes, extraData = {}) => {
+    if (!window.usuarioLogado || !window.db || !window.firebaseRef || !window.firebasePush) return;
+
     const user = window.usuarioLogado ? window.usuarioLogado.email.split('@')[0] : 'sistema';
     const cargo = window.cargoLogado || 'sistema';
     const unidade = window.obterUnidade ? window.obterUnidade() : 'desconhecida';
@@ -689,7 +691,7 @@ window.logAuditoria = (acao, detalhes, extraData = {}) => {
     };
     
     const pathAuditoria = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('auditoria') : 'auditoria';
-    window.firebasePush(window.firebaseRef(window.db, pathAuditoria), log);
+    window.firebasePush(window.firebaseRef(window.db, pathAuditoria), log).catch(() => {});
 };
 
 window.abrirAuditoria = () => {
