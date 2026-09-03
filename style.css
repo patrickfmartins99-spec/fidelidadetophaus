@@ -28,3 +28,100 @@ input[type=number]::-webkit-outer-spin-button {
 /* Animações gerais */
 .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Base responsiva: evita rolagem lateral e componentes maiores que a tela. */
+html {
+    width: 100%;
+    min-height: 100%;
+    background: #000;
+    -webkit-text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    min-width: 0;
+    min-height: 100dvh;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+    max-width: 100%;
+    font: inherit;
+}
+
+#app-dashboard,
+#app-dashboard main,
+#app-dashboard section,
+#app-dashboard section > * {
+    min-width: 0;
+}
+
+/* O login se comprime em telas baixas sem criar uma barra de rolagem visível. */
+#tela-login {
+    overflow: hidden;
+}
+
+#tela-login > div {
+    max-height: calc(100dvh - 1.5rem);
+    scrollbar-width: none;
+}
+
+#tela-login > div::-webkit-scrollbar {
+    display: none;
+}
+
+@media (max-height: 720px) {
+    #tela-login > div {
+        padding: 1.35rem !important;
+    }
+
+    #tela-login img {
+        height: 4.5rem !important;
+    }
+
+    #tela-login h2 {
+        margin-bottom: 1rem !important;
+    }
+
+    #tela-login form {
+        gap: .65rem !important;
+    }
+
+    #tela-login form input,
+    #tela-login form button {
+        min-height: 3rem;
+        padding-top: .65rem !important;
+        padding-bottom: .65rem !important;
+    }
+
+    #tela-login form + div {
+        margin-top: 1rem !important;
+        padding-top: 1rem !important;
+    }
+}
+
+@media (pointer: coarse) {
+    button,
+    [role="button"],
+    input,
+    select {
+        min-height: 44px;
+    }
+}
