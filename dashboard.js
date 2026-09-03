@@ -129,6 +129,7 @@ window.iniciarListenersProtegidos = () => {
         window.atualizarIndicadores(); 
         window.calcularNotificacoesPainel(); 
         window.filtrarLista(window.filtroAtual);
+        if (window.atualizarRelatorios) window.atualizarRelatorios();
         
         // Atualiza a lixeira se estiver aberta
         const modalLixeira = document.getElementById('modal-lixeira');
@@ -170,27 +171,30 @@ window.addEventListener('DOMContentLoaded', () => {
 // NAVEGAÇÃO DE ABAS
 // ==========================================================================
 window.alternarAba = (a) => {
-    const bc = document.getElementById('btn-aba-caixa');
-    const ba = document.getElementById('btn-aba-admin');
-    
-    if(a === 'caixa'){ 
-        document.getElementById('aba-caixa').classList.remove('hidden'); 
-        document.getElementById('aba-admin').classList.add('hidden'); 
-        bc.classList.add('bg-gray-800'); 
-        bc.classList.remove('bg-black'); 
-        ba.classList.remove('bg-gray-800'); 
-        ba.classList.add('bg-black'); 
-        
+    const nomes = ['caixa', 'admin', 'relatorios'];
+    if (!nomes.includes(a)) return;
+    if (a === 'relatorios' && window.cargoLogado !== 'admin') {
+        if (window.mostrarToast) window.mostrarToast('Relatórios disponíveis somente para administradores.', 'erro');
+        return;
+    }
+
+    nomes.forEach(nome => {
+        const secao = document.getElementById(`aba-${nome}`);
+        const botao = document.getElementById(`btn-aba-${nome}`);
+        if (secao) secao.classList.toggle('hidden', nome !== a);
+        if (botao) {
+            botao.classList.toggle('bg-gray-800', nome === a);
+            botao.classList.toggle('bg-black', nome !== a);
+        }
+    });
+
+    if(a === 'caixa'){
         const bCpf = document.getElementById('busca-cpf');
         if(bCpf) setTimeout(() => bCpf.focus(), 50);
-    } else { 
-        document.getElementById('aba-caixa').classList.add('hidden'); 
-        document.getElementById('aba-admin').classList.remove('hidden'); 
-        ba.classList.add('bg-gray-800'); 
-        ba.classList.remove('bg-black'); 
-        bc.classList.remove('bg-gray-800'); 
-        bc.classList.add('bg-black'); 
-        window.filtrarLista('todos'); 
+    } else if (a === 'admin') {
+        window.filtrarLista('todos');
+    } else if (window.atualizarRelatorios) {
+        window.atualizarRelatorios();
     }
 };
 
