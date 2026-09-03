@@ -16,12 +16,16 @@ async function carregarInterface() {
     const raiz = document.getElementById('application-fragments');
     raiz.innerHTML = respostas.join('\n');
 
-    for (const modulo of [
-        './core.js', './firebase.js', './auth.js', './clientes.js',
-        './marketing.js', './totem.js', './dashboard.js'
-    ]) {
-        await import(modulo);
-    }
+    // As importações explícitas preservam a ordem dos módulos no navegador e
+    // permitem que o build do Netlify entregue um único pacote, sem aguardar
+    // downloads externos do Firebase durante a abertura do sistema.
+    await import('./core.js');
+    await import('./firebase.js');
+    await import('./auth.js');
+    await import('./clientes.js');
+    await import('./marketing.js');
+    await import('./totem.js');
+    await import('./dashboard.js');
 }
 
 try {
@@ -31,5 +35,4 @@ try {
     document.getElementById('application-fragments').innerHTML =
         '<div class="app-load-error"><h1>Não foi possível abrir o sistema</h1><p>Atualize a página. Se o problema continuar, verifique a conexão.</p></div>';
 }
-
 
