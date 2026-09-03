@@ -7,7 +7,7 @@ const require = createRequire(import.meta.url);
 const raiz = process.cwd();
 const destino = path.join(raiz, 'dist');
 const arquivos = [
-  'auth.js', 'clientes.js', 'core.js', 'dashboard.js', 'firebase.js',
+  'bootstrap.js', 'auth.js', 'clientes.js', 'core.js', 'dashboard.js', 'firebase.js',
   'marketing.js', 'totem.js', 'style.css', 'totem.css', 'manifest.json', 'sw.js',
   'logo.jpg', 'qrcode.png', 'qrcode tophaus piçarras.png'
 ];
@@ -18,6 +18,7 @@ await mkdir(destino, { recursive: true });
 for (const arquivo of arquivos) {
   await cp(path.join(raiz, arquivo), path.join(destino, arquivo));
 }
+await cp(path.join(raiz, 'fragments'), path.join(destino, 'fragments'), { recursive: true });
 
 const tailwindCli = require.resolve('tailwindcss/lib/cli.js');
 execFileSync(process.execPath, [
