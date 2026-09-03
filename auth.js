@@ -64,39 +64,6 @@ window.obterCaminhoUnidade = (caminhoBase) => {
 };
 
 // ==========================================================================
-// MIGRAÇÃO SEGURA E TRANSPARENTE DE DADOS LEGADOS
-// ==========================================================================
-window.executarMigracaoNavegantes = async () => {
-    try {
-        const snapNavegantes = await window.firebaseGet(window.firebaseRef(window.db, 'lojas/navegantes/clientes'));
-        if(snapNavegantes.exists()) return; // Dados já migrados e íntegros
-        
-        console.log("Iniciando migração transparente de dados legados para a unidade Navegantes...");
-        
-        const chavesMigracao = ['clientes', 'usuarios', 'config', 'fila_mensagens', 'auditoria', 'clientes_simulacao', 'historico'];
-        const promessas = chavesMigracao.map(chave => window.firebaseGet(window.firebaseRef(window.db, chave)));
-        
-        const resultados = await Promise.all(promessas);
-        const payload = {};
-        let encontrouDados = false;
-        
-        resultados.forEach((snap, idx) => {
-            if(snap.exists()) {
-                payload[chavesMigracao[idx]] = snap.val();
-                encontrouDados = true;
-            }
-        });
-        
-        if(encontrouDados) {
-            await window.firebaseSet(window.firebaseRef(window.db, 'lojas/navegantes'), payload);
-            console.log("Migração concluída com sucesso! Os dados originais foram preservados na raiz por segurança.");
-        }
-    } catch (erro) {
-        console.error("Erro durante a migração automática de dados:", erro);
-    }
-};
-
-// ==========================================================================
 // GESTÃO DE SESSÃO COM EXPIRAÇÃO
 // ==========================================================================
 const TEMPO_SESSAO_HORAS = 12; // A sessão expira obrigatoriamente após 12 horas
@@ -128,10 +95,6 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
         return;
     }
 
-    if(window.obterUnidade() === 'navegantes') {
-        await window.executarMigracaoNavegantes();
-    }
-
     if (user) {
         if(window.verificarExpiracaoSessao()) {
             window.fazerLogout();
@@ -156,9 +119,11 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
         if(window.aplicarRegrasNaInterface) {
             window.aplicarRegrasNaInterface(window.cargoLogado, username, window.permissoesLogado);
         }
+        if(window.iniciarListenersProtegidos) window.iniciarListenersProtegidos();
         
         if(window.logAuditoria) window.logAuditoria('Login', `Acesso ao sistema. Perfil: ${window.cargoLogado}`);
     } else {
+        if(window.pararListenersProtegidos) window.pararListenersProtegidos();
         window.usuarioLogado = null; 
         window.cargoLogado = null;
         window.permissoesLogado = null;
@@ -332,9 +297,6 @@ window.criarUsuario = (e) => {
         return window.mostrarToast("Serviço de autenticação secundária indisponível.", "erro");
     }
 
-    console.log("DIAGNOSTICO: Antes de chamar firebaseCreateUser()");
-    window.mostrarToast("DIAGNOSTICO: Antes de chamar firebaseCreateUser()", "info");
-
     window.firebaseCreateUser(window.authSecundario, email, pass)
         .catch(err => {
             if(err.code === 'auth/email-already-in-use') {
@@ -344,12 +306,6 @@ window.criarUsuario = (e) => {
             throw { etapa: "firebaseCreateUser", error: err };
         })
         .then(() => {
-            console.log("DIAGNOSTICO: Depois que firebaseCreateUser() concluiu com sucesso");
-            window.mostrarToast("DIAGNOSTICO: firebaseCreateUser() com sucesso", "sucesso");
-
-            console.log("DIAGNOSTICO: Antes de chamar firebaseSet()");
-            window.mostrarToast("DIAGNOSTICO: Antes de chamar firebaseSet()", "info");
-
             return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { 
                 cargo: cargo, 
                 permissoes: objPermissoes 
@@ -358,9 +314,6 @@ window.criarUsuario = (e) => {
             });
         })
         .then(() => {
-            console.log("DIAGNOSTICO: Depois que firebaseSet() concluiu com sucesso");
-            window.mostrarToast("DIAGNOSTICO: firebaseSet() com sucesso", "sucesso");
-
             window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
             if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
             
@@ -483,3 +436,4 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
         window.mostrarToast("Seu perfil não tem acesso a esta ação. Fale com o administrador.", "erro");
     }
 };
+
