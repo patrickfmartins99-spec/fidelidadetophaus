@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v68-private-audit';
+const CACHE_NAME = 'tophaus-fidelidade-v69-reports';
 
 const APP_SHELL = [
   './',
@@ -15,8 +15,11 @@ const APP_SHELL = [
   './marketing.js',
   './totem.js',
   './dashboard.js',
+  './relatorios.js',
+  './relatorios-core.js',
   './fragments/access.html',
   './fragments/dashboard.html',
+  './fragments/reports.html',
   './fragments/admin-modals.html',
   './fragments/totem.html',
   './fragments/print.html',
