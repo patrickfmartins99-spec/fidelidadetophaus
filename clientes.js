@@ -712,9 +712,9 @@ window.abrirAuditoria = () => {
             logs.forEach(l => {
                 tb.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                        <td class="py-3 px-4 text-xs whitespace-nowrap">${l.dataHora}<br><span class="text-indigo-600 font-bold uppercase">@${l.usuario}</span></td>
-                        <td class="py-3 px-4 text-xs font-bold text-gray-800">${l.acao || l.tipo}</td>
-                        <td class="py-3 px-4 text-xs text-gray-600">${window.escapeHTML(l.detalhes)}</td>
+                        <td data-label="Data / Usuário" class="py-3 px-4 text-xs whitespace-nowrap">${l.dataHora}<br><span class="text-indigo-600 font-bold uppercase">@${l.usuario}</span></td>
+                        <td data-label="Ação" class="py-3 px-4 text-xs font-bold text-gray-800">${l.acao || l.tipo}</td>
+                        <td data-label="Detalhes" class="py-3 px-4 text-xs text-gray-600">${window.escapeHTML(l.detalhes)}</td>
                     </tr>
                 `;
             });
@@ -783,9 +783,9 @@ window.abrirLixeira = () => {
         arquivados.forEach(c => {
             tb.innerHTML += `
                 <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                    <td class="py-3 px-4 text-xs font-bold text-gray-800">${window.escapeHTML(window.nomeExibicao(c.nome))}</td>
-                    <td class="py-3 px-4 text-xs text-center text-gray-500 font-mono">${window.formatarCPF(c.cpf)}</td>
-                    <td class="py-3 px-4 text-right">
+                    <td data-label="Nome" class="py-3 px-4 text-xs font-bold text-gray-800">${window.escapeHTML(window.nomeExibicao(c.nome))}</td>
+                    <td data-label="CPF" class="py-3 px-4 text-xs text-center text-gray-500 font-mono">${window.formatarCPF(c.cpf)}</td>
+                    <td data-label="Ação" class="py-3 px-4 text-right">
                         <button onclick="restaurarCliente('${c.cpf}')" class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-100 transition shadow-sm">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5 inline"></i> Restaurar
                         </button>
@@ -973,3 +973,4 @@ window.executarMesclagem = () => {
         }
     );
 };
+
