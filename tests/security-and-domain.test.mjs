@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { compararHash } from '../netlify/functions/totem-pin.mjs';
+import validarPin, { compararHash } from '../netlify/functions/totem-pin.mjs';
 import {
   aniversarioHoje,
   cpfValido,
@@ -25,6 +25,22 @@ const hashCorreto = createHash('sha256').update('987654').digest('hex');
 assert.equal(compararHash('987654', hashCorreto), true);
 assert.equal(compararHash('987653', hashCorreto), false);
 assert.equal(compararHash('987654', 'valor-invalido'), false);
+
+process.env.TOTEM_PIN_HASH_NAVEGANTES = hashCorreto;
+const respostaPin = await validarPin(new Request('http://localhost/api/totem/pin', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ unidade: 'navegantes', pin: '987654' })
+}));
+assert.equal(respostaPin.status, 200);
+assert.deepEqual(await respostaPin.json(), { ok: true });
+
+const respostaPinAntigo = await validarPin(new Request('http://localhost/api/totem/pin', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ unidade: 'navegantes', pin: '1234' })
+}));
+assert.equal(respostaPinAntigo.status, 401);
 
 assert.equal(registradoHoje({ ultimaVisitaTimestamp: Date.now() }), true);
 assert.equal(registradoHoje({ ultimaVisitaTimestamp: Date.now() - 3 * 86400000 }), false);
