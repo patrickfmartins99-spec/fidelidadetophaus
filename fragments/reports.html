@@ -1,0 +1,99 @@
+<template id="template-aba-relatorios">
+    <section id="aba-relatorios" class="hidden space-y-6" aria-labelledby="titulo-relatorios">
+        <div class="report-header">
+            <div>
+                <p class="report-eyebrow">Visão administrativa</p>
+                <h1 id="titulo-relatorios" class="report-title">Relatórios e fluxo</h1>
+                <p class="report-subtitle">Acompanhe o movimento da unidade e a frequência dos clientes.</p>
+            </div>
+            <label class="report-date-control">
+                <span>Dia do relatório</span>
+                <input type="date" id="relatorio-data" aria-label="Dia do relatório diário">
+            </label>
+        </div>
+
+        <div class="report-section-heading">
+            <div>
+                <h2>Resumo do dia</h2>
+                <p id="relatorio-dia-legenda">Movimento registrado na data selecionada.</p>
+            </div>
+        </div>
+
+        <div class="report-kpi-grid">
+            <article class="report-kpi">
+                <span class="report-kpi-icon report-kpi-icon--blue"><i data-lucide="user-plus"></i></span>
+                <div><p>Novos clientes</p><strong id="relatorio-novos">0</strong><small>cadastros no dia</small></div>
+            </article>
+            <article class="report-kpi">
+                <span class="report-kpi-icon report-kpi-icon--green"><i data-lucide="users"></i></span>
+                <div><p>Clientes atendidos</p><strong id="relatorio-visitantes">0</strong><small>pessoas diferentes</small></div>
+            </article>
+            <article class="report-kpi">
+                <span class="report-kpi-icon report-kpi-icon--amber"><i data-lucide="utensils"></i></span>
+                <div><p>Almoços registrados</p><strong id="relatorio-almocos">0</strong><small>lançamentos no dia</small></div>
+            </article>
+            <article class="report-kpi">
+                <span class="report-kpi-icon report-kpi-icon--purple"><i data-lucide="gift"></i></span>
+                <div><p>Prêmios resgatados</p><strong id="relatorio-resgates">0</strong><small id="relatorio-resgates-detalhe">0 fidelidade · 0 aniversário</small></div>
+            </article>
+        </div>
+
+        <div class="report-section-heading report-section-heading--spaced">
+            <div>
+                <h2>Análise de fluxo</h2>
+                <p>Últimos 30 dias até a data selecionada.</p>
+            </div>
+        </div>
+
+        <div class="report-flow-grid">
+            <article class="report-panel report-flow-chart-panel">
+                <div class="report-panel-title">
+                    <div><h3>Movimento diário</h3><p>Almoços registrados por dia</p></div>
+                    <span id="relatorio-variacao" class="report-trend">0%</span>
+                </div>
+                <div id="relatorio-grafico" class="report-chart" aria-label="Gráfico do movimento diário"></div>
+            </article>
+
+            <article class="report-panel">
+                <div class="report-panel-title"><div><h3>Resumo do período</h3><p>Comparação dos últimos 30 dias</p></div></div>
+                <dl class="report-summary-list">
+                    <div><dt>Almoços registrados</dt><dd id="relatorio-fluxo-almocos">0</dd></div>
+                    <div><dt>Clientes atendidos</dt><dd id="relatorio-fluxo-clientes">0</dd></div>
+                    <div><dt>Média por dia</dt><dd id="relatorio-media-dia">0</dd></div>
+                    <div><dt>Em relação aos 30 dias anteriores</dt><dd id="relatorio-comparacao">0%</dd></div>
+                </dl>
+            </article>
+        </div>
+
+        <article class="report-panel">
+            <div class="report-panel-title report-panel-title--wrap">
+                <div><h3>Perfil de frequência</h3><p>Distribuição dos clientes ativos conforme as visitas nos últimos 30 dias.</p></div>
+                <div class="report-legend">
+                    <span><i class="report-dot report-dot--frequente"></i>Frequente: 8+</span>
+                    <span><i class="report-dot report-dot--regular"></i>Regular: 4–7</span>
+                    <span><i class="report-dot report-dot--ocasional"></i>Ocasional: 1–3</span>
+                    <span><i class="report-dot report-dot--novo"></i>Novo</span>
+                    <span><i class="report-dot report-dot--inativo"></i>Inativo</span>
+                </div>
+            </div>
+            <div id="relatorio-segmentos" class="report-segments"></div>
+        </article>
+
+        <article class="report-panel report-table-panel">
+            <div class="report-panel-title report-panel-title--wrap">
+                <div><h3>Frequência por cliente</h3><p>Os dados pessoais permanecem visíveis somente para administradores autenticados.</p></div>
+                <label class="report-search"><i data-lucide="search"></i><input id="relatorio-busca" type="search" placeholder="Buscar cliente" autocomplete="off"></label>
+            </div>
+            <div class="responsive-table report-table-wrap" data-mobile-cards="frequencia">
+                <table class="w-full text-left border-collapse">
+                    <thead><tr>
+                        <th>Cliente</th><th>Última visita</th><th>30 dias</th><th>90 dias</th><th>Média mensal</th><th>Intervalo médio</th><th>Dia preferido</th><th>Perfil</th>
+                    </tr></thead>
+                    <tbody id="relatorio-tabela-clientes"></tbody>
+                </table>
+            </div>
+            <p id="relatorio-tabela-contagem" class="report-table-count"></p>
+        </article>
+    </section>
+</template>
+
