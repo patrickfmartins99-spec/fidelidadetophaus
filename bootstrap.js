@@ -1,6 +1,7 @@
 const fragmentos = [
     './fragments/access.html',
     './fragments/dashboard.html',
+    './fragments/reports.html',
     './fragments/admin-modals.html',
     './fragments/totem.html',
     './fragments/print.html'
@@ -26,6 +27,7 @@ async function carregarInterface() {
     await import('./marketing.js');
     await import('./totem.js');
     await import('./dashboard.js');
+    await import('./relatorios.js');
 }
 
 try {
