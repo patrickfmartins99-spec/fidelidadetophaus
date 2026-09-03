@@ -13,6 +13,11 @@ window.obterTerminalId = () => {
 
 // ====== SUBSTITUIR A FUNÇÃO logAuditoria EXISTENTE ======
 window.logAuditoria = (acao, detalhes, extraData = {}) => {
+    // O totem funciona sem login e nunca deve tentar gravar diretamente no
+    // banco pelo navegador. As ações públicas são tratadas pelas funções do
+    // servidor; a auditoria administrativa só é registrada após autenticação.
+    if (!window.usuarioLogado || !window.db || !window.firebaseRef || !window.firebasePush) return;
+
     const user = window.usuarioLogado ? window.usuarioLogado.email.split('@')[0] : 'sistema';
     const cargo = window.cargoLogado || 'sistema';
     const unidade = window.obterUnidade ? window.obterUnidade() : 'desconhecida';
@@ -31,7 +36,7 @@ window.logAuditoria = (acao, detalhes, extraData = {}) => {
     };
     
     const pathAuditoria = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('auditoria') : 'auditoria';
-    window.firebasePush(window.firebaseRef(window.db, pathAuditoria), payload);
+    window.firebasePush(window.firebaseRef(window.db, pathAuditoria), payload).catch(() => {});
 };
 
 // ==========================================================================
@@ -284,3 +289,4 @@ window.limitarHistorico = (h) => {
     // Ampliado de 50 para 100 devido à funcionalidade de mesclagem (pode gerar arrays maiores subitamente)
     return h && h.length > 100 ? h.slice(-100) : (h||[]); 
 };
+
