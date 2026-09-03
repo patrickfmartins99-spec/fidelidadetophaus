@@ -690,6 +690,28 @@ body.totem-active {
     }
 }
 
+@media (max-width: 639px) {
+    .totem-container.totem-native-keyboard-open .totem-field-readonly {
+        display: none;
+    }
+
+    .totem-container.totem-native-keyboard-open .totem-form-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .totem-container.totem-native-keyboard-open .totem-form-actions {
+        grid-template-columns: minmax(6rem, .7fr) minmax(8rem, 1.3fr);
+    }
+
+    .totem-container.totem-native-keyboard-open .totem-form-actions .totem-btn-secondary {
+        order: initial;
+    }
+
+    .totem-container.totem-native-keyboard-open .totem-field-label {
+        font-size: .72rem;
+    }
+}
+
 @media (max-height: 520px) {
     .totem-header {
         min-height: 3.6rem;
