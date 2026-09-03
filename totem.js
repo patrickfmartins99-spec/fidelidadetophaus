@@ -3,6 +3,123 @@
 
 window.intervaloContagemTotem = null;
 
+const TOTEM_QR_POR_UNIDADE = Object.freeze({
+    navegantes: { src: './qrcode.png', nome: 'Navegantes' },
+    picarras: { src: './qrcode tophaus piçarras.png', nome: 'Balneário Piçarras' }
+});
+
+let alturaBaseTotem = 0;
+let listenersViewportTotemAtivos = false;
+let timerViewportTotem = null;
+
+function campoEditavelDoTotem(elemento) {
+    return Boolean(elemento?.matches?.('#tela-totem input:not([readonly]):not([disabled])'));
+}
+
+function manterCampoNativoVisivel() {
+    const campo = document.activeElement;
+    const conteudo = document.getElementById('totem-dynamic-area');
+    if (!campoEditavelDoTotem(campo) || !conteudo) return;
+
+    const campoRect = campo.getBoundingClientRect();
+    const conteudoRect = conteudo.getBoundingClientRect();
+    const margem = 12;
+    if (campoRect.bottom > conteudoRect.bottom - margem) {
+        conteudo.scrollBy({ top: campoRect.bottom - conteudoRect.bottom + margem, behavior: 'smooth' });
+    } else if (campoRect.top < conteudoRect.top + margem) {
+        conteudo.scrollBy({ top: campoRect.top - conteudoRect.top - margem, behavior: 'smooth' });
+    }
+}
+
+window.atualizarViewportTotem = () => {
+    const tela = document.getElementById('tela-totem');
+    if (!tela || tela.classList.contains('hidden')) return;
+
+    const viewport = window.visualViewport;
+    const alturaAtual = Math.round(viewport ? viewport.height : window.innerHeight);
+    const campoEmFoco = campoEditavelDoTotem(document.activeElement);
+    if (!alturaBaseTotem || !campoEmFoco) {
+        alturaBaseTotem = Math.max(alturaBaseTotem, Math.round(window.innerHeight), alturaAtual);
+    }
+
+    document.documentElement.style.setProperty('--totem-viewport-height', alturaAtual + 'px');
+    const reducaoMinima = Math.max(120, alturaBaseTotem * 0.18);
+    const tecladoAberto = campoEmFoco && (alturaBaseTotem - alturaAtual >= reducaoMinima);
+    tela.classList.toggle('totem-native-keyboard-open', tecladoAberto);
+    if (tecladoAberto) window.setTimeout(manterCampoNativoVisivel, 80);
+};
+
+function agendarAtualizacaoViewportTotem() {
+    window.clearTimeout(timerViewportTotem);
+    timerViewportTotem = window.setTimeout(window.atualizarViewportTotem, 60);
+}
+
+window.iniciarViewportTotem = () => {
+    alturaBaseTotem = Math.max(Math.round(window.innerHeight), Math.round(window.visualViewport?.height || 0));
+    window.atualizarViewportTotem();
+    if (listenersViewportTotemAtivos) return;
+    listenersViewportTotemAtivos = true;
+
+    window.addEventListener('resize', agendarAtualizacaoViewportTotem, { passive: true });
+    window.addEventListener('orientationchange', agendarAtualizacaoViewportTotem, { passive: true });
+    window.visualViewport?.addEventListener('resize', agendarAtualizacaoViewportTotem, { passive: true });
+    window.visualViewport?.addEventListener('scroll', agendarAtualizacaoViewportTotem, { passive: true });
+
+    document.addEventListener('focusin', (event) => {
+        if (!campoEditavelDoTotem(event.target)) return;
+        window.setTimeout(window.atualizarViewportTotem, 80);
+        window.setTimeout(window.atualizarViewportTotem, 320);
+    });
+
+    document.addEventListener('focusout', (event) => {
+        if (!event.target?.closest?.('#tela-totem')) return;
+        window.setTimeout(() => {
+            window.atualizarViewportTotem();
+            if (!campoEditavelDoTotem(document.activeElement)) {
+                document.getElementById('tela-totem')?.classList.remove('totem-native-keyboard-open');
+            }
+        }, 180);
+    });
+};
+
+window.fecharTecladoNativoTotem = () => {
+    if (campoEditavelDoTotem(document.activeElement)) document.activeElement.blur();
+    document.getElementById('tela-totem')?.classList.remove('totem-native-keyboard-open');
+    window.setTimeout(window.atualizarViewportTotem, 180);
+};
+
+window.configurarQrCodeTotem = () => {
+    const unidade = window.obterUnidade ? window.obterUnidade() : '';
+    const configuracao = TOTEM_QR_POR_UNIDADE[unidade];
+    const imagem = document.getElementById('totem-qrcode-img');
+    const wrapper = document.querySelector('.totem-qrcode-wrapper');
+    const unidadeTexto = document.getElementById('totem-qrcode-unit');
+    const instrucao = document.getElementById('totem-qrcode-label');
+    if (!imagem || !wrapper || !unidadeTexto || !instrucao) return false;
+
+    if (!configuracao) {
+        imagem.removeAttribute('src');
+        imagem.alt = '';
+        wrapper.classList.add('qr-unavailable');
+        unidadeTexto.textContent = 'Unidade não identificada';
+        instrucao.textContent = 'Peça ajuda à nossa equipe';
+        return false;
+    }
+
+    wrapper.classList.remove('qr-unavailable');
+    unidadeTexto.textContent = 'Avaliação — ' + configuracao.nome;
+    instrucao.textContent = 'Aponte a câmera para o QR Code';
+    imagem.alt = 'QR Code de avaliação da unidade ' + configuracao.nome;
+    imagem.dataset.unidade = unidade;
+    imagem.onerror = () => {
+        wrapper.classList.add('qr-unavailable');
+        instrucao.textContent = 'QR Code temporariamente indisponível';
+    };
+    imagem.onload = () => wrapper.classList.remove('qr-unavailable');
+    if (imagem.getAttribute('src') !== configuracao.src) imagem.src = configuracao.src;
+    return true;
+};
+
 // ==========================================================================
 // CONTROLO DE ECRÃ E NAVEGAÇÃO DO TOTEM (COM SEGURANÇA)
 // ==========================================================================
@@ -17,13 +134,9 @@ window.entrarModoTotemDaTelaLogin = () => {
     
     if(window.logAuditoria) window.logAuditoria('Totem', 'Modo Autoatendimento (Totem) iniciado.');
     
-    // Injeta o QR Code correto da unidade ativa
-    const qrImg = document.getElementById('totem-qrcode-img');
-    if(qrImg) {
-        qrImg.src = window.obterUnidade() === 'picarras' ? './qrcode tophaus piçarras.png' : './qrcode.png';
-    }
-
     document.getElementById('tela-totem').classList.remove('hidden');
+    window.iniciarViewportTotem();
+    window.configurarQrCodeTotem();
     window.totemVoltarInicio();
 };
 
@@ -56,8 +169,10 @@ window.sairModoTotem = () => {
     if(document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen().catch(()=>{});
     }
+    window.fecharTecladoNativoTotem();
     document.body.classList.remove('totem-active');
     document.getElementById('tela-totem').classList.add('hidden');
+    document.documentElement.style.removeProperty('--totem-viewport-height');
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
     
@@ -125,8 +240,7 @@ window.totemVoltarInicio = () => {
         }
     });
 
-    // Fecha o teclado
-    if(typeof window.tecladoFechar === 'function') window.tecladoFechar();
+    window.fecharTecladoNativoTotem();
 };
 
 // ==========================================================================
@@ -169,11 +283,7 @@ window.totemProcessarCPF = () => {
         
         setTimeout(() => {
             const cadNome = document.getElementById('totem-cad-nome');
-            if(cadNome && typeof window.definirInputAtivo === 'function') {
-                window.definirInputAtivo(cadNome);
-            } else if(cadNome) {
-                cadNome.focus();
-            }
+            if (cadNome) cadNome.focus({ preventScroll: true });
         }, 300);
         
         window.isProcessing = false; 
@@ -346,8 +456,8 @@ window.totemExecutarAcumulo = () => {
 // FUNÇÕES AUXILIARES DE MENSAGENS E TEMPORIZAÇÃO DO TOTEM
 // ==========================================================================
 window.totemMostrarMensagem = (tipo) => {
-    // Fecha o teclado antes de exibir a mensagem
-    if(typeof window.tecladoFechar === 'function') window.tecladoFechar();
+    // Fecha o teclado nativo antes de exibir a mensagem final.
+    window.fecharTecladoNativoTotem();
 
     clearTimeout(window.timerInatividade);
     clearInterval(window.intervaloContagemTotem);
@@ -456,6 +566,9 @@ window.totemMostrarMensagem = (tipo) => {
 
 // Nova função para transicionar para o QR Code de Avaliação
 window.totemMostrarAvaliacao = () => {
+    window.fecharTecladoNativoTotem();
+    window.configurarQrCodeTotem();
+
     ['totem-tela-mensagem'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.classList.add('hidden');
