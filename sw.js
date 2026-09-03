@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v65-secure-shell';
+const CACHE_NAME = 'tophaus-fidelidade-v66-secure-bundle';
 
 const APP_SHELL = [
   './',
