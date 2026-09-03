@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v64-native-totem';
+const CACHE_NAME = 'tophaus-fidelidade-v65-secure-shell';
 
 const APP_SHELL = [
   './',
@@ -7,7 +7,7 @@ const APP_SHELL = [
   './logo.jpg',
   './style.css',
   './totem.css',
-  './app.js',
+  './bootstrap.js',
   './core.js',
   './firebase.js',
   './auth.js',
@@ -15,6 +15,11 @@ const APP_SHELL = [
   './marketing.js',
   './totem.js',
   './dashboard.js',
+  './fragments/access.html',
+  './fragments/dashboard.html',
+  './fragments/admin-modals.html',
+  './fragments/totem.html',
+  './fragments/print.html',
   './qrcode.png',
   './qrcode tophaus piçarras.png'
 ];
