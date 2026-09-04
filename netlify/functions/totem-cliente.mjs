@@ -157,10 +157,33 @@ async function cadastrar(db, unidade, cpf, dados) {
   return clienteMinimo(cpf, gravado);
 }
 
-async function acumular(db, unidade, cpf) {
+// Uma transação pode receber null antes de o SDK conhecer o estado remoto.
+// Manter o listener (não apenas get/once) preserva o cache até o commit.
+export async function transacaoComEstadoCarregado(ref, atualizar, limiteMs = 8000) {
+  let aoCarregar;
+  let temporizador;
+  try {
+    await new Promise((resolve, reject) => {
+      aoCarregar = () => resolve();
+      temporizador = setTimeout(() => reject(Object.assign(
+        new Error('Consulta demorou além do esperado. Tente novamente.'),
+        { status: 503, codigo: 'consulta_timeout' }
+      )), limiteMs);
+      ref.on('value', aoCarregar, reject);
+    });
+    clearTimeout(temporizador);
+    return await ref.transaction(atualizar, undefined, false);
+  } finally {
+    clearTimeout(temporizador);
+    if (aoCarregar) ref.off('value', aoCarregar);
+  }
+}
+
+export async function acumular(db, unidade, cpf) {
   const ref = db.ref(`lojas/${unidade}/clientes/${cpf}`);
   let motivo = '';
-  const resultado = await ref.transaction(atual => {
+  const resultado = await transacaoComEstadoCarregado(ref, atual => {
+    motivo = '';
     if (!atual || atual.arquivado) { motivo = 'nao_encontrado'; return; }
     if (registradoHoje(atual)) { motivo = 'ja_registrado'; return; }
     const historico = Array.isArray(atual.historico) ? [...atual.historico] : Object.values(atual.historico || {});
