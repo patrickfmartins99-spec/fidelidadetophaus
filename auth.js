@@ -180,6 +180,8 @@ window.fazerLogin = (e) => {
 window.fazerLogout = () => { 
     if(window.logAuditoria && window.usuarioLogado) window.logAuditoria('Logout', 'Saída do sistema'); 
     localStorage.removeItem('loginTimestamp');
+    localStorage.removeItem('modoSimulacao');
+    sessionStorage.removeItem('modoSimulacao');
     window.firebaseSignOut(window.auth); 
 };
 

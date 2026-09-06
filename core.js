@@ -43,12 +43,14 @@ window.logAuditoria = (acao, detalhes, extraData = {}) => {
 // AMBIENTE DE SIMULAÇÃO (LABORATÓRIO) - BASE
 // ==========================================================================
 window.ativarSimulacao = () => { 
-    localStorage.setItem('modoSimulacao', 'true'); 
+    localStorage.removeItem('modoSimulacao');
+    sessionStorage.setItem('modoSimulacao', 'true'); 
     window.location.reload(); 
 };
 
 window.desativarSimulacao = () => { 
-    localStorage.setItem('modoSimulacao', 'false'); 
+    localStorage.removeItem('modoSimulacao');
+    sessionStorage.removeItem('modoSimulacao'); 
     window.location.reload(); 
 };
 
