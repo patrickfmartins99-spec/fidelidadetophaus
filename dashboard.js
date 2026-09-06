@@ -4,7 +4,12 @@
 // ==========================================================================
 // VARIÁVEIS GLOBAIS E ESTADO PARTILHADO (A Fonte da Verdade)
 // ==========================================================================
-window.isSimulationMode = localStorage.getItem('modoSimulacao') === 'true';
+// O laboratório não pode permanecer ligado entre sessões. Antes desta proteção,
+// um computador que tivesse usado a simulação continuava lendo
+// `clientes_simulacao`, enquanto o totem gravava normalmente em `clientes`.
+// O resultado parecia perda de almoços no painel, apesar de os dados estarem salvos.
+localStorage.removeItem('modoSimulacao');
+window.isSimulationMode = sessionStorage.getItem('modoSimulacao') === 'true';
 
 window.getDbPath = (base) => {
     let pathFinal = base;
@@ -91,6 +96,46 @@ window.normalizarNomesDaUnidade = async (clientes) => {
 // ==========================================================================
 window.listenersProtegidosAtivos = false;
 window.cancelarListenersProtegidos = [];
+window.sincronizacaoClientesEmAndamento = false;
+
+window.aplicarSnapshotClientes = (snapshot) => {
+    const data = snapshot && typeof snapshot.val === 'function' ? (snapshot.val() || {}) : {};
+    window.normalizarNomesDaUnidade(data);
+    window.clientesMap = data;
+    window.clientesArray = Object.values(data);
+    window.atualizarIndicadores();
+    window.calcularNotificacoesPainel();
+    window.filtrarLista(window.filtroAtual);
+    if (window.atualizarRelatorios) window.atualizarRelatorios();
+
+    const modalLixeira = document.getElementById('modal-lixeira');
+    if(modalLixeira && !modalLixeira.classList.contains('hidden') && window.abrirLixeira) {
+        window.abrirLixeira();
+    }
+};
+
+// Leitura pontual de recuperação: o listener em tempo real continua sendo a
+// fonte principal, mas esta rotina força uma atualização ao voltar à tela ou à
+// internet. Isso evita que o painel permaneça visualmente congelado.
+window.sincronizarClientesAgora = async ({ notificarErro = false } = {}) => {
+    if (!window.usuarioLogado || window.sincronizacaoClientesEmAndamento) return false;
+    if (window.obterUnidade && !window.obterUnidade()) return false;
+
+    window.sincronizacaoClientesEmAndamento = true;
+    try {
+        const snapshot = await window.firebaseGet(window.firebaseRef(window.db, window.PATH_CLIENTES));
+        window.aplicarSnapshotClientes(snapshot);
+        return true;
+    } catch (erro) {
+        console.error('Não foi possível atualizar os clientes agora:', erro.code || erro.message);
+        if (notificarErro && window.mostrarToast) {
+            window.mostrarToast('Não foi possível sincronizar os dados. Verifique a conexão.', 'erro');
+        }
+        return false;
+    } finally {
+        window.sincronizacaoClientesEmAndamento = false;
+    }
+};
 
 window.iniciarListenersProtegidos = () => {
     if (window.listenersProtegidosAtivos || !window.usuarioLogado) return;
@@ -116,27 +161,7 @@ window.iniciarListenersProtegidos = () => {
     });
 
     // Listener Principal de Clientes
-    const cancelarClientes = window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_CLIENTES), (snapshot) => {
-        const data = snapshot.val() || {};
-        window.normalizarNomesDaUnidade(data);
-        if (data) { 
-            window.clientesMap = data; 
-            window.clientesArray = Object.values(data); 
-        } else { 
-            window.clientesMap = {}; 
-            window.clientesArray = []; 
-        }
-        window.atualizarIndicadores(); 
-        window.calcularNotificacoesPainel(); 
-        window.filtrarLista(window.filtroAtual);
-        if (window.atualizarRelatorios) window.atualizarRelatorios();
-        
-        // Atualiza a lixeira se estiver aberta
-        const modalLixeira = document.getElementById('modal-lixeira');
-        if(modalLixeira && !modalLixeira.classList.contains('hidden') && window.abrirLixeira) {
-            window.abrirLixeira();
-        }
-    }, (erro) => {
+    const cancelarClientes = window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_CLIENTES), window.aplicarSnapshotClientes, (erro) => {
         console.error('Acesso aos clientes negado:', erro.code || erro.message);
         if (window.mostrarToast) window.mostrarToast('Sua sessão não tem acesso aos dados desta unidade.', 'erro');
     });
@@ -165,6 +190,14 @@ window.addEventListener('DOMContentLoaded', () => {
         areaTotem.addEventListener('touchstart', window.resetarTimerTotem);
         areaTotem.addEventListener('keydown', window.resetarTimerTotem);
     }
+});
+
+window.addEventListener('online', () => {
+    window.sincronizarClientesAgora({ notificarErro: true });
+});
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) window.sincronizarClientesAgora();
 });
 
 // ==========================================================================
