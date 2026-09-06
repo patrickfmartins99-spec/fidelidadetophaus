@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v69-reports';
+const CACHE_NAME = 'tophaus-fidelidade-v70-dashboard-sync';
 
 const APP_SHELL = [
   './',
@@ -63,6 +63,25 @@ self.addEventListener('fetch', (event) => {
           (await caches.match('./index.html')) ||
           Response.error()
         )
+    );
+    return;
+  }
+
+  const isCriticalAppFile = url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.html') ||
+    url.pathname.includes('/fragments/');
+
+  if (isCriticalAppFile) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(async () => (await caches.match(request)) || Response.error())
     );
     return;
   }
