@@ -207,6 +207,13 @@ export async function acumular(db, unidade, cpf) {
   return clienteMinimo(cpf, cliente);
 }
 
+async function verificarServico(db, unidade) {
+  // Lê no máximo um registro e nunca devolve dados pessoais. A operação valida
+  // credencial, conexão e caminho da unidade sem registrar almoço.
+  await db.ref(`lojas/${unidade}/clientes`).limitToFirst(1).get();
+  return { disponivel: true, unidade };
+}
+
 export default async (request) => {
   const rejeicao = somentePost(request);
   if (rejeicao) return rejeicao;
@@ -214,12 +221,16 @@ export default async (request) => {
     const corpo = await lerJson(request);
     const unidade = String(corpo.unidade || '');
     const cpf = somenteDigitos(corpo.cpf);
-    if (!UNIDADES.has(unidade) || !cpfValido(cpf)) {
+    if (!UNIDADES.has(unidade)) {
       return json(400, { ok: false, codigo: 'dados_invalidos', erro: 'Unidade ou CPF inválido.' });
     }
     const db = bancoAdmin();
     let resposta;
-    if (corpo.acao === 'consultar') resposta = await consultar(db, unidade, cpf);
+    if (corpo.acao === 'status') resposta = await verificarServico(db, unidade);
+    else if (!cpfValido(cpf)) {
+      return json(400, { ok: false, codigo: 'dados_invalidos', erro: 'Unidade ou CPF inválido.' });
+    }
+    else if (corpo.acao === 'consultar') resposta = await consultar(db, unidade, cpf);
     else if (corpo.acao === 'cadastrar') resposta = { existe: true, cliente: await cadastrar(db, unidade, cpf, corpo) };
     else if (corpo.acao === 'acumular') resposta = { existe: true, cliente: await acumular(db, unidade, cpf) };
     else return json(400, { ok: false, codigo: 'acao_invalida', erro: 'Ação inválida.' });

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v70-dashboard-sync';
+const CACHE_NAME = 'tophaus-fidelidade-v71-emergency-routing';
 
 const APP_SHELL = [
   './',

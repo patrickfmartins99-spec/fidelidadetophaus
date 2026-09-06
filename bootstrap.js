@@ -7,6 +7,16 @@ const fragmentos = [
     './fragments/print.html'
 ];
 
+// Mantém instalações/PWAs e atalhos antigos alinhados à versão publicada.
+// updateViaCache:none impede que o próprio navegador reutilize um sw.js antigo.
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+            .then(registro => registro.update())
+            .catch(erro => console.warn('Atualização do aplicativo indisponível:', erro));
+    });
+}
+
 async function carregarInterface() {
     const respostas = await Promise.all(fragmentos.map(async caminho => {
         const resposta = await fetch(caminho, { cache: 'no-cache' });
