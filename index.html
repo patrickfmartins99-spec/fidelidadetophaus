@@ -2,6 +2,13 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <script>
+        // O GitHub Pages não executa as funções seguras usadas pelo totem.
+        // Redireciona atalhos antigos para o único endereço operacional.
+        if (window.location.hostname === 'patrickfmartins99-spec.github.io') {
+            window.location.replace('https://tophausfidelidade.netlify.app/');
+        }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
@@ -30,7 +37,7 @@
     <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <div id="application-fragments"></div>
-    <script type="module" src="./bootstrap.js"></script>
+    <script type="module" src="./bootstrap.js?v=20260906-2"></script>
 </body>
 </html>
 
