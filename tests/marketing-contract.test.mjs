@@ -33,6 +33,16 @@ test('campanhas são persistidas por identificador estável, não por posição'
   assert.ok(Object.values(mapa).every(campanha => campanha.id));
 });
 
+test('campanha antiga reaproveita o identificador persistente criado pelo robô', () => {
+  const mapa = contexto.window.campanhasParaMapa([{
+    titulo: 'Campanha antiga',
+    robotCampaignId: 'robot-uuid-123'
+  }]);
+
+  assert.equal(mapa['robot-uuid-123'].id, 'robot-uuid-123');
+  assert.equal(mapa['robot-uuid-123'].robotCampaignId, 'robot-uuid-123');
+});
+
 test('campanha diária usa o contrato semanal aceito pelo robô', () => {
   const campanha = contexto.window.normalizarCampanhaParaRobo({
     id: 'diaria', tipo: 'recorrente', frequencia: 'diaria',
