@@ -677,4 +677,3 @@ window.dispararWhatsApp = (cpf, tipo, idx = -1) => {
 // O painel apenas grava e exibe as configurações; não existe mais um segundo
 // timer no navegador que possa duplicar os disparos.
 window.campanhasAgendadasExecutadasNoServidor = true;
-
