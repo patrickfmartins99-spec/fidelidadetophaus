@@ -271,7 +271,7 @@ window.campanhasParaMapa = (colecao) => {
 
     entradas.forEach(([chaveAtual, campanha]) => {
         if (!campanha || typeof campanha !== 'object') return;
-        let id = String(campanha.id || chaveAtual || '');
+        let id = String(campanha.id || campanha.robotCampaignId || chaveAtual || '');
         if (!id || /^\d+$/.test(id) || !/^[a-zA-Z0-9_-]+$/.test(id)) {
             id = window.gerarIdCampanha();
         }
@@ -585,6 +585,9 @@ window.salvarCentralMarketing = async () => {
             Object.entries(campanhasServidor).forEach(([chave, campanha]) => {
                 if (!campanha || typeof campanha !== 'object') return;
                 campanhasPorIdServidor[String(campanha.id || chave)] = campanha;
+                if (campanha.robotCampaignId) {
+                    campanhasPorIdServidor[String(campanha.robotCampaignId)] = campanha;
+                }
             });
 
             const campanhasMescladas = {};
