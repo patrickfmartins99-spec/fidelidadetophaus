@@ -256,11 +256,90 @@ window.gerarIdCampanha = () => {
     return `camp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
+// O robô sempre monitora a configuração real da unidade. Campanhas nunca
+// devem ser desviadas para mensagens_simulacao, mesmo quando o laboratório
+// estiver aberto no painel.
+window.obterCaminhoMarketingReal = () => window.obterCaminhoUnidade
+    ? window.obterCaminhoUnidade('config/mensagens')
+    : 'config/mensagens';
+
+window.campanhasParaMapa = (colecao) => {
+    const entradas = Array.isArray(colecao)
+        ? colecao.map((campanha, indice) => [String(indice), campanha])
+        : Object.entries(colecao || {});
+    const mapa = {};
+
+    entradas.forEach(([chaveAtual, campanha]) => {
+        if (!campanha || typeof campanha !== 'object') return;
+        let id = String(campanha.id || chaveAtual || '');
+        if (!id || /^\d+$/.test(id) || !/^[a-zA-Z0-9_-]+$/.test(id)) {
+            id = window.gerarIdCampanha();
+        }
+        mapa[id] = { ...campanha, id };
+    });
+    return mapa;
+};
+
+// Compatibilidade com o agendador instalado no robô:
+// - diária é persistida como semanal em todos os dias;
+// - data específica é persistida como disparo único.
+// A frequência original continua registrada apenas para exibição no painel.
+window.normalizarCampanhaParaRobo = (campanha) => {
+    const normalizada = {
+        ...campanha,
+        configRecorrencia: { ...(campanha.configRecorrencia || {}) }
+    };
+
+    if (normalizada.tipo === 'recorrente' && normalizada.frequencia === 'diaria') {
+        normalizada.frequenciaExibicao = 'diaria';
+        normalizada.frequencia = 'semanal';
+        normalizada.configRecorrencia.diasSemana = [0, 1, 2, 3, 4, 5, 6];
+    } else if (normalizada.tipo === 'recorrente' && normalizada.frequencia === 'data_especifica') {
+        normalizada.frequenciaExibicao = 'data_especifica';
+        normalizada.tipo = 'unica';
+        normalizada.data = normalizada.configRecorrencia.dataEspecifica;
+        normalizada.horario = normalizada.configRecorrencia.horario || '09:00';
+    }
+
+    return normalizada;
+};
+
+window.mesclarControlesDoRobo = (campanhaLocal, campanhaServidor) => {
+    if (!campanhaServidor) return campanhaLocal;
+    const mesclada = { ...campanhaLocal };
+    [
+        'robotCampaignId', 'execucoes', 'ultimaExecucaoEm',
+        'ultimaExecucaoChave', 'ultimaExecucaoStatus', 'encerradaEm'
+    ].forEach(campo => {
+        if (campanhaServidor[campo] !== undefined) mesclada[campo] = campanhaServidor[campo];
+    });
+
+    // Uma tela aberta não pode reativar acidentalmente uma campanha que o robô
+    // acabou de concluir enquanto o usuário editava outras configurações.
+    if (['encerrada', 'concluida'].includes(String(campanhaServidor.status || '').toLowerCase())
+        && String(campanhaLocal.status || '').toLowerCase() === 'ativa') {
+        mesclada.status = campanhaServidor.status;
+    }
+    return mesclada;
+};
+
 // ==========================================================================
 // CENTRAL GERENCIAL DE MARKETING
 // ==========================================================================
-window.abrirCentralMarketing = () => {
+window.abrirCentralMarketing = async () => {
     window.injetarUICampanhas();
+
+    try {
+        const caminhoReal = window.obterCaminhoMarketingReal();
+        const snapshot = await window.firebaseGet(window.firebaseRef(window.db, caminhoReal));
+        const dadosReais = snapshot.val() || {};
+        window.msgsMarketing = { ...window.msgsMarketing, ...dadosReais };
+        window.msgsMarketing.agendadas = window.campanhasParaMapa(window.msgsMarketing.agendadas);
+        if(!window.msgsMarketing.personalizadas) window.msgsMarketing.personalizadas = [];
+    } catch (erro) {
+        console.error('Não foi possível carregar as campanhas reais:', erro);
+        return window.mostrarToast('Não foi possível carregar as campanhas desta unidade.', 'erro');
+    }
     
     document.getElementById('mkt-msg-niver').value = window.msgsMarketing.aniversario || '';
     document.getElementById('mkt-msg-premio').value = window.msgsMarketing.premio || '';
@@ -285,9 +364,11 @@ window.renderizarMensagensCustomizadas = () => {
     const areaAg = document.getElementById('area-agendamentos'); 
     if(areaAg) {
         areaAg.innerHTML = '';
-        const listaAg = Array.isArray(window.msgsMarketing.agendadas) ? window.msgsMarketing.agendadas : Object.values(window.msgsMarketing.agendadas || {});
+        const mapaAg = window.campanhasParaMapa(window.msgsMarketing.agendadas);
+        window.msgsMarketing.agendadas = mapaAg;
+        const listaAg = Object.entries(mapaAg);
         
-        listaAg.forEach((m, idx) => {
+        listaAg.forEach(([idCampanha, m]) => {
             const tipoC = m.tipo || 'unica'; 
             const statusC = m.status === 'encerrada' ? 'cancelada' : (m.status || 'ativa'); 
             
@@ -303,21 +384,22 @@ window.renderizarMensagensCustomizadas = () => {
                 const c = m.configRecorrencia || {};
                 const hor = c.horario ? ` às ${c.horario}` : '';
                 let det = '';
-                if (m.frequencia === 'diaria') {
+                const frequenciaVisual = m.frequenciaExibicao || m.frequencia;
+                if (frequenciaVisual === 'diaria') {
                     det = `Todos os dias`;
-                } else if (m.frequencia === 'semanal') {
+                } else if (frequenciaVisual === 'semanal') {
                     const diasMapa = {0:'Dom', 1:'Seg', 2:'Ter', 3:'Qua', 4:'Qui', 5:'Sex', 6:'Sáb'};
                     const nmDias = (c.diasSemana||[]).map(d => diasMapa[d]).join(', ');
                     det = `Toda Semana (${nmDias})`;
-                } else if (m.frequencia === 'mensal') {
+                } else if (frequenciaVisual === 'mensal') {
                     det = `Todo dia ${c.diaMes} do mês`;
-                } else if (m.frequencia === 'anual') {
+                } else if (frequenciaVisual === 'anual') {
                     det = `Anualmente em ${c.diaAno}`;
-                } else if (m.frequencia === 'data_especifica') {
+                } else if (frequenciaVisual === 'data_especifica') {
                     const dataEsp = c.dataEspecifica ? c.dataEspecifica.split('-').reverse().join('/') : 'S/D';
                     det = `Data específica: ${dataEsp}`;
                 }
-                labelTipo = `<span class="bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">Recorrente: ${m.frequencia}</span>`;
+                labelTipo = `<span class="bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">Recorrente: ${frequenciaVisual}</span>`;
                 info = `<i data-lucide="repeat" class="w-3.5 h-3.5"></i> ${det}${hor}`;
             }
             
@@ -326,11 +408,11 @@ window.renderizarMensagensCustomizadas = () => {
             
             areaAg.innerHTML += `
                 <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative mb-3">
-                    <button onclick="removerAgendamento(${idx})" class="absolute top-4 right-3 text-red-400 hover:text-red-600 transition" title="Excluir campanha"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <button onclick="removerAgendamento('${idCampanha}')" class="absolute top-4 right-3 text-red-400 hover:text-red-600 transition" title="Excluir campanha"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     
                     <div class="flex flex-wrap items-center gap-2 mb-3 pr-6">
                         ${labelTipo}
-                        <select onchange="alterarStatusCampanha(${idx}, this.value)" class="text-[10px] font-black px-2 py-1 rounded-lg border outline-none cursor-pointer uppercase shadow-sm transition ${bgStatus}">
+                        <select onchange="alterarStatusCampanha('${idCampanha}', this.value)" class="text-[10px] font-black px-2 py-1 rounded-lg border outline-none cursor-pointer uppercase shadow-sm transition ${bgStatus}">
                             <option value="ativa" class="bg-white text-black" ${statusC === 'ativa' ? 'selected' : ''}>🟢 Ativa</option>
                             <option value="pausada" class="bg-white text-black" ${statusC === 'pausada' ? 'selected' : ''}>🟡 Pausada</option>
                             <option value="cancelada" class="bg-white text-black" ${statusC === 'cancelada' ? 'selected' : ''}>🔴 Encerrada</option>
@@ -423,8 +505,9 @@ window.adicionarAgendamento = () => {
         novaCampanha = { id: window.gerarIdCampanha(), data: data, titulo: titulo, texto: texto, tipo: 'unica', status: 'ativa' };
     }
     
-    if(!Array.isArray(window.msgsMarketing.agendadas)) window.msgsMarketing.agendadas = Object.values(window.msgsMarketing.agendadas||{}); 
-    window.msgsMarketing.agendadas.push(novaCampanha);
+    window.msgsMarketing.agendadas = window.campanhasParaMapa(window.msgsMarketing.agendadas);
+    novaCampanha = window.normalizarCampanhaParaRobo(novaCampanha);
+    window.msgsMarketing.agendadas[novaCampanha.id] = novaCampanha;
     
     document.getElementById('mkt-agenda-texto').value = '';
     if (uiAtiva) {
@@ -439,16 +522,18 @@ window.adicionarAgendamento = () => {
     window.renderizarMensagensCustomizadas(); 
 };
 
-window.alterarStatusCampanha = (idx, novoStatus) => {
-    if(Array.isArray(window.msgsMarketing.agendadas) && window.msgsMarketing.agendadas[idx]) {
-        window.msgsMarketing.agendadas[idx].status = novoStatus;
+window.alterarStatusCampanha = (idCampanha, novoStatus) => {
+    window.msgsMarketing.agendadas = window.campanhasParaMapa(window.msgsMarketing.agendadas);
+    if(window.msgsMarketing.agendadas[idCampanha]) {
+        window.msgsMarketing.agendadas[idCampanha].status = novoStatus;
         window.renderizarMensagensCustomizadas();
         window.mostrarToast("Status alterado. Salve as alterações para confirmar.", "sucesso");
     }
 };
 
-window.removerAgendamento = (idx) => { 
-    window.msgsMarketing.agendadas.splice(idx, 1); 
+window.removerAgendamento = (idCampanha) => { 
+    window.msgsMarketing.agendadas = window.campanhasParaMapa(window.msgsMarketing.agendadas);
+    delete window.msgsMarketing.agendadas[idCampanha];
     window.renderizarMensagensCustomizadas(); 
 };
 
@@ -463,7 +548,7 @@ window.removerMsgCustom = (idx) => {
     window.renderizarMensagensCustomizadas(); 
 };
 
-window.salvarCentralMarketing = () => {
+window.salvarCentralMarketing = async () => {
     const btn = document.getElementById('btn-marketing-salvar');
     const span = document.getElementById('btn-marketing-salvar-text');
     
@@ -474,11 +559,13 @@ window.salvarCentralMarketing = () => {
     window.msgsMarketing.premio = document.getElementById('mkt-msg-premio').value;
     window.msgsMarketing.inativo = document.getElementById('mkt-msg-inativo').value;
     
-    window.msgsMarketing.agendadas = Array.isArray(window.msgsMarketing.agendadas) ? window.msgsMarketing.agendadas : Object.values(window.msgsMarketing.agendadas||{});
-    window.msgsMarketing.agendadas.forEach(campanha => {
-        if (!campanha.id) campanha.id = window.gerarIdCampanha();
-        if (campanha.status === 'encerrada') campanha.status = 'cancelada';
+    const campanhasLocais = window.campanhasParaMapa(window.msgsMarketing.agendadas);
+    Object.keys(campanhasLocais).forEach(id => {
+        campanhasLocais[id] = window.normalizarCampanhaParaRobo(campanhasLocais[id]);
+        if (campanhasLocais[id].status === 'encerrada') campanhasLocais[id].status = 'cancelada';
+        campanhasLocais[id].atualizadaEm = Date.now();
     });
+    window.msgsMarketing.agendadas = campanhasLocais;
     
     const lista = Array.isArray(window.msgsMarketing.personalizadas) ? window.msgsMarketing.personalizadas : Object.values(window.msgsMarketing.personalizadas||{});
     lista.forEach((m, idx) => { 
@@ -487,7 +574,32 @@ window.salvarCentralMarketing = () => {
     });
     window.msgsMarketing.personalizadas = lista;
     
-    window.firebaseSet(window.firebaseRef(window.db, window.PATH_MENSAGENS), window.msgsMarketing).then(() => { 
+    const caminhoReal = window.obterCaminhoMarketingReal();
+    const referenciaReal = window.firebaseRef(window.db, caminhoReal);
+
+    try {
+        const resultado = await window.firebaseRunTransaction(referenciaReal, atual => {
+            const servidor = atual || {};
+            const campanhasServidor = servidor.agendadas || {};
+            const campanhasPorIdServidor = {};
+            Object.entries(campanhasServidor).forEach(([chave, campanha]) => {
+                if (!campanha || typeof campanha !== 'object') return;
+                campanhasPorIdServidor[String(campanha.id || chave)] = campanha;
+            });
+
+            const campanhasMescladas = {};
+            Object.entries(campanhasLocais).forEach(([id, campanha]) => {
+                campanhasMescladas[id] = window.mesclarControlesDoRobo(
+                    campanha,
+                    campanhasPorIdServidor[String(campanha.id || id)]
+                );
+            });
+
+            return { ...servidor, ...window.msgsMarketing, agendadas: campanhasMescladas };
+        });
+
+        if (!resultado.committed) throw new Error('A gravação da campanha não foi confirmada.');
+        window.msgsMarketing = resultado.snapshot.val() || window.msgsMarketing;
         window.mostrarToast("Central de marketing salva com sucesso."); 
         
         if(window.logAuditoria) window.logAuditoria('Marketing', 'As configurações da Central de Marketing foram atualizadas.');
@@ -495,11 +607,12 @@ window.salvarCentralMarketing = () => {
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar alterações';
         if(window.fecharModal) window.fecharModal('modal-marketing'); 
-    }).catch(() => {
+    } catch (erro) {
+        console.error('Não foi possível salvar as campanhas:', erro);
         window.mostrarToast("Não foi possível salvar. Tente novamente.", "erro");
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar alterações';
-    });
+    }
 };
 
 window.abrirModalWhatsApp = (cpf) => {
