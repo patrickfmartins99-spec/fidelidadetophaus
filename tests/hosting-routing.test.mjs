@@ -11,7 +11,7 @@ const [index, bootstrap, serviceWorker, funcaoTotem] = await Promise.all([
 
 test('endereço antigo redireciona para o Netlify antes de iniciar o sistema', () => {
   assert.match(index, /patrickfmartins99-spec\.github\.io/);
-  assert.match(index, /location\.replace\('https:\/\/tophausfidelidade\.netlify\.app\/'\)/);
+  assert.match(index, /location\.replace\('https:\/\/fidelidade-tophaus\.netlify\.app\/'\)/);
   assert.match(index, /bootstrap\.js\?v=20260906-2/);
 });
 
