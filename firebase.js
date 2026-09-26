@@ -6,11 +6,12 @@ import { getDatabase, ref, set, onValue, get, push, remove, runTransaction } fro
 import { 
     getAuth, 
     signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged,
-    setPersistence,             
-    browserSessionPersistence   
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence,
+    inMemoryPersistence
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -26,10 +27,6 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-// Inicialização Correta do Segundo Firebase App utilizando a API Modular (v10.8.1)
-const secondaryApp = initializeApp(firebaseConfig, "SecondaryAppInstance");
-const authSecundario = getAuth(secondaryApp);
-
 // ====== ADICIONAR NO FINAL DO ARQUIVO firebase.js ======
 window.firebaseRunTransaction = runTransaction;
 
@@ -39,7 +36,6 @@ window.firebaseRunTransaction = runTransaction;
 window.firebaseApp = app;
 window.db = db;
 window.auth = auth;
-window.authSecundario = authSecundario;
 
 // Expondo as funções do SDK do Firebase que são usadas pelo sistema[span_1](start_span)[span_1](end_span)
 window.firebaseRef = ref;
@@ -49,9 +45,9 @@ window.firebaseGet = get;
 window.firebasePush = push;
 window.firebaseRemove = remove;
 window.firebaseSignIn = signInWithEmailAndPassword;
-window.firebaseCreateUser = createUserWithEmailAndPassword;
 window.firebaseSignOut = signOut;
 window.firebaseOnAuthStateChanged = onAuthStateChanged;
 window.firebaseSetPersistence = setPersistence;
+window.firebaseBrowserLocalPersistence = browserLocalPersistence;
 window.firebaseBrowserSessionPersistence = browserSessionPersistence;
-
+window.firebaseInMemoryPersistence = inMemoryPersistence;

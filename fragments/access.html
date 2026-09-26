@@ -23,10 +23,15 @@
             <span class="text-white font-light text-xl tracking-widest uppercase block mb-8">Fidelidade</span>
             
             <h2 class="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Acesso ao Sistema</h2>
+
+            <div class="mb-4 flex items-center justify-center gap-2 text-xs text-gray-400">
+                <span>Unidade: <strong id="login-unidade-atual" class="text-white">—</strong></span>
+                <button type="button" onclick="trocarUnidadeNoLogin()" class="underline underline-offset-2 hover:text-white">Trocar unidade</button>
+            </div>
             
             <form id="form-login" onsubmit="fazerLogin(event)" class="space-y-4 relative z-10">
-                <input type="text" id="login-user" required placeholder="Usuário" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
-                <input type="password" id="login-senha" required placeholder="Senha" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
+                <input type="text" id="login-user" name="username" required placeholder="Usuário" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
+                <input type="password" id="login-senha" name="password" required placeholder="Senha" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
                 <button type="submit" id="btn-login" class="w-full bg-white text-black font-black py-4 rounded-xl transition hover:bg-gray-200 shadow-md">
                     <span id="btn-login-text">Acessar sistema</span>
                 </button>
@@ -50,5 +55,3 @@
             Sair e Voltar ao Normal
         </button>
     </div>
-
-

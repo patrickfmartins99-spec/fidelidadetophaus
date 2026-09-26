@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v71-emergency-routing';
+const CACHE_NAME = 'tophaus-fidelidade-v72-auth-mobile';
 
 const APP_SHELL = [
   './',
@@ -102,4 +102,3 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-
