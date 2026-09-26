@@ -1,9 +1,12 @@
-import { autenticacaoAdmin, bancoAdmin } from './_shared/firebase-admin.mjs';
+import { bancoAdmin, tokenAdmin } from './_shared/firebase-admin.mjs';
 import { json, lerJson, somentePost } from './_shared/http.mjs';
 
 const UNIDADES = new Set(['navegantes', 'picarras']);
 const CARGOS = new Set(['caixa', 'gerente', 'admin']);
 const PERMISSOES = ['dashboard', 'caixa', 'clientes', 'marketing', 'auditoria', 'simulacao', 'reset', 'usuarios', 'totem', 'configuracoes'];
+const PROJETO = 'fidelidadetophausnavega';
+const API_KEY = 'AIzaSyDZBx7Vrsdfh' + 'gOGxbDyDHAkfOhRvNiIg0Q';
+const API = 'https://identitytoolkit.googleapis.com/v1';
 
 export function usernameValido(valor) {
   return /^[a-z0-9_-]{3,40}$/.test(String(valor || '').trim().toLowerCase());
@@ -20,11 +23,26 @@ function tokenDaRequisicao(request) {
   return correspondencia[1];
 }
 
-async function exigirGestor(request, unidade, db, auth) {
-  let sessao;
-  try {
-    sessao = await auth.verifyIdToken(tokenDaRequisicao(request), true);
-  } catch {
+async function chamarIdentityToolkit(url, body, authorization) {
+  const resposta = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...(authorization ? { authorization: `Bearer ${authorization}` } : {})
+    },
+    body: JSON.stringify(body)
+  });
+  const retorno = await resposta.json().catch(() => ({}));
+  return { resposta, retorno };
+}
+
+async function exigirGestor(request, unidade, db) {
+  const { resposta, retorno } = await chamarIdentityToolkit(
+    `${API}/accounts:lookup?key=${API_KEY}`,
+    { idToken: tokenDaRequisicao(request) }
+  );
+  const sessao = retorno.users?.[0];
+  if (!resposta.ok || !sessao) {
     throw Object.assign(new Error('Sessão inválida ou expirada.'), { status: 401, codigo: 'sessao_invalida' });
   }
   const email = String(sessao.email || '').toLowerCase();
@@ -42,11 +60,22 @@ async function exigirGestor(request, unidade, db, auth) {
   return sessao;
 }
 
-async function localizarConta(auth, email) {
+async function chamarAdmin(caminho, body) {
+  const token = await tokenAdmin();
+  const { resposta, retorno } = await chamarIdentityToolkit(`${API}/projects/${PROJETO}/${caminho}`, body, token);
+  if (!resposta.ok) {
+    const codigo = retorno.error?.message || `identity_toolkit_${resposta.status}`;
+    throw Object.assign(new Error(codigo), { code: codigo, statusIdentity: resposta.status });
+  }
+  return retorno;
+}
+
+async function localizarConta(email) {
   try {
-    return await auth.getUserByEmail(email);
+    const retorno = await chamarAdmin('accounts:lookup', { email: [email] });
+    return retorno.users?.[0] || null;
   } catch (erro) {
-    if (erro.code === 'auth/user-not-found') return null;
+    if (erro.code === 'EMAIL_NOT_FOUND' || erro.statusIdentity === 404) return null;
     throw erro;
   }
 }
@@ -65,8 +94,7 @@ export default async (request) => {
     }
 
     const db = bancoAdmin();
-    const auth = autenticacaoAdmin();
-    const gestor = await exigirGestor(request, unidade, db, auth);
+    const gestor = await exigirGestor(request, unidade, db);
     const email = `${username}@tophaus.com.br`;
     const perfilRef = db.ref(`lojas/${unidade}/usuarios/${username}`);
 
@@ -80,9 +108,9 @@ export default async (request) => {
       if (!possuiPerfilUnidade && !possuiPerfilLegado && email !== 'admin@tophaus.com.br') {
         return json(404, { ok: false, codigo: 'sem_acesso_unidade', erro: 'Esse usuário não pertence à unidade selecionada.' });
       }
-      const conta = await localizarConta(auth, email);
+      const conta = await localizarConta(email);
       if (!conta) return json(404, { ok: false, codigo: 'usuario_nao_encontrado', erro: 'Conta de autenticação não encontrada.' });
-      await auth.updateUser(conta.uid, { password: senha, disabled: false });
+      await chamarAdmin('accounts:update', { localId: conta.localId, password: senha, disableUser: false });
       await db.ref(`lojas/${unidade}/auditoria`).push({
         acao: 'Gestão de Acessos', detalhes: `Senha de '${username}' redefinida.`,
         usuario: gestor.email, timestamp: Date.now()
@@ -95,7 +123,7 @@ export default async (request) => {
       return json(400, { ok: false, codigo: 'cargo_invalido', erro: 'Perfil de acesso inválido.' });
     }
     const perfil = { cargo, permissoes: permissoesSeguras(corpo.permissoes) };
-    const contaExistente = await localizarConta(auth, email);
+    const contaExistente = await localizarConta(email);
 
     if (acao === 'vincular') {
       if (!contaExistente) return json(404, { ok: false, codigo: 'usuario_nao_encontrado', erro: 'A conta informada não existe.' });
@@ -114,11 +142,11 @@ export default async (request) => {
       return json(409, { ok: false, codigo: 'usuario_existente', erro: 'Esse usuário já possui uma conta.' });
     }
 
-    const contaCriada = await auth.createUser({ email, password: senha, disabled: false });
+    const contaCriada = await chamarAdmin('accounts', { email, password: senha, emailVerified: false, disabled: false });
     try {
       await perfilRef.set(perfil);
     } catch (erro) {
-      await auth.deleteUser(contaCriada.uid).catch(() => {});
+      if (contaCriada.localId) await chamarAdmin('accounts:delete', { localId: contaCriada.localId }).catch(() => {});
       throw erro;
     }
     return json(201, { ok: true, criada: true });
