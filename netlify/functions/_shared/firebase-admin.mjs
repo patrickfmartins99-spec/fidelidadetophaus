@@ -1,5 +1,4 @@
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
 import { getDatabase } from 'firebase-admin/database';
 
 function env(nome) {
@@ -25,8 +24,10 @@ export function bancoAdmin() {
   return getDatabase(appAdmin());
 }
 
-export function autenticacaoAdmin() {
-  return getAuth(appAdmin());
+export async function tokenAdmin() {
+  const credencial = appAdmin().options.credential;
+  const resposta = await credencial.getAccessToken();
+  return resposta.access_token;
 }
 
 export function obterEnv(nome) {
