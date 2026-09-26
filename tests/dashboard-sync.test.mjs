@@ -14,7 +14,7 @@ test('modo de simulação não persiste entre sessões do painel', () => {
   assert.match(dashboard, /sessionStorage\.getItem\('modoSimulacao'\)/);
   assert.doesNotMatch(dashboard, /localStorage\.getItem\('modoSimulacao'\)/);
   assert.match(core, /sessionStorage\.setItem\('modoSimulacao', 'true'\)/);
-  assert.match(auth, /sessionStorage\.removeItem\('modoSimulacao'\)/);
+  assert.match(auth, /removerPreferencia\('modoSimulacao'\)/);
 });
 
 test('painel possui recuperação de sincronização ao voltar à internet ou à tela', () => {
@@ -25,8 +25,7 @@ test('painel possui recuperação de sincronização ao voltar à internet ou à
 });
 
 test('arquivos críticos usam rede primeiro para não manter painel antigo em cache', () => {
-  assert.match(serviceWorker, /v71-emergency-routing/);
+  assert.match(serviceWorker, /v72-auth-mobile/);
   assert.match(serviceWorker, /isCriticalAppFile/);
   assert.match(serviceWorker, /url\.pathname\.endsWith\('\.js'\)/);
 });
-

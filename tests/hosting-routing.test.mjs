@@ -12,12 +12,12 @@ const [index, bootstrap, serviceWorker, funcaoTotem] = await Promise.all([
 test('endereço antigo redireciona para o Netlify antes de iniciar o sistema', () => {
   assert.match(index, /patrickfmartins99-spec\.github\.io/);
   assert.match(index, /location\.replace\('https:\/\/fidelidade-tophaus\.netlify\.app\/'\)/);
-  assert.match(index, /bootstrap\.js\?v=20260906-2/);
+  assert.match(index, /bootstrap\.js\?v=20260926-auth1/);
 });
 
 test('aplicativo instalado procura atualizações sem reutilizar cache antigo', () => {
   assert.match(bootstrap, /serviceWorker\.register\('\.\/sw\.js', \{ updateViaCache: 'none' \}\)/);
-  assert.match(serviceWorker, /v71-emergency-routing/);
+  assert.match(serviceWorker, /v72-auth-mobile/);
 });
 
 test('status do totem valida a unidade sem receber ou devolver CPF', () => {
@@ -25,4 +25,3 @@ test('status do totem valida a unidade sem receber ou devolver CPF', () => {
   assert.match(funcaoTotem, /limitToFirst\(1\)\.get\(\)/);
   assert.match(funcaoTotem, /return \{ disponivel: true, unidade \}/);
 });
-

@@ -1,4 +1,5 @@
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 import { getDatabase } from 'firebase-admin/database';
 
 function env(nome) {
@@ -13,15 +14,21 @@ function credenciais() {
   return valor;
 }
 
-export function bancoAdmin() {
-  const app = getApps()[0] || initializeApp({
+function appAdmin() {
+  return getApps()[0] || initializeApp({
     credential: cert(credenciais()),
     databaseURL: 'https://fidelidadetophausnavega-default-rtdb.firebaseio.com'
   });
-  return getDatabase(app);
+}
+
+export function bancoAdmin() {
+  return getDatabase(appAdmin());
+}
+
+export function autenticacaoAdmin() {
+  return getAuth(appAdmin());
 }
 
 export function obterEnv(nome) {
   return env(nome);
 }
-

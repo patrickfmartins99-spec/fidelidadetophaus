@@ -15,23 +15,95 @@ window.permissoesPadrao = {
     admin: { dashboard: true, caixa: true, clientes: true, marketing: true, auditoria: true, simulacao: true, reset: true, usuarios: true, totem: true, configuracoes: true }
 };
 
+const UNIDADES_VALIDAS = new Set(['navegantes', 'picarras']);
+const PERFIS_LEGADOS = { admin: 'admin', gerente: 'gerente', caixa: 'caixa' };
+let loginTimestampMemoria = null;
+
+function lerPreferencia(chave) {
+    for (const nome of ['localStorage', 'sessionStorage']) {
+        try {
+            const armazenamento = window[nome];
+            const valor = armazenamento.getItem(chave);
+            if (valor !== null) return valor;
+        } catch (_) {
+            // Alguns navegadores móveis bloqueiam storage em modo privado.
+        }
+    }
+    return null;
+}
+
+function salvarPreferencia(chave, valor) {
+    for (const nome of ['localStorage', 'sessionStorage']) {
+        try {
+            const armazenamento = window[nome];
+            armazenamento.setItem(chave, String(valor));
+            return true;
+        } catch (_) {
+            // Tenta o próximo armazenamento disponível.
+        }
+    }
+    return false;
+}
+
+function removerPreferencia(chave) {
+    for (const nome of ['localStorage', 'sessionStorage']) {
+        try { window[nome].removeItem(chave); } catch (_) { /* sem ação */ }
+    }
+}
+
+function definirCarregamentoLogin(ativo) {
+    const btn = document.getElementById('btn-login');
+    const span = document.getElementById('btn-login-text');
+    if (btn) btn.disabled = ativo;
+    if (span) span.innerText = ativo ? 'Entrando...' : 'Acessar sistema';
+}
+
+function mensagemErroLogin(erro) {
+    const codigo = String(erro?.code || erro?.codigo || '');
+    if (codigo.includes('sem-acesso-unidade') || codigo.includes('permission-denied')) {
+        return 'Este usuário não possui acesso à unidade selecionada. Troque a unidade e tente novamente.';
+    }
+    if (codigo.includes('invalid-credential') || codigo.includes('wrong-password') || codigo.includes('user-not-found') || codigo.includes('invalid-email')) {
+        return 'Usuário ou senha incorretos. Verifique e tente novamente.';
+    }
+    if (codigo.includes('too-many-requests')) {
+        return 'Acesso temporariamente bloqueado por muitas tentativas. Aguarde alguns minutos e tente novamente.';
+    }
+    if (codigo.includes('network-request-failed') || codigo.includes('unavailable')) {
+        return 'Não foi possível conectar ao serviço de acesso. Verifique a internet e tente novamente.';
+    }
+    return 'Não foi possível concluir o acesso. Tente novamente ou fale com o administrador.';
+}
+
 // ==========================================================================
 // GESTÃO DE MULTIUNIDADE E CAMADA CENTRAL DE CAMINHOS
 // ==========================================================================
-window.obterUnidade = () => localStorage.getItem('unidadeAtiva');
+window.obterUnidade = () => {
+    const unidade = lerPreferencia('unidadeAtiva');
+    return UNIDADES_VALIDAS.has(unidade) ? unidade : null;
+};
 
 window.selecionarUnidadeAtiva = (unidade) => {
-    localStorage.setItem('unidadeAtiva', unidade);
+    if (!UNIDADES_VALIDAS.has(unidade)) return;
+    salvarPreferencia('unidadeAtiva', unidade);
     window.location.reload();
 };
 
-window.abrirTrocaUnidade = () => {
+window.trocarUnidadeNoLogin = async () => {
+    removerPreferencia('unidadeAtiva');
+    removerPreferencia('loginTimestamp');
+    loginTimestampMemoria = null;
+    try { await window.firebaseSignOut(window.auth); } catch (_) { /* sessão já encerrada */ }
+    window.location.reload();
+};
+
+window.abrirTrocaUnidade = async () => {
     if(!window.permissoesLogado || !window.permissoesLogado.configuracoes) {
         return window.mostrarToast("Seu perfil não tem permissão para alterar a unidade.", "erro");
     }
     if(confirm("ATENÇÃO: Deseja realmente alterar a unidade deste dispositivo?\n\nIsso fará logout automático e mudará o banco de dados ativo.")) {
-        localStorage.removeItem('unidadeAtiva');
-        window.fazerLogout();
+        removerPreferencia('unidadeAtiva');
+        await window.fazerLogout();
         window.location.reload();
     }
 };
@@ -54,6 +126,8 @@ window.verificarSelecaoUnidade = () => {
         ind.classList.remove('hidden');
         txt.innerText = uni === 'navegantes' ? 'Navegantes' : 'Piçarras';
     }
+    const unidadeLogin = document.getElementById('login-unidade-atual');
+    if (unidadeLogin) unidadeLogin.innerText = uni === 'navegantes' ? 'Navegantes' : 'Balneário Piçarras';
     return true;
 };
 
@@ -69,7 +143,7 @@ window.obterCaminhoUnidade = (caminhoBase) => {
 const TEMPO_SESSAO_HORAS = 12; // A sessão expira obrigatoriamente após 12 horas
 
 window.verificarExpiracaoSessao = () => {
-    const loginTime = localStorage.getItem('loginTimestamp');
+    const loginTime = lerPreferencia('loginTimestamp') || loginTimestampMemoria;
     if(!loginTime) return false;
     
     const tempoDecorrido = Date.now() - parseInt(loginTime);
@@ -96,48 +170,71 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
     }
 
     if (user) {
-        if(window.verificarExpiracaoSessao()) {
-            window.fazerLogout();
-            return;
-        }
+        try {
+            if(window.verificarExpiracaoSessao()) {
+                await window.fazerLogout();
+                return;
+            }
 
-        window.usuarioLogado = user;
-        const username = user.email.split('@')[0];
-        
-        const pathUsuarios = window.obterCaminhoUnidade(`usuarios/${username}`);
-        const snap = await window.firebaseGet(window.firebaseRef(window.db, pathUsuarios));
-        
-        if (snap.exists()) {
-            const data = snap.val();
-            window.cargoLogado = data.cargo;
-            window.permissoesLogado = data.permissoes || window.permissoesPadrao[window.cargoLogado] || window.permissoesPadrao['caixa'];
-        } else {
-            window.cargoLogado = (username === 'admin' ? 'admin' : 'caixa');
-            window.permissoesLogado = window.permissoesPadrao[window.cargoLogado];
+            const email = String(user.email || '').toLowerCase();
+            if (!email.endsWith('@tophaus.com.br')) {
+                throw { code: 'auth/sem-acesso-unidade' };
+            }
+
+            const username = email.split('@')[0];
+            const pathUsuarios = window.obterCaminhoUnidade(`usuarios/${username}`);
+            const snap = await window.firebaseGet(window.firebaseRef(window.db, pathUsuarios));
+
+            let cargo;
+            let permissoes;
+            if (snap.exists()) {
+                const data = snap.val() || {};
+                cargo = data.cargo;
+                permissoes = data.permissoes || window.permissoesPadrao[cargo];
+            } else if (PERFIS_LEGADOS[username]) {
+                cargo = PERFIS_LEGADOS[username];
+                permissoes = window.permissoesPadrao[cargo];
+            } else {
+                throw { code: 'auth/sem-acesso-unidade' };
+            }
+
+            if (!window.permissoesPadrao[cargo] || !permissoes) {
+                throw { code: 'auth/sem-acesso-unidade' };
+            }
+
+            window.usuarioLogado = user;
+            window.cargoLogado = cargo;
+            window.permissoesLogado = permissoes;
+
+            if(window.aplicarRegrasNaInterface) {
+                window.aplicarRegrasNaInterface(cargo, username, permissoes);
+            }
+            if(window.iniciarListenersProtegidos) window.iniciarListenersProtegidos();
+            definirCarregamentoLogin(false);
+
+            if(window.logAuditoria) window.logAuditoria('Login', `Acesso ao sistema. Perfil: ${cargo}`);
+        } catch (erro) {
+            console.warn('Acesso não concluído:', erro?.code || erro?.message || erro);
+            removerPreferencia('loginTimestamp');
+            loginTimestampMemoria = null;
+            try { await window.firebaseSignOut(window.auth); } catch (_) { /* sessão já encerrada */ }
+            definirCarregamentoLogin(false);
+            if(window.mostrarToast) window.mostrarToast(mensagemErroLogin(erro), 'erro');
         }
-        
-        if(window.aplicarRegrasNaInterface) {
-            window.aplicarRegrasNaInterface(window.cargoLogado, username, window.permissoesLogado);
-        }
-        if(window.iniciarListenersProtegidos) window.iniciarListenersProtegidos();
-        
-        if(window.logAuditoria) window.logAuditoria('Login', `Acesso ao sistema. Perfil: ${window.cargoLogado}`);
     } else {
         if(window.pararListenersProtegidos) window.pararListenersProtegidos();
         window.usuarioLogado = null; 
         window.cargoLogado = null;
         window.permissoesLogado = null;
-        localStorage.removeItem('loginTimestamp');
+        removerPreferencia('loginTimestamp');
+        loginTimestampMemoria = null;
         
         document.getElementById('app-dashboard').classList.add('hidden');
         if (document.getElementById('tela-totem') && document.getElementById('tela-totem').classList.contains('hidden')) {
             document.getElementById('tela-login').classList.remove('hidden');
             document.getElementById('tela-login').classList.add('flex');
             
-            const btn = document.getElementById('btn-login');
-            const span = document.getElementById('btn-login-text');
-            if(btn) btn.disabled = false;
-            if(span) span.innerText = 'Acessar sistema';
+            definirCarregamentoLogin(false);
             
             const inputSenha = document.getElementById('login-senha');
             if(inputSenha) inputSenha.value = '';
@@ -148,41 +245,59 @@ window.firebaseOnAuthStateChanged(window.auth, async (user) => {
 // ==========================================================================
 // FUNÇÕES DISPARADAS PELO HTML (LOGIN E LOGOUT)
 // ==========================================================================
-window.fazerLogin = (e) => {
+async function configurarPersistenciaLogin() {
+    let ultimoErro;
+    for (const persistencia of [
+        window.firebaseBrowserLocalPersistence,
+        window.firebaseBrowserSessionPersistence,
+        window.firebaseInMemoryPersistence
+    ]) {
+        if (!persistencia) continue;
+        try {
+            await window.firebaseSetPersistence(window.auth, persistencia);
+            return;
+        } catch (erro) {
+            ultimoErro = erro;
+        }
+    }
+    throw ultimoErro || { code: 'auth/persistence-unavailable' };
+}
+
+window.fazerLogin = async (e) => {
     e.preventDefault();
 
     if(!window.obterUnidade()) {
         return window.mostrarToast("Selecione uma unidade antes de acessar.", "erro");
     }
 
-    const btn = document.getElementById('btn-login'); 
-    const span = document.getElementById('btn-login-text');
-    
-    if(btn) btn.disabled = true; 
-    if(span) span.innerText = 'Entrando...';
-    
     const user = document.getElementById('login-user').value.trim().toLowerCase();
     const pass = document.getElementById('login-senha').value;
-    
-    window.firebaseSetPersistence(window.auth, window.firebaseBrowserSessionPersistence)
-        .then(() => {
-            localStorage.setItem('loginTimestamp', Date.now());
-            return window.firebaseSignIn(window.auth, `${user}@tophaus.com.br`, pass);
-        })
-        .catch(() => {
-            localStorage.removeItem('loginTimestamp');
-            if(window.mostrarToast) window.mostrarToast("Usuário ou senha incorretos. Verifique e tente novamente.", "erro"); 
-            if(btn) btn.disabled = false; 
-            if(span) span.innerText = 'Acessar sistema';
-        });
+
+    if (!/^[a-z0-9_-]{3,40}$/.test(user)) {
+        return window.mostrarToast('Informe um nome de usuário válido, sem espaços, pontos ou acentos.', 'erro');
+    }
+
+    definirCarregamentoLogin(true);
+    try {
+        await configurarPersistenciaLogin();
+        await window.firebaseSignIn(window.auth, `${user}@tophaus.com.br`, pass);
+        loginTimestampMemoria = Date.now();
+        salvarPreferencia('loginTimestamp', loginTimestampMemoria);
+    } catch (erro) {
+        console.warn('Falha de autenticação:', erro?.code || erro?.message || erro);
+        removerPreferencia('loginTimestamp');
+        loginTimestampMemoria = null;
+        definirCarregamentoLogin(false);
+        if(window.mostrarToast) window.mostrarToast(mensagemErroLogin(erro), 'erro');
+    }
 };
 
-window.fazerLogout = () => { 
+window.fazerLogout = async () => {
     if(window.logAuditoria && window.usuarioLogado) window.logAuditoria('Logout', 'Saída do sistema'); 
-    localStorage.removeItem('loginTimestamp');
-    localStorage.removeItem('modoSimulacao');
-    sessionStorage.removeItem('modoSimulacao');
-    window.firebaseSignOut(window.auth); 
+    removerPreferencia('loginTimestamp');
+    removerPreferencia('modoSimulacao');
+    loginTimestampMemoria = null;
+    await window.firebaseSignOut(window.auth);
 };
 
 // ==========================================================================
@@ -216,6 +331,7 @@ window.abrirGerenciadorUsuarios = () => {
                             <span class="px-2 py-0.5 ml-1 bg-indigo-100 text-indigo-700 rounded text-[10px] font-black uppercase">${isCustom}</span>
                         </div>
                         <div class="flex gap-2">
+                            <button type="button" onclick="redefinirSenhaUsuario('${user}')" class="text-amber-600 hover:bg-amber-50 p-1.5 rounded transition" title="Redefinir senha"><i data-lucide="key-round" class="w-4 h-4"></i></button>
                             <button type="button" onclick="alterarCargo('${user}', '${data.cargo}')" class="text-blue-600 hover:bg-blue-50 p-1.5 rounded transition" title="Editar perfil"><i data-lucide="edit" class="w-4 h-4"></i></button>
                             <button type="button" onclick="removerAcesso('${user}')" class="text-red-600 hover:bg-red-50 p-1.5 rounded transition" title="Remover acesso"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
@@ -223,6 +339,9 @@ window.abrirGerenciadorUsuarios = () => {
             });
             if(window.lucide) window.lucide.createIcons();
         }
+    }).catch(erro => {
+        console.error('Falha ao listar usuários:', erro?.code || erro?.message || erro);
+        lista.innerHTML = '<p class="text-center text-red-600 py-4">Não foi possível carregar os usuários desta unidade.</p>';
     });
     
     const modal = document.getElementById('modal-usuarios'); 
@@ -267,7 +386,21 @@ window.injetarCheckboxesPermissoes = () => {
     selectCargo.dispatchEvent(new Event('change'));
 };
 
-window.criarUsuario = (e) => {
+async function chamarGestaoUsuario(dados) {
+    const usuarioAtual = window.auth?.currentUser;
+    if (!usuarioAtual) throw { codigo: 'sessao_expirada', message: 'Sessão expirada.' };
+    const token = await usuarioAtual.getIdToken();
+    const resposta = await fetch('/api/admin/usuario', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+        body: JSON.stringify({ ...dados, unidade: window.obterUnidade() })
+    });
+    const retorno = await resposta.json().catch(() => ({}));
+    if (!resposta.ok) throw { status: resposta.status, codigo: retorno.codigo, message: retorno.erro };
+    return retorno;
+}
+
+window.criarUsuario = async (e) => {
     e.preventDefault();
 
     if (!window.permissoesLogado || (!window.permissoesLogado.usuarios && !window.permissoesLogado.admin)) {
@@ -283,7 +416,12 @@ window.criarUsuario = (e) => {
     const user = document.getElementById('novo-user').value.trim().toLowerCase();
     const pass = document.getElementById('novo-senha').value;
     const cargo = document.getElementById('novo-cargo').value;
-    const email = `${user}@tophaus.com.br`;
+
+    if (!/^[a-z0-9_-]{3,40}$/.test(user)) {
+        if(btn) btn.disabled = false;
+        if(span) span.innerText = 'Salvar cadastro';
+        return window.mostrarToast('Use de 3 a 40 letras, números, hífen ou sublinhado. Não use espaços, pontos ou acentos.', 'erro');
+    }
 
     const objPermissoes = {};
     ['dashboard', 'caixa', 'clientes', 'marketing', 'auditoria', 'simulacao', 'reset', 'usuarios', 'totem', 'configuracoes'].forEach(p => {
@@ -291,53 +429,49 @@ window.criarUsuario = (e) => {
         objPermissoes[p] = cb ? cb.checked : false;
     });
 
-    const pathUsuarioEspecifico = window.obterCaminhoUnidade(`usuarios/${user}`);
-
-    if (!window.authSecundario) {
+    try {
+        await chamarGestaoUsuario({ acao: 'criar', username: user, senha: pass, cargo, permissoes: objPermissoes });
+        window.mostrarToast('Usuário cadastrado com sucesso.', 'sucesso');
+        if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
+        document.getElementById('novo-user').value = '';
+        document.getElementById('novo-senha').value = '';
+        window.abrirGerenciadorUsuarios();
+    } catch (erro) {
+        if (erro.codigo === 'usuario_existente') {
+            const vincular = confirm(`O usuário "${user}" já possui uma conta.\n\nDeseja liberar essa conta na unidade atual? A senha existente será mantida.`);
+            if (vincular) {
+                try {
+                    await chamarGestaoUsuario({ acao: 'vincular', username: user, cargo, permissoes: objPermissoes });
+                    window.mostrarToast('Conta existente vinculada à unidade. A senha anterior foi mantida.', 'sucesso');
+                    document.getElementById('novo-user').value = '';
+                    document.getElementById('novo-senha').value = '';
+                    window.abrirGerenciadorUsuarios();
+                } catch (erroVinculo) {
+                    window.mostrarToast(erroVinculo.message || 'Não foi possível vincular o usuário.', 'erro');
+                }
+            }
+        } else {
+            console.error('Falha ao cadastrar acesso:', erro.codigo || erro.message || erro);
+            window.mostrarToast(erro.message || 'Não foi possível cadastrar o usuário.', 'erro');
+        }
+    } finally {
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar cadastro';
-        return window.mostrarToast("Serviço de autenticação secundária indisponível.", "erro");
     }
+};
 
-    window.firebaseCreateUser(window.authSecundario, email, pass)
-        .catch(err => {
-            if(err.code === 'auth/email-already-in-use') {
-                console.log("DIAGNOSTICO: E-mail já em uso no Auth, prosseguindo.");
-                return Promise.resolve();
-            }
-            throw { etapa: "firebaseCreateUser", error: err };
-        })
-        .then(() => {
-            return window.firebaseSet(window.firebaseRef(window.db, pathUsuarioEspecifico), { 
-                cargo: cargo, 
-                permissoes: objPermissoes 
-            }).catch(err => {
-                throw { etapa: "firebaseSet", error: err };
-            });
-        })
-        .then(() => {
-            window.mostrarToast("Usuário cadastrado com sucesso.", "sucesso");
-            if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Novo usuário '${user}' criado com perfil '${cargo}'.`);
-            
-            document.getElementById('novo-user').value = ''; 
-            document.getElementById('novo-senha').value = '';
-            
-            window.abrirGerenciadorUsuarios();
-        })
-        .catch(errWrapper => {
-            const etapa = errWrapper.etapa || "desconhecida";
-            const err = errWrapper.error || errWrapper;
-            const code = err.code || 'N/A';
-            const message = err.message || String(err);
-            const stack = err.stack || 'N/A';
-
-            console.error(`DIAGNOSTICO FALHA na etapa [${etapa}]`, { code, message, stack });
-            window.mostrarToast(`Erro em [${etapa}] | Code: ${code} | Msg: ${message}`, "erro");
-        })
-        .finally(() => {
-            if(btn) btn.disabled = false;
-            if(span) span.innerText = 'Salvar cadastro';
-        });
+window.redefinirSenhaUsuario = async (username) => {
+    const senha = prompt(`Digite a nova senha de "${username}" (mínimo de 6 caracteres):`);
+    if (senha === null) return;
+    if (senha.length < 6) return window.mostrarToast('A senha precisa ter pelo menos 6 caracteres.', 'erro');
+    if (!confirm(`Confirma a redefinição da senha de "${username}"?`)) return;
+    try {
+        await chamarGestaoUsuario({ acao: 'redefinir_senha', username, senha });
+        window.mostrarToast('Senha redefinida com sucesso.', 'sucesso');
+        if(window.logAuditoria) window.logAuditoria('Gestão de Acessos', `Senha do usuário '${username}' redefinida.`);
+    } catch (erro) {
+        window.mostrarToast(erro.message || 'Não foi possível redefinir a senha.', 'erro');
+    }
 };
 
 window.removerAcesso = (username) => {
@@ -440,4 +574,3 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
         window.mostrarToast("Seu perfil não tem acesso a esta ação. Fale com o administrador.", "erro");
     }
 };
-
