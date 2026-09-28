@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v72-auth-mobile';
+const CACHE_NAME = 'tophaus-fidelidade-v73-caixa-resgate';
 
 const APP_SHELL = [
   './',
