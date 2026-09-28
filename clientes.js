@@ -31,21 +31,10 @@ window.buscarEContabilizar = () => {
 window.processarFluxoNormal = (c) => {
     const ja = window.jaRegistrouHoje(c);
     const p = (c.almocos||0) >= 10;
-    
-    // NOVO FLUXO: Se o cliente já registrou hoje, interceptamos antes de qualquer tela para pedir senha extra
-    if (ja) {
-        window.confirmacaoDupla(
-            "Almoço Duplicado",
-            `O cliente ${window.escapeHTML(window.nomeExibicao(c.nome))} já registrou um almoço hoje. Deseja registrar uma refeição EXTRA neste mesmo dia? (Esta ação exigirá a senha do gerente).`,
-            () => {
-                // Passa 'true' para indicar que é um almoço extra de hoje, preenchendo a data automaticamente
-                window.prepararAlmocoAtrasado(c.cpf, true);
-            }
-        );
-        return;
-    }
 
     if(p) {
+        // O benefício precisa vir antes da trava de duplicidade. É comum o cliente
+        // completar 10 almoços no totem e solicitar o resgate no caixa no mesmo dia.
         const m = document.getElementById('modal-trava'); 
         m.classList.remove('hidden'); 
         if(window.prenderFocoModal) window.prenderFocoModal(m);
@@ -58,16 +47,33 @@ window.processarFluxoNormal = (c) => {
         const bA = document.getElementById('btn-trava-acumular');
         const spanAcumular = document.getElementById('btn-trava-acumular-text');
         
-        // Aqui o "ja" sempre será falso devido ao return ali em cima, mas mantemos por consistência visual
-        if(spanAcumular) spanAcumular.innerText = "Guardar para outra visita (+1 pago)";
-        else bA.innerText = "Guardar para outra visita (+1 pago)"; 
+        const textoAcumular = ja
+            ? "Guardar benefício e registrar almoço extra"
+            : "Guardar para outra visita (+1 pago)";
+        if(spanAcumular) spanAcumular.innerText = textoAcumular;
+        else bA.innerText = textoAcumular; 
         bA.disabled = false; 
         bA.classList.remove('opacity-50'); 
         bA.onclick = () => { 
             if(window.fecharModal) window.fecharModal('modal-trava'); 
-            window.processarConfirmacao(c); 
+            if (ja) window.prepararAlmocoAtrasado(c.cpf, true);
+            else window.processarConfirmacao(c); 
         }; 
-    } else {
+        return;
+    }
+
+    // Sem benefício pendente, uma segunda refeição no mesmo dia continua
+    // protegida pela confirmação e pela senha do gerente.
+    if (ja) {
+        window.confirmacaoDupla(
+            "Almoço Duplicado",
+            `O cliente ${window.escapeHTML(window.nomeExibicao(c.nome))} já registrou um almoço hoje. Deseja registrar uma refeição EXTRA neste mesmo dia? (Esta ação exigirá a senha do gerente).`,
+            () => window.prepararAlmocoAtrasado(c.cpf, true)
+        );
+        return;
+    }
+
+    {
         const btnConfirmar = document.getElementById('btn-confirmar-almoco');
         if(btnConfirmar) btnConfirmar.classList.remove('hidden');
 
