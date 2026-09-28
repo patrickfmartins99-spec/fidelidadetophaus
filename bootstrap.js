@@ -10,6 +10,13 @@ const fragmentos = [
 // Mantém instalações/PWAs e atalhos antigos alinhados à versão publicada.
 // updateViaCache:none impede que o próprio navegador reutilize um sw.js antigo.
 if ('serviceWorker' in navigator) {
+    let recarregandoParaAtualizar = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (recarregandoParaAtualizar) return;
+        recarregandoParaAtualizar = true;
+        window.location.reload();
+    });
+
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
             .then(registro => registro.update())
