@@ -4,7 +4,7 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue, get, push, remove, runTransaction } from "firebase/database";
 import { 
-    getAuth, 
+    initializeAuth,
     signInWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged,
@@ -25,7 +25,11 @@ const firebaseConfig = {
 // Inicialização das Instâncias Principais[span_0](start_span)[span_0](end_span)
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const auth = getAuth(app);
+// Login por senha não precisa de iframe/popup nem de IndexedDB. A seleção
+// automática usa o primeiro armazenamento disponível, inclusive em modo privado.
+const auth = initializeAuth(app, {
+    persistence: [browserLocalPersistence, browserSessionPersistence, inMemoryPersistence]
+});
 
 // ====== ADICIONAR NO FINAL DO ARQUIVO firebase.js ======
 window.firebaseRunTransaction = runTransaction;

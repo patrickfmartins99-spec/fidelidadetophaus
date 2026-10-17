@@ -45,6 +45,8 @@ async function carregarInterface() {
     await import('./totem.js');
     await import('./dashboard.js');
     await import('./relatorios.js');
+    // Só restaura a sessão quando painel, permissões e listeners estão prontos.
+    window.iniciarObservadorSessao();
 }
 
 try {

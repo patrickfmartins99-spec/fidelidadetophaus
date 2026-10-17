@@ -8,8 +8,9 @@
 // um computador que tivesse usado a simulação continuava lendo
 // `clientes_simulacao`, enquanto o totem gravava normalmente em `clientes`.
 // O resultado parecia perda de almoços no painel, apesar de os dados estarem salvos.
-localStorage.removeItem('modoSimulacao');
-window.isSimulationMode = sessionStorage.getItem('modoSimulacao') === 'true';
+try { localStorage.removeItem('modoSimulacao'); } catch (_) { /* armazenamento indisponível */ }
+window.isSimulationMode = false;
+try { window.isSimulationMode = sessionStorage.getItem('modoSimulacao') === 'true'; } catch (_) { /* modo normal */ }
 
 window.getDbPath = (base) => {
     let pathFinal = base;
@@ -26,8 +27,7 @@ window.getDbPath = (base) => {
 window.PATH_CLIENTES = window.getDbPath('clientes');
 window.PATH_MENSAGENS = window.getDbPath('mensagens');
 
-window.usuarioLogado = null;
-window.cargoLogado = null;
+// O estado de autenticação pertence exclusivamente ao auth.js.
 window.clientesArray = [];
 window.clientesMap = {}; 
 window.filtroAtual = 'todos';
