@@ -2,12 +2,15 @@
 // Módulo 1: Utilitários, Máscaras, Validações e Controles de UI Genéricos
 
 // ====== ADICIONAR ANTES DA FUNÇÃO logAuditoria ======
+let terminalIdMemoria;
 window.obterTerminalId = () => {
-    let tid = localStorage.getItem('terminal_id');
+    let tid = terminalIdMemoria;
+    try { tid = localStorage.getItem('terminal_id') || tid; } catch (_) { /* modo privado */ }
     if(!tid) {
         tid = 'TERM-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        localStorage.setItem('terminal_id', tid);
+        try { localStorage.setItem('terminal_id', tid); } catch (_) { /* usa memória */ }
     }
+    terminalIdMemoria = tid;
     return tid;
 };
 

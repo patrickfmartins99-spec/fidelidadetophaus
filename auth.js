@@ -18,6 +18,124 @@ window.permissoesPadrao = {
 const UNIDADES_VALIDAS = new Set(['navegantes', 'picarras']);
 const PERFIS_LEGADOS = { admin: 'admin', gerente: 'gerente', caixa: 'caixa' };
 let loginTimestampMemoria = null;
+let versaoSessao = 0;
+let loginEmAndamento = false;
+let bloquearRestauracao = false;
+let operacaoAuthPendente = null;
+let observadorIniciado = false;
+
+function comPrazo(operacao, ms, etapa) {
+    let timer;
+    return Promise.race([
+        operacao,
+        new Promise((_, rejeitar) => {
+            timer = setTimeout(() => rejeitar({ code: 'auth/timeout', etapa }), ms);
+        })
+    ]).finally(() => clearTimeout(timer));
+}
+
+function acompanharOperacaoAuth(operacao) {
+    const atual = Promise.resolve(operacao);
+    operacaoAuthPendente = atual;
+    const liberar = () => {
+        if (operacaoAuthPendente === atual) operacaoAuthPendente = null;
+    };
+    atual.then(liberar, liberar);
+    return atual;
+}
+
+function auditarSessao(acao, detalhes) {
+    // Falha de auditoria não pode impedir um login válido ou um logout.
+    try {
+        Promise.resolve(window.logAuditoria?.(acao, detalhes)).catch(() => {
+            console.warn('Auditoria de sessão indisponível.');
+        });
+    } catch (_) { console.warn('Auditoria de sessão indisponível.'); }
+}
+
+function limparSessaoLocal() {
+    window.pararListenersProtegidos?.();
+    window.usuarioLogado = null;
+    window.cargoLogado = null;
+    window.permissoesLogado = null;
+    removerPreferencia('loginTimestamp');
+    loginTimestampMemoria = null;
+    document.getElementById('app-dashboard')?.classList.add('hidden');
+    const totem = document.getElementById('tela-totem');
+    if (!totem || totem.classList.contains('hidden')) {
+        const tela = document.getElementById('tela-login');
+        tela?.classList.remove('hidden');
+        tela?.classList.add('flex');
+    }
+    definirCarregamentoLogin(false);
+}
+
+function encerrarAutenticacao() {
+    bloquearRestauracao = true;
+    // O SDK não cancela signIn. Serializar o logout impede que uma resposta
+    // atrasada autentique o usuário depois do timeout, ou derrube outra tentativa.
+    const encerramento = Promise.resolve(operacaoAuthPendente)
+        .catch(() => {})
+        .then(() => window.firebaseSignOut(window.auth));
+    acompanharOperacaoAuth(encerramento).catch(() => console.warn('Logout remoto indisponível.'));
+}
+
+async function lerPerfilLogin(user, caminho) {
+    try {
+        return await comPrazo(window.firebaseGet(window.firebaseRef(window.db, caminho)), 8000, 'perfil');
+    } catch (erro) {
+        const codigo = String(erro?.code || '').toLowerCase();
+        // Uma negativa de permissão nunca pode ser contornada pelo fallback.
+        if (codigo.includes('permission') || codigo.includes('denied')) throw erro;
+        if (codigo !== 'auth/timeout' && !codigo.includes('unavailable') && !codigo.includes('network')) throw erro;
+    }
+    const controller = new AbortController();
+    try {
+        return await comPrazo((async () => {
+            const token = await user.getIdToken();
+            const base = window.firebaseApp.options.databaseURL.replace(/\/$/, '');
+            const resposta = await fetch(`${base}/${caminho}.json?auth=${encodeURIComponent(token)}`, {
+                signal: controller.signal, cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer'
+            });
+            if (resposta.status === 401 || resposta.status === 403) throw { code: 'auth/sem-acesso-unidade' };
+            if (!resposta.ok) throw { code: 'auth/network-request-failed' };
+            const dados = await resposta.json();
+            return { exists: () => dados !== null, val: () => dados };
+        })(), 10000, 'perfil-alternativo');
+    } finally { controller.abort(); }
+}
+
+async function concluirSessao(user, versao) {
+    const unidade = window.obterUnidade();
+    const email = String(user.email || '').toLowerCase();
+    const username = email.split('@')[0];
+    if (!email.endsWith('@tophaus.com.br') || !/^[a-z0-9_-]{3,40}$/.test(username)) {
+        throw { code: 'auth/sem-acesso-unidade' };
+    }
+    const snap = await lerPerfilLogin(user, `lojas/${unidade}/usuarios/${username}`);
+    if (versao !== versaoSessao || unidade !== window.obterUnidade() || window.auth.currentUser?.uid !== user.uid) return;
+    let cargo;
+    let permissoes;
+    if (snap.exists()) {
+        const data = snap.val() || {};
+        cargo = data.cargo;
+        permissoes = data.permissoes || window.permissoesPadrao[cargo];
+    } else if (PERFIS_LEGADOS[username]) {
+        cargo = PERFIS_LEGADOS[username];
+        permissoes = window.permissoesPadrao[cargo];
+    } else {
+        throw { code: 'auth/sem-acesso-unidade' };
+    }
+    if (!window.permissoesPadrao[cargo] || !permissoes) throw { code: 'auth/sem-acesso-unidade' };
+    window.usuarioLogado = user;
+    window.cargoLogado = cargo;
+    window.permissoesLogado = permissoes;
+    window.aplicarRegrasNaInterface(cargo, username, permissoes);
+    window.iniciarListenersProtegidos?.();
+    const inputSenha = document.getElementById('login-senha');
+    if (inputSenha) inputSenha.value = '';
+    auditarSessao('Login', `Acesso ao sistema. Perfil: ${cargo}`);
+}
 
 function lerPreferencia(chave) {
     for (const nome of ['localStorage', 'sessionStorage']) {
@@ -59,7 +177,11 @@ function definirCarregamentoLogin(ativo) {
 }
 
 function mensagemErroLogin(erro) {
-    const codigo = String(erro?.code || erro?.codigo || '');
+    const codigo = String(erro?.code || erro?.codigo || '').toLowerCase().replaceAll('_', '-');
+    if (codigo.includes('timeout')) {
+        return 'O serviço de acesso demorou para responder. Verifique a conexão e tente novamente. Se continuar, atualize a página.';
+    }
+    if (codigo.includes('user-disabled')) return 'Este usuário está desativado. Fale com o administrador.';
     if (codigo.includes('sem-acesso-unidade') || codigo.includes('permission-denied')) {
         return 'Este usuário não possui acesso à unidade selecionada. Troque a unidade e tente novamente.';
     }
@@ -163,108 +285,52 @@ setInterval(() => {
 // ==========================================================================
 // OBSERVADOR DE SESSÃO (Disparado automaticamente ao entrar/sair)
 // ==========================================================================
-window.firebaseOnAuthStateChanged(window.auth, async (user) => {
-    if(!window.verificarSelecaoUnidade()) {
-        if(user) window.firebaseSignOut(window.auth); 
-        return;
-    }
-
-    if (user) {
+window.iniciarObservadorSessao = () => {
+    if (observadorIniciado) return;
+    observadorIniciado = true;
+    window.verificarSelecaoUnidade();
+    window.firebaseOnAuthStateChanged(window.auth, async (user) => {
+        // O submit conclui seu próprio login, inclusive quando o usuário não
+        // mudou e o SDK não emite um novo evento de autenticação.
+        if (loginEmAndamento || (user && bloquearRestauracao)) return;
+        if (user && window.usuarioLogado?.uid === user.uid) return;
+        const versao = ++versaoSessao;
+        if (!user) { limparSessaoLocal(); return; }
+        if (!window.verificarSelecaoUnidade()) { encerrarAutenticacao(); return; }
+        if (window.verificarExpiracaoSessao()) { window.fazerLogout(); return; }
+        definirCarregamentoLogin(true);
         try {
-            if(window.verificarExpiracaoSessao()) {
-                await window.fazerLogout();
-                return;
-            }
-
-            const email = String(user.email || '').toLowerCase();
-            if (!email.endsWith('@tophaus.com.br')) {
-                throw { code: 'auth/sem-acesso-unidade' };
-            }
-
-            const username = email.split('@')[0];
-            const pathUsuarios = window.obterCaminhoUnidade(`usuarios/${username}`);
-            const snap = await window.firebaseGet(window.firebaseRef(window.db, pathUsuarios));
-
-            let cargo;
-            let permissoes;
-            if (snap.exists()) {
-                const data = snap.val() || {};
-                cargo = data.cargo;
-                permissoes = data.permissoes || window.permissoesPadrao[cargo];
-            } else if (PERFIS_LEGADOS[username]) {
-                cargo = PERFIS_LEGADOS[username];
-                permissoes = window.permissoesPadrao[cargo];
-            } else {
-                throw { code: 'auth/sem-acesso-unidade' };
-            }
-
-            if (!window.permissoesPadrao[cargo] || !permissoes) {
-                throw { code: 'auth/sem-acesso-unidade' };
-            }
-
-            window.usuarioLogado = user;
-            window.cargoLogado = cargo;
-            window.permissoesLogado = permissoes;
-
-            if(window.aplicarRegrasNaInterface) {
-                window.aplicarRegrasNaInterface(cargo, username, permissoes);
-            }
-            if(window.iniciarListenersProtegidos) window.iniciarListenersProtegidos();
-            definirCarregamentoLogin(false);
-
-            if(window.logAuditoria) window.logAuditoria('Login', `Acesso ao sistema. Perfil: ${cargo}`);
+            await concluirSessao(user, versao);
         } catch (erro) {
-            console.warn('Acesso não concluído:', erro?.code || erro?.message || erro);
-            removerPreferencia('loginTimestamp');
-            loginTimestampMemoria = null;
-            try { await window.firebaseSignOut(window.auth); } catch (_) { /* sessão já encerrada */ }
-            definirCarregamentoLogin(false);
-            if(window.mostrarToast) window.mostrarToast(mensagemErroLogin(erro), 'erro');
+            if (versao !== versaoSessao) return;
+            console.warn('Restauração de sessão:', erro?.code || 'erro-desconhecido');
+            limparSessaoLocal();
+            encerrarAutenticacao();
+            window.mostrarToast?.(mensagemErroLogin(erro), 'erro');
+        } finally {
+            if (versao === versaoSessao) definirCarregamentoLogin(false);
         }
-    } else {
-        if(window.pararListenersProtegidos) window.pararListenersProtegidos();
-        window.usuarioLogado = null; 
-        window.cargoLogado = null;
-        window.permissoesLogado = null;
-        removerPreferencia('loginTimestamp');
-        loginTimestampMemoria = null;
-        
-        document.getElementById('app-dashboard').classList.add('hidden');
-        if (document.getElementById('tela-totem') && document.getElementById('tela-totem').classList.contains('hidden')) {
-            document.getElementById('tela-login').classList.remove('hidden');
-            document.getElementById('tela-login').classList.add('flex');
-            
-            definirCarregamentoLogin(false);
-            
-            const inputSenha = document.getElementById('login-senha');
-            if(inputSenha) inputSenha.value = '';
-        }
-    }
-});
+    });
+};
 
 // ==========================================================================
 // FUNÇÕES DISPARADAS PELO HTML (LOGIN E LOGOUT)
 // ==========================================================================
 async function configurarPersistenciaLogin() {
-    let ultimoErro;
-    for (const persistencia of [
-        window.firebaseBrowserLocalPersistence,
-        window.firebaseBrowserSessionPersistence,
-        window.firebaseInMemoryPersistence
-    ]) {
-        if (!persistencia) continue;
-        try {
-            await window.firebaseSetPersistence(window.auth, persistencia);
-            return;
-        } catch (erro) {
-            ultimoErro = erro;
-        }
-    }
-    throw ultimoErro || { code: 'auth/persistence-unavailable' };
+    // initializeAuth escolhe a persistência antes do login. Alterá-la a cada
+    // submit fazia a autenticação esperar por migrações de armazenamento.
+    await comPrazo(acompanharOperacaoAuth(window.auth.authStateReady()), 8000, 'inicializacao');
 }
 
 window.fazerLogin = async (e) => {
     e.preventDefault();
+    if (!observadorIniciado) {
+        return window.mostrarToast('O sistema está terminando de carregar. Tente novamente em instantes.', 'erro');
+    }
+    if (loginEmAndamento) return;
+    if (operacaoAuthPendente) {
+        return window.mostrarToast('A tentativa anterior ainda está sendo encerrada. Atualize a página antes de tentar novamente.', 'erro');
+    }
 
     if(!window.obterUnidade()) {
         return window.mostrarToast("Selecione uma unidade antes de acessar.", "erro");
@@ -277,27 +343,39 @@ window.fazerLogin = async (e) => {
         return window.mostrarToast('Informe um nome de usuário válido, sem espaços, pontos ou acentos.', 'erro');
     }
 
+    const versao = ++versaoSessao;
+    loginEmAndamento = true;
+    bloquearRestauracao = true;
     definirCarregamentoLogin(true);
     try {
         await configurarPersistenciaLogin();
-        await window.firebaseSignIn(window.auth, `${user}@tophaus.com.br`, pass);
+        if (versao !== versaoSessao) return;
+        const credencial = await comPrazo(acompanharOperacaoAuth(
+            window.firebaseSignIn(window.auth, `${user}@tophaus.com.br`, pass)
+        ), 15000, 'credenciais');
+        if (versao !== versaoSessao) return;
         loginTimestampMemoria = Date.now();
         salvarPreferencia('loginTimestamp', loginTimestampMemoria);
+        await concluirSessao(credencial.user, versao);
+        if (versao === versaoSessao) bloquearRestauracao = false;
     } catch (erro) {
-        console.warn('Falha de autenticação:', erro?.code || erro?.message || erro);
-        removerPreferencia('loginTimestamp');
-        loginTimestampMemoria = null;
-        definirCarregamentoLogin(false);
+        if (versao !== versaoSessao) return;
+        console.warn('Falha de autenticação:', erro?.code || 'erro-desconhecido', erro?.etapa || 'login');
+        limparSessaoLocal();
+        encerrarAutenticacao();
         if(window.mostrarToast) window.mostrarToast(mensagemErroLogin(erro), 'erro');
+    } finally {
+        loginEmAndamento = false;
+        if (versao === versaoSessao) definirCarregamentoLogin(false);
     }
 };
 
 window.fazerLogout = async () => {
-    if(window.logAuditoria && window.usuarioLogado) window.logAuditoria('Logout', 'Saída do sistema'); 
-    removerPreferencia('loginTimestamp');
+    ++versaoSessao;
+    if(window.usuarioLogado) auditarSessao('Logout', 'Saída do sistema');
+    limparSessaoLocal();
     removerPreferencia('modoSimulacao');
-    loginTimestampMemoria = null;
-    await window.firebaseSignOut(window.auth);
+    encerrarAutenticacao();
 };
 
 // ==========================================================================
