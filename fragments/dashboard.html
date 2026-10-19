@@ -34,7 +34,13 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 pb-12">
+        <div id="painel-status-dados" class="max-w-7xl mx-auto px-4 pb-6" role="status" aria-live="polite">
+            <div class="bg-white border border-slate-200 rounded-xl p-5">
+                <p id="painel-status-dados-texto">Conectando à unidade e carregando os dados…</p>
+                <button id="painel-reconectar" type="button" onclick="reconectarDadosPainel()" class="hidden mt-3 bg-slate-900 text-white font-bold py-2 px-4 rounded-lg">Tentar novamente</button>
+            </div>
+        </div>
+        <main id="painel-conteudo" class="hidden max-w-7xl mx-auto px-4 pb-12" aria-busy="true" inert>
             
             <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">

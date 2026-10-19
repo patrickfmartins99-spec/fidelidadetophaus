@@ -97,9 +97,56 @@ window.normalizarNomesDaUnidade = async (clientes) => {
 window.listenersProtegidosAtivos = false;
 window.cancelarListenersProtegidos = [];
 window.sincronizacaoClientesEmAndamento = false;
+let geracaoDados = 0;
+let timerDados = null;
+let conexaoDadosAtiva = false;
+let primeiroSnapshotRecebido = false;
+let erroAcessoDados = false;
+
+function exibirEstadoDados(estado) {
+    const pronto = estado === 'pronto';
+    const conteudo = document.getElementById('painel-conteudo');
+    if (conteudo) {
+        conteudo.classList.toggle('hidden', !pronto);
+        conteudo.inert = !pronto;
+        conteudo.setAttribute('aria-busy', String(estado === 'carregando'));
+    }
+    document.getElementById('painel-status-dados')?.classList.toggle('hidden', pronto);
+    const texto = document.getElementById('painel-status-dados-texto');
+    const mensagens = {
+        carregando: 'Conectando à unidade e carregando os dados…',
+        indisponivel: 'Não foi possível carregar os dados da unidade. Isso não significa que os cadastros foram apagados. Verifique a conexão e tente novamente.',
+        negado: 'A sessão não conseguiu acessar os dados desta unidade. Saia e entre novamente; se continuar, peça ao administrador para verificar seu acesso.',
+        desconectado: 'A conexão com o banco foi interrompida. Aguardando reconexão para continuar com segurança…'
+    };
+    if (texto) texto.textContent = mensagens[estado] || '';
+    document.getElementById('painel-reconectar')?.classList.toggle('hidden', pronto || estado === 'carregando');
+}
+
+function aguardarDados() {
+    clearTimeout(timerDados);
+    const geracao = geracaoDados;
+    timerDados = setTimeout(() => {
+        if (geracao === geracaoDados && window.listenersProtegidosAtivos && !erroAcessoDados) {
+            exibirEstadoDados('indisponivel');
+        }
+    }, 15000);
+}
+
+function atualizarEstadoDados() {
+    if (erroAcessoDados) { exibirEstadoDados('negado'); return; }
+    if (conexaoDadosAtiva && primeiroSnapshotRecebido) {
+        clearTimeout(timerDados);
+        exibirEstadoDados('pronto');
+    }
+}
 
 window.aplicarSnapshotClientes = (snapshot) => {
-    const data = snapshot && typeof snapshot.val === 'function' ? (snapshot.val() || {}) : {};
+    // Uma falha ou resposta inválida não pode ser convertida em base vazia.
+    if (!snapshot || typeof snapshot.val !== 'function') throw new Error('Snapshot de clientes inválido.');
+    const valor = snapshot.val();
+    if (valor !== null && (typeof valor !== 'object' || Array.isArray(valor))) throw new Error('Dados de clientes inválidos.');
+    const data = valor || {};
     window.normalizarNomesDaUnidade(data);
     window.clientesMap = data;
     window.clientesArray = Object.values(data);
@@ -112,28 +159,41 @@ window.aplicarSnapshotClientes = (snapshot) => {
     if(modalLixeira && !modalLixeira.classList.contains('hidden') && window.abrirLixeira) {
         window.abrirLixeira();
     }
+    primeiroSnapshotRecebido = true;
+    atualizarEstadoDados();
 };
 
 // Leitura pontual de recuperação: o listener em tempo real continua sendo a
 // fonte principal, mas esta rotina força uma atualização ao voltar à tela ou à
 // internet. Isso evita que o painel permaneça visualmente congelado.
 window.sincronizarClientesAgora = async ({ notificarErro = false } = {}) => {
-    if (!window.usuarioLogado || window.sincronizacaoClientesEmAndamento) return false;
+    if (!window.usuarioLogado || !window.listenersProtegidosAtivos || window.sincronizacaoClientesEmAndamento) return false;
     if (window.obterUnidade && !window.obterUnidade()) return false;
 
     window.sincronizacaoClientesEmAndamento = true;
+    const geracao = geracaoDados;
+    const uid = window.usuarioLogado.uid;
+    const caminho = window.PATH_CLIENTES;
+    let timer;
     try {
-        const snapshot = await window.firebaseGet(window.firebaseRef(window.db, window.PATH_CLIENTES));
+        const snapshot = await Promise.race([
+            window.firebaseGet(window.firebaseRef(window.db, caminho)),
+            new Promise((_, rejeitar) => { timer = setTimeout(() => rejeitar({ code: 'database/timeout' }), 12000); })
+        ]);
+        if (geracao !== geracaoDados || window.usuarioLogado?.uid !== uid || caminho !== window.PATH_CLIENTES) return false;
         window.aplicarSnapshotClientes(snapshot);
         return true;
     } catch (erro) {
-        console.error('Não foi possível atualizar os clientes agora:', erro.code || erro.message);
+        if (geracao !== geracaoDados) return false;
+        console.warn('Não foi possível atualizar os clientes agora:', erro.code || 'dados-indisponiveis');
+        if (!primeiroSnapshotRecebido) exibirEstadoDados('indisponivel');
         if (notificarErro && window.mostrarToast) {
             window.mostrarToast('Não foi possível sincronizar os dados. Verifique a conexão.', 'erro');
         }
         return false;
     } finally {
-        window.sincronizacaoClientesEmAndamento = false;
+        clearTimeout(timer);
+        if (geracao === geracaoDados) window.sincronizacaoClientesEmAndamento = false;
     }
 };
 
@@ -141,6 +201,26 @@ window.iniciarListenersProtegidos = () => {
     if (window.listenersProtegidosAtivos || !window.usuarioLogado) return;
     if (window.obterUnidade && !window.obterUnidade()) return;
     window.listenersProtegidosAtivos = true;
+    const geracao = ++geracaoDados;
+    const uid = window.usuarioLogado.uid;
+    const unidade = window.obterUnidade();
+    const aindaAtual = () => geracao === geracaoDados && window.usuarioLogado?.uid === uid && window.obterUnidade() === unidade;
+    conexaoDadosAtiva = false;
+    primeiroSnapshotRecebido = false;
+    erroAcessoDados = false;
+    exibirEstadoDados('carregando');
+    aguardarDados();
+
+    const cancelarConexao = window.firebaseOnValue(window.firebaseRef(window.db, '.info/connected'), snapshot => {
+        if (!aindaAtual()) return;
+        conexaoDadosAtiva = snapshot.val() === true;
+        if (!conexaoDadosAtiva && !erroAcessoDados) {
+            exibirEstadoDados(primeiroSnapshotRecebido ? 'desconectado' : 'carregando');
+            aguardarDados();
+        }
+        atualizarEstadoDados();
+    });
+    window.cancelarListenersProtegidos.push(cancelarConexao);
 
     if(window.isSimulationMode) { 
         const banner = document.getElementById('banner-simulacao');
@@ -150,6 +230,7 @@ window.iniciarListenersProtegidos = () => {
 
     // Listener de Marketing
     const cancelarMarketing = window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_MENSAGENS), (snapshot) => {
+        if (!aindaAtual()) return;
         const data = snapshot.val();
         if (data) { 
             window.msgsMarketing = {...window.msgsMarketing, ...data}; 
@@ -157,11 +238,20 @@ window.iniciarListenersProtegidos = () => {
             if(!window.msgsMarketing.agendadas) window.msgsMarketing.agendadas = []; 
         }
     }, (erro) => {
+        if (!aindaAtual()) return;
         console.error('Acesso às configurações de marketing negado:', erro.code || erro.message);
     });
 
     // Listener Principal de Clientes
-    const cancelarClientes = window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_CLIENTES), window.aplicarSnapshotClientes, (erro) => {
+    const cancelarClientes = window.firebaseOnValue(window.firebaseRef(window.db, window.PATH_CLIENTES), snapshot => {
+        if (!aindaAtual()) return;
+        try { window.aplicarSnapshotClientes(snapshot); }
+        catch (_) { exibirEstadoDados('indisponivel'); }
+    }, (erro) => {
+        if (!aindaAtual()) return;
+        clearTimeout(timerDados);
+        erroAcessoDados = true;
+        exibirEstadoDados('negado');
         console.error('Acesso aos clientes negado:', erro.code || erro.message);
         if (window.mostrarToast) window.mostrarToast('Sua sessão não tem acesso aos dados desta unidade.', 'erro');
     });
@@ -170,6 +260,13 @@ window.iniciarListenersProtegidos = () => {
 };
 
 window.pararListenersProtegidos = () => {
+    ++geracaoDados;
+    clearTimeout(timerDados);
+    conexaoDadosAtiva = false;
+    primeiroSnapshotRecebido = false;
+    erroAcessoDados = false;
+    window.sincronizacaoClientesEmAndamento = false;
+    exibirEstadoDados('carregando');
     window.cancelarListenersProtegidos.forEach(cancelar => {
         if (typeof cancelar === 'function') cancelar();
     });
@@ -177,6 +274,12 @@ window.pararListenersProtegidos = () => {
     window.listenersProtegidosAtivos = false;
     window.clientesMap = {};
     window.clientesArray = [];
+};
+
+window.reconectarDadosPainel = () => {
+    if (!window.usuarioLogado) return;
+    window.pararListenersProtegidos();
+    window.iniciarListenersProtegidos();
 };
 
 window.addEventListener('DOMContentLoaded', () => {
