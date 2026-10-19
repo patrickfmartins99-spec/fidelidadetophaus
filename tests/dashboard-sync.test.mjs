@@ -25,7 +25,7 @@ test('painel possui recuperação de sincronização ao voltar à internet ou à
 });
 
 test('arquivos críticos usam rede primeiro para não manter painel antigo em cache', () => {
-  assert.match(serviceWorker, /v75-login/);
+  assert.match(serviceWorker, /v76-sync/);
   assert.match(serviceWorker, /isCriticalAppFile/);
   assert.match(serviceWorker, /url\.pathname\.endsWith\('\.js'\)/);
 });
