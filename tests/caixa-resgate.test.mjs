@@ -3,7 +3,7 @@ import test from 'node:test';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 
-const codigo = await readFile(new URL('../clientes.js', import.meta.url), 'utf8');
+const codigo = (await readFile(new URL('../clientes.js', import.meta.url), 'utf8')).replace(/^import .*;\r?\n/m, '');
 
 function carregarFluxo({ registradoHoje, almocos }) {
   const elementos = new Map();
@@ -20,6 +20,7 @@ function carregarFluxo({ registradoHoje, almocos }) {
   };
   const chamadas = [];
   const window = {
+    addEventListener() {},
     jaRegistrouHoje: () => registradoHoje,
     prenderFocoModal: () => chamadas.push('foco'),
     escapeHTML: valor => valor,
