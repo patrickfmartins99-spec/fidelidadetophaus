@@ -1,38 +1,55 @@
 <!-- PAINEL PRINCIPAL -->
     <div id="app-dashboard" class="hidden no-print">
-        
-        <header class="bg-black text-white shadow-md py-4 px-6 mb-6">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-4 flex-wrap justify-center">
-                    <img src="./logo.jpg" alt="Top Haus" class="h-10 w-auto object-contain rounded">
-                    <span class="text-gray-400 font-light text-lg hidden lg:block">| Top Haus Fidelidade</span>
-                    <div class="flex flex-col sm:flex-row items-center gap-2">
-                        <span id="nome-usuario-logado" class="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-inner"></span>
-                        <span id="indicador-unidade" class="text-xs bg-indigo-900 border border-indigo-700 text-indigo-100 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-inner hidden flex items-center gap-1">
-                            <i data-lucide="map-pin" class="w-3 h-3"></i> <span id="texto-indicador-unidade">Unidade</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="flex flex-wrap justify-center gap-3">
-                    <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn active bg-gray-800 border border-gray-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition">
-                        <i data-lucide="calculator" class="w-4 h-4"></i> Caixa
-                    </button>
-                    <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition hidden">
-                        <i data-lucide="shield" class="w-4 h-4"></i> Painel Gerencial
-                    </button>
-                    <button onclick="alternarAba('relatorios')" id="btn-aba-relatorios" class="aba-btn bg-black border border-gray-800 hover:bg-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition hidden">
-                        <i data-lucide="chart-no-axes-combined" class="w-4 h-4"></i> Relatórios
-                    </button>
-                    <button onclick="entrarModoTotemDaTelaLogin()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-white shadow-md">
-                        <i data-lucide="tablet" class="w-4 h-4"></i> <span class="hidden sm:inline">Abrir totem</span>
-                    </button>
-                    <div class="hidden sm:block h-10 w-px bg-gray-700 mx-1"></div>
-                    <button onclick="fazerLogout()" title="Sair do Sistema" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition flex items-center justify-center">
-                        <i data-lucide="power" class="w-5 h-5"></i>
-                    </button>
-                </div>
+        <button id="painel-menu-fundo" type="button" aria-label="Fechar menu" onclick="fecharMenuPainel()"></button>
+        <aside id="painel-sidebar" aria-label="Navegação do sistema">
+            <div class="dashboard-brand">
+                <img src="./logo.jpg" alt="Top Haus" class="dashboard-brand-logo">
+                <span>FIDELIDADE</span>
+                <button type="button" class="dashboard-close-menu" aria-label="Fechar menu" onclick="fecharMenuPainel()">×</button>
             </div>
-        </header>
+            <nav class="dashboard-sidebar-nav" aria-label="Áreas principais">
+                <p class="dashboard-nav-label">Navegação</p>
+                <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="layout-dashboard"></i> Visão geral</button>
+                <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn dashboard-nav-item" type="button"><i data-lucide="calculator"></i> Caixa</button>
+                <button onclick="mostrarClientesPainel()" id="btn-nav-clientes" class="dashboard-nav-item hidden" type="button"><i data-lucide="users-round"></i> Clientes</button>
+                <button onclick="alternarAba('relatorios')" id="btn-aba-relatorios" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="chart-no-axes-combined"></i> Relatórios</button>
+                <button onclick="fecharMenuPainel(); abrirCentralMarketing()" id="btn-nav-marketing" class="dashboard-nav-item hidden" type="button"><i data-lucide="megaphone"></i> Marketing</button>
+                <details id="nav-gestao" class="dashboard-management hidden">
+                    <summary class="dashboard-nav-item"><i data-lucide="settings-2"></i> Gestão <i data-lucide="chevron-down" class="dashboard-chevron"></i></summary>
+                    <div class="dashboard-management-actions">
+                        <button id="btn-almoco-atrasado" onclick="fecharMenuPainel(); prepararAlmocoAtrasado('')" type="button"><i data-lucide="clock-4"></i> Lançar almoço perdido</button>
+                        <button id="btn-gerenciar-acessos" onclick="fecharMenuPainel(); abrirGerenciadorUsuarios()" class="hidden" type="button"><i data-lucide="user-cog"></i> Acessos</button>
+                        <button id="btn-auditoria" onclick="fecharMenuPainel(); abrirAuditoria()" class="hidden" type="button"><i data-lucide="clipboard-list"></i> Auditoria</button>
+                        <button id="btn-lixeira" onclick="fecharMenuPainel(); abrirLixeira()" class="hidden" type="button"><i data-lucide="archive"></i> Arquivados</button>
+                        <button id="btn-mesclar" onclick="fecharMenuPainel(); abrirModalMesclagem()" class="hidden" type="button"><i data-lucide="merge"></i> Mesclar clientes</button>
+                        <button id="btn-trocar-unidade" onclick="fecharMenuPainel(); abrirTrocaUnidade()" class="hidden" type="button"><i data-lucide="map"></i> Alterar unidade</button>
+                        <button id="btn-ativar-simulacao" onclick="fecharMenuPainel(); ativarSimulacao()" class="hidden" type="button"><i data-lucide="flask-conical"></i> Modo simulação</button>
+                        <button id="btn-zerar-banco" onclick="fecharMenuPainel(); resetarSistema()" class="hidden dashboard-danger" type="button"><i data-lucide="alert-triangle"></i> Resetar sistema</button>
+                    </div>
+                </details>
+            </nav>
+            <div class="dashboard-sidebar-footer">
+                <button id="btn-sidebar-totem" onclick="fecharMenuPainel(); entrarModoTotemDaTelaLogin()" class="dashboard-nav-item" type="button"><i data-lucide="tablet"></i> Abrir totem</button>
+                <button onclick="fazerLogout()" class="dashboard-nav-item" type="button"><i data-lucide="log-out"></i> Sair do sistema</button>
+            </div>
+        </aside>
+        <div class="dashboard-workspace">
+            <header class="dashboard-topbar">
+                <div class="dashboard-topbar-heading">
+                    <button type="button" class="dashboard-open-menu" aria-label="Abrir menu" aria-controls="painel-sidebar" aria-expanded="false" onclick="abrirMenuPainel()">☰</button>
+                    <div><p>TOP HAUS FIDELIDADE</p><h1 id="titulo-aba-painel">Visão geral</h1></div>
+                </div>
+                <div class="dashboard-topbar-context">
+                    <span id="indicador-unidade" class="hidden dashboard-unit"><i data-lucide="map-pin"></i> <span id="texto-indicador-unidade">Unidade</span></span>
+                    <span id="nome-usuario-logado" class="dashboard-user"></span>
+                </div>
+            </header>
+            <nav class="dashboard-mobile-nav" aria-label="Navegação rápida">
+                <button id="btn-mobile-admin" type="button" class="hidden" onclick="alternarAba('admin')"><i data-lucide="layout-dashboard"></i><span>Painel</span></button>
+                <button id="btn-mobile-caixa" type="button" onclick="alternarAba('caixa')"><i data-lucide="calculator"></i><span>Caixa</span></button>
+                <button id="btn-mobile-relatorios" type="button" class="hidden" onclick="alternarAba('relatorios')"><i data-lucide="chart-no-axes-combined"></i><span>Relatórios</span></button>
+                <button id="btn-mobile-mais" type="button" onclick="abrirMenuPainel()"><i data-lucide="menu"></i><span>Mais</span></button>
+            </nav>
 
         <div id="painel-status-dados" class="max-w-7xl mx-auto px-4 pb-6" role="status" aria-live="polite">
             <div class="bg-white border border-slate-200 rounded-xl p-5">
@@ -92,41 +109,9 @@
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
-                <div class="flex flex-wrap gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="text-sm font-black text-gray-800 uppercase flex items-center gap-2 pr-4 border-r border-gray-200">
-                        <i data-lucide="settings-2" class="w-5 h-5 text-indigo-600"></i> Gestão
-                    </div>
-                    
-                    <button id="btn-almoco-atrasado" onclick="prepararAlmocoAtrasado('')" class="bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm shadow-sm">
-    <i data-lucide="clock-4" class="w-4 h-4"></i> Lançar Almoço Perdido
-</button>
-                    
-                    <button id="btn-gerenciar-acessos" onclick="abrirGerenciadorUsuarios()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="users" class="w-4 h-4"></i> Acessos
-                    </button>
-                    <button id="btn-auditoria" onclick="abrirAuditoria()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Auditoria
-                    </button>
-                    <button id="btn-lixeira" onclick="abrirLixeira()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="archive" class="w-4 h-4"></i> Arquivados
-                    </button>
-                    <button id="btn-mesclar" onclick="abrirModalMesclagem()" class="hidden bg-purple-50 text-purple-600 hover:bg-purple-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="merge" class="w-4 h-4"></i> Mesclar
-                    </button>
-                    <button id="btn-trocar-unidade" onclick="abrirTrocaUnidade()" class="hidden bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="map" class="w-4 h-4"></i> Alterar Unidade
-                    </button>
-                    <button id="btn-ativar-simulacao" onclick="ativarSimulacao()" class="hidden bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="flask-conical" class="w-4 h-4"></i> Modo Simulação
-                    </button>
-                    <button id="btn-zerar-banco" onclick="resetarSistema()" class="hidden bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm">
-                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> Resetar sistema
-                    </button>
-                </div>
-
                 <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="dashboard-primary-metrics grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-500 uppercase">Todos os clientes</p>
                         <p id="card-total" class="text-2xl font-black text-black">0</p>
@@ -165,7 +150,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div id="painel-clientes" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     
                     <div id="sub-filtros-niver" class="hidden px-6 pt-6 pb-2">
                         <div class="bg-gray-50 p-3 rounded-xl flex flex-wrap gap-4 items-center justify-center border border-gray-200">
@@ -215,4 +200,5 @@
                 </div>
             </section>
         </main>
+        </div>
 

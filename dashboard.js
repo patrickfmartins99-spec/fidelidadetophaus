@@ -306,6 +306,26 @@ document.addEventListener('visibilitychange', () => {
 // ==========================================================================
 // NAVEGAÇÃO DE ABAS
 // ==========================================================================
+window.fecharMenuPainel = () => {
+    const painel = document.getElementById('app-dashboard');
+    painel?.classList.remove('dashboard-menu-open');
+    document.querySelector('.dashboard-open-menu')?.setAttribute('aria-expanded', 'false');
+};
+
+window.abrirMenuPainel = () => {
+    document.getElementById('app-dashboard')?.classList.add('dashboard-menu-open');
+    document.querySelector('.dashboard-open-menu')?.setAttribute('aria-expanded', 'true');
+};
+
+document.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Escape') window.fecharMenuPainel();
+});
+
+window.mostrarClientesPainel = () => {
+    window.alternarAba('admin');
+    requestAnimationFrame(() => document.getElementById('painel-clientes')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+};
+
 window.alternarAba = (a) => {
     const nomes = ['caixa', 'admin', 'relatorios'];
     if (!nomes.includes(a)) return;
@@ -318,15 +338,23 @@ window.alternarAba = (a) => {
         const secao = document.getElementById(`aba-${nome}`);
         const botao = document.getElementById(`btn-aba-${nome}`);
         if (secao) secao.classList.toggle('hidden', nome !== a);
-        if (botao) {
-            botao.classList.toggle('bg-gray-800', nome === a);
-            botao.classList.toggle('bg-black', nome !== a);
-        }
+        botao?.classList.toggle('is-active', nome === a);
+        botao?.setAttribute('aria-current', nome === a ? 'page' : 'false');
+        const mobile = document.getElementById(`btn-mobile-${nome}`);
+        mobile?.classList.toggle('is-active', nome === a);
+        mobile?.setAttribute('aria-current', nome === a ? 'page' : 'false');
     });
+
+    const titulos = { caixa: 'Caixa', admin: 'Visão geral', relatorios: 'Relatórios' };
+    const titulo = document.getElementById('titulo-aba-painel');
+    if (titulo) titulo.textContent = titulos[a];
+    window.fecharMenuPainel();
 
     if(a === 'caixa'){
         const bCpf = document.getElementById('busca-cpf');
-        if(bCpf) setTimeout(() => bCpf.focus(), 50);
+        // Em telas de toque, abrir o teclado sem o usuário tocar no campo ocupa
+        // metade da área útil e atrapalha o atendimento.
+        if(bCpf && window.matchMedia?.('(pointer: fine)').matches) setTimeout(() => bCpf.focus(), 50);
     } else if (a === 'admin') {
         window.filtrarLista('todos');
     } else if (window.atualizarRelatorios) {
