@@ -589,6 +589,7 @@ let fichaUnidadeAtual = null;
 let fichaLogs = [];
 let fichaAuditoriaCompleta = false;
 let fichaConsultaSequencia = 0;
+const podeConsultarFichaCliente = () => (window.cargoLogado === 'admin' || window.cargoLogado === 'gerente') && !!window.usuarioLogado;
 const htmlFicha = valor => window.escapeHTML(String(valor ?? ''));
 const listaFicha = valor => Array.isArray(valor) ? valor : (valor && typeof valor === 'object' ? Object.values(valor) : []);
 
@@ -616,7 +617,7 @@ const renderizarFichaCliente = () => {
 
     document.getElementById('ficha-cliente-titulo').textContent = window.nomeExibicao(c.nome || 'Cliente sem nome');
     document.getElementById('ficha-cliente-subtitulo').textContent = `${unidade} · CPF ${window.formatarCPF(cpf)} · Cadastro ${extrato.cadastro}`;
-    document.getElementById('ficha-auditoria-botao')?.classList.toggle('hidden', !window.permissoesLogado?.auditoria);
+    document.getElementById('ficha-auditoria-botao')?.classList.toggle('hidden', !podeConsultarFichaCliente() || !window.permissoesLogado?.auditoria);
     alvo.innerHTML = `
         <div class="ficha-metricas">
             <div><span>Saldo atual</span><strong>${extrato.saldo}</strong></div>
@@ -635,7 +636,7 @@ const renderizarFichaCliente = () => {
 };
 
 window.abrirFichaCliente = cpfEntrada => {
-    if (!window.usuarioLogado || !window.permissoesLogado?.dashboard) return window.mostrarToast('Acesso não autorizado.', 'erro');
+    if (!podeConsultarFichaCliente() || !window.permissoesLogado?.dashboard) return window.mostrarToast('Acesso não autorizado.', 'erro');
     const cpf = String(cpfEntrada || '').replace(/\D/g, '');
     const c = window.clientesMap?.[cpf];
     if (!c) return window.mostrarToast('Cliente não encontrado na unidade atual.', 'erro');
@@ -662,7 +663,7 @@ const consultarRegistroAtual = async (caminho, token, signal) => {
 };
 
 window.solicitarAuditoriaCliente = async () => {
-    if (!window.usuarioLogado || !window.permissoesLogado?.auditoria || !fichaClienteAtual) return;
+    if (!podeConsultarFichaCliente() || !window.permissoesLogado?.auditoria || !fichaClienteAtual) return;
     if (fichaUnidadeAtual !== window.obterUnidade()) return window.mostrarToast('Unidade alterada. Abra a ficha novamente.', 'erro');
     const botao = document.getElementById('ficha-auditoria-botao');
     const cpf = String(fichaClienteAtual.cpf).replace(/\D/g, '');
@@ -695,7 +696,7 @@ window.solicitarAuditoriaCliente = async () => {
 };
 
 window.imprimirExtratoCliente = () => {
-    if (!window.usuarioLogado || !window.permissoesLogado?.dashboard || !fichaClienteAtual) return;
+    if (!podeConsultarFichaCliente() || !window.permissoesLogado?.dashboard || !fichaClienteAtual) return;
     if (fichaUnidadeAtual !== window.obterUnidade()) return window.mostrarToast('Unidade alterada. Abra a ficha novamente.', 'erro');
     const c = fichaClienteAtual;
     const extrato = montarExtratoCliente(c, fichaLogs);
@@ -723,6 +724,7 @@ window.imprimirExtratoCliente = () => {
 window.addEventListener('afterprint', () => document.getElementById('secao-impressao')?.classList.remove('print-extrato'));
 
 window.reimprimirCupomPorCpf = (c, i) => { 
+    if (!podeConsultarFichaCliente()) return;
     if(window.fecharModal) window.fecharModal('modal-historico'); 
     const cl = window.clientesMap[c]; 
     if(cl && cl.historicoResgates && cl.historicoResgates[i]) {
@@ -733,6 +735,7 @@ window.reimprimirCupomPorCpf = (c, i) => {
 };
 
 window.reimprimirAniversarioPorCpf = (c, i) => { 
+    if (!podeConsultarFichaCliente()) return;
     if(window.fecharModal) window.fecharModal('modal-historico'); 
     const cl = window.clientesMap[c]; 
     if(cl && cl.historicoAniversarios && cl.historicoAniversarios[i]) {

@@ -532,7 +532,8 @@ window.renderizarTabela = (l) => {
     
     l.forEach(c => {
         const cpfAcao = String(c.cpf || '').replace(/\D/g, '');
-        const bHist = `<button onclick="abrirFichaCliente('${cpfAcao}')" class="text-gray-500 hover:text-black p-1.5 transition" title="Ficha, extrato e auditoria do cliente" aria-label="Abrir ficha de ${window.escapeHTML(c.nome)}"><i data-lucide="file-clock" class="w-4 h-4"></i></button>`;
+        const podeConsultarFicha = (window.cargoLogado === 'admin' || window.cargoLogado === 'gerente') && !!window.permissoesLogado?.dashboard;
+        const bHist = podeConsultarFicha ? `<button onclick="abrirFichaCliente('${cpfAcao}')" class="text-gray-500 hover:text-black p-1.5 transition" title="Ficha, extrato e auditoria do cliente" aria-label="Abrir ficha de ${window.escapeHTML(c.nome)}"><i data-lucide="file-clock" class="w-4 h-4"></i></button>` : '';
         const bEdit = `<button onclick="abrirEditar('${c.cpf}')" class="text-gray-500 hover:text-indigo-600 p-1.5 transition" title="Editar cadastro"><i data-lucide="edit-3" class="w-4 h-4"></i></button>`;
         const bZap = `<button onclick="abrirModalWhatsApp('${c.cpf}')" class="text-green-600 hover:text-green-700 p-1.5 transition" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></button>`;
         const bSim = (window.isSimulationMode && window.permissoesLogado && window.permissoesLogado.simulacao) ? 
