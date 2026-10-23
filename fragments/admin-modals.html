@@ -230,11 +230,18 @@
     </div>
 </div>
 
-        <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[90dvh]">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5"></i> Histórico de Resgates</h3>
-                <div id="lista-historico" class="max-h-80 overflow-y-auto space-y-3 mb-6"></div>
-                <button onclick="fecharModal('modal-historico')" class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold transition">Fechar</button>
+        <div id="modal-historico" tabindex="-1" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
+            <div class="ficha-modal bg-white rounded-2xl w-full shadow-xl border-t-4 border-gray-800 overflow-y-auto max-h-[96dvh]">
+                <div class="ficha-cabecalho">
+                    <div><p class="ficha-rotulo">Ficha do cliente · extrato digital</p><h3 id="ficha-cliente-titulo">Cliente</h3><p id="ficha-cliente-subtitulo"></p></div>
+                    <button type="button" onclick="fecharModal('modal-historico')" aria-label="Fechar ficha" class="ficha-fechar">×</button>
+                </div>
+                <div class="ficha-acoes">
+                    <button type="button" onclick="imprimirExtratoCliente()"><i data-lucide="printer" class="w-4 h-4"></i> Imprimir / salvar PDF</button>
+                    <button type="button" id="ficha-auditoria-botao" onclick="solicitarAuditoriaCliente()"><i data-lucide="scan-search" class="w-4 h-4"></i> Auditar agora</button>
+                </div>
+                <div id="lista-historico" class="ficha-conteudo"></div>
+                <div class="ficha-rodape"><button type="button" onclick="fecharModal('modal-historico')">Fechar ficha</button></div>
             </div>
         </div>
 

@@ -1,4 +1,5 @@
 // Módulo 4: Frente de Caixa, Gestão de Clientes e Fidelidade
+import { montarExtratoCliente, filtrarLogsCliente } from './cliente-extrato-core.js';
 
 // ==========================================================================
 // FRENTE DE CAIXA: FLUXO DE BUSCA E ROTEAMENTO
@@ -141,7 +142,7 @@ window.cadastrarCliente = (e) => {
         document.getElementById('form-cadastro').reset(); 
         window.mostrarToast('Cliente cadastrado com sucesso!'); 
         
-        if(window.logAuditoria) window.logAuditoria('Cadastro (Caixa)', `Cliente ${nc.nome} cadastrado via painel.`);
+        if(window.logAuditoria) window.logAuditoria('Cadastro (Caixa)', `Cliente ${nc.nome} cadastrado via painel.`, { clienteCpf: nc.cpf });
         
         window.isProcessing = false; 
         if(window.operacoesAtivas) window.operacoesAtivas[cpf] = false; 
@@ -208,7 +209,7 @@ window.processarConfirmacao = (c) => {
         const inp = document.getElementById('busca-cpf');
         if(inp) inp.value = ''; 
         
-        if(window.logAuditoria) window.logAuditoria('Almoço', `+1 almoço registrado para ${c.nome}. Saldo: ${c.almocos}.`);
+        if(window.logAuditoria) window.logAuditoria('Almoço', `+1 almoço registrado para ${c.nome}. Saldo: ${c.almocos}.`, { clienteCpf: c.cpf });
         
         if (c.almocos % 10 === 0) {
             const m = document.getElementById('modal-celebracao-10');
@@ -321,6 +322,7 @@ window.dispararImpressao = (nome, cpf, dts, hr, protocolo = 'S/N') => {
     
     const secaoImp = document.getElementById('secao-impressao');
     if(!secaoImp) return;
+    secaoImp.classList.remove('print-extrato');
 
     const isPic = window.obterUnidade() === 'picarras';
     const razaoSocial = isPic ? 'PIZZARIA TOP HAUS LTDA' : 'ESPAÇO TOP HAUS LTDA';
@@ -363,6 +365,7 @@ window.dispararImpressao = (nome, cpf, dts, hr, protocolo = 'S/N') => {
 window.dispararImpressaoAniversario = (c, dataResgate, protocolo = 'S/N') => {
     const secaoImp = document.getElementById('secao-impressao');
     if (!secaoImp) return;
+    secaoImp.classList.remove('print-extrato');
 
     const isPic = window.obterUnidade() === 'picarras';
     const razaoSocial = isPic ? 'PIZZARIA TOP HAUS LTDA' : 'ESPAÇO TOP HAUS LTDA';
@@ -527,7 +530,7 @@ window.salvarEdicao = (e) => {
     
     window.firebaseSet(window.firebaseRef(window.db, window.PATH_CLIENTES + '/' + c.cpf), c).then(() => { 
         window.mostrarToast("Cliente atualizado com sucesso."); 
-        if(window.logAuditoria) window.logAuditoria('Edição', `Cadastro de ${oldNome} atualizado para ${c.nome}.`);
+        if(window.logAuditoria) window.logAuditoria('Edição', `Cadastro de ${oldNome} atualizado para ${c.nome}.`, { clienteCpf: c.cpf });
         
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar alterações';
@@ -581,74 +584,147 @@ window.prepararAlmocoAtrasado = (cpf, isExtraHoje = false) => {
     }
 };
 
-window.abrirHistorico = (cpf) => {
-    const c = window.clientesMap[cpf];
-    const div = document.getElementById('lista-historico'); 
-    if(!div) return;
-    
-    div.innerHTML = ''; 
-    if(!c) return;
+let fichaClienteAtual = null;
+let fichaUnidadeAtual = null;
+let fichaLogs = [];
+let fichaAuditoriaCompleta = false;
+let fichaConsultaSequencia = 0;
+const podeConsultarFichaCliente = () => (window.cargoLogado === 'admin' || window.cargoLogado === 'gerente') && !!window.usuarioLogado;
+const htmlFicha = valor => window.escapeHTML(String(valor ?? ''));
+const listaFicha = valor => Array.isArray(valor) ? valor : (valor && typeof valor === 'object' ? Object.values(valor) : []);
 
-    // Link discreto apenas para gerentes lançarem almoços diretamente pelo histórico
-    if (window.cargoLogado === 'gerente' || window.cargoLogado === 'admin') {
-        div.innerHTML += `
-            <div class="flex justify-end mb-4 border-b border-gray-100 pb-3">
-                <button onclick="prepararAlmocoAtrasado('${c.cpf}')" class="text-emerald-600 hover:text-emerald-700 text-xs font-bold transition flex items-center gap-1">
-                    <i data-lucide="clock-4" class="w-3.5 h-3.5"></i> Lançar almoço anterior (Gerente)
-                </button>
-            </div>
-        `;
-    }
+const renderizarFichaCliente = () => {
+    const c = fichaClienteAtual;
+    const alvo = document.getElementById('lista-historico');
+    if (!c || !alvo) return;
+    const extrato = montarExtratoCliente(c, fichaLogs);
+    const cpf = String(c.cpf || '').replace(/\D/g, '');
+    const unidade = fichaUnidadeAtual === 'picarras' ? 'Piçarras' : 'Navegantes';
+    const avisos = extrato.alertas.length
+        ? `<div class="ficha-alerta"><strong>Conferência pendente</strong><ul>${extrato.alertas.map(aviso => `<li>${htmlFicha(aviso)}</li>`).join('')}</ul></div>`
+        : '<div class="ficha-ok">Os contadores conferem com as datas digitais disponíveis.</div>';
+    const eventos = extrato.eventos.map(evento => `
+        <li class="ficha-evento">
+            <span class="ficha-evento-data">${htmlFicha(evento.data)}</span>
+            <div><strong>${htmlFicha(evento.descricao)}</strong>${evento.protocolo ? `<small>Protocolo: ${htmlFicha(evento.protocolo)}</small>` : ''}${evento.usuario ? `<small>Usuário: ${htmlFicha(evento.usuario)}</small>` : ''}${evento.responsavel ? `<small>Responsável: ${htmlFicha(evento.responsavel)}</small>` : ''}</div>
+        </li>`).join('');
+    const resgates = listaFicha(c.historicoResgates).map((resgate, indice) => `
+        <div class="ficha-resgate"><span>#${indice + 1} · ${htmlFicha(resgate.dataResgate || 'Sem data')} · ${listaFicha(resgate.datas).length} almoço(s)${resgate.protocolo ? ` · ${htmlFicha(resgate.protocolo)}` : ''}</span>
+        <button type="button" onclick="reimprimirCupomPorCpf('${cpf}', ${indice})">Reimprimir cupom</button></div>`).join('');
+    const aniversarios = listaFicha(c.historicoAniversarios).map((resgate, indice) => `
+        <div class="ficha-resgate"><span>Aniversário · ${htmlFicha(resgate.dataResgate || 'Sem data')}</span>
+        <button type="button" onclick="reimprimirAniversarioPorCpf('${cpf}', ${indice})">Reimprimir cupom</button></div>`).join('');
 
-    if(c.historicoConquistas && c.historicoConquistas.length > 0) {
-        div.innerHTML += `<h4 class="font-bold text-sm mb-2 text-black border-b pb-1">Conquistas (10 Almoços Alcançados)</h4>`;
-        c.historicoConquistas.forEach((r, i) => {
-            div.innerHTML += `
-                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex justify-between items-center mb-2">
-                    <div><p class="text-xs font-bold text-amber-800">Conquista #${i+1}</p><p class="text-xs text-amber-700">${r}</p></div>
-                    <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
-                </div>`;
-        });
-    }
-    
-    if(c.historicoResgates && c.historicoResgates.length > 0) { 
-        div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Resgates de Prêmio Realizados</h4>`; 
-        c.historicoResgates.forEach((r, i) => { 
-            const protStr = r.protocolo ? `<br><span class="text-indigo-600">Prot: ${r.protocolo}</span>` : '';
-            div.innerHTML += `
-                <div class="bg-gray-50 p-3 rounded-lg border flex justify-between items-center mb-2">
-                    <div><p class="text-xs font-bold text-gray-800">Resgate #${i+1}</p><p class="text-xs text-gray-600">${r.dataResgate}${protStr}</p></div>
-                    <button onclick="reimprimirCupomPorCpf('${c.cpf}', ${i})" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition hover:bg-gray-800">
-                        <i data-lucide="printer" class="w-3.5 h-3.5 inline"></i> Reimprimir
-                    </button>
-                </div>`; 
-        }); 
-    }
-    
-    if(c.historicoAniversarios && c.historicoAniversarios.length > 0) { 
-        div.innerHTML += `<h4 class="font-bold text-sm mb-2 mt-4 text-black border-b pb-1">Aniversários</h4>`; 
-        c.historicoAniversarios.forEach((r, i) => { 
-            const protocoloFormatado = r.protocolo || 'S/N';
-            div.innerHTML += `
-                <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 flex justify-between items-center mb-2">
-                    <div>
-                        <p class="text-xs font-bold text-indigo-900">Aniv. ${r.ano}</p>
-                        <p class="text-xs text-indigo-700">${r.dataResgate}<br><span class="text-indigo-600">Prot: ${protocoloFormatado}</span></p>
-                    </div>
-                    <button onclick="reimprimirAniversarioPorCpf('${c.cpf}', ${i})" class="bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold transition hover:bg-gray-800 shadow-sm">
-                        <i data-lucide="printer" class="w-3.5 h-3.5 inline"></i> Reimprimir
-                    </button>
-                </div>`; 
-        }); 
-    }
-    
-    const m = document.getElementById('modal-historico'); 
-    m.classList.remove('hidden'); 
-    if(window.prenderFocoModal) window.prenderFocoModal(m); 
-    if(window.lucide) window.lucide.createIcons();
+    document.getElementById('ficha-cliente-titulo').textContent = window.nomeExibicao(c.nome || 'Cliente sem nome');
+    document.getElementById('ficha-cliente-subtitulo').textContent = `${unidade} · CPF ${window.formatarCPF(cpf)} · Cadastro ${extrato.cadastro}`;
+    document.getElementById('ficha-auditoria-botao')?.classList.toggle('hidden', !podeConsultarFichaCliente() || !window.permissoesLogado?.auditoria);
+    alvo.innerHTML = `
+        <div class="ficha-metricas">
+            <div><span>Saldo atual</span><strong>${extrato.saldo}</strong></div>
+            <div><span>Resgates</span><strong>${extrato.resgatesDeclarados}</strong></div>
+            <div><span>Almoços contabilizados</span><strong>${extrato.totalContabilizado}</strong></div>
+            <div><span>Datas documentadas</span><strong>${extrato.totalDocumentado}</strong></div>
+        </div>
+        <details class="ficha-detalhes"><summary>Dados cadastrais</summary><div class="ficha-dados"><p><strong>Nome:</strong> ${htmlFicha(window.nomeExibicao(c.nome))}</p><p><strong>CPF:</strong> ${htmlFicha(window.formatarCPF(cpf))}</p><p><strong>WhatsApp:</strong> ${htmlFicha(window.formatarTel(c.telefone || '')) || 'Não informado'}</p><p><strong>Nascimento:</strong> ${htmlFicha(c.nascimento || 'Não informado')}</p><p><strong>Cadastro:</strong> ${htmlFicha(extrato.cadastro)}</p><p><strong>Status:</strong> ${extrato.arquivado ? 'Arquivado' : 'Ativo'}</p></div></details>
+        <p class="ficha-contexto">${htmlFicha(extrato.totalContabilizado)} = ${htmlFicha(extrato.saldo)} no saldo + ${htmlFicha(extrato.resgatesDeclarados)} resgate(s) × 10. Última visita documentada: ${htmlFicha(extrato.ultimaVisita || 'não informada')}. ${extrato.visitasAposUltimoResgate === null ? 'Não há resgate anterior.' : `${extrato.visitasAposUltimoResgate} data(s) de almoço no saldo posteriores ao último resgate.`} Origem do cadastro: ${htmlFicha(extrato.origemCadastro)}.</p>
+        ${avisos}
+        <p class="ficha-limite">${htmlFicha(extrato.observacao)}</p>
+        ${fichaAuditoriaCompleta ? `<p class="ficha-auditoria-status">Auditoria solicitada: cadastro relido no banco agora; ${window.isSimulationMode ? 'modo de simulação — logs reais não incluídos' : `${fichaLogs.length} log(s) vinculados a este CPF`}. Histórico digital disponível abaixo.</p>` : '<p class="ficha-auditoria-status">Extrato baseado no cadastro carregado. Use “Auditar agora” para reler o banco e incluir logs vinculados ao CPF.</p>'}
+        <details class="ficha-detalhes" open><summary>Linha do tempo · ${extrato.eventos.length} eventos</summary><ol>${eventos || '<li>Nenhum evento documentado.</li>'}</ol></details>
+        <details class="ficha-detalhes"><summary>Resgates e reimpressão</summary>${resgates || '<p>Nenhum resgate de fidelidade documentado.</p>'}${aniversarios}</details>
+        ${window.permissoesLogado?.clientes ? `<button type="button" class="ficha-lancar" onclick="prepararAlmocoAtrasado('${cpf}')">Lançar almoço anterior (gerência)</button>` : ''}`;
 };
 
+window.abrirFichaCliente = cpfEntrada => {
+    if (!podeConsultarFichaCliente() || !window.permissoesLogado?.dashboard) return window.mostrarToast('Acesso não autorizado.', 'erro');
+    const cpf = String(cpfEntrada || '').replace(/\D/g, '');
+    const c = window.clientesMap?.[cpf];
+    if (!c) return window.mostrarToast('Cliente não encontrado na unidade atual.', 'erro');
+    fichaClienteAtual = c;
+    fichaConsultaSequencia++;
+    fichaUnidadeAtual = window.obterUnidade();
+    fichaLogs = [];
+    fichaAuditoriaCompleta = false;
+    renderizarFichaCliente();
+    const modal = document.getElementById('modal-historico');
+    modal.classList.remove('hidden');
+    if (window.prenderFocoModal) window.prenderFocoModal(modal);
+};
+window.abrirHistorico = window.abrirFichaCliente;
+
+const consultarRegistroAtual = async (caminho, token, signal) => {
+    const base = window.firebaseApp.options.databaseURL.replace(/\/$/, '');
+    const resposta = await fetch(`${base}/${caminho}.json?auth=${encodeURIComponent(token)}`, {
+        signal, cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer'
+    });
+    if (!resposta.ok) throw new Error(resposta.status === 401 || resposta.status === 403
+        ? 'Acesso ao banco negado.' : `Banco indisponível (${resposta.status}).`);
+    return resposta.json();
+};
+
+window.solicitarAuditoriaCliente = async () => {
+    if (!podeConsultarFichaCliente() || !window.permissoesLogado?.auditoria || !fichaClienteAtual) return;
+    if (fichaUnidadeAtual !== window.obterUnidade()) return window.mostrarToast('Unidade alterada. Abra a ficha novamente.', 'erro');
+    const botao = document.getElementById('ficha-auditoria-botao');
+    const cpf = String(fichaClienteAtual.cpf).replace(/\D/g, '');
+    const consulta = fichaConsultaSequencia;
+    const caminhoCliente = `${window.PATH_CLIENTES}/${cpf}`;
+    const caminhoLogs = window.obterCaminhoUnidade('auditoria');
+    const controlador = new AbortController();
+    const prazo = setTimeout(() => controlador.abort(), 20000);
+    if (botao) { botao.disabled = true; botao.textContent = 'Conferindo banco…'; }
+    try {
+        const token = await window.usuarioLogado.getIdToken();
+        const [cadastro, logs] = await Promise.all([
+            consultarRegistroAtual(caminhoCliente, token, controlador.signal),
+            window.isSimulationMode ? Promise.resolve(null) : consultarRegistroAtual(caminhoLogs, token, controlador.signal)
+        ]);
+        if (consulta !== fichaConsultaSequencia || fichaUnidadeAtual !== window.obterUnidade() || !window.usuarioLogado) return;
+        if (!cadastro) throw new Error('Cadastro não encontrado no banco da unidade.');
+        fichaClienteAtual = cadastro;
+        fichaLogs = filtrarLogsCliente(logs, cpf);
+        fichaAuditoriaCompleta = true;
+        renderizarFichaCliente();
+        if (!window.isSimulationMode) window.logAuditoria?.('Consulta de auditoria', `Ficha do cliente de CPF final ${cpf.slice(-4)} consultada.`, { clienteCpf: cpf });
+        window.mostrarToast('Conferência concluída. O relatório está pronto para imprimir ou salvar em PDF.');
+    } catch (erro) {
+        if (consulta === fichaConsultaSequencia) window.mostrarToast(`Auditoria não concluída: ${erro.name === 'AbortError' ? 'tempo de resposta excedido' : erro.message || 'falha na leitura dos dados'}`, 'erro');
+    } finally {
+        clearTimeout(prazo);
+        if (consulta === fichaConsultaSequencia && botao) { botao.disabled = false; botao.textContent = 'Auditar agora'; }
+    }
+};
+
+window.imprimirExtratoCliente = () => {
+    if (!podeConsultarFichaCliente() || !window.permissoesLogado?.dashboard || !fichaClienteAtual) return;
+    if (fichaUnidadeAtual !== window.obterUnidade()) return window.mostrarToast('Unidade alterada. Abra a ficha novamente.', 'erro');
+    const c = fichaClienteAtual;
+    const extrato = montarExtratoCliente(c, fichaLogs);
+    const secao = document.getElementById('secao-impressao');
+    if (!secao) return;
+    const cpfFinal = String(c.cpf || '').replace(/\D/g, '').slice(-4);
+    const unidade = fichaUnidadeAtual === 'picarras' ? 'Piçarras' : 'Navegantes';
+    const agora = new Date().toLocaleString('pt-BR');
+    const solicitante = String(window.usuarioLogado.email || '').split('@')[0];
+    secao.classList.add('print-extrato');
+    secao.innerHTML = `<article class="extrato-impresso">
+        <header><h1>TOP HAUS · ${fichaAuditoriaCompleta ? 'AUDITORIA DO CLIENTE' : 'EXTRATO DO CLIENTE'}</h1><p>Unidade ${unidade} · Gerado em ${agora} · Solicitado por ${htmlFicha(solicitante)} · Uso interno${window.isSimulationMode ? ' · SIMULAÇÃO' : ''}</p></header>
+        <h2>${htmlFicha(window.nomeExibicao(c.nome))}</h2><p>CPF final ${htmlFicha(cpfFinal)} · Cadastro ${htmlFicha(extrato.cadastro)} · Origem ${htmlFicha(extrato.origemCadastro)}</p>
+        <table><tbody><tr><th>Saldo atual</th><th>Resgates</th><th>Almoços contabilizados</th><th>Datas documentadas</th></tr><tr><td>${extrato.saldo}</td><td>${extrato.resgatesDeclarados}</td><td>${extrato.totalContabilizado}</td><td>${extrato.totalDocumentado}</td></tr></tbody></table>
+        <p>Conciliação: ${extrato.saldo} no saldo + ${extrato.resgatesDeclarados} × 10 resgatados = ${extrato.totalContabilizado} almoços contabilizados. ${extrato.visitasAposUltimoResgate === null ? 'Sem resgate anterior.' : `${extrato.visitasAposUltimoResgate} data(s) de almoço no saldo posteriores ao último resgate.`}</p>
+        <h3>Resultado da conferência</h3>${extrato.alertas.length ? `<ul>${extrato.alertas.map(aviso => `<li>${htmlFicha(aviso)}</li>`).join('')}</ul>` : '<p>Os contadores conferem com as datas digitais disponíveis.</p>'}
+        <p>${htmlFicha(extrato.observacao)}</p>
+        <p>Fonte: cadastro digital ${fichaAuditoriaCompleta ? `${window.isSimulationMode ? 'da simulação; logs reais não incluídos' : `e ${fichaLogs.length} log(s) associados ao CPF`}, relido nesta solicitação` : 'carregado no painel; logs não consultados'}.</p>
+        <h3>Linha do tempo (${extrato.eventos.length} eventos)</h3>
+        <table><tbody>${extrato.eventos.map(evento => `<tr><td>${htmlFicha(evento.data)}</td><td>${htmlFicha(evento.descricao)}${evento.protocolo ? ` · Protocolo ${htmlFicha(evento.protocolo)}` : ''}</td></tr>`).join('')}</tbody></table>
+    </article>`;
+    window.print();
+};
+
+window.addEventListener('afterprint', () => document.getElementById('secao-impressao')?.classList.remove('print-extrato'));
+
 window.reimprimirCupomPorCpf = (c, i) => { 
+    if (!podeConsultarFichaCliente()) return;
     if(window.fecharModal) window.fecharModal('modal-historico'); 
     const cl = window.clientesMap[c]; 
     if(cl && cl.historicoResgates && cl.historicoResgates[i]) {
@@ -659,6 +735,7 @@ window.reimprimirCupomPorCpf = (c, i) => {
 };
 
 window.reimprimirAniversarioPorCpf = (c, i) => { 
+    if (!podeConsultarFichaCliente()) return;
     if(window.fecharModal) window.fecharModal('modal-historico'); 
     const cl = window.clientesMap[c]; 
     if(cl && cl.historicoAniversarios && cl.historicoAniversarios[i]) {

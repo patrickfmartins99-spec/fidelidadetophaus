@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v76-sync';
+const CACHE_NAME = 'tophaus-fidelidade-v77-extrato';
 
 const APP_SHELL = [
   './',
@@ -12,6 +12,7 @@ const APP_SHELL = [
   './firebase.js',
   './auth.js',
   './clientes.js',
+  './cliente-extrato-core.js',
   './marketing.js',
   './totem.js',
   './dashboard.js',
