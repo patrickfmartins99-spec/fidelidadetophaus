@@ -4,9 +4,9 @@
 #app-dashboard .hidden, #tela-login.hidden, #tela-selecao-unidade.hidden { display: none !important; }
 #app-dashboard { background: var(--haus-paper); color: var(--haus-ink); }
 #painel-sidebar { width: 264px; padding: 28px 10px 20px; background: #000; }
-.dashboard-brand { align-items: flex-start; gap: 0; padding: 0 26px 39px; }
-.dashboard-brand-logo { width: 158px; height: 63px; object-position: left; }
-.dashboard-brand > span { margin-left: 12px; font-size: 10px; letter-spacing: .38em; color: #e9d7c8; }
+.dashboard-brand { align-items: center; gap: 0; padding: 0 20px 30px; text-align: center; }
+.dashboard-brand-logo { width: 158px; height: 63px; object-position: center; }
+.dashboard-brand > span { margin-left: 0; font-size: 10px; letter-spacing: .38em; color: #e9d7c8; }
 .dashboard-sidebar-nav { gap: 5px; }
 #app-dashboard .dashboard-nav-item:not(.hidden) { min-height: 54px; padding: 12px 19px; border-radius: 9px; color: #e8e5e2; font-size: 15px; font-weight: 570; }
 #app-dashboard .dashboard-nav-item svg { width: 21px; height: 21px; }
@@ -195,7 +195,7 @@
 
 /* Primeira etapa das pranchas: entrada limpa, superfícies sólidas e logo original sobre preto. */
 #tela-selecao-unidade { background: #000; }
-#tela-login { background: #000; }
+#tela-login { align-items: center; padding: 12px 0; overflow-x: hidden; overflow-y: auto; background: #000; }
 .access-unit-shell { width: min(540px,calc(100% - 32px)); border: 1px solid #3b3734; border-radius: 18px; background: #000; box-shadow: none; }
 .access-unit-brand { padding: 34px 20px 8px; background: #000; }
 .access-unit-brand img { width: 225px; height: 110px; }
@@ -209,27 +209,40 @@
 .access-unit-option strong { font-size: 19px; }
 .access-unit-icon { width: 43px; height: 43px; background: #f4ebe5; }
 .access-footnote { padding-top: 24px; border-top: 1px solid #504b46; color: #c9c1ba; text-align: left; }
-.access-login-shell { display: block; width: min(565px,calc(100% - 32px)); min-height: 0; border: 1px solid #46403b; border-radius: 17px; background: #000; box-shadow: none; }
-.access-form-panel { padding: 29px clamp(24px,5vw,49px) 32px; background: #000; }
-.access-form-brand { display: flex; flex-direction: column; align-items: center; width: 180px; margin: 0 auto 20px; padding: 7px 8px 12px; border-radius: 6px; background: #000; }
-.access-form-brand img { display: block; width: 154px; height: 78px; object-fit: contain; }
+#tela-login > .access-login-shell { display: block; width: min(440px,calc(100% - 28px)); min-height: 0; max-height: none !important; margin: auto; padding: 0 !important; overflow: visible; border: 1px solid #46403b; border-radius: 17px; background: #000; box-shadow: none; }
+.access-form-panel { padding: 22px clamp(22px,4vw,35px) 24px; background: #000; }
+.access-form-brand { display: flex; flex-direction: column; align-items: center; width: 150px; margin: 0 auto 12px; padding: 0 5px 8px; border-radius: 6px; background: #000; }
+.access-form-brand img { display: block; width: 140px; height: 66px; object-fit: contain; }
 .access-form-brand span { margin-top: -4px; color: #f3f1ee; font-size: 10px; letter-spacing: .35em; }
 .access-form-content h1, .access-form-content > .access-subtitle { text-align: left; }
-.access-form-content h1 { color: #fff; font-size: 39px; }
+.access-form-content h1 { color: #fff; font-size: 35px; }
 .access-form-content > .access-subtitle { color: #c6bdb6; }
-.access-selected-unit { margin: 24px 0; border-color: #59504a; border-radius: 10px; background: #191715; }
+.access-selected-unit { min-height: 64px; margin: 15px 0 18px; border-color: #59504a; border-radius: 10px; background: #191715; }
 .access-selected-unit small { color: #baa99c; }
 .access-selected-unit strong { color: #fff; }
 .access-selected-unit button { background: #32261e; color: #e8ba99; }
 .access-selected-unit button:hover { background: #493323; }
 .access-login-form label { color: #f2eeeb; }
-.access-login-form input { min-height: 51px; border-color: #69615b; border-radius: 8px; background: #171615; color: #fff; }
+.access-login-form input { min-height: 46px; margin-bottom: 12px; border-color: #69615b; border-radius: 8px; background: #171615; color: #fff; }
 .access-login-form input::placeholder { color: #a9a09a; }
 .access-login-form input:focus-visible { border-color: #c08159; outline-color: #c08159; }
-#tela-login #btn-login { width: 100%; border-radius: 8px; background: var(--haus-brown); }
+#tela-login #btn-login { width: 100%; min-height: 46px; border-radius: 8px; background: var(--haus-brown); }
+.access-totem-action { margin-top: 10px; }
 .access-totem-action button { border: 1px solid #9d6544; border-radius: 8px; background: #191715; color: #f2d2bc; }
 .access-totem-action button:hover { background: #2a211b; }
-.access-security-note { color: #afa39a; }
+.access-security-note { margin-top: 15px; color: #afa39a; }
+
+@media (max-height: 720px) {
+  .access-form-panel { padding-top: 14px; padding-bottom: 15px; }
+  .access-form-brand { margin-bottom: 6px; }
+  .access-form-brand img { height: 50px !important; }
+  .access-form-content h1 { margin-top: 2px; font-size: 30px; }
+  .access-form-content > .access-subtitle { margin-top: 4px; font-size: 13px; }
+  .access-selected-unit { min-height: 54px; margin: 12px 0; padding: 7px 10px; }
+  .access-login-form input { min-height: 42px; margin-bottom: 9px; }
+  #tela-login #btn-login, .access-totem-action button { min-height: 43px; }
+  .access-security-note { margin-top: 11px; }
+}
 
 /* Formulário e janelas administrativas preservam seus IDs e ações existentes. */
 #application-fragments [id^="modal-"]:not(#modal-totem-saida):not(#modal-marketing):not(#modal-historico):not(.hidden) { background: rgba(0,0,0,.68); backdrop-filter: none; }
@@ -429,9 +442,16 @@
   .dashboard-danger-panel { align-items: flex-start; flex-direction: column; }
   #app-dashboard #painel-clientes .p-6 { padding: 16px; }
   .dashboard-client-filters { padding: 0 16px 13px; }
-  .access-unit-shell, .access-login-shell { width: 100%; min-height: 100dvh; margin: 0; border-radius: 0; }
+  .access-unit-shell { width: 100%; min-height: 100dvh; margin: 0; border-radius: 0; }
+  #tela-login { align-items: center; padding: 12px 0; }
+  #tela-login .access-login-shell { width: min(440px,calc(100% - 24px)); min-height: 0; margin: auto; border-radius: 13px; }
   #modal-marketing > div { width: 100vw; }
   #modal-historico .ficha-modal { width: 100vw; }
-  .access-form-panel { align-items: flex-start; min-height: 100dvh; padding: 28px 23px max(24px,env(safe-area-inset-bottom)); }
+  #tela-login .access-form-panel { align-items: flex-start; min-height: 0; padding: 18px 20px max(18px,env(safe-area-inset-bottom)); }
   .access-unit-content { padding: 18px 24px 30px; }
+}
+
+@media (max-width: 640px) and (max-height: 720px) {
+  #tela-login .access-form-panel { padding-top: 12px; padding-bottom: max(12px,env(safe-area-inset-bottom)); }
+  #tela-login .access-login-form input { min-height: 44px; padding-top: 8px !important; padding-bottom: 8px !important; }
 }

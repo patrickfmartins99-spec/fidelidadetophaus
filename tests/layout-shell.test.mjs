@@ -84,7 +84,7 @@ test('totem preserva teclado nativo, logo original e QR por unidade', () => {
 
 test('refinamento mantém acesso preto e formulário de marketing sem alterar contratos', () => {
   assert.match(visual, /\.access-form-panel \{[^}]*background: #000/);
-  assert.match(visual, /\.access-login-shell \{[^}]*background: #000/);
+  assert.match(visual, /#tela-login > \.access-login-shell \{[^}]*background: #000/);
   assert.match(visual, /#application-fragments \[id\^="modal-"\]/);
   assert.match(modais, /class="marketing-campaign-section/);
   assert.match(modais, /id="mkt-agenda-texto"/);
@@ -92,4 +92,13 @@ test('refinamento mantém acesso preto e formulário de marketing sem alterar co
   for (const id of ['mkt-novo-tipo', 'mkt-novo-titulo', 'mkt-nova-data', 'mkt-novo-horario-unica', 'mkt-nova-freq', 'mkt-novo-horario-rec']) {
     assert.match(marketing, new RegExp(`id="${id}"`));
   }
+});
+
+test('login compacto não corta campos e logotipo da barra lateral fica centralizado', () => {
+  assert.match(visual, /\.dashboard-brand \{[^}]*align-items: center/);
+  assert.match(visual, /\.dashboard-brand-logo \{[^}]*object-position: center/);
+  assert.match(visual, /#tela-login \{[^}]*overflow-y: auto/);
+  assert.match(visual, /#tela-login \.access-login-shell \{[^}]*min-height: 0/);
+  assert.match(visual, /#tela-login \.access-form-panel \{[^}]*min-height: 0/);
+  assert.match(visual, /@media \(max-width: 640px\) and \(max-height: 720px\)/);
 });
