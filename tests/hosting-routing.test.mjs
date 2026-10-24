@@ -12,12 +12,12 @@ const [index, bootstrap, serviceWorker, funcaoTotem] = await Promise.all([
 test('endereço antigo redireciona para o Netlify antes de iniciar o sistema', () => {
   assert.match(index, /patrickfmartins99-spec\.github\.io/);
   assert.match(index, /location\.replace\('https:\/\/fidelidade-tophaus\.netlify\.app\/'\)/);
-  assert.match(index, /bootstrap\.js\?v=20261023-redesign1/);
+  assert.match(index, /bootstrap\.js\?v=20261023-redesign2/);
 });
 
 test('aplicativo instalado procura atualizações sem reutilizar cache antigo', () => {
   assert.match(bootstrap, /serviceWorker\.register\('\.\/sw\.js', \{ updateViaCache: 'none' \}\)/);
-  assert.match(serviceWorker, /v78-redesign/);
+  assert.match(serviceWorker, /v79-redesign/);
   assert.match(bootstrap, /serviceWorker\.addEventListener\('controllerchange'/);
   assert.match(bootstrap, /window\.location\.reload\(\)/);
 });

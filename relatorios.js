@@ -99,7 +99,41 @@ const renderizarTabela = () => {
     definirTexto('relatorio-tabela-contagem', `${clientes.length} de ${analiseAtual.clientes.length} clientes`);
 };
 
+const atualizarVisaoGeral = () => {
+    if (!document.getElementById('overview-novos')) return;
+    const clientes = window.clientesArray || [];
+    const hoje = hojeLocalComoChave();
+    const diario = calcularRelatorioDiario(clientes, hoje);
+    const analise = calcularAnaliseFrequencia(clientes, dataLocalParaUtc(hoje));
+    definirTexto('overview-novos', diario.novos);
+    definirTexto('overview-almocos', diario.almocos);
+    definirTexto('overview-resgates', diario.resgatesTotal);
+    definirTexto('overview-disponiveis', clientes.filter(cliente => !cliente.arquivado && Number(cliente.almocos || 0) >= 10).length);
+
+    const grafico = document.getElementById('overview-fluxo');
+    if (grafico) {
+        const semana = analise.serieDiaria.slice(-7);
+        const maximo = Math.max(1, ...semana.map(dia => dia.total));
+        grafico.innerHTML = semana.map(dia => {
+            const altura = dia.total ? Math.max(7, Math.round(dia.total / maximo * 100)) : 2;
+            const rotulo = new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC', weekday: 'short' }).format(dia.data).replace('.', '');
+            return `<div class="dashboard-flow-day" title="${dia.chave}: ${dia.total} almoço(s)"><strong>${dia.total}</strong><span class="dashboard-flow-track"><i style="height:${altura}%"></i></span><small>${rotulo}</small></div>`;
+        }).join('');
+    }
+    const frequencia = document.getElementById('overview-frequencia');
+    if (frequencia) {
+        const ordem = ['Frequente', 'Regular', 'Ocasional', 'Novo', 'Inativo'];
+        const total = Math.max(1, ordem.reduce((soma, perfil) => soma + (analise.segmentos[perfil] || 0), 0));
+        frequencia.innerHTML = ordem.map(perfil => {
+            const quantidade = analise.segmentos[perfil] || 0;
+            const percentual = Math.round(quantidade / total * 100);
+            return `<div class="dashboard-frequency-row"><span>${perfil}</span><div><i style="width:${percentual}%"></i></div><strong>${quantidade}</strong></div>`;
+        }).join('');
+    }
+};
+
 window.atualizarRelatorios = () => {
+    atualizarVisaoGeral();
     const secao = document.getElementById('aba-relatorios');
     const campoData = document.getElementById('relatorio-data');
     if (!secao || !campoData || window.cargoLogado !== 'admin') return;

@@ -337,13 +337,19 @@ document.addEventListener('keydown', (evento) => {
 });
 
 window.mostrarClientesPainel = () => {
-    window.alternarAba('admin');
+    window.alternarAba('clientes');
     requestAnimationFrame(() => document.getElementById('painel-clientes')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
 };
 
+window.abrirClientesComFiltro = (filtro) => {
+    window.alternarAba('clientes');
+    window.filtrarLista(filtro);
+};
+
 window.alternarAba = (a) => {
-    const nomes = ['caixa', 'admin', 'relatorios'];
+    const nomes = ['caixa', 'admin', 'clientes', 'relatorios'];
     if (!nomes.includes(a)) return;
+    if (a === 'clientes' && document.getElementById('btn-nav-clientes')?.classList.contains('hidden')) return;
     if (a === 'relatorios' && window.cargoLogado !== 'admin') {
         if (window.mostrarToast) window.mostrarToast('Relatórios disponíveis somente para administradores.', 'erro');
         return;
@@ -355,12 +361,17 @@ window.alternarAba = (a) => {
         if (secao) secao.classList.toggle('hidden', nome !== a);
         botao?.classList.toggle('is-active', nome === a);
         botao?.setAttribute('aria-current', nome === a ? 'page' : 'false');
+        if (nome === 'clientes') {
+            const clientesNav = document.getElementById('btn-nav-clientes');
+            clientesNav?.classList.toggle('is-active', nome === a);
+            clientesNav?.setAttribute('aria-current', nome === a ? 'page' : 'false');
+        }
         const mobile = document.getElementById(`btn-mobile-${nome}`);
         mobile?.classList.toggle('is-active', nome === a);
         mobile?.setAttribute('aria-current', nome === a ? 'page' : 'false');
     });
 
-    const titulos = { caixa: 'Caixa', admin: 'Visão geral', relatorios: 'Relatórios' };
+    const titulos = { caixa: 'Caixa', admin: 'Visão geral', clientes: 'Clientes', relatorios: 'Relatórios' };
     const titulo = document.getElementById('titulo-aba-painel');
     if (titulo) titulo.textContent = titulos[a];
     window.fecharMenuPainel();
@@ -370,8 +381,8 @@ window.alternarAba = (a) => {
         // Em telas de toque, abrir o teclado sem o usuário tocar no campo ocupa
         // metade da área útil e atrapalha o atendimento.
         if(bCpf && window.matchMedia?.('(pointer: fine)').matches) setTimeout(() => bCpf.focus(), 50);
-    } else if (a === 'admin') {
-        window.filtrarLista('todos');
+    } else if (a === 'clientes') {
+        window.filtrarLista(window.filtroAtual || 'todos');
     } else if (window.atualizarRelatorios) {
         window.atualizarRelatorios();
     }
@@ -464,21 +475,21 @@ window.calcularNotificacoesPainel = () => {
     
     if(nNiv > 0) {
         p.innerHTML += `
-            <div onclick="filtrarLista('alerta_niver')" class="bg-red-50 border border-red-200 p-4 rounded-xl cursor-pointer hover:bg-red-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="abrirClientesComFiltro('alerta_niver')" class="bg-red-50 border border-red-200 p-4 rounded-xl cursor-pointer hover:bg-red-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="cake" class="w-8 h-8 text-red-500"></i>
                 <div><p class="text-sm font-bold text-red-800">Aniversários!</p><p class="text-xs text-red-600"><strong>${nNiv}</strong> pendentes.</p></div>
             </div>`;
     }
     if(nPre > 0) {
         p.innerHTML += `
-            <div onclick="filtrarLista('alerta_premio')" class="bg-amber-50 border border-amber-200 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="abrirClientesComFiltro('alerta_premio')" class="bg-amber-50 border border-amber-200 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="gift" class="w-8 h-8 text-amber-500"></i>
                 <div><p class="text-sm font-bold text-amber-800">Prêmios!</p><p class="text-xs text-amber-600"><strong>${nPre}</strong> pendentes.</p></div>
             </div>`;
     }
     if(nIna > 0) {
         p.innerHTML += `
-            <div onclick="filtrarLista('alerta_inativos')" class="bg-blue-50 border border-blue-200 p-4 rounded-xl cursor-pointer hover:bg-blue-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="abrirClientesComFiltro('alerta_inativos')" class="bg-blue-50 border border-blue-200 p-4 rounded-xl cursor-pointer hover:bg-blue-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="user-minus" class="w-8 h-8 text-blue-500"></i>
                 <div><p class="text-sm font-bold text-blue-800">Ausentes!</p><p class="text-xs text-blue-600"><strong>${nIna}</strong> (+15 dias).</p></div>
             </div>`;

@@ -11,7 +11,7 @@
                 <p class="dashboard-nav-label">Navegação</p>
                 <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="layout-dashboard"></i> Visão geral</button>
                 <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn dashboard-nav-item" type="button"><i data-lucide="calculator"></i> Caixa</button>
-                <button onclick="mostrarClientesPainel()" id="btn-nav-clientes" class="dashboard-nav-item hidden" type="button"><i data-lucide="users-round"></i> Clientes</button>
+                <button onclick="alternarAba('clientes')" id="btn-nav-clientes" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="users-round"></i> Clientes</button>
                 <button onclick="alternarAba('relatorios')" id="btn-aba-relatorios" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="chart-no-axes-combined"></i> Relatórios</button>
                 <button onclick="fecharMenuPainel(); abrirCentralMarketing()" id="btn-nav-marketing" class="dashboard-nav-item hidden" type="button"><i data-lucide="megaphone"></i> Marketing</button>
                 <details id="nav-gestao" class="dashboard-management hidden">
@@ -47,7 +47,7 @@
             <nav class="dashboard-mobile-nav" aria-label="Navegação rápida">
                 <button id="btn-mobile-admin" type="button" class="hidden" onclick="alternarAba('admin')"><i data-lucide="layout-dashboard"></i><span>Painel</span></button>
                 <button id="btn-mobile-caixa" type="button" onclick="alternarAba('caixa')"><i data-lucide="calculator"></i><span>Caixa</span></button>
-                <button id="btn-mobile-relatorios" type="button" class="hidden" onclick="alternarAba('relatorios')"><i data-lucide="chart-no-axes-combined"></i><span>Relatórios</span></button>
+                <button id="btn-mobile-clientes" type="button" class="hidden" onclick="alternarAba('clientes')"><i data-lucide="users-round"></i><span>Clientes</span></button>
                 <button id="btn-mobile-mais" type="button" onclick="abrirMenuPainel()"><i data-lucide="menu"></i><span>Mais</span></button>
             </nav>
 
@@ -59,28 +59,30 @@
         </div>
         <main id="painel-conteudo" class="hidden max-w-7xl mx-auto px-4 pb-12" aria-busy="true" inert>
             
-            <section id="aba-caixa" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+            <section id="aba-caixa" class="dashboard-caixa-layout">
+                <div class="dashboard-section-intro"><p class="dashboard-eyebrow">ATENDIMENTO</p><h2>Caixa</h2><p>Busque um cliente pelo CPF para registrar o almoço e acompanhar seus benefícios.</p></div>
+                <div class="dashboard-caixa-search bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <div>
                         <div class="flex items-center gap-2 mb-4 text-slate-900">
-                            <i data-lucide="check-square" class="w-6 h-6"></i>
-                            <h2 class="text-xl font-bold">Buscar Cliente</h2>
+                            <i data-lucide="search" class="w-6 h-6"></i>
+                            <h2 class="text-xl font-bold">Buscar cliente por CPF</h2>
                         </div>
-                        <p class="text-sm text-slate-500 mb-4 text-center">Insira o CPF do cliente para iniciar o atendimento.</p>
-                        <div class="mb-4">
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-center">CPF</label>
+                        <p class="text-sm text-slate-500 mb-4">Digite o CPF para iniciar o atendimento.</p>
+                        <div class="dashboard-caixa-field">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1" for="busca-cpf">CPF do cliente</label>
                             <input type="tel" inputmode="numeric" id="busca-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" onkeydown="if(event.key==='Enter') buscarEContabilizar()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 font-mono text-lg text-center">
                         </div>
                     </div>
                     <button id="btn-caixa-buscar" onclick="buscarEContabilizar()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
-                        <i data-lucide="search" class="w-5 h-5"></i> <span id="btn-caixa-buscar-text">Buscar cliente (Enter)</span>
+                        <i data-lucide="search" class="w-5 h-5"></i> <span id="btn-caixa-buscar-text">Buscar cliente</span>
                     </button>
                 </div>
 
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="flex items-center gap-2 mb-4 text-slate-900">
+                <details id="caixa-cadastro-detalhes" class="dashboard-caixa-cadastro bg-white rounded-2xl shadow-sm border border-slate-100">
+                    <summary class="dashboard-caixa-cadastro-summary"><span><i data-lucide="user-plus"></i><strong>Cadastrar novo cliente</strong></span><span>Se o cliente ainda não participa do programa, abra o cadastro aqui. <i data-lucide="chevron-down"></i></span></summary>
+                    <div class="dashboard-caixa-cadastro-content"><div class="flex items-center gap-2 mb-4 text-slate-900">
                         <i data-lucide="user-plus" class="w-6 h-6"></i>
-                        <h2 class="text-xl font-bold">Cadastrar Cliente</h2>
+                        <h2 class="text-xl font-bold">Novo cadastro</h2>
                     </div>
                     <form id="form-cadastro" onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -105,26 +107,50 @@
                             </button>
                         </div>
                     </form>
-                </div>
+                    </div>
+                </details>
             </section>
 
             <section id="aba-admin" class="hidden space-y-6">
-                <div id="painel-notificacoes" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 empty:hidden"></div>
+                <div class="dashboard-welcome">
+                    <div><p class="dashboard-eyebrow">VISÃO GERAL DA UNIDADE</p><h2>Bem-vindo à Top Haus.</h2><p>O movimento de hoje e os clientes que merecem atenção, em um só lugar.</p></div>
+                    <button type="button" onclick="alternarAba('relatorios')" id="dashboard-ver-relatorios" class="dashboard-outline-action hidden"><i data-lucide="chart-no-axes-combined"></i> Ver relatórios</button>
+                </div>
+                <div class="dashboard-today-metrics" aria-label="Resumo de hoje">
+                    <article><span class="dashboard-metric-icon"><i data-lucide="user-plus"></i></span><p>Novos clientes</p><strong id="overview-novos">—</strong><small>Cadastrados hoje</small></article>
+                    <article><span class="dashboard-metric-icon"><i data-lucide="utensils-crossed"></i></span><p>Almoços registrados</p><strong id="overview-almocos">—</strong><small>Registros de hoje</small></article>
+                    <article><span class="dashboard-metric-icon"><i data-lucide="gift"></i></span><p>Prêmios resgatados</p><strong id="overview-resgates">—</strong><small>Resgates de hoje</small></article>
+                    <article><span class="dashboard-metric-icon"><i data-lucide="ticket-check"></i></span><p>Benefícios disponíveis</p><strong id="overview-disponiveis">—</strong><small>Clientes aptos a resgatar</small></article>
+                </div>
+                <div class="dashboard-insights">
+                    <article class="dashboard-insight-card dashboard-flow-card"><div class="dashboard-card-heading"><div><p class="dashboard-eyebrow">MOVIMENTO</p><h3>Fluxo de almoços</h3><span>Últimos 7 dias</span></div><span class="dashboard-chart-key"><i></i> Almoços</span></div><div id="overview-fluxo" class="dashboard-flow-chart" aria-label="Gráfico de almoços dos últimos sete dias"></div></article>
+                    <article class="dashboard-insight-card dashboard-attention-card"><div class="dashboard-card-heading"><div><p class="dashboard-eyebrow">ACOMPANHAMENTO</p><h3>Precisam de atenção</h3><span>Atalhos para a lista de clientes</span></div></div><div id="painel-notificacoes" class="dashboard-alert-list empty:hidden"></div><p id="overview-sem-alertas" class="dashboard-empty-note">Nenhum alerta no momento.</p></article>
+                </div>
+                <div class="dashboard-insights dashboard-insights-secondary">
+                    <article class="dashboard-insight-card"><div class="dashboard-card-heading"><div><p class="dashboard-eyebrow">RELACIONAMENTO</p><h3>Frequência dos clientes</h3><span>Classificação pelos últimos 30 dias</span></div></div><div id="overview-frequencia" class="dashboard-frequency-list"></div></article>
+                    <article class="dashboard-insight-card"><div class="dashboard-card-heading"><div><p class="dashboard-eyebrow">ACESSO RÁPIDO</p><h3>O que deseja fazer?</h3></div></div><div class="dashboard-quick-actions"><button type="button" id="dashboard-atalho-caixa" onclick="alternarAba('caixa')"><i data-lucide="calculator"></i><span>Atender no caixa</span><b>→</b></button><button type="button" onclick="alternarAba('clientes')"><i data-lucide="users-round"></i><span>Consultar clientes</span><b>→</b></button><button type="button" id="dashboard-atalho-marketing" class="hidden" onclick="abrirCentralMarketing()"><i data-lucide="megaphone"></i><span>Campanhas</span><b>→</b></button></div></article>
+                </div>
+            </section>
 
+            <section id="aba-clientes" class="hidden space-y-6">
+                <div class="dashboard-section-intro"><p class="dashboard-eyebrow">BASE DE CLIENTES</p><h2>Clientes</h2><p>Consulte cadastros, acompanhe benefícios e filtre os grupos da unidade.</p></div>
+                <details class="dashboard-client-metrics">
+                    <summary><span><i data-lucide="bar-chart-3"></i> Indicadores e filtros da base</span><i data-lucide="chevron-down"></i></summary>
+                    <div class="dashboard-client-metrics-content">
                 <div class="dashboard-primary-metrics grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div onclick="filtrarLista('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
+                    <div onclick="abrirClientesComFiltro('todos')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-500 uppercase">Todos os clientes</p>
                         <p id="card-total" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden text-center">
+                    <div onclick="abrirClientesComFiltro('premios')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition relative overflow-hidden text-center">
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="gift" class="w-4 h-4 text-gray-800"></i> Prêmios a resgatar</p>
                         <p id="card-premios" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
+                    <div onclick="abrirClientesComFiltro('vips')" class="bg-white p-4 rounded-xl shadow-sm border border-gray-300 cursor-pointer hover:border-black transition text-center">
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="medal" class="w-4 h-4 text-gray-800"></i> Clientes VIP</p>
                         <p id="card-vips" class="text-2xl font-black text-black">0</p>
                     </div>
-                    <div onclick="filtrarLista('niver_mes')" class="bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden text-center">
+                    <div onclick="abrirClientesComFiltro('niver_mes')" class="bg-white p-4 rounded-xl shadow-sm border border-black cursor-pointer hover:bg-gray-50 transition relative overflow-hidden text-center">
                         <div class="absolute top-0 right-0 w-2 h-full bg-black"></div>
                         <p class="text-xs font-bold text-gray-800 uppercase flex items-center justify-center gap-1"><i data-lucide="cake" class="w-4 h-4 text-gray-800"></i> Aniversariantes</p>
                         <p id="card-niver-central" class="text-2xl font-black text-black">0</p>
@@ -144,11 +170,13 @@
                         <p class="text-[10px] font-bold text-slate-500 uppercase">Reativados</p>
                         <p id="card-reativacao" class="text-lg font-black text-blue-600">--</p>
                     </div>
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="filtrarLista('inativos_30d')">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center cursor-pointer hover:bg-slate-50 transition" onclick="abrirClientesComFiltro('inativos_30d')">
                         <p class="text-[10px] font-bold text-slate-500 uppercase">Inativos (+30d)</p>
                         <p id="card-inativos-total" class="text-lg font-black text-red-600">--</p>
                     </div>
                 </div>
+                    </div>
+                </details>
 
                 <div id="painel-clientes" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     
@@ -168,7 +196,7 @@
 
                     <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">Painel de Clientes</h2>
+                            <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">Lista de clientes</h2>
                             <p class="text-xs text-slate-400 mt-0.5" id="filtro-atual-texto">Exibindo: Todos os clientes</p>
                         </div>
                         <div class="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
