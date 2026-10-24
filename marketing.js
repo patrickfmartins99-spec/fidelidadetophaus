@@ -78,7 +78,7 @@ window.renderizarFilaEnvios = (snapshot) => {
     
     msgs.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-    msgs.forEach(m => {
+    area.innerHTML = msgs.map(m => {
         const status = m.status || 'pendente';
         let statusHtml = '';
         let bgClass = 'bg-gray-50 border-gray-200';
@@ -105,7 +105,7 @@ window.renderizarFilaEnvios = (snapshot) => {
             botoes += `<button onclick="reenviarMensagemFila('${m.id}')" class="text-indigo-400 hover:text-indigo-600 p-1.5 transition rounded hover:bg-indigo-50 ml-1" title="Tentar Novamente"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>`;
         }
 
-        area.innerHTML += `
+        return `
             <div class="p-3 mb-2 rounded-xl border ${bgClass} flex justify-between items-center text-sm shadow-sm transition">
                 <div class="flex-1 min-w-0 pr-4">
                     <p class="font-bold text-gray-800">${window.formatarTel(m.telefone) || 'Sem número'} <span class="text-[10px] text-gray-400 font-normal ml-2">${dataStr}</span></p>
@@ -117,7 +117,7 @@ window.renderizarFilaEnvios = (snapshot) => {
                 </div>
             </div>
         `;
-    });
+    }).join('');
 
     if(window.lucide) window.lucide.createIcons();
 };
