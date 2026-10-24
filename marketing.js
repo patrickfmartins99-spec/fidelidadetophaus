@@ -326,6 +326,41 @@ window.mesclarControlesDoRobo = (campanhaLocal, campanhaServidor) => {
 // ==========================================================================
 // CENTRAL GERENCIAL DE MARKETING
 // ==========================================================================
+window.atualizarPainelMarketing = async () => {
+    const lista = document.getElementById('marketing-lista-campanhas');
+    if (!lista || !window.permissoesLogado?.marketing) return;
+    lista.innerHTML = '<p class="dashboard-empty-note">Carregando campanhas…</p>';
+    const unidade = window.obterUnidade();
+    try {
+        const [config, fila] = await Promise.all([
+            window.firebaseGet(window.firebaseRef(window.db, window.obterCaminhoMarketingReal())),
+            window.firebaseGet(window.firebaseRef(window.db, window.obterCaminhoUnidade('fila_mensagens')))
+        ]);
+        if (unidade !== window.obterUnidade() || document.getElementById('aba-marketing')?.classList.contains('hidden')) return;
+        const campanhas = Object.values(config.val()?.agendadas || {}).filter(c => c && typeof c === 'object');
+        const mensagens = Object.values(fila.val() || {}).filter(m => m && typeof m === 'object');
+        const contagens = {
+            agendadas: campanhas.filter(c => ['ativa', 'agendada'].includes(String(c.status || 'ativa').toLowerCase())).length,
+            pendentes: mensagens.filter(m => ['pendente', 'processando', 'enviando'].includes(String(m.status || 'pendente').toLowerCase())).length,
+            enviadas: mensagens.filter(m => ['enviado', 'sucesso'].includes(String(m.status || '').toLowerCase())).length,
+            falhas: mensagens.filter(m => ['erro', 'falha'].includes(String(m.status || '').toLowerCase())).length
+        };
+        Object.entries(contagens).forEach(([chave, valor]) => {
+            const elemento = document.getElementById(`marketing-${chave}`);
+            if (elemento) elemento.textContent = valor;
+        });
+        lista.innerHTML = campanhas.length ? campanhas.map(c => {
+            const titulo = window.escapeHTML(c.titulo || 'Campanha sem título');
+            const tipo = c.tipo === 'unica' ? 'Disparo único' : (c.frequenciaExibicao || c.frequencia || 'Recorrente');
+            const data = c.data ? ` · ${window.escapeHTML(c.data)}` : '';
+            const horario = c.horario || c.configRecorrencia?.horario;
+            return `<article class="dashboard-result-row"><div><strong>${titulo}</strong><small>${window.escapeHTML(tipo)}${data}${horario ? ` · ${window.escapeHTML(horario)}` : ''}</small></div><span class="dashboard-status-pill">${window.escapeHTML(c.status || 'ativa')}</span><button type="button" onclick="abrirCentralMarketing()">Ver detalhes</button></article>`;
+        }).join('') : '<p class="dashboard-empty-note">Nenhuma campanha cadastrada nesta unidade.</p>';
+    } catch (erro) {
+        lista.innerHTML = '<p class="dashboard-empty-note">Não foi possível carregar as campanhas e a fila. Tente novamente.</p>';
+    }
+};
+
 window.abrirCentralMarketing = async () => {
     window.injetarUICampanhas();
 
@@ -610,6 +645,7 @@ window.salvarCentralMarketing = async () => {
         if(btn) btn.disabled = false;
         if(span) span.innerText = 'Salvar alterações';
         if(window.fecharModal) window.fecharModal('modal-marketing'); 
+        if (!document.getElementById('aba-marketing')?.classList.contains('hidden')) window.atualizarPainelMarketing?.();
     } catch (erro) {
         console.error('Não foi possível salvar as campanhas:', erro);
         window.mostrarToast("Não foi possível salvar. Tente novamente.", "erro");

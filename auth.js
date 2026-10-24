@@ -634,7 +634,11 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
     if (btnCaixa) permissoes.caixa ? btnCaixa.classList.remove('hidden') : btnCaixa.classList.add('hidden');
     if (btnRelatorios) cargo === 'admin' ? btnRelatorios.classList.remove('hidden') : btnRelatorios.classList.add('hidden');
     if (btnClientesNav) btnClientesNav.classList.toggle('hidden', !permissoes.dashboard);
+    document.getElementById('btn-nav-resgates')?.classList.toggle('hidden', !permissoes.dashboard);
     if (btnMarketingNav) btnMarketingNav.classList.toggle('hidden', !permissoes.marketing);
+    document.getElementById('btn-nav-auditoria')?.classList.toggle('hidden', !permissoes.auditoria);
+    const podeGerir = !!(permissoes.usuarios || permissoes.configuracoes || permissoes.clientes || permissoes.reset || permissoes.simulacao);
+    document.getElementById('btn-nav-administracao')?.classList.toggle('hidden', !podeGerir);
     if (btnGestaoNav) btnGestaoNav.classList.toggle('hidden', !permissoes.dashboard);
     if (btnTotemNav) btnTotemNav.classList.toggle('hidden', !permissoes.totem);
     document.getElementById('btn-mobile-admin')?.classList.toggle('hidden', !permissoes.dashboard);
@@ -643,6 +647,10 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
     document.getElementById('dashboard-ver-relatorios')?.classList.toggle('hidden', cargo !== 'admin');
     document.getElementById('dashboard-atalho-caixa')?.classList.toggle('hidden', !permissoes.caixa);
     document.getElementById('dashboard-atalho-marketing')?.classList.toggle('hidden', !permissoes.marketing);
+    document.getElementById('btn-clientes-cadastrar')?.classList.toggle('hidden', !permissoes.caixa);
+    document.querySelectorAll('[data-permissao]').forEach(el => el.classList.toggle('hidden', !permissoes[el.dataset.permissao]));
+    const destinoPermitido = { resgates: !!permissoes.dashboard, marketing: !!permissoes.marketing, relatorios: cargo === 'admin', auditoria: !!permissoes.auditoria, gestao: podeGerir };
+    document.querySelectorAll('[data-destino]').forEach(el => el.classList.toggle('hidden', !destinoPermitido[el.dataset.destino]));
     if (btnSimulacao) permissoes.simulacao ? btnSimulacao.classList.remove('hidden') : btnSimulacao.classList.add('hidden');
     if (btnZerar) permissoes.reset ? btnZerar.classList.remove('hidden') : btnZerar.classList.add('hidden');
     if (btnAcessos) permissoes.usuarios ? btnAcessos.classList.remove('hidden') : btnAcessos.classList.add('hidden');

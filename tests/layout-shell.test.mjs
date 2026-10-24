@@ -2,12 +2,16 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 
-const [painel, acesso, auth, navegacao, relatorios] = await Promise.all([
+const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build] = await Promise.all([
   readFile(new URL('../fragments/dashboard.html', import.meta.url), 'utf8'),
   readFile(new URL('../fragments/access.html', import.meta.url), 'utf8'),
   readFile(new URL('../auth.js', import.meta.url), 'utf8'),
   readFile(new URL('../dashboard.js', import.meta.url), 'utf8'),
-  readFile(new URL('../relatorios.js', import.meta.url), 'utf8')
+  readFile(new URL('../relatorios.js', import.meta.url), 'utf8'),
+  readFile(new URL('../fragments/totem.html', import.meta.url), 'utf8'),
+  readFile(new URL('../design-system.css', import.meta.url), 'utf8'),
+  readFile(new URL('../index.html', import.meta.url), 'utf8'),
+  readFile(new URL('../scripts/build.mjs', import.meta.url), 'utf8')
 ]);
 
 test('painel usa logotipo original e preserva uma única ação por identificador', () => {
@@ -36,7 +40,7 @@ test('navegação móvel e lateral respeitam as permissões existentes', () => {
   assert.match(auth, /btn-nav-marketing'\)/);
   assert.match(navegacao, /window\.fecharMenuPainel\(\)/);
   assert.match(navegacao, /menu\.inert = window\.innerWidth < 1024/);
-  assert.match(navegacao, /const nomes = \['caixa', 'admin', 'clientes', 'relatorios'\]/);
+  assert.match(navegacao, /const nomes = \['caixa', 'admin', 'clientes', 'resgates', 'marketing', 'relatorios', 'auditoria', 'gestao', 'mais'\]/);
 });
 
 test('entrada e visão geral usam estrutura própria e cálculos existentes', () => {
@@ -48,4 +52,25 @@ test('entrada e visão geral usam estrutura própria e cálculos existentes', ()
   assert.match(painel, /id="overview-frequencia"/);
   assert.match(relatorios, /const diario = calcularRelatorioDiario\(clientes, hoje\)/);
   assert.match(relatorios, /const analise = calcularAnaliseFrequencia\(clientes, dataLocalParaUtc\(hoje\)\)/);
+});
+
+test('pranchas possuem seções reais, navegação móvel e folha incluída no build', () => {
+  for (const id of ['aba-resgates', 'aba-marketing', 'aba-auditoria', 'aba-gestao', 'aba-mais']) {
+    assert.match(painel, new RegExp(`id="${id}"`));
+  }
+  for (const id of ['btn-mobile-admin', 'btn-mobile-caixa', 'btn-mobile-clientes', 'btn-mobile-mais']) {
+    assert.match(painel, new RegExp(`id="${id}"`));
+  }
+  assert.match(index, /design-system\.css/);
+  assert.match(build, /'design-system\.css'/);
+  assert.match(visual, /\.dashboard-insights \{ grid-template-columns:/);
+  assert.match(visual, /\.dashboard-mobile-nav/);
+});
+
+test('totem preserva teclado nativo, logo original e QR por unidade', () => {
+  assert.match(totem, /src="\.\/logo\.jpg"/);
+  assert.match(totem, /id="totem-unidade-nome"/);
+  assert.match(totem, /id="totem-cpf"[^>]*inputmode="numeric"|inputmode="numeric"[^>]*id="totem-cpf"/);
+  assert.match(visual, /totem-native-keyboard-open/);
+  assert.doesNotMatch(totem, /teclado-virtual|virtual-keyboard/);
 });

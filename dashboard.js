@@ -121,6 +121,16 @@ function exibirEstadoDados(estado) {
     };
     if (texto) texto.textContent = mensagens[estado] || '';
     document.getElementById('painel-reconectar')?.classList.toggle('hidden', pronto || estado === 'carregando');
+    const indicador = document.getElementById('dashboard-sync-status');
+    const indicadorTexto = document.getElementById('dashboard-sync-texto');
+    if (indicador?.dataset) indicador.dataset.state = estado;
+    if (indicadorTexto) indicadorTexto.textContent = pronto ? 'Dados sincronizados' : (estado === 'carregando' ? 'Conectando aos dados' : 'Dados indisponíveis');
+    const rodape = document.getElementById('dashboard-online-note');
+    if (rodape) {
+        if (rodape.dataset) rodape.dataset.state = estado;
+        const textoRodape = rodape.querySelector?.('[data-sync-label]');
+        if (textoRodape) textoRodape.textContent = pronto ? 'Sistema conectado' : 'Sistema sem dados';
+    }
 }
 
 function aguardarDados() {
@@ -153,6 +163,7 @@ window.aplicarSnapshotClientes = (snapshot) => {
     window.atualizarIndicadores();
     window.calcularNotificacoesPainel();
     window.filtrarLista(window.filtroAtual);
+    if (!document.getElementById('aba-resgates')?.classList.contains('hidden')) window.renderizarResgates?.();
     if (window.atualizarRelatorios) window.atualizarRelatorios();
 
     const modalLixeira = document.getElementById('modal-lixeira');
@@ -346,10 +357,44 @@ window.abrirClientesComFiltro = (filtro) => {
     window.filtrarLista(filtro);
 };
 
+window.abrirAtendimentoResgate = (cpf) => {
+    if (!window.permissoesLogado?.caixa) return window.mostrarToast?.('Seu perfil não tem acesso ao caixa.', 'erro');
+    window.alternarAba('caixa');
+    const busca = document.getElementById('busca-cpf');
+    if (!busca) return;
+    busca.value = window.formatarCPF(String(cpf).replace(/\D/g, ''));
+    window.buscarEContabilizar();
+};
+
+window.abrirCadastroCliente = () => {
+    window.alternarAba('caixa');
+    const cadastro = document.getElementById('caixa-cadastro-detalhes');
+    if (cadastro) cadastro.open = true;
+    requestAnimationFrame(() => {
+        cadastro?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('cad-cpf')?.focus({ preventScroll: true });
+    });
+};
+
 window.alternarAba = (a) => {
-    const nomes = ['caixa', 'admin', 'clientes', 'relatorios'];
+    const nomes = ['caixa', 'admin', 'clientes', 'resgates', 'marketing', 'relatorios', 'auditoria', 'gestao', 'mais'];
     if (!nomes.includes(a)) return;
-    if (a === 'clientes' && document.getElementById('btn-nav-clientes')?.classList.contains('hidden')) return;
+    const permissoes = window.permissoesLogado || {};
+    const permitida = {
+        caixa: !!permissoes.caixa,
+        admin: !!permissoes.dashboard,
+        clientes: !!permissoes.dashboard,
+        resgates: !!permissoes.dashboard,
+        marketing: !!permissoes.marketing,
+        relatorios: window.cargoLogado === 'admin',
+        auditoria: !!permissoes.auditoria,
+        gestao: !!(permissoes.usuarios || permissoes.configuracoes || permissoes.clientes || permissoes.reset || permissoes.simulacao),
+        mais: true
+    };
+    if (!permitida[a]) {
+        window.mostrarToast?.('Seu perfil não tem acesso a esta área.', 'erro');
+        return;
+    }
     if (a === 'relatorios' && window.cargoLogado !== 'admin') {
         if (window.mostrarToast) window.mostrarToast('Relatórios disponíveis somente para administradores.', 'erro');
         return;
@@ -361,17 +406,22 @@ window.alternarAba = (a) => {
         if (secao) secao.classList.toggle('hidden', nome !== a);
         botao?.classList.toggle('is-active', nome === a);
         botao?.setAttribute('aria-current', nome === a ? 'page' : 'false');
-        if (nome === 'clientes') {
-            const clientesNav = document.getElementById('btn-nav-clientes');
-            clientesNav?.classList.toggle('is-active', nome === a);
-            clientesNav?.setAttribute('aria-current', nome === a ? 'page' : 'false');
+        const navExtra = { clientes: 'btn-nav-clientes', resgates: 'btn-nav-resgates', marketing: 'btn-nav-marketing', auditoria: 'btn-nav-auditoria', gestao: 'btn-nav-administracao' }[nome];
+        if (navExtra) {
+            const extra = document.getElementById(navExtra);
+            extra?.classList.toggle('is-active', nome === a);
+            extra?.setAttribute('aria-current', nome === a ? 'page' : 'false');
         }
         const mobile = document.getElementById(`btn-mobile-${nome}`);
         mobile?.classList.toggle('is-active', nome === a);
         mobile?.setAttribute('aria-current', nome === a ? 'page' : 'false');
     });
+    const botaoMais = document.getElementById('btn-mobile-mais');
+    const maisAtivo = ['mais', 'resgates', 'marketing', 'relatorios', 'auditoria', 'gestao'].includes(a);
+    botaoMais?.classList.toggle('is-active', maisAtivo);
+    botaoMais?.setAttribute('aria-current', maisAtivo ? 'page' : 'false');
 
-    const titulos = { caixa: 'Caixa', admin: 'Visão geral', clientes: 'Clientes', relatorios: 'Relatórios' };
+    const titulos = { caixa: 'Caixa', admin: 'Visão geral', clientes: 'Clientes', resgates: 'Resgates', marketing: 'Marketing', relatorios: 'Relatórios', auditoria: 'Auditoria', gestao: 'Administração', mais: 'Mais' };
     const titulo = document.getElementById('titulo-aba-painel');
     if (titulo) titulo.textContent = titulos[a];
     window.fecharMenuPainel();
@@ -383,7 +433,13 @@ window.alternarAba = (a) => {
         if(bCpf && window.matchMedia?.('(pointer: fine)').matches) setTimeout(() => bCpf.focus(), 50);
     } else if (a === 'clientes') {
         window.filtrarLista(window.filtroAtual || 'todos');
-    } else if (window.atualizarRelatorios) {
+    } else if (a === 'resgates') {
+        window.renderizarResgates?.();
+    } else if (a === 'marketing') {
+        window.atualizarPainelMarketing?.();
+    } else if (a === 'auditoria') {
+        window.atualizarAuditoriaPagina?.();
+    } else if (a === 'relatorios' && window.atualizarRelatorios) {
         window.atualizarRelatorios();
     }
 };
@@ -502,6 +558,10 @@ window.calcularNotificacoesPainel = () => {
 // ==========================================================================
 window.filtrarLista = (t, dI=null, dF=null) => {
     window.filtroAtual = t; 
+    document.querySelectorAll('[data-client-filter]').forEach(botao => {
+        botao.classList.toggle('is-active', botao.dataset.clientFilter === t);
+        botao.setAttribute('aria-pressed', String(botao.dataset.clientFilter === t));
+    });
     const tf = document.getElementById('filtro-atual-texto');
     const sf = document.getElementById('sub-filtros-niver'); 
     let l = [];
@@ -606,6 +666,60 @@ window.renderizarTabela = (l) => {
         tb.appendChild(tr);
     }); 
     if(window.lucide) window.lucide.createIcons();
+};
+
+window.abaResgatesAtual = 'disponiveis';
+window.selecionarAbaResgates = (aba) => {
+    if (!['disponiveis', 'concluidos'].includes(aba)) return;
+    window.abaResgatesAtual = aba;
+    window.renderizarResgates();
+};
+
+window.renderizarResgates = () => {
+    const lista = document.getElementById('resgates-lista');
+    if (!lista) return;
+    const clientes = (window.clientesArray || []).filter(c => c && !c.arquivado);
+    const termo = (document.getElementById('resgates-busca')?.value || '').replace(/\D/g, '') || null;
+    const buscaTexto = (document.getElementById('resgates-busca')?.value || '').trim().toLocaleLowerCase('pt-BR');
+    const confereBusca = c => !buscaTexto || (c.nome || '').toLocaleLowerCase('pt-BR').includes(buscaTexto) || (termo && String(c.cpf || '').includes(termo));
+    const disponiveis = clientes.filter(c => Number(c.almocos || 0) >= 10);
+    document.getElementById('resgates-disponiveis').textContent = disponiveis.length;
+    document.querySelectorAll('[data-resgates-tab]').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.resgatesTab === window.abaResgatesAtual);
+        b.setAttribute('aria-pressed', String(b.dataset.resgatesTab === window.abaResgatesAtual));
+    });
+
+    if (window.abaResgatesAtual === 'disponiveis') {
+        const resultados = disponiveis.filter(confereBusca).sort((a, b) => Number(b.almocos || 0) - Number(a.almocos || 0));
+        lista.innerHTML = resultados.length ? resultados.map(c => {
+            const cpf = String(c.cpf || '').replace(/\D/g, '');
+            const saldo = Number(c.almocos || 0);
+            return `<article class="dashboard-result-row"><div><strong>${window.escapeHTML(window.nomeExibicao(c.nome))}</strong><small>CPF ${window.formatarCPF(cpf)} · ${saldo} almoço(s) no saldo</small></div><span>${Math.floor(saldo / 10)} benefício(s)</span>${window.permissoesLogado?.caixa ? `<button type="button" onclick="abrirAtendimentoResgate('${cpf}')">Abrir atendimento</button>` : ''}</article>`;
+        }).join('') : '<p class="dashboard-empty-note">Nenhum cliente com benefício disponível para este filtro.</p>';
+    } else {
+        const historico = clientes.filter(confereBusca).flatMap(c => {
+            const cpf = String(c.cpf || '').replace(/\D/g, '');
+            const resgates = Array.isArray(c.historicoResgates) ? c.historicoResgates : Object.values(c.historicoResgates || {});
+            return resgates.filter(r => r && typeof r === 'object').map(r => ({ nome: c.nome, cpf, data: r.dataResgate || 'Data não registrada', protocolo: r.protocolo || '' }));
+        }).slice(-100).reverse();
+        lista.innerHTML = historico.length ? historico.map(r => `<article class="dashboard-result-row"><div><strong>${window.escapeHTML(window.nomeExibicao(r.nome))}</strong><small>${window.escapeHTML(r.data)}${r.protocolo ? ` · ${window.escapeHTML(r.protocolo)}` : ''}</small></div><button type="button" onclick="abrirFichaCliente('${r.cpf}')">Ver ficha</button></article>`).join('') : '<p class="dashboard-empty-note">Nenhum resgate documentado para este filtro.</p>';
+    }
+    window.lucide?.createIcons();
+};
+
+window.atualizarAuditoriaPagina = async () => {
+    const lista = document.getElementById('auditoria-lista-recente');
+    if (!lista || !window.permissoesLogado?.auditoria) return;
+    lista.innerHTML = '<p class="dashboard-empty-note">Carregando atividades…</p>';
+    const unidade = window.obterUnidade();
+    try {
+        const snapshot = await window.firebaseGet(window.firebaseRef(window.db, window.obterCaminhoUnidade('auditoria')));
+        if (unidade !== window.obterUnidade() || document.getElementById('aba-auditoria')?.classList.contains('hidden')) return;
+        const logs = snapshot.exists() ? Object.values(snapshot.val()).filter(Boolean).sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0)).slice(0, 20) : [];
+        lista.innerHTML = logs.length ? logs.map(log => `<article class="dashboard-result-row"><div><strong>${window.escapeHTML(log.acao || log.tipo || 'Evento')}</strong><small>${window.escapeHTML(log.dataHora || 'Data não registrada')} · ${window.escapeHTML(log.usuario || 'Sistema')}</small></div><span>${window.escapeHTML(log.detalhes || '')}</span></article>`).join('') : '<p class="dashboard-empty-note">Nenhum registro de auditoria encontrado nesta unidade.</p>';
+    } catch (_) {
+        lista.innerHTML = '<p class="dashboard-empty-note">Não foi possível carregar as atividades. Tente novamente.</p>';
+    }
 };
 
 // ==========================================================================

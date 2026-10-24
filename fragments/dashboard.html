@@ -8,12 +8,14 @@
                 <button type="button" class="dashboard-close-menu" aria-label="Fechar menu" onclick="fecharMenuPainel()">×</button>
             </div>
             <nav class="dashboard-sidebar-nav" aria-label="Áreas principais">
-                <p class="dashboard-nav-label">Navegação</p>
-                <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="layout-dashboard"></i> Visão geral</button>
-                <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn dashboard-nav-item" type="button"><i data-lucide="calculator"></i> Caixa</button>
+                <button onclick="alternarAba('admin')" id="btn-aba-admin" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="house"></i> Visão geral</button>
+                <button onclick="alternarAba('caixa')" id="btn-aba-caixa" class="aba-btn dashboard-nav-item" type="button"><i data-lucide="wallet"></i> Caixa</button>
                 <button onclick="alternarAba('clientes')" id="btn-nav-clientes" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="users-round"></i> Clientes</button>
+                <button onclick="alternarAba('resgates')" id="btn-nav-resgates" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="gift"></i> Resgates</button>
+                <button onclick="alternarAba('marketing')" id="btn-nav-marketing" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="megaphone"></i> Marketing</button>
                 <button onclick="alternarAba('relatorios')" id="btn-aba-relatorios" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="chart-no-axes-combined"></i> Relatórios</button>
-                <button onclick="fecharMenuPainel(); abrirCentralMarketing()" id="btn-nav-marketing" class="dashboard-nav-item hidden" type="button"><i data-lucide="megaphone"></i> Marketing</button>
+                <button onclick="alternarAba('auditoria')" id="btn-nav-auditoria" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="clipboard-list"></i> Auditoria</button>
+                <button onclick="alternarAba('gestao')" id="btn-nav-administracao" class="aba-btn dashboard-nav-item hidden" type="button"><i data-lucide="settings-2"></i> Administração</button>
                 <details id="nav-gestao" class="dashboard-management hidden">
                     <summary class="dashboard-nav-item"><i data-lucide="settings-2"></i> Gestão <i data-lucide="chevron-down" class="dashboard-chevron"></i></summary>
                     <div class="dashboard-management-actions">
@@ -29,6 +31,7 @@
                 </details>
             </nav>
             <div class="dashboard-sidebar-footer">
+                <span id="dashboard-online-note" class="dashboard-online-note"><i></i><span data-sync-label>Aguardando conexão</span></span>
                 <button id="btn-sidebar-totem" onclick="fecharMenuPainel(); entrarModoTotemDaTelaLogin()" class="dashboard-nav-item" type="button"><i data-lucide="tablet"></i> Abrir totem</button>
                 <button onclick="fazerLogout()" class="dashboard-nav-item" type="button"><i data-lucide="log-out"></i> Sair do sistema</button>
             </div>
@@ -37,18 +40,20 @@
             <header class="dashboard-topbar">
                 <div class="dashboard-topbar-heading">
                     <button type="button" class="dashboard-open-menu" aria-label="Abrir menu" aria-controls="painel-sidebar" aria-expanded="false" onclick="abrirMenuPainel()">☰</button>
-                    <div><p>TOP HAUS FIDELIDADE</p><h1 id="titulo-aba-painel">Visão geral</h1></div>
+                    <div class="dashboard-mobile-brand"><img src="./logo.jpg" alt="Top Haus"><span>FIDELIDADE</span></div>
+                    <h1 id="titulo-aba-painel" class="dashboard-visually-hidden">Visão geral</h1>
+                    <span id="indicador-unidade" class="hidden dashboard-unit"><i data-lucide="map-pin"></i> <span id="texto-indicador-unidade">Unidade</span></span>
                 </div>
                 <div class="dashboard-topbar-context">
-                    <span id="indicador-unidade" class="hidden dashboard-unit"><i data-lucide="map-pin"></i> <span id="texto-indicador-unidade">Unidade</span></span>
+                    <span id="dashboard-sync-status" class="dashboard-sync-status" role="status"><i class="dashboard-sync-dot"></i><span id="dashboard-sync-texto">Conectando aos dados</span></span>
                     <span id="nome-usuario-logado" class="dashboard-user"></span>
                 </div>
             </header>
             <nav class="dashboard-mobile-nav" aria-label="Navegação rápida">
-                <button id="btn-mobile-admin" type="button" class="hidden" onclick="alternarAba('admin')"><i data-lucide="layout-dashboard"></i><span>Painel</span></button>
-                <button id="btn-mobile-caixa" type="button" onclick="alternarAba('caixa')"><i data-lucide="calculator"></i><span>Caixa</span></button>
+                <button id="btn-mobile-admin" type="button" class="hidden" onclick="alternarAba('admin')"><i data-lucide="house"></i><span>Início</span></button>
+                <button id="btn-mobile-caixa" type="button" onclick="alternarAba('caixa')"><i data-lucide="wallet"></i><span>Caixa</span></button>
                 <button id="btn-mobile-clientes" type="button" class="hidden" onclick="alternarAba('clientes')"><i data-lucide="users-round"></i><span>Clientes</span></button>
-                <button id="btn-mobile-mais" type="button" onclick="abrirMenuPainel()"><i data-lucide="menu"></i><span>Mais</span></button>
+                <button id="btn-mobile-mais" type="button" onclick="alternarAba('mais')"><i data-lucide="menu"></i><span>Mais</span></button>
             </nav>
 
         <div id="painel-status-dados" class="max-w-7xl mx-auto px-4 pb-6" role="status" aria-live="polite">
@@ -113,27 +118,25 @@
 
             <section id="aba-admin" class="hidden space-y-6">
                 <div class="dashboard-welcome">
-                    <div><p class="dashboard-eyebrow">VISÃO GERAL DA UNIDADE</p><h2>Bem-vindo à Top Haus.</h2><p>O movimento de hoje e os clientes que merecem atenção, em um só lugar.</p></div>
-                    <button type="button" onclick="alternarAba('relatorios')" id="dashboard-ver-relatorios" class="dashboard-outline-action hidden"><i data-lucide="chart-no-axes-combined"></i> Ver relatórios</button>
+                    <div><h2>Visão geral</h2><p>Operação de hoje</p></div>
+                    <span class="dashboard-today-date"><i data-lucide="calendar-days"></i><span id="overview-data-hoje">Hoje</span></span>
                 </div>
                 <div class="dashboard-today-metrics" aria-label="Resumo de hoje">
-                    <article><span class="dashboard-metric-icon"><i data-lucide="user-plus"></i></span><p>Novos clientes</p><strong id="overview-novos">—</strong><small>Cadastrados hoje</small></article>
-                    <article><span class="dashboard-metric-icon"><i data-lucide="utensils-crossed"></i></span><p>Almoços registrados</p><strong id="overview-almocos">—</strong><small>Registros de hoje</small></article>
-                    <article><span class="dashboard-metric-icon"><i data-lucide="gift"></i></span><p>Prêmios resgatados</p><strong id="overview-resgates">—</strong><small>Resgates de hoje</small></article>
-                    <article><span class="dashboard-metric-icon"><i data-lucide="ticket-check"></i></span><p>Benefícios disponíveis</p><strong id="overview-disponiveis">—</strong><small>Clientes aptos a resgatar</small></article>
+                    <article><span class="dashboard-metric-icon"><i data-lucide="user-plus"></i></span><p>Clientes novos</p><strong id="overview-novos">—</strong><small id="overview-novos-comparacao">Cadastrados hoje</small></article>
+                    <article><span class="dashboard-metric-icon"><i data-lucide="utensils-crossed"></i></span><p>Almoços registrados</p><strong id="overview-almocos">—</strong><small id="overview-almocos-comparacao">Registros de hoje</small></article>
+                    <article><span class="dashboard-metric-icon"><i data-lucide="gift"></i></span><p>Prêmios resgatados</p><strong id="overview-resgates">—</strong><small id="overview-resgates-comparacao">Resgates de hoje</small></article>
+                    <article><span class="dashboard-metric-icon"><i data-lucide="coins"></i></span><p>Prêmios disponíveis</p><strong id="overview-disponiveis">—</strong><small>Clientes aptos a resgatar</small></article>
                 </div>
                 <div class="dashboard-insights">
-                    <article class="dashboard-insight-card dashboard-flow-card"><div class="dashboard-card-heading"><div><p class="dashboard-eyebrow">MOVIMENTO</p><h3>Fluxo de almoços</h3><span>Últimos 7 dias</span></div><span class="dashboard-chart-key"><i></i> Almoços</span></div><div id="overview-fluxo" class="dashboard-flow-chart" aria-label="Gráfico de almoços dos últimos sete dias"></div></article>
-                    <article class="dashboard-insight-card dashboard-attention-card"><div class="dashboard-card-heading"><div><p class="dashboard-eyebrow">ACOMPANHAMENTO</p><h3>Precisam de atenção</h3><span>Atalhos para a lista de clientes</span></div></div><div id="painel-notificacoes" class="dashboard-alert-list empty:hidden"></div><p id="overview-sem-alertas" class="dashboard-empty-note">Nenhum alerta no momento.</p></article>
+                    <article class="dashboard-insight-card dashboard-flow-card"><div class="dashboard-card-heading"><h3><i data-lucide="chart-no-axes-column-increasing"></i> Fluxo de almoços da semana</h3><span class="dashboard-period-label">Últimos 7 dias</span></div><div id="overview-fluxo" class="dashboard-flow-chart" aria-label="Gráfico de almoços dos últimos sete dias"></div></article>
+                    <article class="dashboard-insight-card dashboard-attention-card"><div class="dashboard-card-heading"><h3><i data-lucide="bell"></i> Atenção hoje</h3><button type="button" onclick="alternarAba('clientes')">Ver todos →</button></div><div id="painel-notificacoes" class="dashboard-alert-list empty:hidden"></div><p id="overview-sem-alertas" class="dashboard-empty-note">Nenhuma pendência no momento.</p></article>
+                    <article class="dashboard-insight-card dashboard-frequency-card"><div class="dashboard-card-heading"><h3><i data-lucide="users-round"></i> Faixas de almoços</h3><button type="button" onclick="alternarAba('clientes')">Ver todos →</button></div><div id="overview-frequencia" class="dashboard-frequency-list"></div></article>
                 </div>
-                <div class="dashboard-insights dashboard-insights-secondary">
-                    <article class="dashboard-insight-card"><div class="dashboard-card-heading"><div><p class="dashboard-eyebrow">RELACIONAMENTO</p><h3>Frequência dos clientes</h3><span>Classificação pelos últimos 30 dias</span></div></div><div id="overview-frequencia" class="dashboard-frequency-list"></div></article>
-                    <article class="dashboard-insight-card"><div class="dashboard-card-heading"><div><p class="dashboard-eyebrow">ACESSO RÁPIDO</p><h3>O que deseja fazer?</h3></div></div><div class="dashboard-quick-actions"><button type="button" id="dashboard-atalho-caixa" onclick="alternarAba('caixa')"><i data-lucide="calculator"></i><span>Atender no caixa</span><b>→</b></button><button type="button" onclick="alternarAba('clientes')"><i data-lucide="users-round"></i><span>Consultar clientes</span><b>→</b></button><button type="button" id="dashboard-atalho-marketing" class="hidden" onclick="abrirCentralMarketing()"><i data-lucide="megaphone"></i><span>Campanhas</span><b>→</b></button></div></article>
-                </div>
+                <div class="dashboard-quick-panel"><h3><i data-lucide="zap"></i> Ações rápidas</h3><div class="dashboard-quick-actions"><button type="button" id="dashboard-atalho-caixa" onclick="alternarAba('caixa')"><i data-lucide="utensils-crossed"></i><span><strong>Registrar almoço</strong><small>Buscar cliente e registrar consumo</small></span><b>→</b></button><button type="button" onclick="alternarAba('clientes')"><i data-lucide="search"></i><span><strong>Buscar cliente</strong><small>Consultar pontos e histórico</small></span><b>→</b></button><button type="button" id="dashboard-atalho-marketing" class="hidden" onclick="alternarAba('marketing')"><i data-lucide="gift"></i><span><strong>Nova campanha</strong><small>Criar campanha de fidelidade</small></span><b>→</b></button></div></div>
             </section>
 
             <section id="aba-clientes" class="hidden space-y-6">
-                <div class="dashboard-section-intro"><p class="dashboard-eyebrow">BASE DE CLIENTES</p><h2>Clientes</h2><p>Consulte cadastros, acompanhe benefícios e filtre os grupos da unidade.</p></div>
+                <div class="dashboard-section-intro"><h2>Clientes</h2><p>Gerencie os clientes do programa de fidelidade.</p></div>
                 <details class="dashboard-client-metrics">
                     <summary><span><i data-lucide="bar-chart-3"></i> Indicadores e filtros da base</span><i data-lucide="chevron-down"></i></summary>
                     <div class="dashboard-client-metrics-content">
@@ -201,6 +204,7 @@
                         </div>
                         <div class="flex flex-col sm:flex-row w-full lg:w-auto gap-3">
                             <input type="text" id="busca-admin" oninput="filtrarPorTexto(this.value)" placeholder="Buscar por nome, CPF ou telefone..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm text-center w-full sm:w-72">
+                            <button type="button" id="btn-clientes-cadastrar" onclick="abrirCadastroCliente()" class="dashboard-client-add"><i data-lucide="user-plus"></i> Cadastrar cliente</button>
                             <button onclick="abrirCentralMarketing()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm shadow-sm">
                                 <i data-lucide="megaphone" class="w-4 h-4"></i> Marketing
                             </button>
@@ -208,6 +212,12 @@
                                 <i data-lucide="download" class="w-4 h-4"></i> Exportar
                             </button>
                         </div>
+                    </div>
+                    <div class="dashboard-client-filters" aria-label="Filtrar clientes">
+                        <button type="button" data-client-filter="todos" onclick="filtrarLista('todos')">Todos</button>
+                        <button type="button" data-client-filter="premios" onclick="filtrarLista('premios')">Prêmios disponíveis</button>
+                        <button type="button" data-client-filter="inativos_30d" onclick="filtrarLista('inativos_30d')">Inativos</button>
+                        <button type="button" data-client-filter="niver_mes" onclick="filtrarLista('niver_mes')">Aniversariantes</button>
                     </div>
                     
                     <div class="overflow-x-auto min-h-[300px] responsive-table" data-mobile-cards="clientes">
@@ -227,6 +237,33 @@
                     </div>
                 </div>
             </section>
+
+            <section id="aba-resgates" class="hidden dashboard-module-page">
+                <div class="dashboard-section-intro"><h2>Resgates</h2><p>Acompanhe benefícios disponíveis e resgates já registrados.</p></div>
+                <div class="dashboard-module-kpis"><article><i data-lucide="gift"></i><span>Clientes com benefício disponível</span><strong id="resgates-disponiveis">—</strong></article><article><i data-lucide="circle-check"></i><span>Resgatados hoje</span><strong id="resgates-hoje">—</strong></article></div>
+                <div class="dashboard-module-card"><div class="dashboard-module-tabs"><button type="button" data-resgates-tab="disponiveis" onclick="selecionarAbaResgates('disponiveis')">Disponíveis</button><button type="button" data-resgates-tab="concluidos" onclick="selecionarAbaResgates('concluidos')">Concluídos</button></div><label class="dashboard-module-search"><i data-lucide="search"></i><input id="resgates-busca" type="search" placeholder="Buscar por nome ou CPF" oninput="renderizarResgates()"></label><div id="resgates-lista" class="dashboard-module-list" aria-live="polite"></div></div>
+            </section>
+
+            <section id="aba-marketing" class="hidden dashboard-module-page">
+                <div class="dashboard-section-intro dashboard-module-title"><div><h2>Marketing</h2><p>Campanhas, mensagens e fila de envio.</p></div><button type="button" onclick="abrirCentralMarketing()" class="dashboard-primary-action"><i data-lucide="plus"></i> Criar ou editar campanha</button></div>
+                <div class="dashboard-module-kpis dashboard-module-kpis-four"><article><i data-lucide="calendar-clock"></i><span>Agendadas</span><strong id="marketing-agendadas">—</strong></article><article><i data-lucide="send"></i><span>Na fila</span><strong id="marketing-pendentes">—</strong></article><article><i data-lucide="circle-check"></i><span>Enviadas</span><strong id="marketing-enviadas">—</strong></article><article><i data-lucide="triangle-alert"></i><span>Falhas</span><strong id="marketing-falhas">—</strong></article></div>
+                <div class="dashboard-module-card"><div class="dashboard-card-heading"><h3>Campanhas da unidade</h3><button type="button" onclick="abrirCentralMarketing()">Configurar mensagens →</button></div><div id="marketing-lista-campanhas" class="dashboard-module-list"><p class="dashboard-empty-note">Abra a central para carregar as campanhas.</p></div></div>
+                <div class="dashboard-module-card"><div class="dashboard-card-heading"><h3>Fila de envio</h3><button type="button" onclick="abrirCentralMarketing()">Gerenciar fila →</button></div><p class="dashboard-module-hint">O robô processa somente as mensagens efetivamente gravadas na fila da unidade.</p></div>
+            </section>
+
+            <section id="aba-auditoria" class="hidden dashboard-module-page">
+                <div class="dashboard-section-intro dashboard-module-title"><div><h2>Auditoria</h2><p>Rastreie registros e alterações da unidade com segurança.</p></div><button type="button" onclick="abrirAuditoria()" class="dashboard-outline-action">Ver log completo</button></div>
+                <div class="dashboard-module-card"><div class="dashboard-card-heading"><h3>Atividades recentes</h3><span>Últimos registros da unidade</span></div><div id="auditoria-lista-recente" class="dashboard-module-list"><p class="dashboard-empty-note">Carregando atividades…</p></div></div>
+                <div class="dashboard-module-card"><h3>Ações supervisionadas</h3><div class="dashboard-quick-actions"><button type="button" data-permissao="clientes" onclick="abrirLixeira()"><i data-lucide="archive"></i><span><strong>Clientes arquivados</strong><small>Consultar e restaurar cadastros</small></span><b>→</b></button><button type="button" data-permissao="clientes" onclick="abrirModalMesclagem()"><i data-lucide="merge"></i><span><strong>Mesclar cadastros</strong><small>Revisar duplicidades com supervisão</small></span><b>→</b></button><button type="button" data-permissao="clientes" onclick="prepararAlmocoAtrasado('')"><i data-lucide="clock-4"></i><span><strong>Lançar almoço anterior</strong><small>Operação com validação e auditoria</small></span><b>→</b></button></div></div>
+            </section>
+
+            <section id="aba-gestao" class="hidden dashboard-module-page">
+                <div class="dashboard-section-intro"><h2>Administração</h2><p>Acessos, unidades e manutenção segura.</p></div>
+                <div class="dashboard-management-grid"><article class="dashboard-module-card"><h3>Usuários e permissões</h3><p>Gerencie quem pode acessar cada área do sistema.</p><button type="button" data-permissao="usuarios" onclick="abrirGerenciadorUsuarios()" class="dashboard-primary-action"><i data-lucide="user-cog"></i> Gerenciar acessos</button></article><article class="dashboard-module-card"><h3>Unidades e cadastros</h3><p>Consulte as ferramentas administrativas da unidade atual.</p><div class="dashboard-management-links"><button type="button" data-permissao="configuracoes" onclick="abrirTrocaUnidade()">Alterar unidade →</button><button type="button" data-permissao="clientes" onclick="abrirLixeira()">Clientes arquivados →</button><button type="button" data-permissao="clientes" onclick="abrirModalMesclagem()">Mesclar cadastros →</button><button type="button" data-permissao="simulacao" onclick="ativarSimulacao()">Modo simulação →</button></div></article></div>
+                <div class="dashboard-danger-panel"><div><i data-lucide="triangle-alert"></i><span><strong>Ações críticas</strong><small>Afetam registros da unidade. Use somente em último caso.</small></span></div><button type="button" data-permissao="reset" onclick="resetarSistema()">Resetar sistema</button></div>
+            </section>
+
+            <section id="aba-mais" class="hidden dashboard-module-page"><div class="dashboard-section-intro"><h2>Mais</h2><p>Acesse as outras áreas do sistema.</p></div><div class="dashboard-more-list"><button type="button" data-destino="resgates" onclick="alternarAba('resgates')"><i data-lucide="gift"></i><span><strong>Resgates</strong><small>Consultar e processar benefícios</small></span><b>›</b></button><button type="button" data-destino="marketing" onclick="alternarAba('marketing')"><i data-lucide="megaphone"></i><span><strong>Marketing</strong><small>Campanhas e mensagens</small></span><b>›</b></button><button type="button" data-destino="relatorios" onclick="alternarAba('relatorios')"><i data-lucide="chart-no-axes-combined"></i><span><strong>Relatórios</strong><small>Movimento e frequência</small></span><b>›</b></button><button type="button" data-destino="auditoria" onclick="alternarAba('auditoria')"><i data-lucide="clipboard-list"></i><span><strong>Auditoria</strong><small>Histórico de operações</small></span><b>›</b></button><button type="button" data-destino="gestao" onclick="alternarAba('gestao')"><i data-lucide="settings-2"></i><span><strong>Administração</strong><small>Acessos e configurações</small></span><b>›</b></button><button type="button" onclick="fazerLogout()" class="dashboard-logout"><i data-lucide="log-out"></i><span><strong>Sair</strong><small>Encerrar sessão</small></span><b>›</b></button></div></section>
         </main>
         </div>
 
