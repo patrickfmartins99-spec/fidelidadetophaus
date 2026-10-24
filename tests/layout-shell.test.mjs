@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 
-const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build] = await Promise.all([
+const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build, bootstrap] = await Promise.all([
   readFile(new URL('../fragments/dashboard.html', import.meta.url), 'utf8'),
   readFile(new URL('../fragments/access.html', import.meta.url), 'utf8'),
   readFile(new URL('../auth.js', import.meta.url), 'utf8'),
@@ -11,7 +11,8 @@ const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build]
   readFile(new URL('../fragments/totem.html', import.meta.url), 'utf8'),
   readFile(new URL('../design-system.css', import.meta.url), 'utf8'),
   readFile(new URL('../index.html', import.meta.url), 'utf8'),
-  readFile(new URL('../scripts/build.mjs', import.meta.url), 'utf8')
+  readFile(new URL('../scripts/build.mjs', import.meta.url), 'utf8'),
+  readFile(new URL('../bootstrap.js', import.meta.url), 'utf8')
 ]);
 
 test('painel usa logotipo original e preserva uma única ação por identificador', () => {
@@ -63,6 +64,7 @@ test('pranchas possuem seções reais, navegação móvel e folha incluída no b
   }
   assert.match(index, /design-system\.css/);
   assert.match(build, /'design-system\.css'/);
+  assert.match(bootstrap, /window\.lucide\?\.createIcons\(\);/, 'os ícones devem ser iniciados depois de carregar os fragmentos');
   assert.match(visual, /\.dashboard-insights \{ grid-template-columns:/);
   assert.match(visual, /\.dashboard-mobile-nav/);
   assert.doesNotMatch(visual.split('/* Autoatendimento:')[0], /gradient\(/, 'o painel e o acesso desta etapa não utilizam degradês');
