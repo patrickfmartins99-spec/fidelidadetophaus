@@ -9,7 +9,7 @@ const raiz = process.cwd();
 const destino = path.join(raiz, 'dist');
 const arquivos = [
   'auth.js', 'clientes.js', 'cliente-extrato-core.js', 'core.js', 'dashboard.js', 'relatorios.js', 'relatorios-core.js', 'firebase.js',
-  'marketing.js', 'totem.js', 'style.css', 'totem.css', 'manifest.json', 'sw.js',
+  'marketing.js', 'totem.js', 'style.css', 'totem.css', 'design-system.css', 'manifest.json', 'sw.js',
   'logo.jpg', 'qrcode.png', 'qrcode tophaus piçarras.png'
 ];
 

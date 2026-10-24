@@ -45,6 +45,9 @@ async function carregarInterface() {
     await import('./totem.js');
     await import('./dashboard.js');
     await import('./relatorios.js');
+    // Os fragmentos são inseridos após DOMContentLoaded; inicialize os ícones
+    // somente agora para evitar espaços vazios na seleção e no painel.
+    window.lucide?.createIcons();
     // Só restaura a sessão quando painel, permissões e listeners estão prontos.
     window.iniciarObservadorSessao();
 }

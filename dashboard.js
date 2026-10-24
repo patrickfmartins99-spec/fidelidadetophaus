@@ -121,6 +121,16 @@ function exibirEstadoDados(estado) {
     };
     if (texto) texto.textContent = mensagens[estado] || '';
     document.getElementById('painel-reconectar')?.classList.toggle('hidden', pronto || estado === 'carregando');
+    const indicador = document.getElementById('dashboard-sync-status');
+    const indicadorTexto = document.getElementById('dashboard-sync-texto');
+    if (indicador?.dataset) indicador.dataset.state = estado;
+    if (indicadorTexto) indicadorTexto.textContent = pronto ? 'Dados sincronizados' : (estado === 'carregando' ? 'Conectando aos dados' : 'Dados indisponíveis');
+    const rodape = document.getElementById('dashboard-online-note');
+    if (rodape) {
+        if (rodape.dataset) rodape.dataset.state = estado;
+        const textoRodape = rodape.querySelector?.('[data-sync-label]');
+        if (textoRodape) textoRodape.textContent = pronto ? 'Sistema conectado' : 'Sistema sem dados';
+    }
 }
 
 function aguardarDados() {
@@ -153,6 +163,7 @@ window.aplicarSnapshotClientes = (snapshot) => {
     window.atualizarIndicadores();
     window.calcularNotificacoesPainel();
     window.filtrarLista(window.filtroAtual);
+    if (!document.getElementById('aba-resgates')?.classList.contains('hidden')) window.renderizarResgates?.();
     if (window.atualizarRelatorios) window.atualizarRelatorios();
 
     const modalLixeira = document.getElementById('modal-lixeira');
@@ -306,9 +317,84 @@ document.addEventListener('visibilitychange', () => {
 // ==========================================================================
 // NAVEGAÇÃO DE ABAS
 // ==========================================================================
+const sincronizarAcessibilidadeMenuPainel = () => {
+    const painel = document.getElementById('app-dashboard');
+    const menu = document.getElementById('painel-sidebar');
+    if (!painel || !menu) return;
+    menu.inert = window.innerWidth < 1024 && !painel.classList.contains('dashboard-menu-open');
+};
+
+window.fecharMenuPainel = () => {
+    const painel = document.getElementById('app-dashboard');
+    const focoDentroDoMenu = document.getElementById('painel-sidebar')?.contains(document.activeElement);
+    painel?.classList.remove('dashboard-menu-open');
+    document.querySelector('.dashboard-open-menu')?.setAttribute('aria-expanded', 'false');
+    sincronizarAcessibilidadeMenuPainel();
+    if (focoDentroDoMenu && window.innerWidth < 1024) document.querySelector('.dashboard-open-menu')?.focus();
+};
+
+window.abrirMenuPainel = () => {
+    document.getElementById('app-dashboard')?.classList.add('dashboard-menu-open');
+    document.querySelector('.dashboard-open-menu')?.setAttribute('aria-expanded', 'true');
+    sincronizarAcessibilidadeMenuPainel();
+    document.getElementById('painel-sidebar')?.querySelector('.dashboard-close-menu')?.focus();
+};
+
+window.addEventListener('resize', sincronizarAcessibilidadeMenuPainel);
+sincronizarAcessibilidadeMenuPainel();
+
+document.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Escape') window.fecharMenuPainel();
+});
+
+window.mostrarClientesPainel = () => {
+    window.alternarAba('clientes');
+    requestAnimationFrame(() => document.getElementById('painel-clientes')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+};
+
+window.abrirClientesComFiltro = (filtro) => {
+    window.alternarAba('clientes');
+    window.filtrarLista(filtro);
+};
+
+window.abrirAtendimentoResgate = (cpf) => {
+    if (!window.permissoesLogado?.caixa) return window.mostrarToast?.('Seu perfil não tem acesso ao caixa.', 'erro');
+    window.alternarAba('caixa');
+    const busca = document.getElementById('busca-cpf');
+    if (!busca) return;
+    busca.value = window.formatarCPF(String(cpf).replace(/\D/g, ''));
+    window.buscarEContabilizar();
+};
+
+window.abrirCadastroCliente = () => {
+    window.alternarAba('caixa');
+    const cadastro = document.getElementById('caixa-cadastro-detalhes');
+    if (cadastro) cadastro.open = true;
+    requestAnimationFrame(() => {
+        cadastro?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('cad-cpf')?.focus({ preventScroll: true });
+    });
+};
+
 window.alternarAba = (a) => {
-    const nomes = ['caixa', 'admin', 'relatorios'];
+    const nomes = ['caixa', 'admin', 'clientes', 'resgates', 'marketing', 'relatorios', 'auditoria', 'gestao', 'mais'];
     if (!nomes.includes(a)) return;
+    const permissoes = window.permissoesLogado || {};
+    const permitida = {
+        caixa: !!permissoes.caixa,
+        admin: !!permissoes.dashboard,
+        clientes: !!permissoes.dashboard,
+        resgates: !!permissoes.dashboard,
+        marketing: !!permissoes.marketing,
+        relatorios: window.cargoLogado === 'admin',
+        auditoria: !!permissoes.auditoria,
+        gestao: !!(permissoes.usuarios || permissoes.configuracoes || permissoes.clientes || permissoes.reset || permissoes.simulacao),
+        mais: true
+    };
+    if (!permitida[a]) {
+        window.mostrarToast?.('Seu perfil não tem acesso a esta área.', 'erro');
+        return;
+    }
     if (a === 'relatorios' && window.cargoLogado !== 'admin') {
         if (window.mostrarToast) window.mostrarToast('Relatórios disponíveis somente para administradores.', 'erro');
         return;
@@ -318,18 +404,43 @@ window.alternarAba = (a) => {
         const secao = document.getElementById(`aba-${nome}`);
         const botao = document.getElementById(`btn-aba-${nome}`);
         if (secao) secao.classList.toggle('hidden', nome !== a);
-        if (botao) {
-            botao.classList.toggle('bg-gray-800', nome === a);
-            botao.classList.toggle('bg-black', nome !== a);
+        botao?.classList.toggle('is-active', nome === a);
+        botao?.setAttribute('aria-current', nome === a ? 'page' : 'false');
+        const navExtra = { clientes: 'btn-nav-clientes', resgates: 'btn-nav-resgates', marketing: 'btn-nav-marketing', auditoria: 'btn-nav-auditoria', gestao: 'btn-nav-administracao' }[nome];
+        if (navExtra) {
+            const extra = document.getElementById(navExtra);
+            extra?.classList.toggle('is-active', nome === a);
+            extra?.setAttribute('aria-current', nome === a ? 'page' : 'false');
         }
+        const mobile = document.getElementById(`btn-mobile-${nome}`);
+        mobile?.classList.toggle('is-active', nome === a);
+        mobile?.setAttribute('aria-current', nome === a ? 'page' : 'false');
     });
+    const botaoMais = document.getElementById('btn-mobile-mais');
+    const maisAtivo = ['mais', 'resgates', 'marketing', 'relatorios', 'auditoria', 'gestao'].includes(a);
+    botaoMais?.classList.toggle('is-active', maisAtivo);
+    botaoMais?.setAttribute('aria-current', maisAtivo ? 'page' : 'false');
+
+    const titulos = { caixa: 'Caixa', admin: 'Visão geral', clientes: 'Clientes', resgates: 'Resgates', marketing: 'Marketing', relatorios: 'Relatórios', auditoria: 'Auditoria', gestao: 'Administração', mais: 'Mais' };
+    const titulo = document.getElementById('titulo-aba-painel');
+    if (titulo) titulo.textContent = titulos[a];
+    window.fecharMenuPainel();
 
     if(a === 'caixa'){
+        window.reiniciarAtendimentoCaixa?.();
         const bCpf = document.getElementById('busca-cpf');
-        if(bCpf) setTimeout(() => bCpf.focus(), 50);
-    } else if (a === 'admin') {
-        window.filtrarLista('todos');
-    } else if (window.atualizarRelatorios) {
+        // Em telas de toque, abrir o teclado sem o usuário tocar no campo ocupa
+        // metade da área útil e atrapalha o atendimento.
+        if(bCpf && window.matchMedia?.('(pointer: fine)').matches) setTimeout(() => bCpf.focus(), 50);
+    } else if (a === 'clientes') {
+        window.filtrarLista(window.filtroAtual || 'todos');
+    } else if (a === 'resgates') {
+        window.renderizarResgates?.();
+    } else if (a === 'marketing') {
+        window.atualizarPainelMarketing?.();
+    } else if (a === 'auditoria') {
+        window.atualizarAuditoriaPagina?.();
+    } else if (a === 'relatorios' && window.atualizarRelatorios) {
         window.atualizarRelatorios();
     }
 };
@@ -421,21 +532,21 @@ window.calcularNotificacoesPainel = () => {
     
     if(nNiv > 0) {
         p.innerHTML += `
-            <div onclick="filtrarLista('alerta_niver')" class="bg-red-50 border border-red-200 p-4 rounded-xl cursor-pointer hover:bg-red-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="abrirClientesComFiltro('alerta_niver')" class="bg-red-50 border border-red-200 p-4 rounded-xl cursor-pointer hover:bg-red-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="cake" class="w-8 h-8 text-red-500"></i>
                 <div><p class="text-sm font-bold text-red-800">Aniversários!</p><p class="text-xs text-red-600"><strong>${nNiv}</strong> pendentes.</p></div>
             </div>`;
     }
     if(nPre > 0) {
         p.innerHTML += `
-            <div onclick="filtrarLista('alerta_premio')" class="bg-amber-50 border border-amber-200 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="abrirClientesComFiltro('alerta_premio')" class="bg-amber-50 border border-amber-200 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="gift" class="w-8 h-8 text-amber-500"></i>
                 <div><p class="text-sm font-bold text-amber-800">Prêmios!</p><p class="text-xs text-amber-600"><strong>${nPre}</strong> pendentes.</p></div>
             </div>`;
     }
     if(nIna > 0) {
         p.innerHTML += `
-            <div onclick="filtrarLista('alerta_inativos')" class="bg-blue-50 border border-blue-200 p-4 rounded-xl cursor-pointer hover:bg-blue-100 transition shadow-sm flex items-center gap-3">
+            <div onclick="abrirClientesComFiltro('alerta_inativos')" class="bg-blue-50 border border-blue-200 p-4 rounded-xl cursor-pointer hover:bg-blue-100 transition shadow-sm flex items-center gap-3">
                 <i data-lucide="user-minus" class="w-8 h-8 text-blue-500"></i>
                 <div><p class="text-sm font-bold text-blue-800">Ausentes!</p><p class="text-xs text-blue-600"><strong>${nIna}</strong> (+15 dias).</p></div>
             </div>`;
@@ -448,6 +559,10 @@ window.calcularNotificacoesPainel = () => {
 // ==========================================================================
 window.filtrarLista = (t, dI=null, dF=null) => {
     window.filtroAtual = t; 
+    document.querySelectorAll('[data-client-filter]').forEach(botao => {
+        botao.classList.toggle('is-active', botao.dataset.clientFilter === t);
+        botao.setAttribute('aria-pressed', String(botao.dataset.clientFilter === t));
+    });
     const tf = document.getElementById('filtro-atual-texto');
     const sf = document.getElementById('sub-filtros-niver'); 
     let l = [];
@@ -552,6 +667,60 @@ window.renderizarTabela = (l) => {
         tb.appendChild(tr);
     }); 
     if(window.lucide) window.lucide.createIcons();
+};
+
+window.abaResgatesAtual = 'disponiveis';
+window.selecionarAbaResgates = (aba) => {
+    if (!['disponiveis', 'concluidos'].includes(aba)) return;
+    window.abaResgatesAtual = aba;
+    window.renderizarResgates();
+};
+
+window.renderizarResgates = () => {
+    const lista = document.getElementById('resgates-lista');
+    if (!lista) return;
+    const clientes = (window.clientesArray || []).filter(c => c && !c.arquivado);
+    const termo = (document.getElementById('resgates-busca')?.value || '').replace(/\D/g, '') || null;
+    const buscaTexto = (document.getElementById('resgates-busca')?.value || '').trim().toLocaleLowerCase('pt-BR');
+    const confereBusca = c => !buscaTexto || (c.nome || '').toLocaleLowerCase('pt-BR').includes(buscaTexto) || (termo && String(c.cpf || '').includes(termo));
+    const disponiveis = clientes.filter(c => Number(c.almocos || 0) >= 10);
+    document.getElementById('resgates-disponiveis').textContent = disponiveis.length;
+    document.querySelectorAll('[data-resgates-tab]').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.resgatesTab === window.abaResgatesAtual);
+        b.setAttribute('aria-pressed', String(b.dataset.resgatesTab === window.abaResgatesAtual));
+    });
+
+    if (window.abaResgatesAtual === 'disponiveis') {
+        const resultados = disponiveis.filter(confereBusca).sort((a, b) => Number(b.almocos || 0) - Number(a.almocos || 0));
+        lista.innerHTML = resultados.length ? resultados.map(c => {
+            const cpf = String(c.cpf || '').replace(/\D/g, '');
+            const saldo = Number(c.almocos || 0);
+            return `<article class="dashboard-result-row"><div><strong>${window.escapeHTML(window.nomeExibicao(c.nome))}</strong><small>CPF ${window.formatarCPF(cpf)} · ${saldo} almoço(s) no saldo</small></div><span>${Math.floor(saldo / 10)} benefício(s)</span>${window.permissoesLogado?.caixa ? `<button type="button" onclick="abrirAtendimentoResgate('${cpf}')">Abrir atendimento</button>` : ''}</article>`;
+        }).join('') : '<p class="dashboard-empty-note">Nenhum cliente com benefício disponível para este filtro.</p>';
+    } else {
+        const historico = clientes.filter(confereBusca).flatMap(c => {
+            const cpf = String(c.cpf || '').replace(/\D/g, '');
+            const resgates = Array.isArray(c.historicoResgates) ? c.historicoResgates : Object.values(c.historicoResgates || {});
+            return resgates.filter(r => r && typeof r === 'object').map(r => ({ nome: c.nome, cpf, data: r.dataResgate || 'Data não registrada', protocolo: r.protocolo || '' }));
+        }).slice(-100).reverse();
+        lista.innerHTML = historico.length ? historico.map(r => `<article class="dashboard-result-row"><div><strong>${window.escapeHTML(window.nomeExibicao(r.nome))}</strong><small>${window.escapeHTML(r.data)}${r.protocolo ? ` · ${window.escapeHTML(r.protocolo)}` : ''}</small></div><button type="button" onclick="abrirFichaCliente('${r.cpf}')">Ver ficha</button></article>`).join('') : '<p class="dashboard-empty-note">Nenhum resgate documentado para este filtro.</p>';
+    }
+    window.lucide?.createIcons();
+};
+
+window.atualizarAuditoriaPagina = async () => {
+    const lista = document.getElementById('auditoria-lista-recente');
+    if (!lista || !window.permissoesLogado?.auditoria) return;
+    lista.innerHTML = '<p class="dashboard-empty-note">Carregando atividades…</p>';
+    const unidade = window.obterUnidade();
+    try {
+        const snapshot = await window.firebaseGet(window.firebaseRef(window.db, window.obterCaminhoUnidade('auditoria')));
+        if (unidade !== window.obterUnidade() || document.getElementById('aba-auditoria')?.classList.contains('hidden')) return;
+        const logs = snapshot.exists() ? Object.values(snapshot.val()).filter(Boolean).sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0)).slice(0, 20) : [];
+        lista.innerHTML = logs.length ? logs.map(log => `<article class="dashboard-result-row"><div><strong>${window.escapeHTML(log.acao || log.tipo || 'Evento')}</strong><small>${window.escapeHTML(log.dataHora || 'Data não registrada')} · ${window.escapeHTML(log.usuario || 'Sistema')}</small></div><span>${window.escapeHTML(log.detalhes || '')}</span></article>`).join('') : '<p class="dashboard-empty-note">Nenhum registro de auditoria encontrado nesta unidade.</p>';
+    } catch (_) {
+        lista.innerHTML = '<p class="dashboard-empty-note">Não foi possível carregar as atividades. Tente novamente.</p>';
+    }
 };
 
 // ==========================================================================

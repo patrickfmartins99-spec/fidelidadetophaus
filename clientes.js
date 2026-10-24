@@ -4,6 +4,99 @@ import { montarExtratoCliente, filtrarLogsCliente } from './cliente-extrato-core
 // ==========================================================================
 // FRENTE DE CAIXA: FLUXO DE BUSCA E ROTEAMENTO
 // ==========================================================================
+window.caixaCpfSelecionado = null;
+
+const mostrarEtapaCaixa = etapa => {
+    for (const nome of ['busca', 'cliente', 'confirmacao', 'sucesso']) {
+        document.getElementById(`caixa-etapa-${nome}`)?.classList.toggle('hidden', nome !== etapa);
+    }
+    const cadastro = document.getElementById('caixa-cadastro-detalhes');
+    cadastro?.classList.toggle('hidden', etapa !== 'busca');
+    if (cadastro && etapa !== 'busca') cadastro.open = false;
+};
+
+const podeVerFichaNoCaixa = () => ['admin', 'gerente'].includes(window.cargoLogado) && !!window.permissoesLogado?.dashboard;
+
+window.reiniciarAtendimentoCaixa = () => {
+    window.caixaCpfSelecionado = null;
+    const busca = document.getElementById('busca-cpf');
+    if (busca) busca.value = '';
+    mostrarEtapaCaixa('busca');
+    if (window.matchMedia?.('(pointer: fine)').matches) busca?.focus();
+};
+
+window.voltarClienteCaixa = () => {
+    const cliente = window.clientesMap?.[window.caixaCpfSelecionado];
+    if (cliente && !cliente.arquivado) window.mostrarClienteCaixa(cliente);
+    else window.reiniciarAtendimentoCaixa();
+};
+
+window.mostrarClienteCaixa = cliente => {
+    if (!cliente?.cpf) return;
+    window.caixaCpfSelecionado = String(cliente.cpf).replace(/\D/g, '');
+    const nome = window.nomeExibicao(cliente.nome);
+    const saldo = Math.max(0, Number(cliente.almocos) || 0);
+    const partesNome = nome.trim().split(/\s+/);
+    const iniciais = `${partesNome[0]?.[0] || ''}${partesNome.length > 1 ? partesNome.at(-1)[0] : ''}`.toUpperCase();
+    const ultimaVisita = cliente.ultimaVisitaTimestamp
+        ? new Date(cliente.ultimaVisitaTimestamp).toLocaleDateString('pt-BR')
+        : String(cliente.historico?.at(-1) || '').split(' às ')[0] || 'Sem registro';
+    document.getElementById('caixa-cliente-iniciais').textContent = iniciais;
+    document.getElementById('caixa-cliente-nome').textContent = nome;
+    document.getElementById('caixa-cliente-cpf').textContent = `CPF ***.***.***-${window.caixaCpfSelecionado.slice(-2)}`;
+    document.getElementById('caixa-cliente-saldo').textContent = saldo < 10 ? `${saldo} de 10 almoços` : `${saldo} almoços no saldo`;
+    document.getElementById('caixa-cliente-ultima-visita').textContent = `Último almoço: ${ultimaVisita}`;
+    document.getElementById('caixa-cliente-acao-texto').textContent = saldo >= 10 ? 'Ver benefício disponível' : window.jaRegistrouHoje(cliente) ? 'Registrar almoço extra' : 'Registrar almoço';
+    document.getElementById('caixa-ver-ficha')?.classList.toggle('hidden', !podeVerFichaNoCaixa());
+    mostrarEtapaCaixa('cliente');
+    window.lucide?.createIcons();
+};
+
+window.avancarAtendimentoCaixa = () => {
+    const cliente = window.clientesMap?.[window.caixaCpfSelecionado];
+    if (!cliente || cliente.arquivado) {
+        window.reiniciarAtendimentoCaixa();
+        return window.mostrarToast('Cadastro não disponível. Busque o cliente novamente.', 'erro');
+    }
+    if (window.diasParaAniversario(cliente.nascimento) === 0 && cliente.aniversarioResgatadoAno !== new Date().getFullYear()) {
+        window.acaoPendente = cliente;
+        window.tipoAcaoPendente = 'busca';
+        document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-black">${window.escapeHTML(window.nomeExibicao(cliente.nome))}</strong>!`;
+        const modal = document.getElementById('modal-alerta-aniversario');
+        modal.classList.remove('hidden');
+        window.prenderFocoModal?.(modal);
+        return;
+    }
+    window.processarFluxoNormal(cliente);
+};
+
+window.mostrarConfirmacaoCaixa = cliente => {
+    window.caixaCpfSelecionado = String(cliente.cpf).replace(/\D/g, '');
+    const saldo = Math.max(0, Number(cliente.almocos) || 0);
+    document.getElementById('caixa-confirmacao-nome').textContent = window.nomeExibicao(cliente.nome);
+    document.getElementById('caixa-saldo-antes').textContent = `${saldo} de 10`;
+    document.getElementById('caixa-saldo-depois').textContent = `${saldo + 1} de 10`;
+    mostrarEtapaCaixa('confirmacao');
+    window.lucide?.createIcons();
+};
+
+window.confirmarAlmocoCaixa = () => {
+    const cliente = window.clientesMap?.[window.caixaCpfSelecionado];
+    if (!cliente || cliente.arquivado) return window.reiniciarAtendimentoCaixa();
+    if (window.jaRegistrouHoje(cliente) || (Number(cliente.almocos) || 0) >= 10) return window.processarFluxoNormal(cliente);
+    window.processarConfirmacao(cliente);
+};
+
+window.mostrarSucessoCaixa = cliente => {
+    window.caixaCpfSelecionado = String(cliente.cpf).replace(/\D/g, '');
+    const nome = window.nomeExibicao(cliente.nome);
+    const saldo = Math.max(0, Number(cliente.almocos) || 0);
+    document.getElementById('caixa-sucesso-resumo').textContent = `${nome} agora tem ${saldo} ${saldo === 1 ? 'almoço' : 'almoços'} no saldo.`;
+    document.getElementById('caixa-sucesso-ver-ficha')?.classList.toggle('hidden', !podeVerFichaNoCaixa());
+    mostrarEtapaCaixa('sucesso');
+    window.lucide?.createIcons();
+};
+
 window.buscarEContabilizar = () => {
     const inputCpf = document.getElementById('busca-cpf');
     if(!inputCpf) return;
@@ -16,17 +109,7 @@ window.buscarEContabilizar = () => {
     
     if(!c || c.arquivado) return window.mostrarToast(`Nenhum cliente encontrado para "${window.formatarCPF(cpf)}".`, 'erro');
     
-    if (window.diasParaAniversario(c.nascimento) === 0 && c.aniversarioResgatadoAno !== new Date().getFullYear()) { 
-        window.acaoPendente = c; 
-        window.tipoAcaoPendente = 'busca'; 
-        document.getElementById('texto-alerta-aniversario').innerHTML = `Hoje é o aniversário de <br><strong class="text-xl text-black">${window.escapeHTML(window.nomeExibicao(c.nome))}</strong>!`; 
-        const m = document.getElementById('modal-alerta-aniversario'); 
-        m.classList.remove('hidden'); 
-        if(window.prenderFocoModal) window.prenderFocoModal(m); 
-        return; 
-    }
-    
-    window.processarFluxoNormal(c);
+    window.mostrarClienteCaixa(c);
 };
 
 window.processarFluxoNormal = (c) => {
@@ -74,21 +157,7 @@ window.processarFluxoNormal = (c) => {
         return;
     }
 
-    {
-        const btnConfirmar = document.getElementById('btn-confirmar-almoco');
-        if(btnConfirmar) btnConfirmar.classList.remove('hidden');
-
-        document.getElementById('texto-confirmacao').innerHTML = `Deseja registrar +1 almoço para <strong>${window.escapeHTML(window.nomeExibicao(c.nome))}</strong>?`;
-        const m = document.getElementById('modal-confirmacao'); 
-        m.classList.remove('hidden'); 
-        if(window.prenderFocoModal) window.prenderFocoModal(m);
-        if(window.lucide) window.lucide.createIcons();
-        
-        document.getElementById('btn-confirmar-almoco').onclick = () => { 
-            if(window.fecharModal) window.fecharModal('modal-confirmacao'); 
-            window.processarConfirmacao(c); 
-        };
-    }
+    window.mostrarConfirmacaoCaixa(c);
 };
 
 // ==========================================================================
@@ -184,7 +253,7 @@ window.processarConfirmacao = (c) => {
         window.isProcessing = false; 
         if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false; 
         if(btn) btn.disabled = false; 
-        if(span) span.innerText = 'Confirmar';
+        if(span) span.innerText = 'Confirmar registro';
     }, 8000);
     
     c.almocos = (c.almocos||0) + 1; 
@@ -204,12 +273,14 @@ window.processarConfirmacao = (c) => {
         if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false; 
         
         if(btn) btn.disabled = false; 
-        if(span) span.innerText = 'Confirmar';
+        if(span) span.innerText = 'Confirmar registro';
         
         const inp = document.getElementById('busca-cpf');
         if(inp) inp.value = ''; 
         
         if(window.logAuditoria) window.logAuditoria('Almoço', `+1 almoço registrado para ${c.nome}. Saldo: ${c.almocos}.`, { clienteCpf: c.cpf });
+
+        window.mostrarSucessoCaixa(c);
         
         if (c.almocos % 10 === 0) {
             const m = document.getElementById('modal-celebracao-10');
@@ -218,7 +289,7 @@ window.processarConfirmacao = (c) => {
                 if(window.prenderFocoModal) window.prenderFocoModal(m);
             }
         } else {
-            window.mostrarToast('Almoço contabilizado com sucesso!'); 
+            window.mostrarToast('Almoço contabilizado com sucesso!');
         }
         
         if(window.checarEAvisarAlmoco) window.checarEAvisarAlmoco(c); 
@@ -227,7 +298,7 @@ window.processarConfirmacao = (c) => {
         window.isProcessing = false; 
         if(window.operacoesAtivas) window.operacoesAtivas[c.cpf] = false; 
         if(btn) btn.disabled = false; 
-        if(span) span.innerText = 'Confirmar';
+        if(span) span.innerText = 'Confirmar registro';
     });
 };
 
