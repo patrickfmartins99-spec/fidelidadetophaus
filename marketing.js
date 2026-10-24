@@ -160,31 +160,37 @@ window.injetarUICampanhas = () => {
     const wrapperAntigo = document.getElementById('mkt-agenda-data').parentNode;
     
     const painel = document.createElement('div');
-    painel.className = "flex flex-col gap-3 mb-3 w-full bg-white p-4 rounded-xl border border-indigo-100 shadow-sm";
+    painel.className = "marketing-campaign-fields";
     painel.innerHTML = `
-        <div class="flex gap-2">
-            <select id="mkt-novo-tipo" onchange="alternarTipoCampanha()" class="p-2 bg-gray-50 border border-indigo-200 rounded-lg text-sm font-bold w-1/3 outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="unica">Disparo único</option>
-                <option value="recorrente">Campanha recorrente</option>
-            </select>
-            <input type="text" id="mkt-novo-titulo" placeholder="Título interno (Ex: Promoção Terça)" class="p-2 border border-indigo-200 rounded-lg text-sm w-2/3 outline-none focus:ring-2 focus:ring-indigo-500">
+        <div class="marketing-field-grid">
+            <label>Tipo de campanha
+                <select id="mkt-novo-tipo" onchange="alternarTipoCampanha()">
+                    <option value="unica">Disparo único</option>
+                    <option value="recorrente">Campanha recorrente</option>
+                </select>
+            </label>
+            <label>Nome da campanha
+                <input type="text" id="mkt-novo-titulo" placeholder="Ex.: Especial de sexta">
+            </label>
         </div>
         
-        <div id="painel-mkt-unica" class="flex gap-2">
-            <input type="date" id="mkt-nova-data" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none text-center">
-            <input type="time" id="mkt-novo-horario-unica" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none text-center" value="09:00">
+        <div id="painel-mkt-unica" class="marketing-field-grid">
+            <label>Data do disparo <input type="date" id="mkt-nova-data"></label>
+            <label>Horário <input type="time" id="mkt-novo-horario-unica" value="09:00"></label>
         </div>
 
-        <div id="painel-mkt-recorrente" class="hidden flex-col gap-3 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-            <div class="flex gap-2">
-                <select id="mkt-nova-freq" onchange="alternarFreqCampanha()" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none font-bold text-indigo-900">
-                    <option value="diaria">Diária</option>
-                    <option value="semanal">Semanal</option>
-                    <option value="mensal">Mensal</option>
-                    <option value="anual">Anual</option>
-                    <option value="data_especifica">Data específica</option>
-                </select>
-                <input type="time" id="mkt-novo-horario-rec" class="p-2 border border-indigo-200 rounded-lg text-sm w-1/2 outline-none text-center font-bold" value="09:00">
+        <div id="painel-mkt-recorrente" class="hidden marketing-recurrence-fields">
+            <div class="marketing-field-grid">
+                <label>Recorrência
+                    <select id="mkt-nova-freq" onchange="alternarFreqCampanha()">
+                        <option value="diaria">Diária</option>
+                        <option value="semanal">Semanal</option>
+                        <option value="mensal">Mensal</option>
+                        <option value="anual">Anual</option>
+                        <option value="data_especifica">Data específica</option>
+                    </select>
+                </label>
+                <label>Horário <input type="time" id="mkt-novo-horario-rec" value="09:00"></label>
             </div>
             
             <div id="freq-diaria" class="text-sm text-gray-500 text-center">Executa todos os dias no horário definido.</div>
@@ -349,12 +355,12 @@ window.atualizarPainelMarketing = async () => {
             const elemento = document.getElementById(`marketing-${chave}`);
             if (elemento) elemento.textContent = valor;
         });
-        lista.innerHTML = campanhas.length ? campanhas.map(c => {
+        lista.innerHTML = campanhas.length ? '<div class="marketing-campaign-table-head" aria-hidden="true"><span>Campanha</span><span>Próximo envio</span><span>Situação</span><span>Ações</span></div>' + campanhas.map(c => {
             const titulo = window.escapeHTML(c.titulo || 'Campanha sem título');
             const tipo = c.tipo === 'unica' ? 'Disparo único' : (c.frequenciaExibicao || c.frequencia || 'Recorrente');
-            const data = c.data ? ` · ${window.escapeHTML(c.data)}` : '';
+            const data = c.data ? window.escapeHTML(c.data.split('-').reverse().join('/')) : 'Conforme recorrência';
             const horario = c.horario || c.configRecorrencia?.horario;
-            return `<article class="dashboard-result-row"><div><strong>${titulo}</strong><small>${window.escapeHTML(tipo)}${data}${horario ? ` · ${window.escapeHTML(horario)}` : ''}</small></div><span class="dashboard-status-pill">${window.escapeHTML(c.status || 'ativa')}</span><button type="button" onclick="abrirCentralMarketing()">Ver detalhes</button></article>`;
+            return `<article class="marketing-campaign-row"><div><strong>${titulo}</strong><small>${window.escapeHTML(tipo)}</small></div><span class="marketing-campaign-date">${data}${horario ? ` · ${window.escapeHTML(horario)}` : ''}</span><span class="dashboard-status-pill">${window.escapeHTML(c.status || 'ativa')}</span><button type="button" onclick="abrirCentralMarketing()">Ver detalhes</button></article>`;
         }).join('') : '<p class="dashboard-empty-note">Nenhuma campanha cadastrada nesta unidade.</p>';
     } catch (erro) {
         lista.innerHTML = '<p class="dashboard-empty-note">Não foi possível carregar as campanhas e a fila. Tente novamente.</p>';

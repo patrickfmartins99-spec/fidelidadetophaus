@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 
-const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build, bootstrap] = await Promise.all([
+const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build, bootstrap, modais, marketing] = await Promise.all([
   readFile(new URL('../fragments/dashboard.html', import.meta.url), 'utf8'),
   readFile(new URL('../fragments/access.html', import.meta.url), 'utf8'),
   readFile(new URL('../auth.js', import.meta.url), 'utf8'),
@@ -12,7 +12,9 @@ const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build,
   readFile(new URL('../design-system.css', import.meta.url), 'utf8'),
   readFile(new URL('../index.html', import.meta.url), 'utf8'),
   readFile(new URL('../scripts/build.mjs', import.meta.url), 'utf8'),
-  readFile(new URL('../bootstrap.js', import.meta.url), 'utf8')
+  readFile(new URL('../bootstrap.js', import.meta.url), 'utf8'),
+  readFile(new URL('../fragments/admin-modals.html', import.meta.url), 'utf8'),
+  readFile(new URL('../marketing.js', import.meta.url), 'utf8')
 ]);
 
 test('painel usa logotipo original e preserva uma única ação por identificador', () => {
@@ -78,4 +80,16 @@ test('totem preserva teclado nativo, logo original e QR por unidade', () => {
   assert.match(totem, /id="totem-cpf"[^>]*inputmode="numeric"|inputmode="numeric"[^>]*id="totem-cpf"/);
   assert.match(visual, /totem-native-keyboard-open/);
   assert.doesNotMatch(totem, /teclado-virtual|virtual-keyboard/);
+});
+
+test('refinamento mantém acesso preto e formulário de marketing sem alterar contratos', () => {
+  assert.match(visual, /\.access-form-panel \{[^}]*background: #000/);
+  assert.match(visual, /\.access-login-shell \{[^}]*background: #000/);
+  assert.match(visual, /#application-fragments \[id\^="modal-"\]/);
+  assert.match(modais, /class="marketing-campaign-section/);
+  assert.match(modais, /id="mkt-agenda-texto"/);
+  assert.match(modais, /onclick="salvarCentralMarketing\(\)"/);
+  for (const id of ['mkt-novo-tipo', 'mkt-novo-titulo', 'mkt-nova-data', 'mkt-novo-horario-unica', 'mkt-nova-freq', 'mkt-novo-horario-rec']) {
+    assert.match(marketing, new RegExp(`id="${id}"`));
+  }
 });

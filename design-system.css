@@ -104,6 +104,16 @@
 .dashboard-result-row small, .dashboard-result-row > span { color: #6f665f; font-size: 11px; overflow-wrap: anywhere; }
 .dashboard-result-row > button { flex: none; padding: 8px 11px; border: 1px solid #b98261; border-radius: 7px; color: var(--haus-brown); font-size: 11px; font-weight: 760; }
 .dashboard-status-pill { padding: 5px 9px; border-radius: 99px; background: #edf6ed; color: #228546 !important; text-transform: capitalize; }
+#aba-marketing #marketing-lista-campanhas { gap: 0; overflow: hidden; border: 1px solid var(--haus-line); border-radius: 9px; }
+#aba-marketing .marketing-campaign-table-head, #aba-marketing .marketing-campaign-row { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1.2fr) minmax(90px,.65fr) minmax(95px,.65fr); align-items: center; gap: 12px; padding: 13px 16px; }
+#aba-marketing .marketing-campaign-table-head { background: #f6f4f2; color: #534c47; font-size: 11px; font-weight: 800; }
+#aba-marketing .marketing-campaign-row { min-width: 0; border-top: 1px solid var(--haus-line); background: #fff; }
+#aba-marketing .marketing-campaign-row > div { display: grid; gap: 3px; min-width: 0; }
+#aba-marketing .marketing-campaign-row strong { overflow-wrap: anywhere; color: #201b18; font-size: 13px; }
+#aba-marketing .marketing-campaign-row small, #aba-marketing .marketing-campaign-date { color: #6f665f; font-size: 11px; overflow-wrap: anywhere; }
+#aba-marketing .marketing-campaign-row .dashboard-status-pill { justify-self: start; }
+#aba-marketing .marketing-campaign-row > button { justify-self: start; padding: 8px 11px; border: 1px solid #b98261; border-radius: 7px; color: var(--haus-brown); font-size: 11px; font-weight: 760; }
+#aba-marketing #marketing-lista-campanhas > .dashboard-empty-note { padding: 17px; }
 .dashboard-management-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 15px; }
 .dashboard-management-grid .dashboard-primary-action { margin-top: 10px; }
 .dashboard-management-links { display: grid; gap: 8px; margin-top: 12px; }
@@ -199,31 +209,87 @@
 .access-unit-option strong { font-size: 19px; }
 .access-unit-icon { width: 43px; height: 43px; background: #f4ebe5; }
 .access-footnote { padding-top: 24px; border-top: 1px solid #504b46; color: #c9c1ba; text-align: left; }
-.access-login-shell { display: block; width: min(565px,calc(100% - 32px)); min-height: 0; border: 1px solid #e9e2db; border-radius: 17px; box-shadow: 0 12px 40px rgba(25,19,15,.07); }
-.access-form-panel { padding: 29px clamp(24px,5vw,49px) 32px; background: #fff; }
+.access-login-shell { display: block; width: min(565px,calc(100% - 32px)); min-height: 0; border: 1px solid #46403b; border-radius: 17px; background: #000; box-shadow: none; }
+.access-form-panel { padding: 29px clamp(24px,5vw,49px) 32px; background: #000; }
 .access-form-brand { display: flex; flex-direction: column; align-items: center; width: 180px; margin: 0 auto 20px; padding: 7px 8px 12px; border-radius: 6px; background: #000; }
 .access-form-brand img { display: block; width: 154px; height: 78px; object-fit: contain; }
 .access-form-brand span { margin-top: -4px; color: #f3f1ee; font-size: 10px; letter-spacing: .35em; }
 .access-form-content h1, .access-form-content > .access-subtitle { text-align: left; }
-.access-form-content h1 { font-size: 39px; }
-.access-selected-unit { margin: 24px 0; border-radius: 10px; background: #f7f4f1; }
-.access-login-form input { min-height: 51px; border-radius: 8px; }
+.access-form-content h1 { color: #fff; font-size: 39px; }
+.access-form-content > .access-subtitle { color: #c6bdb6; }
+.access-selected-unit { margin: 24px 0; border-color: #59504a; border-radius: 10px; background: #191715; }
+.access-selected-unit small { color: #baa99c; }
+.access-selected-unit strong { color: #fff; }
+.access-selected-unit button { background: #32261e; color: #e8ba99; }
+.access-selected-unit button:hover { background: #493323; }
+.access-login-form label { color: #f2eeeb; }
+.access-login-form input { min-height: 51px; border-color: #69615b; border-radius: 8px; background: #171615; color: #fff; }
+.access-login-form input::placeholder { color: #a9a09a; }
+.access-login-form input:focus-visible { border-color: #c08159; outline-color: #c08159; }
 #tela-login #btn-login { width: 100%; border-radius: 8px; background: var(--haus-brown); }
-.access-totem-action button { border: 1px solid #b48061; border-radius: 8px; background: #fff; color: var(--haus-brown-dark); }
-.access-totem-action button:hover { background: #f7f1ec; }
+.access-totem-action button { border: 1px solid #9d6544; border-radius: 8px; background: #191715; color: #f2d2bc; }
+.access-totem-action button:hover { background: #2a211b; }
+.access-security-note { color: #afa39a; }
 
-/* A edição existente do marketing abre como painel lateral, sem duplicar formulário ou gravação. */
-#modal-marketing:not(.hidden) { justify-content: flex-end; padding: 0; background: rgba(13,10,8,.35); }
-#modal-marketing > div { width: min(520px,100vw); max-width: none; height: 100dvh; max-height: 100dvh; border: 0; border-left: 1px solid #d8c8ba; border-radius: 0; box-shadow: -18px 0 48px rgba(32,20,12,.2); }
-#modal-marketing .bg-indigo-50 { background: #f7eee7 !important; }
-#modal-marketing .bg-indigo-600 { background: var(--haus-brown) !important; }
-#modal-marketing .text-indigo-600, #modal-marketing .text-indigo-900 { color: var(--haus-brown-dark) !important; }
+/* Formulário e janelas administrativas preservam seus IDs e ações existentes. */
+#application-fragments [id^="modal-"]:not(#modal-totem-saida):not(#modal-marketing):not(#modal-historico):not(.hidden) { background: rgba(0,0,0,.68); backdrop-filter: none; }
+#application-fragments [id^="modal-"]:not(#modal-totem-saida):not(#modal-marketing):not(#modal-historico) > div:first-child { max-width: min(100%, 760px); border: 1px solid var(--haus-line); border-radius: 13px; background: #fff; box-shadow: 0 24px 65px rgba(0,0,0,.24); }
+#application-fragments [id^="modal-"]:not(#modal-totem-saida):not(#modal-marketing):not(#modal-historico) > div:first-child h3 { color: #171412; letter-spacing: -.025em; }
+#application-fragments [id^="modal-"]:not(#modal-totem-saida):not(#modal-marketing):not(#modal-historico) > div:first-child h3 svg,
+#application-fragments [id^="modal-"]:not(#modal-totem-saida):not(#modal-marketing):not(#modal-historico) > div:first-child h3 i { color: var(--haus-brown) !important; }
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) input:not([type="checkbox"]),
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) textarea,
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) select { border-color: #d9d2cc; border-radius: 8px; background-color: #fff; color: #231f1c; box-shadow: none; }
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) input:focus-visible,
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) textarea:focus-visible,
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) select:focus-visible { outline: 2px solid #ad6842; outline-offset: 1px; }
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) .bg-indigo-600,
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) .bg-purple-600,
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) .bg-emerald-600 { background: var(--haus-brown) !important; }
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) .border-indigo-600,
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) .border-purple-600,
+#application-fragments [id^="modal-"]:not(#modal-totem-saida) .border-emerald-500 { border-color: var(--haus-brown) !important; }
+#modal-alerta-aniversario .animate-bounce { animation: none; }
+
+#modal-marketing:not(.hidden) { justify-content: flex-end; padding: 0; background: rgba(0,0,0,.66); }
+#modal-marketing > div { width: min(650px,100vw); max-width: none; height: 100dvh; max-height: 100dvh; padding: 28px clamp(20px,3vw,35px); border: 0; border-left: 1px solid #d8c8ba; border-radius: 0; box-shadow: -18px 0 48px rgba(0,0,0,.2); }
+#modal-marketing .marketing-modal-heading { margin-bottom: 7px; padding-bottom: 16px; border-bottom: 1px solid var(--haus-line); }
+#modal-marketing .marketing-modal-heading h3 { color: #151311; font-size: 23px; }
+#modal-marketing .marketing-modal-heading h3 svg { color: var(--haus-brown); }
+#modal-marketing .marketing-modal-intro { margin: 0 0 13px; color: #6e6761; font-size: 13px; }
+#modal-marketing .marketing-token-tip { margin: 0 0 21px; padding: 11px 13px; border: 1px solid #e9ded5; border-radius: 8px; background: #f8f3ee; color: #53443a; font-size: 12px; }
+#modal-marketing .marketing-token-tip code { color: var(--haus-brown-dark); font-weight: 700; }
+#modal-marketing .text-indigo-600, #modal-marketing .text-indigo-700, #modal-marketing .text-indigo-900 { color: var(--haus-brown-dark) !important; }
 #modal-marketing .border-indigo-200 { border-color: #d9bda9 !important; }
 #modal-marketing textarea, #modal-marketing input { text-align: left; }
 #modal-marketing > div > .space-y-6 { display: flex; flex-direction: column; gap: 18px; }
 #modal-marketing > div > .space-y-6 > div { margin-top: 0; }
-#modal-marketing > div > .space-y-6 > div:nth-child(5) { order: -2; }
-#modal-marketing > div > .space-y-6 > div:nth-child(4) { order: -1; }
+#modal-marketing .marketing-campaign-section { order: -2; margin: 0; padding: 18px; border: 1px solid var(--haus-line); border-radius: 10px; background: #fff; }
+#modal-marketing .marketing-campaign-section > .flex:first-child { justify-content: flex-start; color: #181512; }
+#modal-marketing .marketing-campaign-section h4 { font-size: 17px; }
+#modal-marketing .marketing-campaign-section h4 + * { margin-top: 3px; }
+#modal-marketing .marketing-campaign-fields { display: grid; gap: 13px; margin-bottom: 14px; }
+#modal-marketing .marketing-field-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+#modal-marketing .marketing-field-grid > label { display: grid; gap: 6px; color: #302a25; font-size: 12px; font-weight: 730; }
+#modal-marketing .marketing-field-grid input, #modal-marketing .marketing-field-grid select { width: 100%; min-width: 0; min-height: 42px; padding: 8px 10px; font-size: 13px; font-weight: 500; }
+#modal-marketing .marketing-recurrence-fields:not(.hidden) { display: flex; flex-direction: column; gap: 11px; padding: 13px; border: 1px solid #e9ded5; border-radius: 9px; background: #fbf8f5; }
+#modal-marketing .marketing-recurrence-fields > div:not(.hidden):not(.marketing-field-grid) { color: #554941; }
+#modal-marketing #freq-semanal:not(.hidden) { display: flex; }
+#modal-marketing #freq-semanal label { border-color: #d9cdc3; }
+#modal-marketing #freq-semanal input { accent-color: var(--haus-brown); }
+#modal-marketing #mkt-agenda-texto { min-height: 96px; margin: 0 0 11px; padding: 11px 12px; resize: vertical; }
+#modal-marketing .marketing-message-label { display: block; margin: 3px 0 7px; color: #302a25; font-size: 12px; font-weight: 730; }
+#modal-marketing .marketing-save-hint { margin: 0 0 17px; color: #665c54; font-size: 11px; line-height: 1.5; }
+#modal-marketing .marketing-campaign-list-title { margin: 17px 0 10px; padding-top: 16px; border-top: 1px solid var(--haus-line); color: #211b17; font-size: 14px; font-weight: 800; }
+#modal-marketing #area-agendamentos > div { border-color: var(--haus-line); box-shadow: none; }
+#modal-marketing #area-agendamentos .bg-indigo-50, #modal-marketing #painel-mkt-recorrente .bg-indigo-50 { background: #f8f0e9 !important; }
+#modal-marketing .marketing-queue-section { order: -1; }
+#modal-marketing .marketing-queue-section h4, #modal-marketing .marketing-manual-section h4 { color: #211b17; font-size: 15px; }
+#modal-marketing .marketing-automatic-message label { color: #302a25; text-align: left; }
+#modal-marketing .marketing-automatic-message textarea { min-height: 76px; padding: 11px 12px; text-align: left; }
+#modal-marketing .marketing-manual-section { order: 1; }
+#modal-marketing > div > .mt-8 { position: sticky; bottom: -28px; z-index: 1; margin-top: 20px; padding: 15px 0 7px; background: #fff; }
+#modal-marketing #btn-marketing-salvar { background: var(--haus-brown); }
 
 /* A ficha existente conserva extrato e auditoria, mas ocupa a lateral como na prancha. */
 #modal-historico:not(.hidden) { justify-content: flex-end; padding: 0; background: rgba(13,10,8,.32); }
@@ -303,6 +369,18 @@
   .dashboard-module-kpis-four { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 640px) {
+  #aba-marketing .marketing-campaign-table-head { display: none; }
+  #aba-marketing .marketing-campaign-row { grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding: 15px; }
+  #aba-marketing .marketing-campaign-row > div { grid-column: 1; }
+  #aba-marketing .marketing-campaign-date { grid-column: 1; }
+  #aba-marketing .marketing-campaign-row .dashboard-status-pill { grid-column: 2; grid-row: 1; }
+  #aba-marketing .marketing-campaign-row > button { grid-column: 2; grid-row: 2; }
+  #application-fragments [id^="modal-"]:not(#modal-totem-saida):not(#modal-marketing):not(#modal-historico) { padding: 10px; }
+  #application-fragments [id^="modal-"]:not(#modal-totem-saida):not(#modal-marketing):not(#modal-historico) > div:first-child { max-height: calc(100dvh - 20px); padding: 20px; }
+  #modal-marketing > div { width: 100vw; padding: 19px 15px max(19px,env(safe-area-inset-bottom)); }
+  #modal-marketing .marketing-campaign-section { padding: 15px; }
+  #modal-marketing .marketing-field-grid { grid-template-columns: 1fr; }
+  #modal-marketing > div > .mt-8 { bottom: calc(-19px - env(safe-area-inset-bottom)); }
   #aba-caixa .dashboard-caixa-search { grid-template-columns: 1fr; min-height: 0; padding: 21px; }
   #aba-caixa .dashboard-caixa-search #btn-caixa-buscar { width: 100%; }
   .caixa-etapa-card { gap: 19px; padding: 21px; }
