@@ -28,4 +28,5 @@ test('navegação móvel e lateral respeitam as permissões existentes', () => {
   assert.match(auth, /btn-mobile-caixa'\)\?\.classList\.toggle\('hidden', !permissoes\.caixa\)/);
   assert.match(auth, /btn-nav-marketing'\)/);
   assert.match(navegacao, /window\.fecharMenuPainel\(\)/);
+  assert.match(navegacao, /menu\.inert = window\.innerWidth < 1024/);
 });

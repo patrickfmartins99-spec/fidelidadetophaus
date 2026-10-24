@@ -306,16 +306,31 @@ document.addEventListener('visibilitychange', () => {
 // ==========================================================================
 // NAVEGAÇÃO DE ABAS
 // ==========================================================================
+const sincronizarAcessibilidadeMenuPainel = () => {
+    const painel = document.getElementById('app-dashboard');
+    const menu = document.getElementById('painel-sidebar');
+    if (!painel || !menu) return;
+    menu.inert = window.innerWidth < 1024 && !painel.classList.contains('dashboard-menu-open');
+};
+
 window.fecharMenuPainel = () => {
     const painel = document.getElementById('app-dashboard');
+    const focoDentroDoMenu = document.getElementById('painel-sidebar')?.contains(document.activeElement);
     painel?.classList.remove('dashboard-menu-open');
     document.querySelector('.dashboard-open-menu')?.setAttribute('aria-expanded', 'false');
+    sincronizarAcessibilidadeMenuPainel();
+    if (focoDentroDoMenu && window.innerWidth < 1024) document.querySelector('.dashboard-open-menu')?.focus();
 };
 
 window.abrirMenuPainel = () => {
     document.getElementById('app-dashboard')?.classList.add('dashboard-menu-open');
     document.querySelector('.dashboard-open-menu')?.setAttribute('aria-expanded', 'true');
+    sincronizarAcessibilidadeMenuPainel();
+    document.getElementById('painel-sidebar')?.querySelector('.dashboard-close-menu')?.focus();
 };
+
+window.addEventListener('resize', sincronizarAcessibilidadeMenuPainel);
+sincronizarAcessibilidadeMenuPainel();
 
 document.addEventListener('keydown', (evento) => {
     if (evento.key === 'Escape') window.fecharMenuPainel();
