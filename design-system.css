@@ -189,6 +189,18 @@
 #modal-marketing > div > .space-y-6 > div:nth-child(5) { order: -2; }
 #modal-marketing > div > .space-y-6 > div:nth-child(4) { order: -1; }
 
+/* A ficha existente conserva extrato e auditoria, mas ocupa a lateral como na prancha. */
+#modal-historico:not(.hidden) { justify-content: flex-end; padding: 0; background: rgba(13,10,8,.32); }
+#modal-historico .ficha-modal { display: flex; flex-direction: column; width: min(570px,100vw); max-width: none; height: 100dvh; max-height: 100dvh; border: 0; border-left: 1px solid #d8c8ba; border-radius: 0; box-shadow: -18px 0 48px rgba(32,20,12,.2); }
+#modal-historico .ficha-conteudo { flex: 1; overflow-y: auto; }
+#modal-historico .ficha-cabecalho h3 { color: #151414; font-size: 27px; }
+#modal-historico .ficha-rotulo { color: var(--haus-brown); }
+#modal-historico .ficha-metricas > div { background: #f6f2ee; }
+#modal-historico .ficha-metricas strong { color: #181512; }
+#modal-historico .ficha-acoes button { background: var(--haus-brown); }
+#modal-historico .ficha-acoes button:nth-child(2) { background: #f3e9e1; color: var(--haus-brown-dark); }
+#modal-historico .ficha-detalhes { border-color: #e4dcd6; }
+
 /* Autoatendimento: cartões claros das pranchas, teclado sempre nativo e QR real da unidade. */
 .totem-container { --totem-accent: #99502a; --totem-muted: #69615c; --totem-radius: 12px; background: radial-gradient(circle at 50% 0,#493020 0,#19130f 36%,#080707 78%); }
 .totem-container .hidden { display: none !important; }
@@ -293,6 +305,7 @@
   .dashboard-client-filters { padding: 0 16px 13px; }
   .access-unit-shell, .access-login-shell { width: 100%; min-height: 100dvh; margin: 0; border-radius: 0; }
   #modal-marketing > div { width: 100vw; }
+  #modal-historico .ficha-modal { width: 100vw; }
   .access-form-panel { align-items: flex-start; min-height: 100dvh; padding: 28px 23px max(24px,env(safe-area-inset-bottom)); }
   .access-unit-content { padding: 18px 24px 30px; }
 }
