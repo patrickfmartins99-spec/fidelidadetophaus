@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tophaus-fidelidade-v80-redesign';
+const CACHE_NAME = 'tophaus-fidelidade-v81-redesign';
 
 const APP_SHELL = [
   './',

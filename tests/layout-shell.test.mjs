@@ -65,6 +65,9 @@ test('pranchas possuem seções reais, navegação móvel e folha incluída no b
   assert.match(build, /'design-system\.css'/);
   assert.match(visual, /\.dashboard-insights \{ grid-template-columns:/);
   assert.match(visual, /\.dashboard-mobile-nav/);
+  assert.doesNotMatch(visual.split('/* Autoatendimento:')[0], /gradient\(/, 'o painel e o acesso desta etapa não utilizam degradês');
+  assert.match(visual, /#painel-sidebar \{[^}]*background: #000/);
+  assert.match(visual, /\.access-form-brand \{[^}]*background: #000/);
 });
 
 test('totem preserva teclado nativo, logo original e QR por unidade', () => {

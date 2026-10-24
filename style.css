@@ -747,9 +747,9 @@ textarea {
 }
 
 /* Acesso redesenhado a partir da prancha aprovada, com o logo original. */
-#tela-login, #tela-selecao-unidade { background: radial-gradient(circle at 10% 0%, #3b271b, #0c0a09 65%); }
+#tela-login, #tela-selecao-unidade { background: #101010; }
 .access-login-shell { display: grid; grid-template-columns: 42% 58%; width: min(1040px, calc(100% - 32px)); min-height: min(690px, calc(100dvh - 48px)); margin: auto; overflow: hidden; border: 1px solid #5b3b2a; border-radius: 26px; box-shadow: 0 28px 80px rgba(0,0,0,.38); }
-.access-story { position: relative; display: flex; flex-direction: column; align-items: flex-start; padding: clamp(28px, 4vw, 56px); overflow: hidden; background: radial-gradient(circle at 80% 70%, #5b341e, #17100d 70%); color: #fff; }
+.access-story { position: relative; display: flex; flex-direction: column; align-items: flex-start; padding: clamp(28px, 4vw, 56px); overflow: hidden; background: #101010; color: #fff; }
 .access-story::before, .access-story::after { position: absolute; width: 450px; height: 200px; border: 1px solid rgba(186,119,70,.38); border-radius: 50%; content: ''; pointer-events: none; transform: rotate(-18deg); }
 .access-story::before { right: -170px; bottom: 10px; }
 .access-story::after { right: -170px; bottom: -35px; }

@@ -427,6 +427,7 @@ window.alternarAba = (a) => {
     window.fecharMenuPainel();
 
     if(a === 'caixa'){
+        window.reiniciarAtendimentoCaixa?.();
         const bCpf = document.getElementById('busca-cpf');
         // Em telas de toque, abrir o teclado sem o usuário tocar no campo ocupa
         // metade da área útil e atrapalha o atendimento.
