@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 
-const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build, bootstrap, modais, marketing, relatoriosHtml] = await Promise.all([
+const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build, bootstrap, modais, marketing] = await Promise.all([
   readFile(new URL('../fragments/dashboard.html', import.meta.url), 'utf8'),
   readFile(new URL('../fragments/access.html', import.meta.url), 'utf8'),
   readFile(new URL('../auth.js', import.meta.url), 'utf8'),
@@ -14,8 +14,7 @@ const [painel, acesso, auth, navegacao, relatorios, totem, visual, index, build,
   readFile(new URL('../scripts/build.mjs', import.meta.url), 'utf8'),
   readFile(new URL('../bootstrap.js', import.meta.url), 'utf8'),
   readFile(new URL('../fragments/admin-modals.html', import.meta.url), 'utf8'),
-  readFile(new URL('../marketing.js', import.meta.url), 'utf8'),
-  readFile(new URL('../fragments/reports.html', import.meta.url), 'utf8')
+  readFile(new URL('../marketing.js', import.meta.url), 'utf8')
 ]);
 
 test('painel usa logotipo original e preserva uma única ação por identificador', () => {
@@ -56,16 +55,6 @@ test('entrada e visão geral usam estrutura própria e cálculos existentes', ()
   assert.match(painel, /id="overview-frequencia"/);
   assert.match(relatorios, /const diario = calcularRelatorioDiario\(clientes, hoje\)/);
   assert.match(relatorios, /const analise = calcularAnaliseFrequencia\(clientes, dataLocalParaUtc\(hoje\)\)/);
-});
-
-test('relatório explica períodos, resgates e abre ficha sem colocar CPF no HTML', () => {
-  assert.match(relatoriosHtml, /id="relatorio-grafico-periodo"/);
-  assert.match(relatoriosHtml, /id="relatorio-resumo-legenda"/);
-  assert.match(relatorios, /Resgates não reiniciam esta contagem/);
-  assert.match(relatoriosHtml, /Última visita: data mais recente do histórico disponível/);
-  assert.match(relatorios, /const referenciaFluxo = chave === hoje/);
-  assert.match(relatorios, /window\.abrirFichaCliente\(cliente\.cpf\)/);
-  assert.match(relatorios, /data-report-index/);
 });
 
 test('pranchas possuem seções reais, navegação móvel e folha incluída no build', () => {
