@@ -77,3 +77,34 @@ test('segmenta frequência e compara períodos de 30 dias', () => {
     assert.equal(analise.clientes[0].classificacao, 'Frequente');
 });
 
+test('expõe as datas exatas da comparação e não inventa percentual sem base anterior', () => {
+    const analise = calcularAnaliseFrequencia([{
+        cpf: '12345678901', nome: 'Cliente A', dataCadastro: '01/01/2025',
+        historico: ['03/09/2026 às 12:00']
+    }], referencia);
+    assert.equal(dataParaChave(analise.periodoAtual.inicio), '2026-08-05');
+    assert.equal(dataParaChave(analise.periodoAtual.fim), '2026-09-03');
+    assert.equal(dataParaChave(analise.periodoAnterior.inicio), '2026-07-06');
+    assert.equal(dataParaChave(analise.periodoAnterior.fim), '2026-08-04');
+    assert.equal(dataParaChave(analise.periodo90.inicio), '2026-06-06');
+    assert.equal(analise.almocosAnteriores, 0);
+    assert.equal(analise.variacao, null);
+    assert.equal(analise.clientes[0].cpf, '12345678901');
+});
+
+test('frequência mantém visitas documentadas de antes do resgate', () => {
+    const cliente = {
+        cpf: '12345678901', nome: 'Cliente B', dataCadastro: '01/01/2025',
+        almocos: 1,
+        historico: ['03/09/2026 às 12:00'],
+        historicoResgates: [{ dataResgate: '02/09/2026 às 14:00', datas: [
+            '01/09/2026 às 12:00', '02/09/2026 às 12:00'
+        ] }]
+    };
+    const analise = calcularAnaliseFrequencia([cliente], referencia);
+    assert.equal(analise.clientes[0].visitas30, 3);
+    assert.equal(analise.clientes[0].visitas90, 3);
+    assert.equal(analise.clientes[0].ultimaVisita.toISOString(), '2026-09-03T00:00:00.000Z');
+    assert.equal(cliente.almocos, 1);
+});
+
