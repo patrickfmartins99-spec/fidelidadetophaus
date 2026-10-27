@@ -1,47 +1,52 @@
 <!-- TELA DE SELEÇÃO DA UNIDADE (MULTIUNIDADE) -->
-    <div id="tela-selecao-unidade" class="hidden fixed inset-0 bg-slate-900 z-[999] flex flex-col items-center justify-center p-4 transition-all overflow-y-auto">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl text-center my-auto">
-            <img src="./logo.jpg" alt="Top Haus" class="h-20 w-auto mx-auto mb-6 rounded-xl shadow-sm">
-            <h2 class="text-2xl font-black text-slate-800 mb-2">Selecione a Unidade</h2>
-            <p class="text-slate-500 mb-8 text-sm">Escolha a unidade onde este dispositivo irá operar. Essa configuração será salva.</p>
-            
-            <div class="flex flex-col gap-4">
-                <button onclick="selecionarUnidadeAtiva('navegantes')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-3">
-                    <i data-lucide="map-pin" class="w-5 h-5"></i> Navegantes
-                </button>
-                <button onclick="selecionarUnidadeAtiva('picarras')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl transition shadow-md flex items-center justify-center gap-3">
-                    <i data-lucide="map-pin" class="w-5 h-5"></i> Balneário Piçarras
-                </button>
+    <div id="tela-selecao-unidade" class="hidden fixed inset-0 z-[999] overflow-y-auto">
+        <div class="access-unit-shell">
+            <div class="access-unit-brand"><img src="./logo.jpg" alt="Top Haus"><span>FIDELIDADE</span></div>
+            <div class="access-unit-content">
+                <h1>Escolher unidade</h1>
+                <p class="access-subtitle">Selecione a unidade onde você está hoje para continuar.</p>
+                <div class="access-unit-options">
+                    <button type="button" onclick="selecionarUnidadeAtiva('navegantes')" class="access-unit-option">
+                        <span class="access-unit-icon"><i data-lucide="map-pin"></i></span>
+                        <span><strong>Navegantes</strong></span>
+                        <span class="access-unit-arrow" aria-hidden="true">→</span>
+                    </button>
+                    <button type="button" onclick="selecionarUnidadeAtiva('picarras')" class="access-unit-option">
+                        <span class="access-unit-icon"><i data-lucide="map-pin"></i></span>
+                        <span><strong>Balneário Piçarras</strong></span>
+                        <span class="access-unit-arrow" aria-hidden="true">→</span>
+                    </button>
+                </div>
+                <p class="access-footnote">Os dados exibidos pertencem somente à unidade selecionada. Você pode trocar de unidade antes de entrar.</p>
             </div>
         </div>
     </div>
 
     <!-- TELA DE LOGIN -->
-    <div id="tela-login" class="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center p-4 transition-all">
-        <div class="bg-black p-10 rounded-3xl w-full max-w-sm shadow-[0_0_40px_rgba(255,255,255,0.08)] text-center relative overflow-y-auto max-h-[90dvh] border border-gray-800">
-            <img src="./logo.jpg" alt="Top Haus" class="h-28 w-auto mx-auto mb-2 rounded-xl shadow-sm">
-            <span class="text-white font-light text-xl tracking-widest uppercase block mb-8">Fidelidade</span>
-            
-            <h2 class="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Acesso ao Sistema</h2>
-
-            <div class="mb-4 flex items-center justify-center gap-2 text-xs text-gray-400">
-                <span>Unidade: <strong id="login-unidade-atual" class="text-white">—</strong></span>
-                <button type="button" onclick="trocarUnidadeNoLogin()" class="underline underline-offset-2 hover:text-white">Trocar unidade</button>
-            </div>
-            
-            <form id="form-login" onsubmit="fazerLogin(event)" class="space-y-4 relative z-10">
-                <input type="text" id="login-user" name="username" required placeholder="Usuário" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
-                <input type="password" id="login-senha" name="password" required placeholder="Senha" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:ring-2 focus:ring-white outline-none text-center font-bold text-white placeholder-gray-600">
-                <button type="submit" id="btn-login" class="w-full bg-white text-black font-black py-4 rounded-xl transition hover:bg-gray-200 shadow-md">
-                    <span id="btn-login-text">Acessar sistema</span>
-                </button>
-            </form>
-
-            <div class="mt-8 pt-8 border-t border-gray-800 relative z-10">
-                <p class="text-xs text-gray-500 mb-3 font-bold uppercase">Autoatendimento</p>
-                <button onclick="entrarModoTotemDaTelaLogin()" type="button" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition border border-gray-700">
-                    <i data-lucide="tablet" class="w-5 h-5"></i> <span id="btn-totem-shortcut-text">Abrir totem</span>
-                </button>
+    <div id="tela-login" class="fixed inset-0 z-[200] flex overflow-y-auto">
+        <div class="access-login-shell">
+            <div class="access-form-panel">
+                <div class="access-form-content">
+                    <div class="access-form-brand"><img src="./logo.jpg" alt="Top Haus"><span>FIDELIDADE</span></div>
+                    <h1>Entrar</h1>
+                    <p class="access-subtitle">Acesse o sistema da unidade selecionada.</p>
+                    <div class="access-selected-unit">
+                        <span class="access-selected-icon"><i data-lucide="map-pin"></i></span>
+                        <span><small>Unidade selecionada</small><strong id="login-unidade-atual">—</strong></span>
+                        <button type="button" onclick="trocarUnidadeNoLogin()">Trocar</button>
+                    </div>
+                    <form id="form-login" onsubmit="fazerLogin(event)" class="access-login-form">
+                        <label for="login-user">Usuário</label>
+                        <input type="text" id="login-user" name="username" required placeholder="Digite seu usuário" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next">
+                        <label for="login-senha">Senha</label>
+                        <input type="password" id="login-senha" name="password" required placeholder="Digite sua senha" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go">
+                        <button type="submit" id="btn-login"><span id="btn-login-text">Entrar no sistema</span><span aria-hidden="true">→</span></button>
+                    </form>
+                    <div class="access-totem-action">
+                        <button onclick="entrarModoTotemDaTelaLogin()" type="button"><i data-lucide="tablet"></i> <span id="btn-totem-shortcut-text">Abrir totem</span></button>
+                    </div>
+                    <p class="access-security-note"><span aria-hidden="true">●</span> Acesso restrito à equipe Top Haus</p>
+                </div>
             </div>
         </div>
     </div>

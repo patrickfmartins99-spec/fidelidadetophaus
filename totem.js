@@ -93,6 +93,8 @@ window.fecharTecladoNativoTotem = () => {
 window.configurarQrCodeTotem = () => {
     const unidade = window.obterUnidade ? window.obterUnidade() : '';
     const configuracao = TOTEM_QR_POR_UNIDADE[unidade];
+    const nomeUnidade = document.getElementById('totem-unidade-nome');
+    if (nomeUnidade) nomeUnidade.textContent = configuracao?.nome || 'Unidade não identificada';
     const imagem = document.getElementById('totem-qrcode-img');
     const wrapper = document.querySelector('.totem-qrcode-wrapper');
     const unidadeTexto = document.getElementById('totem-qrcode-unit');

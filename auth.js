@@ -173,7 +173,7 @@ function definirCarregamentoLogin(ativo) {
     const btn = document.getElementById('btn-login');
     const span = document.getElementById('btn-login-text');
     if (btn) btn.disabled = ativo;
-    if (span) span.innerText = ativo ? 'Entrando...' : 'Acessar sistema';
+    if (span) span.innerText = ativo ? 'Entrando...' : 'Entrar no sistema';
 }
 
 function mensagemErroLogin(erro) {
@@ -614,6 +614,10 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
     const btnAdmin = document.getElementById('btn-aba-admin');
     const btnCaixa = document.getElementById('btn-aba-caixa');
     const btnRelatorios = document.getElementById('btn-aba-relatorios');
+    const btnClientesNav = document.getElementById('btn-nav-clientes');
+    const btnMarketingNav = document.getElementById('btn-nav-marketing');
+    const btnGestaoNav = document.getElementById('nav-gestao');
+    const btnTotemNav = document.getElementById('btn-sidebar-totem');
     const btnSimulacao = document.getElementById('btn-ativar-simulacao');
     const btnZerar = document.getElementById('btn-zerar-banco');
     const btnAcessos = document.getElementById('btn-gerenciar-acessos');
@@ -624,11 +628,29 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
     const painelMetricas = document.getElementById('painel-metricas-avancadas');
     
     const botoesTotem = document.querySelectorAll('button[onclick="entrarModoTotemDaTelaLogin()"]');
-    const btnMarketing = document.querySelector('button[onclick="abrirCentralMarketing()"]');
+    const botoesMarketing = document.querySelectorAll('button[onclick="abrirCentralMarketing()"]');
 
     if (btnAdmin) permissoes.dashboard ? btnAdmin.classList.remove('hidden') : btnAdmin.classList.add('hidden');
     if (btnCaixa) permissoes.caixa ? btnCaixa.classList.remove('hidden') : btnCaixa.classList.add('hidden');
     if (btnRelatorios) cargo === 'admin' ? btnRelatorios.classList.remove('hidden') : btnRelatorios.classList.add('hidden');
+    if (btnClientesNav) btnClientesNav.classList.toggle('hidden', !permissoes.dashboard);
+    document.getElementById('btn-nav-resgates')?.classList.toggle('hidden', !permissoes.dashboard);
+    if (btnMarketingNav) btnMarketingNav.classList.toggle('hidden', !permissoes.marketing);
+    document.getElementById('btn-nav-auditoria')?.classList.toggle('hidden', !permissoes.auditoria);
+    const podeGerir = !!(permissoes.usuarios || permissoes.configuracoes || permissoes.clientes || permissoes.reset || permissoes.simulacao);
+    document.getElementById('btn-nav-administracao')?.classList.toggle('hidden', !podeGerir);
+    if (btnGestaoNav) btnGestaoNav.classList.toggle('hidden', !permissoes.dashboard);
+    if (btnTotemNav) btnTotemNav.classList.toggle('hidden', !permissoes.totem);
+    document.getElementById('btn-mobile-admin')?.classList.toggle('hidden', !permissoes.dashboard);
+    document.getElementById('btn-mobile-caixa')?.classList.toggle('hidden', !permissoes.caixa);
+    document.getElementById('btn-mobile-clientes')?.classList.toggle('hidden', !permissoes.dashboard);
+    document.getElementById('dashboard-ver-relatorios')?.classList.toggle('hidden', cargo !== 'admin');
+    document.getElementById('dashboard-atalho-caixa')?.classList.toggle('hidden', !permissoes.caixa);
+    document.getElementById('dashboard-atalho-marketing')?.classList.toggle('hidden', !permissoes.marketing);
+    document.getElementById('btn-clientes-cadastrar')?.classList.toggle('hidden', !permissoes.caixa);
+    document.querySelectorAll('[data-permissao]').forEach(el => el.classList.toggle('hidden', !permissoes[el.dataset.permissao]));
+    const destinoPermitido = { resgates: !!permissoes.dashboard, marketing: !!permissoes.marketing, relatorios: cargo === 'admin', auditoria: !!permissoes.auditoria, gestao: podeGerir };
+    document.querySelectorAll('[data-destino]').forEach(el => el.classList.toggle('hidden', !destinoPermitido[el.dataset.destino]));
     if (btnSimulacao) permissoes.simulacao ? btnSimulacao.classList.remove('hidden') : btnSimulacao.classList.add('hidden');
     if (btnZerar) permissoes.reset ? btnZerar.classList.remove('hidden') : btnZerar.classList.add('hidden');
     if (btnAcessos) permissoes.usuarios ? btnAcessos.classList.remove('hidden') : btnAcessos.classList.add('hidden');
@@ -638,7 +660,7 @@ window.aplicarRegrasNaInterface = (cargo, username, permissoes) => {
     if (btnTrocarUnidade) permissoes.configuracoes ? btnTrocarUnidade.classList.remove('hidden') : btnTrocarUnidade.classList.add('hidden');
     if (painelMetricas) permissoes.dashboard ? painelMetricas.classList.remove('hidden') : painelMetricas.classList.add('hidden');
     
-    if (btnMarketing) permissoes.marketing ? btnMarketing.classList.remove('hidden') : btnMarketing.classList.add('hidden');
+    botoesMarketing.forEach(btn => btn.classList.toggle('hidden', !permissoes.marketing));
     
     botoesTotem.forEach(btn => {
         permissoes.totem ? btn.classList.remove('hidden') : btn.classList.add('hidden');

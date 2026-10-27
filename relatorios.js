@@ -99,7 +99,55 @@ const renderizarTabela = () => {
     definirTexto('relatorio-tabela-contagem', `${clientes.length} de ${analiseAtual.clientes.length} clientes`);
 };
 
+const atualizarVisaoGeral = () => {
+    if (!document.getElementById('overview-novos')) return;
+    const clientes = window.clientesArray || [];
+    const hoje = hojeLocalComoChave();
+    const diario = calcularRelatorioDiario(clientes, hoje);
+    const ontemData = new Date(dataLocalParaUtc(hoje).getTime() - 86400000);
+    const ontem = calcularRelatorioDiario(clientes, dataParaChave(ontemData));
+    const analise = calcularAnaliseFrequencia(clientes, dataLocalParaUtc(hoje));
+    definirTexto('overview-data-hoje', new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).format(new Date()));
+    definirTexto('overview-novos', diario.novos);
+    definirTexto('overview-almocos', diario.almocos);
+    definirTexto('overview-resgates', diario.resgatesTotal);
+    definirTexto('overview-disponiveis', clientes.filter(cliente => !cliente.arquivado && Number(cliente.almocos || 0) >= 10).length);
+    [['novos', diario.novos, ontem.novos], ['almocos', diario.almocos, ontem.almocos], ['resgates', diario.resgatesTotal, ontem.resgatesTotal]].forEach(([campo, atual, anterior]) => {
+        const elemento = document.getElementById(`overview-${campo}-comparacao`);
+        if (!elemento) return;
+        const variacao = anterior ? Math.round((atual - anterior) / anterior * 100) : null;
+        elemento.textContent = variacao === null ? 'Sem base de comparação ontem' : `${variacao > 0 ? '+' : ''}${variacao}% em relação a ontem`;
+        elemento.dataset.trend = variacao === null ? 'neutral' : (variacao > 0 ? 'up' : (variacao < 0 ? 'down' : 'neutral'));
+    });
+
+    const grafico = document.getElementById('overview-fluxo');
+    if (grafico) {
+        const semana = analise.serieDiaria.slice(-7);
+        const maximo = Math.max(1, ...semana.map(dia => dia.total));
+        grafico.innerHTML = semana.map(dia => {
+            const altura = dia.total ? Math.max(7, Math.round(dia.total / maximo * 100)) : 2;
+            const rotulo = new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC', weekday: 'short' }).format(dia.data).replace('.', '');
+            return `<div class="dashboard-flow-day" title="${dia.chave}: ${dia.total} almoço(s)"><strong>${dia.total}</strong><span class="dashboard-flow-track"><i style="height:${altura}%"></i></span><small>${rotulo}</small></div>`;
+        }).join('');
+    }
+    const frequencia = document.getElementById('overview-frequencia');
+    if (frequencia) {
+        const saldos = clientes.filter(c => c && !c.arquivado).map(c => Number(c.almocos || 0));
+        const grupos = [
+            ['Mais de 20 almoços', n => n > 20],
+            ['Entre 11 e 20', n => n >= 11 && n <= 20],
+            ['Entre 6 e 10', n => n >= 6 && n <= 10],
+            ['Entre 2 e 5', n => n >= 2 && n <= 5],
+            ['Apenas 1 almoço', n => n === 1]
+        ];
+        const quantidades = grupos.map(([, filtro]) => saldos.filter(filtro).length);
+        const maximo = Math.max(1, ...quantidades);
+        frequencia.innerHTML = grupos.map(([rotulo], indice) => `<div class="dashboard-frequency-row"><span class="dashboard-frequency-rank">${indice + 1}</span><span class="dashboard-frequency-info"><span>${rotulo}<strong>${quantidades[indice]}</strong></span><i><b style="width:${Math.round(quantidades[indice] / maximo * 100)}%"></b></i></span></div>`).join('');
+    }
+};
+
 window.atualizarRelatorios = () => {
+    atualizarVisaoGeral();
     const secao = document.getElementById('aba-relatorios');
     const campoData = document.getElementById('relatorio-data');
     if (!secao || !campoData || window.cargoLogado !== 'admin') return;
