@@ -26,7 +26,9 @@ window.enviarParaFilaRobo = (cpf, telefone, textoMensagem) => {
 window.checarEAvisarAlmoco = (c) => {
     const faltam = 10 - (c.almocos || 0);
     if(faltam > 0 && faltam < 10) {
-        const msg = `Olá *${(c.nome||'').split(' ')[0]}*, seu almoço de hoje foi contabilizado no Top Haus! 🍽️\nVocê tem *${c.almocos} almoço(s)* acumulados.\nFaltam apenas *${faltam}* para você conquistar o seu *Desconto de R$ 50,00*!`;
+        const primeiroNome = (c.nome || '').trim().split(/\s+/)[0] || 'Cliente';
+        const progresso = faltam === 1 ? 'Falta *1 almoço*' : `Faltam *${faltam} almoços*`;
+        const msg = `Oi, *${primeiroNome}*! Que bom receber você hoje 😊\nSeu almoço já foi registrado no Top Haus Fidelidade. Você já soma *${c.almocos} de 10 almoços*. ${progresso} para liberar *R$ 50 de desconto* para uma próxima visita.\nAté logo! 🍽️`;
         window.enviarParaFilaRobo(c.cpf, c.telefone, msg);
     } else if (c.almocos === 10) {
         const txtPremio = window.msgsMarketing.premio || "Parabéns [Nome]! Você completou 10 almoços. Na sua próxima visita você poderá utilizar um desconto de R$ 50,00.";
