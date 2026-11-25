@@ -108,7 +108,8 @@ async function enfileirarAviso(db, unidade, cliente) {
     tipo = 'premio';
   } else {
     const faltam = 10 - quantidade;
-    texto = `Olá *${primeiroNome}*, seu almoço de hoje foi contabilizado no Top Haus! 🍽️\nVocê tem *${quantidade} almoço(s)* acumulados.\nFaltam apenas *${faltam}* para você conquistar o seu *Desconto de R$ 50,00*!`;
+    const progresso = faltam === 1 ? 'Falta *1 almoço*' : `Faltam *${faltam} almoços*`;
+    texto = `Oi, *${primeiroNome}*! Que bom receber você hoje 😊\nSeu almoço já foi registrado no Top Haus Fidelidade. Você já soma *${quantidade} de 10 almoços*. ${progresso} para liberar *R$ 50 de desconto* para uma próxima visita.\nAté logo! 🍽️`;
     tipo = 'acumulo';
   }
   const chave = createHash('sha256').update(`${unidade}|totem|${tipo}|${cliente.cpf}|${hojeISO()}`).digest('hex');
