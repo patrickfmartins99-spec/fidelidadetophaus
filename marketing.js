@@ -39,46 +39,137 @@ window.checarEAvisarAlmoco = (c) => {
 // ==========================================================================
 // VISUALIZAÇÃO E CONTROLE DA FILA DE ENVIOS
 // ==========================================================================
-window.listenerFilaAtivo = false;
-window.ultimaFilaSnap = null;
+const TAMANHO_PAGINA_FILA = 40;
+const estadoFilaMarketing = {
+    cancelar: null,
+    geracao: 0,
+    recentes: new Map(),
+    anteriores: new Map(),
+    cursor: null,
+    temMais: false,
+    carregando: false
+};
+
+const ordenarMensagensFila = () => {
+    const mensagens = new Map([...estadoFilaMarketing.anteriores, ...estadoFilaMarketing.recentes]);
+    return [...mensagens.values()].sort((a, b) =>
+        (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0) || b.id.localeCompare(a.id)
+    );
+};
+
+window.pararListenerFila = () => {
+    estadoFilaMarketing.geracao++;
+    if (estadoFilaMarketing.cancelar) estadoFilaMarketing.cancelar();
+    estadoFilaMarketing.cancelar = null;
+    estadoFilaMarketing.recentes.clear();
+    estadoFilaMarketing.anteriores.clear();
+    estadoFilaMarketing.cursor = null;
+    estadoFilaMarketing.temMais = false;
+    estadoFilaMarketing.carregando = false;
+};
 
 window.iniciarListenerFila = () => {
-    if(window.listenerFilaAtivo) return;
-    window.listenerFilaAtivo = true;
-    
+    window.pararListenerFila();
+    const geracao = estadoFilaMarketing.geracao;
     const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('fila_mensagens') : 'fila_mensagens';
+    const consulta = window.firebaseQuery(
+        window.firebaseRef(window.db, pathFila),
+        window.firebaseOrderByChild('timestamp'),
+        window.firebaseLimitToLast(TAMANHO_PAGINA_FILA)
+    );
+    const area = document.getElementById('area-fila-envio');
+    if (area) {
+        area.innerHTML = '<p class="text-sm text-gray-500 text-center py-2">Carregando envios recentes...</p>';
+        const resumo = document.getElementById('mkt-fila-resumo');
+        const btnMais = document.getElementById('mkt-fila-mais');
+        const btnLimpar = document.getElementById('btn-limpar-fila');
+        if (resumo) resumo.textContent = '';
+        if (btnMais) btnMais.classList.add('hidden');
+        if (btnLimpar) btnLimpar.classList.add('hidden');
+        area.onclick = event => {
+            const botao = event.target.closest('[data-fila-acao]');
+            if (!botao || !area.contains(botao)) return;
+            if (botao.dataset.filaAcao === 'cancelar') window.cancelarMensagemFila(botao.dataset.filaId);
+            if (botao.dataset.filaAcao === 'reenviar') window.reenviarMensagemFila(botao.dataset.filaId);
+        };
+    }
 
-    window.firebaseOnValue(window.firebaseRef(window.db, pathFila), (snap) => {
-        window.ultimaFilaSnap = snap;
-        const modal = document.getElementById('modal-marketing');
-        if(modal && !modal.classList.contains('hidden')) {
-            window.renderizarFilaEnvios(snap);
+    estadoFilaMarketing.cancelar = window.firebaseOnValue(consulta, snapshot => {
+        if (geracao !== estadoFilaMarketing.geracao) return;
+        const pagina = [];
+        snapshot.forEach(child => { pagina.push({ id: child.key, ...child.val() }); });
+        estadoFilaMarketing.recentes = new Map(pagina.map(mensagem => [mensagem.id, mensagem]));
+        pagina.forEach(mensagem => {
+            if (estadoFilaMarketing.anteriores.has(mensagem.id)) estadoFilaMarketing.anteriores.set(mensagem.id, mensagem);
+        });
+        if (!estadoFilaMarketing.anteriores.size) {
+            const primeira = pagina[0];
+            estadoFilaMarketing.cursor = primeira ? { timestamp: primeira.timestamp ?? null, id: primeira.id } : null;
+            estadoFilaMarketing.temMais = pagina.length === TAMANHO_PAGINA_FILA;
         }
+        window.renderizarFilaEnvios();
+    }, erro => {
+        if (geracao !== estadoFilaMarketing.geracao) return;
+        console.error('Não foi possível consultar os envios recentes:', erro);
+        if (area) area.innerHTML = '<p class="text-sm text-red-600 text-center py-2">Não foi possível carregar a fila. Feche e abra a central para tentar novamente.</p>';
     });
 };
 
-window.renderizarFilaEnvios = (snapshot) => {
+window.carregarMaisMensagensFila = async () => {
+    if (estadoFilaMarketing.carregando || !estadoFilaMarketing.temMais || !estadoFilaMarketing.cursor) return;
+    const geracao = estadoFilaMarketing.geracao;
+    const cursor = estadoFilaMarketing.cursor;
+    const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('fila_mensagens') : 'fila_mensagens';
+    estadoFilaMarketing.carregando = true;
+    window.renderizarFilaEnvios();
+    try {
+        const consulta = window.firebaseQuery(
+            window.firebaseRef(window.db, pathFila),
+            window.firebaseOrderByChild('timestamp'),
+            window.firebaseEndBefore(cursor.timestamp, cursor.id),
+            window.firebaseLimitToLast(TAMANHO_PAGINA_FILA)
+        );
+        const snapshot = await window.firebaseGet(consulta);
+        if (geracao !== estadoFilaMarketing.geracao) return;
+        const pagina = [];
+        snapshot.forEach(child => { pagina.push({ id: child.key, ...child.val() }); });
+        pagina.forEach(mensagem => estadoFilaMarketing.anteriores.set(mensagem.id, mensagem));
+        const primeira = pagina[0];
+        if (primeira) estadoFilaMarketing.cursor = { timestamp: primeira.timestamp ?? null, id: primeira.id };
+        estadoFilaMarketing.temMais = pagina.length === TAMANHO_PAGINA_FILA;
+    } catch (erro) {
+        if (geracao !== estadoFilaMarketing.geracao) return;
+        console.error('Não foi possível carregar mensagens anteriores:', erro);
+        window.mostrarToast('Não foi possível carregar mensagens anteriores.', 'erro');
+    } finally {
+        if (geracao === estadoFilaMarketing.geracao) {
+            estadoFilaMarketing.carregando = false;
+            window.renderizarFilaEnvios();
+        }
+    }
+};
+
+window.renderizarFilaEnvios = () => {
     const area = document.getElementById('area-fila-envio');
     const btnLimpar = document.getElementById('btn-limpar-fila');
+    const resumo = document.getElementById('mkt-fila-resumo');
+    const btnMais = document.getElementById('mkt-fila-mais');
     if(!area) return;
-
-    area.innerHTML = '';
-    if (!snapshot || !snapshot.exists()) {
+    const msgs = ordenarMensagensFila();
+    if (resumo) resumo.textContent = msgs.length ? `${msgs.length} registro(s) carregado(s) desta unidade` : '';
+    if (btnMais) {
+        btnMais.classList.toggle('hidden', !estadoFilaMarketing.temMais);
+        btnMais.disabled = estadoFilaMarketing.carregando;
+        btnMais.textContent = estadoFilaMarketing.carregando ? 'Carregando...' : 'Carregar mensagens anteriores';
+    }
+    if (!msgs.length) {
         area.innerHTML = '<p class="text-sm text-gray-500 text-center py-2">Nenhuma mensagem na fila no momento.</p>';
         if(btnLimpar) btnLimpar.classList.add('hidden');
         return;
     }
-
     if(btnLimpar) btnLimpar.classList.remove('hidden');
-    
-    const msgs = [];
-    snapshot.forEach(child => {
-        msgs.push({ id: child.key, ...child.val() });
-    });
-    
-    msgs.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-    msgs.forEach(m => {
+    area.innerHTML = msgs.map(m => {
         const status = m.status || 'pendente';
         let statusHtml = '';
         let bgClass = 'bg-gray-50 border-gray-200';
@@ -99,13 +190,13 @@ window.renderizarFilaEnvios = (snapshot) => {
         
         let botoes = '';
         if(status === 'pendente' || status === 'erro' || status === 'falha') {
-            botoes += `<button onclick="cancelarMensagemFila('${m.id}')" class="text-red-400 hover:text-red-600 p-1.5 transition rounded hover:bg-red-50" title="Cancelar envio"><i data-lucide="x-circle" class="w-4 h-4"></i></button>`;
+            botoes += `<button type="button" data-fila-acao="cancelar" data-fila-id="${window.escapeHTML(m.id)}" class="text-red-400 hover:text-red-600 p-1.5 transition rounded hover:bg-red-50" title="Cancelar envio"><i data-lucide="x-circle" class="w-4 h-4"></i></button>`;
         }
         if(status === 'erro' || status === 'falha' || status === 'cancelado') {
-            botoes += `<button onclick="reenviarMensagemFila('${m.id}')" class="text-indigo-400 hover:text-indigo-600 p-1.5 transition rounded hover:bg-indigo-50 ml-1" title="Tentar Novamente"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>`;
+            botoes += `<button type="button" data-fila-acao="reenviar" data-fila-id="${window.escapeHTML(m.id)}" class="text-indigo-400 hover:text-indigo-600 p-1.5 transition rounded hover:bg-indigo-50 ml-1" title="Tentar novamente"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>`;
         }
 
-        area.innerHTML += `
+        return `
             <div class="p-3 mb-2 rounded-xl border ${bgClass} flex justify-between items-center text-sm shadow-sm transition">
                 <div class="flex-1 min-w-0 pr-4">
                     <p class="font-bold text-gray-800">${window.formatarTel(m.telefone) || 'Sem número'} <span class="text-[10px] text-gray-400 font-normal ml-2">${dataStr}</span></p>
@@ -117,24 +208,43 @@ window.renderizarFilaEnvios = (snapshot) => {
                 </div>
             </div>
         `;
-    });
-
+    }).join('');
     if(window.lucide) window.lucide.createIcons();
 };
 
-window.cancelarMensagemFila = (id) => {
-    const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade(`fila_mensagens/${id}/status`) : `fila_mensagens/${id}/status`;
-    window.firebaseSet(window.firebaseRef(window.db, pathFila), 'cancelado');
-    if(window.logAuditoria) window.logAuditoria('Marketing', 'Envio de mensagem cancelado na fila.');
+const atualizarMensagemFilaLocal = (id, alteracoes) => {
+    for (const grupo of [estadoFilaMarketing.recentes, estadoFilaMarketing.anteriores]) {
+        if (grupo.has(id)) grupo.set(id, { ...grupo.get(id), ...alteracoes });
+    }
+    window.renderizarFilaEnvios();
 };
 
-window.reenviarMensagemFila = (id) => {
-    const pathStatus = window.obterCaminhoUnidade ? window.obterCaminhoUnidade(`fila_mensagens/${id}/status`) : `fila_mensagens/${id}/status`;
-    const pathTime = window.obterCaminhoUnidade ? window.obterCaminhoUnidade(`fila_mensagens/${id}/timestamp`) : `fila_mensagens/${id}/timestamp`;
+window.cancelarMensagemFila = async (id) => {
+    const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade(`fila_mensagens/${id}/status`) : `fila_mensagens/${id}/status`;
+    try {
+        await window.firebaseSet(window.firebaseRef(window.db, pathFila), 'cancelado');
+        atualizarMensagemFilaLocal(id, { status: 'cancelado' });
+        if(window.logAuditoria) window.logAuditoria('Marketing', 'Envio de mensagem cancelado na fila.');
+    } catch (erro) {
+        console.error('Não foi possível cancelar a mensagem:', erro);
+        window.mostrarToast('Não foi possível cancelar a mensagem.', 'erro');
+    }
+};
 
-    window.firebaseSet(window.firebaseRef(window.db, pathStatus), 'pendente');
-    window.firebaseSet(window.firebaseRef(window.db, pathTime), Date.now());
-    if(window.logAuditoria) window.logAuditoria('Marketing', 'Mensagem reenviada para a fila de processamento.');
+window.reenviarMensagemFila = async (id) => {
+    const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade(`fila_mensagens/${id}`) : `fila_mensagens/${id}`;
+    const alteracoes = { status: 'pendente', timestamp: Date.now() };
+    try {
+        await window.firebaseUpdate(window.firebaseRef(window.db, pathFila), alteracoes);
+        // O listener dos recentes refletirá o estado final do robô. Remover a
+        // cópia antiga evita que um erro reapareça ao sair da janela recente.
+        estadoFilaMarketing.anteriores.delete(id);
+        window.renderizarFilaEnvios();
+        if(window.logAuditoria) window.logAuditoria('Marketing', 'Mensagem reenviada para a fila de processamento.');
+    } catch (erro) {
+        console.error('Não foi possível reenviar a mensagem:', erro);
+        window.mostrarToast('Não foi possível reenviar a mensagem.', 'erro');
+    }
 };
 
 window.limparFilaCompleta = () => {
@@ -144,6 +254,7 @@ window.limparFilaCompleta = () => {
         () => {
             const pathFila = window.obterCaminhoUnidade ? window.obterCaminhoUnidade('fila_mensagens') : 'fila_mensagens';
             window.firebaseSet(window.firebaseRef(window.db, pathFila), null).then(() => {
+                window.iniciarListenerFila();
                 window.mostrarToast("Fila de envios limpa com sucesso.");
                 if(window.logAuditoria) window.logAuditoria('Marketing', 'O histórico da fila de envios foi completamente apagado.');
             });
@@ -350,25 +461,20 @@ window.abrirCentralMarketing = async () => {
 
     window.renderizarMensagensCustomizadas();
     
-    window.iniciarListenerFila();
-    if(window.ultimaFilaSnap) {
-        window.renderizarFilaEnvios(window.ultimaFilaSnap);
-    }
-    
     const modal = document.getElementById('modal-marketing'); 
     modal.classList.remove('hidden'); 
     if(window.prenderFocoModal) window.prenderFocoModal(modal);
+    window.iniciarListenerFila();
 };
 
 window.renderizarMensagensCustomizadas = () => {
     const areaAg = document.getElementById('area-agendamentos'); 
     if(areaAg) {
-        areaAg.innerHTML = '';
         const mapaAg = window.campanhasParaMapa(window.msgsMarketing.agendadas);
         window.msgsMarketing.agendadas = mapaAg;
         const listaAg = Object.entries(mapaAg);
         
-        listaAg.forEach(([idCampanha, m]) => {
+        areaAg.innerHTML = listaAg.map(([idCampanha, m]) => {
             const tipoC = m.tipo || 'unica'; 
             const statusC = m.status === 'encerrada' ? 'cancelada' : (m.status || 'ativa'); 
             
@@ -406,7 +512,7 @@ window.renderizarMensagensCustomizadas = () => {
             const bgStatus = statusC === 'ativa' ? 'bg-green-100 text-green-800 border-green-300' : 
                             (statusC === 'pausada' ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-red-100 text-red-800 border-red-300');
             
-            areaAg.innerHTML += `
+            return `
                 <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative mb-3">
                     <button onclick="removerAgendamento('${idCampanha}')" class="absolute top-4 right-3 text-red-400 hover:text-red-600 transition" title="Excluir campanha"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     
@@ -424,22 +530,19 @@ window.renderizarMensagensCustomizadas = () => {
                     <div class="text-xs text-indigo-700 mb-3 flex items-center gap-1 font-bold bg-indigo-50 p-2 rounded-lg border border-indigo-100 inline-flex">${info}</div>
                     <p class="text-xs text-gray-600 text-left bg-gray-50 p-3 rounded-lg border border-gray-100 italic">"${window.escapeHTML(m.texto)}"</p>
                 </div>`;
-        });
+        }).join('');
     }
 
     const areaCs = document.getElementById('area-mensagens-custom'); 
     if(areaCs) {
-        areaCs.innerHTML = '';
         const listaCs = Array.isArray(window.msgsMarketing.personalizadas) ? window.msgsMarketing.personalizadas : Object.values(window.msgsMarketing.personalizadas || {});
         
-        listaCs.forEach((m, idx) => {
-            areaCs.innerHTML += `
+        areaCs.innerHTML = listaCs.map((m, idx) => `
                 <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative mb-3">
                     <button onclick="removerMsgCustom(${idx})" class="absolute top-2 right-2 text-red-400 hover:text-red-600 transition" title="Remover botão"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     <input type="text" id="mkt-custom-titulo-${idx}" value="${window.escapeHTML(m.titulo)}" placeholder="Nome do botão" class="font-bold text-sm mb-2 w-3/4 outline-none border-b border-gray-200 text-center">
                     <textarea id="mkt-custom-texto-${idx}" rows="2" placeholder="Texto da mensagem" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm outline-none text-center">${window.escapeHTML(m.texto)}</textarea>
-                </div>`;
-        });
+                </div>`).join('');
     }
     
     if(window.lucide) window.lucide.createIcons();
