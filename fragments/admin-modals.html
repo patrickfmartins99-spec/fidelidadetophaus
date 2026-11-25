@@ -58,10 +58,14 @@
                     <div class="pt-4 border-t border-gray-200 mt-4">
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-indigo-600"></i> Fila de Envios e Status</h4>
-                            <button id="btn-limpar-fila" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-100 transition shadow-sm hidden">Limpar Fila</button>
+                            <button id="btn-limpar-fila" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-100 transition shadow-sm hidden">Apagar todo o histórico</button>
                         </div>
                         <div id="area-fila-envio" class="space-y-2 max-h-40 overflow-y-auto pr-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
-                            <p class="text-sm text-gray-500 text-center py-2">Nenhuma mensagem na fila no momento.</p>
+                            <p class="text-sm text-gray-500 text-center py-2">Abra a central para consultar os envios recentes.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
+                            <span id="mkt-fila-resumo" class="text-xs text-gray-500" aria-live="polite"></span>
+                            <button type="button" id="mkt-fila-mais" onclick="carregarMaisMensagensFila()" class="hidden text-xs font-bold text-amber-800 hover:text-amber-950 underline disabled:opacity-50">Carregar mensagens anteriores</button>
                         </div>
                     </div>
 

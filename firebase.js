@@ -2,7 +2,7 @@
 // Módulo 2: Configuração e Conexão com o Firebase
 
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, onValue, get, push, remove, runTransaction } from "firebase/database";
+import { getDatabase, ref, set, update, onValue, get, push, remove, runTransaction, query, orderByChild, limitToLast, endBefore } from "firebase/database";
 import { 
     initializeAuth,
     signInWithEmailAndPassword, 
@@ -44,8 +44,13 @@ window.auth = auth;
 // Expondo as funções do SDK do Firebase que são usadas pelo sistema[span_1](start_span)[span_1](end_span)
 window.firebaseRef = ref;
 window.firebaseSet = set;
+window.firebaseUpdate = update;
 window.firebaseOnValue = onValue;
 window.firebaseGet = get;
+window.firebaseQuery = query;
+window.firebaseOrderByChild = orderByChild;
+window.firebaseLimitToLast = limitToLast;
+window.firebaseEndBefore = endBefore;
 window.firebasePush = push;
 window.firebaseRemove = remove;
 window.firebaseSignIn = signInWithEmailAndPassword;

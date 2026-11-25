@@ -115,6 +115,7 @@ window.fecharModal = (id) => {
     if(!modal) return;
     
     modal.classList.add('hidden'); 
+    if (id === 'modal-marketing' && window.pararListenerFila) window.pararListenerFila();
     
     // Libera a trava de teclado para evitar memory leaks
     if (modal._focusTrapListener) {
