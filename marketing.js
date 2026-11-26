@@ -446,8 +446,12 @@ window.abrirCentralMarketing = async () => {
         const caminhoReal = window.obterCaminhoMarketingReal();
         const snapshot = await window.firebaseGet(window.firebaseRef(window.db, caminhoReal));
         const dadosReais = snapshot.val() || {};
-        window.msgsMarketing = { ...window.msgsMarketing, ...dadosReais };
-        window.msgsMarketing.agendadas = window.campanhasParaMapa(window.msgsMarketing.agendadas);
+        window.msgsMarketing = {
+            ...window.msgsMarketing,
+            ...dadosReais,
+            // Nunca exibir como salva uma campanha que só existe nesta aba.
+            agendadas: window.campanhasParaMapa(dadosReais.agendadas)
+        };
         if(!window.msgsMarketing.personalizadas) window.msgsMarketing.personalizadas = [];
     } catch (erro) {
         console.error('Não foi possível carregar as campanhas reais:', erro);
@@ -550,7 +554,7 @@ window.renderizarMensagensCustomizadas = () => {
     if(window.lucide) window.lucide.createIcons();
 };
 
-window.adicionarAgendamento = () => {
+window.adicionarAgendamento = async () => {
     const uiAtiva = !!document.getElementById('mkt-novo-tipo');
     let novaCampanha = {};
     const texto = document.getElementById('mkt-agenda-texto').value;
@@ -610,9 +614,44 @@ window.adicionarAgendamento = () => {
         novaCampanha = { id: window.gerarIdCampanha(), data: data, titulo: titulo, texto: texto, tipo: 'unica', status: 'ativa' };
     }
     
-    window.msgsMarketing.agendadas = window.campanhasParaMapa(window.msgsMarketing.agendadas);
     novaCampanha = window.normalizarCampanhaParaRobo(novaCampanha);
-    window.msgsMarketing.agendadas[novaCampanha.id] = novaCampanha;
+    if(novaCampanha.tipo === 'unica') {
+        const partes = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+        }).formatToParts(new Date()).map(parte => [parte.type, parte.value]));
+        const agoraLocal = `${partes.year}-${partes.month}-${partes.day}T${partes.hour}:${partes.minute}`;
+        if(`${novaCampanha.data}T${novaCampanha.horario}` <= agoraLocal) {
+            return window.mostrarToast('Escolha uma data e um horário futuros para a campanha.', 'erro');
+        }
+    }
+    const botao = document.getElementById('btn-mkt-agendar');
+    const rotuloBotao = botao?.textContent;
+    if(botao) {
+        botao.disabled = true;
+        botao.textContent = 'Salvando campanha...';
+    }
+
+    try {
+        const caminho = `${window.obterCaminhoMarketingReal()}/agendadas/${novaCampanha.id}`;
+        const referencia = window.firebaseRef(window.db, caminho);
+        const resultado = await window.firebaseRunTransaction(referencia, atual => atual || novaCampanha);
+        const gravada = resultado.snapshot.val();
+        if(!resultado.committed || gravada?.id !== novaCampanha.id) {
+            throw new Error('O Firebase não confirmou o agendamento.');
+        }
+        window.msgsMarketing.agendadas = window.campanhasParaMapa(window.msgsMarketing.agendadas);
+        window.msgsMarketing.agendadas[novaCampanha.id] = gravada;
+    } catch (erro) {
+        console.error('Não foi possível agendar a campanha:', erro);
+        window.mostrarToast('Não foi possível salvar a campanha. Confira a conexão e tente novamente.', 'erro');
+        return;
+    } finally {
+        if(botao) {
+            botao.disabled = false;
+            botao.textContent = rotuloBotao;
+        }
+    }
     
     document.getElementById('mkt-agenda-texto').value = '';
     if (uiAtiva) {
@@ -624,7 +663,8 @@ window.adicionarAgendamento = () => {
         document.getElementById('mkt-agenda-titulo').value = '';
     }
     
-    window.renderizarMensagensCustomizadas(); 
+    window.renderizarMensagensCustomizadas();
+    window.mostrarToast('Campanha salva e agendada para esta unidade.');
 };
 
 window.alterarStatusCampanha = (idCampanha, novoStatus) => {
