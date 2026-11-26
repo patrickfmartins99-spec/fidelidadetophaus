@@ -157,6 +157,7 @@ export const calcularAnaliseFrequencia = (clientes, referenciaEntrada = new Date
 
         return {
             id: cliente.cpf || cliente.id || `cliente-${indice}`,
+            cpf: String(cliente.cpf || '').replace(/\D/g, ''),
             nome: cliente.nome || 'Cliente sem nome',
             ultimaVisita: diasUnicos.at(-1) || null,
             visitas30,
@@ -170,7 +171,7 @@ export const calcularAnaliseFrequencia = (clientes, referenciaEntrada = new Date
 
     const variacao = almocosAnteriores > 0
         ? Math.round(((almocos30 - almocosAnteriores) / almocosAnteriores) * 100)
-        : (almocos30 > 0 ? 100 : 0);
+        : null;
 
     const serieDiaria = Array.from({ length: 30 }, (_, indice) => {
         const data = new Date(inicio30.getTime() + indice * DIA_MS);
@@ -189,7 +190,11 @@ export const calcularAnaliseFrequencia = (clientes, referenciaEntrada = new Date
 
     return {
         referencia,
+        periodoAtual: { inicio: inicio30, fim: referencia },
+        periodoAnterior: { inicio: inicio60, fim: fimAnterior },
+        periodo90: { inicio: inicio90, fim: referencia },
         almocos30,
+        almocosAnteriores,
         visitantes30,
         mediaDiaria: Number((almocos30 / 30).toFixed(1)),
         variacao,
